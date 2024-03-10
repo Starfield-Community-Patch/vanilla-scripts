@@ -106,7 +106,6 @@ Function Fragment_Stage_0700_Item_00()
   Self.SetObjectiveDisplayed(500, True, False)
   PlayerMetMeiDevine.SetValue(1.0)
   FC05_MeiAnnounceRunScene.Start()
-  Alias_MeiDevine.GetActorRef().BlockActivation(True, True)
   Alias_StageLightsEnableMarker.GetRef().Enable(False)
 EndFunction
 

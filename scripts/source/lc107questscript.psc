@@ -31,6 +31,8 @@ Float CONST_BreachSequenceRumblePowerMin = 0.5 Const
 Float CONST_BreachSequenceRumbleTimeMax = 1.5 Const
 Float CONST_BreachSequenceRumbleTimeMin = 0.75 Const
 Float CONST_CredTankDrainPercentMax = 0.939999998 Const
+Int CONST_CredTankInitFailsafe = 90 Const
+Int CONST_CredTankOperationFailsafe = 90 Const
 Float CONST_DataCorePopupDelay = 2.0 Const
 Int CONST_EvacuationSceneRepeatDelay = 90 Const
 Int CONST_LegacyEscapeCompleteStage = 1000 Const
@@ -75,6 +77,7 @@ genericswitchscript vaultPowerSwitch01LightRef
 ObjectReference vaultPowerSwitch01Ref
 genericswitchscript vaultPowerSwitch02LightRef
 ObjectReference vaultPowerSwitch02Ref
+Bool waitingForCredTanksDrain
 Bool waitingForCredTanksShutdown
 Bool waitingForPlayerToSit
 Bool waitingForVaultInstantBreaches
@@ -470,7 +473,6 @@ EndFunction
 
 Function CredTanksBoot()
   Float startTime = Utility.GetCurrentRealTime()
-  Self.WaitForCredTankInitialization()
   Self.StartCredTankOperation()
   vaultCredTankManagerRef.PerformOperation(vaultCredTankManagerRef.CONST_Operation_Boot)
   Self.WaitForCredTankOperation()
@@ -478,7 +480,6 @@ EndFunction
 
 Function CredTanksDrain()
   Float startTime = Utility.GetCurrentRealTime()
-  Self.WaitForCredTankInitialization()
   Self.StartCredTankOperation()
   Var[] akArgs = new Var[1]
   akArgs[0] = startTime as Var
@@ -488,12 +489,12 @@ EndFunction
 Function CredTanksDrain02(Float startTime)
   vaultCredTankManagerRef.PerformOperation(vaultCredTankManagerRef.CONST_Operation_Drain)
   Self.WaitForCredTankOperation()
+  waitingForCredTanksDrain = False
 EndFunction
 
 Function CredTanksShutdown()
   waitingForCredTanksShutdown = True
   Float startTime = Utility.GetCurrentRealTime()
-  Self.WaitForCredTankInitialization()
   Self.StartCredTankOperation()
   vaultCredTankManagerRef.PerformOperation(vaultCredTankManagerRef.CONST_Operation_Shutdown)
   Self.WaitForCredTankOperation()
@@ -507,20 +508,25 @@ EndFunction
 Function WaitForCredTankOperation()
   Int current = LC107CredTankShelvesCurrentGlobal.GetValueInt()
   Int total = LC107CredTankShelvesTotalGlobal.GetValueInt()
-  While current < total
+  Int failsafe = 0
+  While current < total && failsafe < CONST_CredTankOperationFailsafe
     Utility.Wait(0.25)
+    failsafe += 1
     current = LC107CredTankShelvesCurrentGlobal.GetValueInt()
   EndWhile
+  If failsafe == CONST_CredTankOperationFailsafe
+    
+  EndIf
 EndFunction
 
 Function WaitForCredTankInitialization()
   Int failsafe = 0
-  While !initializedPackins && failsafe < 150
+  While !initializedPackins && failsafe < CONST_CredTankInitFailsafe
+    Utility.Wait(0.5)
     failsafe += 1
-    Utility.Wait(2.0)
   EndWhile
-  If failsafe == 150
-    Return 
+  If failsafe == CONST_CredTankInitFailsafe
+    initializedPackins = True
   EndIf
 EndFunction
 
@@ -537,6 +543,7 @@ Function PerformCredTankDataTransfer()
   QST_CF07_ServerRoom_Activate.Play(vaultControlsDataCoreSlotRef, None, None)
   Self.CredTanksBoot()
   Utility.Wait(3.0)
+  waitingForCredTanksDrain = True
   Self.CredTanksDrain()
   QST_CF07_ServerRoom_Deactivate.Play(vaultControlsDataCoreSlotRef, None, None)
   vaultControlsDataCoreSlotRef.SetAnimationVariableFloat("Speed", 0.100000001)
@@ -544,12 +551,13 @@ Function PerformCredTankDataTransfer()
   Float total = LC107CredTankShelvesTotalGlobal.GetValueInt() as Float
   Float currentPercent = current / total
   QST_CF07_Data_Transfer_LP_Start.Play(vaultControlsDataCoreSlotRef, None, None)
-  While currentPercent < CONST_CredTankDrainPercentMax
+  While waitingForCredTanksDrain && currentPercent < CONST_CredTankDrainPercentMax
     vaultControlsDataCoreSlotRef.SetAnimationVariableFloat("Position", currentPercent)
     Utility.Wait(0.200000003)
     current = LC107CredTankShelvesCurrentGlobal.GetValueInt() as Float
     currentPercent = current / total
   EndWhile
+  vaultControlsDataCoreSlotRef.SetAnimationVariableFloat("Position", CONST_CredTankDrainPercentMax)
   QST_CF07_Data_Transfer_LP_Stop.Play(vaultControlsDataCoreSlotRef, None, None)
   Utility.Wait(2.0)
 EndFunction

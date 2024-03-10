@@ -66,6 +66,7 @@ EndEvent
 
 Function MQ00QuestFailsafe(Quest QuestToStart, Int iQuestTimer)
   If QuestToStart.IsCompleted() == False && QuestToStart.IsRunning() == False
+    QuestToStart.RemoveRequestedPCMQuestLocations()
     Bool bQuestHasStarted = QuestToStart.Start()
     If bQuestHasStarted == False
       Self.StartTimer(QuestCheckTimerLength, iQuestTimer)

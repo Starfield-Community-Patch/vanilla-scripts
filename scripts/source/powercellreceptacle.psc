@@ -36,6 +36,10 @@ State HasPowerCell
   Event OnActivate(ObjectReference akActionRef)
     PowerCellFullMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
   EndEvent
+
+  Event OnReset()
+    Self.SetActivateTextOverride(PowerCellRequiredMessage)
+  EndEvent
 EndState
 
 ;-- State -------------------------------------------
@@ -56,5 +60,9 @@ Auto State NoPowerCell
   Event OnLoad()
     Self.SetActivateTextOverride(PowerCellRequiredMessage)
     Self.BlockActivation(True, False)
+  EndEvent
+
+  Event OnReset()
+    Self.SetActivateTextOverride(PowerCellRequiredMessage)
   EndEvent
 EndState

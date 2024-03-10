@@ -84,6 +84,10 @@ Quest Property COM_Quest_Andreja_Q01 Auto Const mandatory
 Quest Property COM_Quest_SamCoe_Q01 Auto Const mandatory
 Quest Property COM_Quest_SarahMorgan_Q01 Auto Const mandatory
 Quest Property COM_Quest_Barrett_Q02 Auto Const mandatory
+Quest Property COM_Companion_Andreja Auto Const mandatory
+Quest Property Com_Companion_Barrett Auto Const mandatory
+Quest Property COM_Companion_SamCoe Auto Const mandatory
+Quest Property COM_Companion_SarahMorgan Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -132,6 +136,21 @@ Function Fragment_Stage_0010_Item_00()
   DisembarkingCrew.RemoveRef(BarrettREF as ObjectReference)
   DisembarkingCrew.RemoveRef(SamCoeREF as ObjectReference)
   DisembarkingCrew.RemoveRef(SarahMorganREF as ObjectReference)
+  If COM_Companion_Andreja.IsObjectiveDisplayed(10)
+    COM_Companion_Andreja.SetObjectiveDisplayed(10, False, False)
+  EndIf
+  If Com_Companion_Barrett.IsObjectiveDisplayed(900)
+    Com_Companion_Barrett.SetObjectiveDisplayed(900, False, False)
+  EndIf
+  If COM_Companion_SamCoe.IsObjectiveDisplayed(10)
+    COM_Companion_SamCoe.SetObjectiveDisplayed(10, False, False)
+  EndIf
+  If COM_Companion_SamCoe.IsObjectiveDisplayed(798)
+    COM_Companion_SamCoe.SetObjectiveDisplayed(798, False, False)
+  EndIf
+  If COM_Companion_SarahMorgan.IsObjectiveDisplayed(10)
+    COM_Companion_SarahMorgan.SetObjectiveDisplayed(10, False, False)
+  EndIf
 EndFunction
 
 Function Fragment_Stage_0020_Item_00()

@@ -263,6 +263,8 @@ EndEvent
 
 Function PauseQuestTimer(Bool abPause) Native
 
+Function RemoveRequestedPCMQuestLocations() Native
+
 Function Reset() Native
 
 Function ResetSpeechChallenges() Native

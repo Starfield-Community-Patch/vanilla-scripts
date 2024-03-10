@@ -394,6 +394,7 @@ Function Fragment_Stage_0600_Item_00()
   Quest __temp = Self as Quest
   lc088_keyquestscript kmyQuest = __temp as lc088_keyquestscript
   CF08_SysDef.SetStage(360)
+  Alias_Delgado.GetActorRef().SetValue(Aggression, 0.0)
 EndFunction
 
 Function Fragment_Stage_0601_Item_00()
@@ -420,6 +421,7 @@ Function Fragment_Stage_0700_Item_00()
   kmyQuest.LockPlayerControls(False)
   kmyQuest.StartReactorBattle()
   kmyQuest.OpenDoorCollection(Alias_SecurityDoors_Reactor01Group)
+  Alias_Delgado.GetActorRef().SetValue(Aggression, 1.0)
   CF08_SysDef.SetStage(370)
 EndFunction
 

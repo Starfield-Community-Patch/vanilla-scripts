@@ -78,6 +78,12 @@ RefCollectionAlias Property DismissedCrew Auto Const
 RefCollectionAlias Property DisembarkingCrew Auto Const
 ActorValue Property ShipSystemEngineHealth Auto Const mandatory
 Activator Property COM_MQ202_TxtReplace_QuestName_Any Auto Const mandatory
+ReferenceAlias Property Alias_CoraCoe Auto Const mandatory
+ObjectReference Property MQ201B_Marker_Andreja Auto Const mandatory
+ObjectReference Property MQ201BMarker_Barrett Auto Const mandatory
+ObjectReference Property MQ201BMarker_Cora Auto Const mandatory
+ObjectReference Property MQ201BMarker_Sam Auto Const mandatory
+ObjectReference Property MQ201B_Marker_Sarah Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -232,6 +238,44 @@ Function Fragment_Stage_0020_Item_00()
   Message.ClearHelpMessages()
   Self.SetObjectiveCompleted(10, True)
   Self.SetObjectiveDisplayed(20, True, False)
+  Actor AndrejaREF = Alias_Andreja.GetActorRef()
+  Actor BarrettREF = Alias_Barrett.GetActorRef()
+  Actor SamCoeREF = Alias_SamCoe.GetActorRef()
+  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+  Actor VascoREF = Alias_Vasco.GetActorRef()
+  Actor CoraCoeREF = Alias_CoraCoe.GetActorRef()
+  If !AndrejaREF.IsInLocation(MQ201B_Marker_Andreja.GetCurrentLocation())
+    AndrejaREF.moveto(MQ201B_Marker_Andreja, 0.0, 0.0, 0.0, True, False)
+  EndIf
+  If !BarrettREF.IsInLocation(MQ201BMarker_Barrett.GetCurrentLocation())
+    BarrettREF.moveto(MQ201BMarker_Barrett, 0.0, 0.0, 0.0, True, False)
+  EndIf
+  If !SamCoeREF.IsInLocation(MQ201BMarker_Sam.GetCurrentLocation())
+    SamCoeREF.moveto(MQ201BMarker_Sam, 0.0, 0.0, 0.0, True, False)
+  EndIf
+  If !CoraCoeREF.IsInLocation(MQ201BMarker_Cora.GetCurrentLocation())
+    CoraCoeREF.moveto(MQ201BMarker_Cora, 0.0, 0.0, 0.0, True, False)
+  EndIf
+  If !SarahMorganREF.IsInLocation(MQ201B_Marker_Sarah.GetCurrentLocation())
+    SarahMorganREF.moveto(MQ201B_Marker_Sarah, 0.0, 0.0, 0.0, True, False)
+  EndIf
+  (SQ_Companions as sq_companionsscript).SetRoleInactive(AndrejaREF, False, True, False)
+  (SQ_Companions as sq_companionsscript).SetRoleInactive(BarrettREF, False, True, False)
+  (SQ_Companions as sq_companionsscript).SetRoleInactive(SamCoeREF, False, True, False)
+  (SQ_Companions as sq_companionsscript).SetRoleInactive(SarahMorganREF, False, True, False)
+  (SQ_Crew as sq_crewscript).SetRoleInactive(AndrejaREF, False, True, False)
+  (SQ_Crew as sq_crewscript).SetRoleInactive(BarrettREF, False, True, False)
+  (SQ_Crew as sq_crewscript).SetRoleInactive(SamCoeREF, False, True, False)
+  (SQ_Crew as sq_crewscript).SetRoleInactive(SarahMorganREF, False, True, False)
+  (SQ_Crew as sq_crewscript).SetRoleInactive(VascoREF, False, True, False)
+  DismissedCrew.RemoveRef(AndrejaREF as ObjectReference)
+  DismissedCrew.RemoveRef(BarrettREF as ObjectReference)
+  DismissedCrew.RemoveRef(SamCoeREF as ObjectReference)
+  DismissedCrew.RemoveRef(SarahMorganREF as ObjectReference)
+  DisembarkingCrew.RemoveRef(AndrejaREF as ObjectReference)
+  DisembarkingCrew.RemoveRef(BarrettREF as ObjectReference)
+  DisembarkingCrew.RemoveRef(SamCoeREF as ObjectReference)
+  DisembarkingCrew.RemoveRef(SarahMorganREF as ObjectReference)
   Actor CompanionAtLodgeREF = MQ00_CompanionAtLodge.GetActorRef()
   (SQ_Companions as sq_companionsscript).SetRoleActive(CompanionAtLodgeREF, True, True, 0.0, 0.0)
   (SQ_Companions as sq_companionsscript).LockInCompanion(CompanionAtLodgeREF as companionactorscript, True, MQ202CompanionLockInMSG, COM_MQ202_TxtReplace_QuestName_Any)
