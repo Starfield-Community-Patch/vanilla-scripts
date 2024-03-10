@@ -1,4 +1,4 @@
-ScriptName Fragments:Quests:QF__00101043 Extends Quest Const hidden
+ScriptName Fragments:Quests:QF_MQ_TempleQuest_MQ104A_00101043 Extends Quest Const hidden
 
 ;-- Variables ---------------------------------------
 
