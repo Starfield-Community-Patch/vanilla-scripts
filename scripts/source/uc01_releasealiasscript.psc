@@ -1,0 +1,1 @@
+ScriptName UC01_ReleaseAliasScript Extends ReferenceAlias

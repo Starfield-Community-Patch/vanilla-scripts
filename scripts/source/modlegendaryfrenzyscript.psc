@@ -1,0 +1,1 @@
+ScriptName ModLegendaryFrenzyScript Extends ActiveMagicEffect

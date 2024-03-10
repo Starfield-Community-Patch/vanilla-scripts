@@ -1,0 +1,1 @@
+ScriptName MQ00PlayerScript Extends ReferenceAlias
