@@ -184,6 +184,9 @@ Function Fragment_Stage_0102_Item_00()
 EndFunction
 
 Function Fragment_Stage_0103_Item_00()
+  Self.SetStage(102)
+  Alias_IntroScene_Marauder.GetActorRef().EvaluatePackage(False)
+  Alias_IntroScene_Reaver.GetActorRef().Kill(None)
   DialogueCFTheKey_EstablishingScene.Stop()
 EndFunction
 

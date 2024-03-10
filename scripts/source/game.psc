@@ -65,6 +65,8 @@ ActorValue Function GetAgilityAV() Global Native
 
 Location[] Function GetAllLocations() Global Native
 
+Float Function GetCameraHeadingAngle(ObjectReference akTarget) Global Native
+
 ActorValue Function GetCharismaAV() Global Native
 
 ActorValue Function GetConfidenceAV() Global Native

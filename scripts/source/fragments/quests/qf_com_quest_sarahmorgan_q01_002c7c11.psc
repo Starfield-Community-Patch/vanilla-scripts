@@ -303,6 +303,7 @@ Function Fragment_Stage_0040_Item_00()
 EndFunction
 
 Function Fragment_Stage_0050_Item_00()
+  Self.SetObjectiveCompleted(30, True)
   Self.SetObjectiveCompleted(40, True)
   Self.SetObjectiveDisplayed(50, True, False)
   COM_SMQ01_WaitToggle.SetValue(1.0)

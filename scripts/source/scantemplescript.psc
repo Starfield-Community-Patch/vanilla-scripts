@@ -55,7 +55,7 @@ EndEvent
 
 Function UpdateTempleScan()
   If usingHandscanner
-    Float zAngle = playerRef.GetHeadingAngle(currentTarget)
+    Float zAngle = Game.GetCameraHeadingAngle(currentTarget)
     Float angleExtent = Self.GetAngleExtent()
     Float currentMaxAngle = angleExtent / 2.0
     Float currentMinAngle = currentMaxAngle * -1.0

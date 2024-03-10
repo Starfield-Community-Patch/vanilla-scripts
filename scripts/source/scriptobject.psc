@@ -90,6 +90,10 @@ Event OnPlanetSiteSelectEvent(Location aSite)
   ; Empty function
 EndEvent
 
+Function OnPlayerFastTravel()
+  ; Empty function
+EndFunction
+
 Event OnPlayerSleepStart(Float afSleepStartTime, Float afDesiredSleepEndTime, ObjectReference akBed)
   ; Empty function
 EndEvent

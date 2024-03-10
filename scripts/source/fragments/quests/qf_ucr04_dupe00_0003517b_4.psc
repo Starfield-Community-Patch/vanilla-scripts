@@ -1,4 +1,4 @@
-ScriptName Fragments:Quests:QF_UCR04_001E7A0A Extends Quest Const hidden
+ScriptName Fragments:Quests:QF_UCR04_Dupe00_0003517B_4 Extends Quest Const hidden
 
 ;-- Variables ---------------------------------------
 

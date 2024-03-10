@@ -32,6 +32,7 @@ ActorValue Property SpaceshipRegistration Auto Const mandatory
 Float Property cooldownDays Auto Const mandatory
 GlobalVariable Property SE_Player_FAB15_Timestamp Auto Const mandatory
 GlobalVariable Property SE_Player_FAB16_Timestamp Auto Const mandatory
+Scene Property AudioLogs_MS04_Leon02_Arrival Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -82,7 +83,7 @@ Function Fragment_Stage_0355_Item_00()
   If Self.GetStageDone(360) && Self.GetStageDone(365) && Self.GetStageDone(370)
     Self.SetObjectiveCompleted(350, True)
   EndIf
-  AudioLogs_MS04_AliceInheritance.Start()
+  AudioLogs_MS04_Leon02_Arrival.Start()
 EndFunction
 
 Function Fragment_Stage_0360_Item_00()

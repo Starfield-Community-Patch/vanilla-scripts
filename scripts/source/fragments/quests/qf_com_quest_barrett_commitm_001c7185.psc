@@ -40,6 +40,12 @@ GlobalVariable Property COM_BQ01_WaitToggle Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
+Function Fragment_Stage_0002_Item_00()
+  ObjectReference EllieRef = Alias_Ellie.GetRef()
+  ObjectReference ChairRef = EllieRef.GetLinkedRef(None)
+  EllieRef.MoveTo(ChairRef, 0.0, 0.0, 0.0, True, False)
+EndFunction
+
 Function Fragment_Stage_0050_Item_00()
   If Self.GetStageDone(51) || Self.GetStageDone(52)
     Self.SetStage(100)
@@ -53,6 +59,12 @@ Function Fragment_Stage_0050_Item_00()
   COM_BQ01_WaitToggle.SetValue(1.0)
   SQ_Followers.CommandFollow(BarrettRef)
   Self.SetStage(87)
+EndFunction
+
+Function Fragment_Stage_0052_Item_00()
+  ObjectReference EllieRef = Alias_Ellie.GetRef()
+  ObjectReference ChairRef = EllieRef.GetLinkedRef(None)
+  EllieRef.MoveTo(ChairRef, 0.0, 0.0, 0.0, True, False)
 EndFunction
 
 Function Fragment_Stage_0060_Item_00()

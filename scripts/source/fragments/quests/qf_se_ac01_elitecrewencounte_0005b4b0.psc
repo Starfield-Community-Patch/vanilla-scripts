@@ -71,6 +71,7 @@ Function Fragment_Stage_1000_Item_00()
   Else
     SE_AC01_LuckyLuGoodbye.Start()
   EndIf
+  Self.SetStage(60)
 EndFunction
 
 Function Fragment_Stage_2000_Item_00()

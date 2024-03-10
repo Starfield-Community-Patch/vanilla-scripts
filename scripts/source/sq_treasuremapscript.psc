@@ -10,7 +10,7 @@ Form Property Treasure Auto Const mandatory
 { treasure that will be created and placed in quest location }
 objectmod Property TreasureMod Auto Const
 { OPTIONAL: mod to add to treasure when created - obviously can only be used for weapons or armor (and only if the Treasure is one or the other)
-    TEMP: this will be removed once this task is done: https://bgs.atlassian.net/browse/GEN-424645 }
+    TEMP: this will be removed once this task is done: GEN-424645 }
 Int Property TreasureLocation = 0 Auto Const
 { sent with story event as Value1: 
   0 = surface

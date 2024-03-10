@@ -3,6 +3,8 @@ ScriptName BELandingQuestScript Extends Quest
 
 ;-- Variables ---------------------------------------
 Int CONST_EncounterMode_Dropship = 1 Const
+Int CONST_Timer_RecheckLandingTimerDelay = 180 Const
+Int CONST_Timer_RecheckLandingTimerID = 1 Const
 spaceshipreference shipRef
 
 ;-- Properties --------------------------------------
@@ -37,6 +39,7 @@ Event SpaceshipReference.OnShipLanding(spaceshipreference akSource, Bool abCompl
 EndEvent
 
 Function StartSurfaceEncounter()
+  Self.CancelTimer(CONST_Timer_RecheckLandingTimerID)
   Int shipCrewPercent = 0
   If shipRef.HasKeyword(BESurfaceCrewSize_NoCrew)
     shipCrewPercent = 0
@@ -56,3 +59,21 @@ Function StartSurfaceEncounter()
   BEEncounterTypeSurface.SendStoryEvent(shipRef.GetCurrentLocation(), None, shipRef as ObjectReference, shipCrewPercent, encounterMode)
   Self.Stop()
 EndFunction
+
+Function PATCH_RecheckLanding()
+  If Self.IsRunning()
+    If Ship.GetRef() == None
+      Self.Stop()
+    ElseIf Ship.GetShipRef().IsLanded()
+      Self.StartSurfaceEncounter()
+    Else
+      Self.StartTimer(CONST_Timer_RecheckLandingTimerDelay as Float, CONST_Timer_RecheckLandingTimerID)
+    EndIf
+  EndIf
+EndFunction
+
+Event OnTimer(Int timerID)
+  If timerID == CONST_Timer_RecheckLandingTimerID
+    Self.StartSurfaceEncounter()
+  EndIf
+EndEvent

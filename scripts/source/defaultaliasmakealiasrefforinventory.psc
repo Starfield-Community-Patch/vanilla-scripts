@@ -1,7 +1,4 @@
 ScriptName DefaultAliasMakeAliasRefForInventory Extends ReferenceAlias default
-{ WARNING: WILL NOT FUNCTION UNTIL: `TTP-25233: Papyrus: ObjectReference.MakeAliasedRefFromInventory needs to be ported from 76`
-Will watch for an alias to acquire an item. When recieved, it'll be shoved into the specified alias
-NOTE: This will NOT pick up items already in the alias's inventory when triggered. }
 
 ;-- Variables ---------------------------------------
 

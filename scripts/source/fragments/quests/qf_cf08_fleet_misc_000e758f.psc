@@ -62,6 +62,7 @@ ReferenceAlias Property Alias_MathisSitMarker Auto Const mandatory
 ReferenceAlias Property Alias_NaevaSitMarker Auto Const mandatory
 Weapon Property Tombstone Auto Const mandatory
 ObjectReference Property CFPost_Fleet_Mathis_Forcegreet Auto Const mandatory
+ReferenceAlias Property Alias_SauvageRef Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -116,6 +117,16 @@ Function Fragment_Stage_0005_Item_00()
   CF08_000_KeyScenes_Start.Start()
 EndFunction
 
+Function Fragment_Stage_0006_Item_00()
+  ObjectReference SauvageRef = Alias_SauvageRef.GetRef()
+  ObjectReference EstelleRef = Alias_Estelle.GetRef()
+  If SauvageRef != None
+    EstelleRef.MoveTo(SauvageRef, 0.0, 0.0, 0.0, True, False)
+  Else
+    EstelleRef.DisableNoWait(False)
+  EndIf
+EndFunction
+
 Function Fragment_Stage_0010_Item_00()
   CF08_000_KeyScenes_Start.Stop()
   CF08_010_KeyScenes_Pre01.Start()
@@ -129,6 +140,11 @@ EndFunction
 
 Function Fragment_Stage_0010_Item_02()
   Alias_Mathis.GetRef().DisableNoWait(False)
+EndFunction
+
+Function Fragment_Stage_0010_Item_03()
+  CrimeFactionCrimsonFleet.SetCrimeGold(0)
+  CrimeFactionCrimsonFleet.SetCrimeGoldViolent(0)
 EndFunction
 
 Function Fragment_Stage_0020_Item_00()
@@ -160,6 +176,8 @@ Function Fragment_Stage_0100_Item_00()
   Alias_Key_Scene01_MarkerA.GetRef().EnableNoWait(False)
   Alias_Key_Scene01NPC_E.GetRef().EnableNoWait(False)
   Alias_Key_Scene01NPC_F.GetRef().EnableNoWait(False)
+  CrimeFactionCrimsonFleet.SetCrimeGold(0)
+  CrimeFactionCrimsonFleet.SetCrimeGoldViolent(0)
 EndFunction
 
 Function Fragment_Stage_0110_Item_00()

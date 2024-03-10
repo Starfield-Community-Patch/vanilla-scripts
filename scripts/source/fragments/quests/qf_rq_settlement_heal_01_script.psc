@@ -62,9 +62,7 @@ Function Fragment_Stage_0200_Item_00()
   Quest __temp = Self as Quest
   rq_heal_01_script kmyQuest = __temp as rq_heal_01_script
   kmyQuest.SetDialogueAV_Hello_Stressed_PostAccept()
-  If Self.IsObjectiveDisplayed(100) && !Self.IsObjectiveCompleted(100)
-    Self.SetObjectiveCompleted(100, True)
-  EndIf
+  Self.SetObjectiveCompleted(100, True)
   Self.SetObjectiveDisplayed(200, True, False)
 EndFunction
 
@@ -84,6 +82,8 @@ Function Fragment_Stage_0300_Item_00()
   captiveAlias.HealActor(True)
   Alias_WoundedPerson.GetActorRef().EvaluatePackage(False)
   Alias_WoundedPerson.GetActorRef().SetProtected(False)
+  Alias_WoundedPerson.GetRef().AddKeyword(SQ_Captive_HasFollowWaitTopics)
+  Self.SetObjectiveCompleted(100, True)
   Self.SetObjectiveCompleted(200, True)
   Self.SetObjectiveDisplayed(300, True, False)
 EndFunction
@@ -93,7 +93,6 @@ Function Fragment_Stage_0450_Item_00()
   rq_heal_01_script kmyQuest = __temp as rq_heal_01_script
   kmyQuest.SetDialogueAV_Hello_Stressed_Success()
   kmyQuest.SetDialogueAV_PrimaryObjectiveSuccess()
-  Alias_WoundedPerson.GetRef().Removekeyword(SQ_Captive_HasFollowWaitTopics)
 EndFunction
 
 Function Fragment_Stage_0475_Item_00()

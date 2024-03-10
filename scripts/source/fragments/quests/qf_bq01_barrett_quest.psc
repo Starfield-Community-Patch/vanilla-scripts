@@ -117,6 +117,7 @@ Scene Property BQ01_Scene_BARK_1107_ErvinApt_InteriorScene Auto Const mandatory
 Activator Property COM_PQ_TxtReplace_QuestName_Barret Auto Const mandatory
 GlobalVariable Property COM_BQ01_WaitToggle Auto Const mandatory
 Quest Property COM_Quest_Barrett_Q01_SpeechChallenge Auto Const mandatory
+ReferenceAlias Property Alias_Furniture_LawOffice_BarrettChair Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -126,6 +127,10 @@ EndFunction
 
 Function Fragment_Stage_0002_Item_00()
   Scene_EnteredApartment.Stop()
+EndFunction
+
+Function Fragment_Stage_0003_Item_00()
+  Alias_Furniture_LawOffice_BarrettChair.GetRef().BlockActivation(True, True)
 EndFunction
 
 Function Fragment_Stage_0010_Item_00()
@@ -1491,6 +1496,7 @@ Function Fragment_Stage_7401_Item_00()
   Game.GetPlayer().RemoveItem(BQ01_Key_ErvinsApartment as Form, 1, True, None)
   Alias_Door_ErvinApartment_Exterior.GetRef().Lock(True, False, True)
   COM_Quest_Barrett_Q01_SpeechChallenge.Stop()
+  Alias_Furniture_LawOffice_BarrettChair.GetRef().BlockActivation(False, False)
   Self.Stop()
 EndFunction
 

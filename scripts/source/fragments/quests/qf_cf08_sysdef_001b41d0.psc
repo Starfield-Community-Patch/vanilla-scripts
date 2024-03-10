@@ -52,6 +52,7 @@ GlobalVariable Property SE_Player_ZW12_Timestamp Auto Const mandatory
 ReferenceAlias[] Property Alias_Companions Auto Const mandatory
 GlobalVariable Property COM_WantsToTalk_CooldownDays Auto Const mandatory
 ActorValue Property COM_WantsToTalk_CrimsonFleet_Cooldown Auto Const mandatory
+Faction Property CrimeFactionCrimsonFleet Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -61,6 +62,8 @@ EndFunction
 
 Function Fragment_Stage_0001_Item_00()
   Alias_CF08_SysDef_Mathis.GetActorRef().SetEssential(False)
+  CrimeFactionCrimsonFleet.SetCrimeGold(0)
+  CrimeFactionCrimsonFleet.SetCrimeGoldViolent(0)
 EndFunction
 
 Function Fragment_Stage_0005_Item_00()

@@ -1,5 +1,5 @@
 ScriptName DebugSoundScriptingQuest Extends Quest
-{ http://intranet.bethsoft.com/genesis_editor/index.php/WwiseEvent_Script }
+{ Look up the WwiseEvent script on the wiki }
 
 ;-- Variables ---------------------------------------
 String GlobalRTPCName = "Papyrus_Test_Global_RTPC"

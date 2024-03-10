@@ -21,6 +21,7 @@ ReferenceAlias Property Alias_Barrett Auto Const mandatory
 ReferenceAlias Property Alias_SamCoe Auto Const mandatory
 Quest Property CREW_EliteCrew_Vasco Auto Const mandatory
 Quest Property SQ_Companions Auto Const mandatory
+Keyword Property COM_PreventStoryGateScenes Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -76,6 +77,7 @@ Function Fragment_Stage_0415_Item_00()
   Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
   SarahMorganREF.SetValue(COM_NoRelationshipPostUnity, 1.0)
   (SQ_Companions as sq_companionsscript).SetRoleAvailable(SarahMorganREF, True)
+  SarahMorganREF.RemoveKeyword(COM_PreventStoryGateScenes)
 EndFunction
 
 Function Fragment_Stage_0420_Item_00()
@@ -88,6 +90,7 @@ Function Fragment_Stage_0425_Item_00()
   Actor AndrejaREF = Alias_Andreja.GetActorRef()
   AndrejaREF.SetValue(COM_NoRelationshipPostUnity, 1.0)
   (SQ_Companions as sq_companionsscript).SetRoleAvailable(AndrejaREF, True)
+  AndrejaREF.RemoveKeyword(COM_PreventStoryGateScenes)
 EndFunction
 
 Function Fragment_Stage_0440_Item_00()
@@ -100,6 +103,7 @@ Function Fragment_Stage_0445_Item_00()
   Actor BarrettREF = Alias_Barrett.GetActorRef()
   BarrettREF.SetValue(COM_NoRelationshipPostUnity, 1.0)
   (SQ_Companions as sq_companionsscript).SetRoleAvailable(BarrettREF, True)
+  BarrettREF.RemoveKeyword(COM_PreventStoryGateScenes)
 EndFunction
 
 Function Fragment_Stage_0450_Item_00()
@@ -112,4 +116,5 @@ Function Fragment_Stage_0455_Item_00()
   Actor SamCoeREF = Alias_SamCoe.GetActorRef()
   SamCoeREF.SetValue(COM_NoRelationshipPostUnity, 1.0)
   (SQ_Companions as sq_companionsscript).SetRoleAvailable(SamCoeREF, True)
+  SamCoeREF.RemoveKeyword(COM_PreventStoryGateScenes)
 EndFunction

@@ -246,11 +246,21 @@ Function Fragment_Stage_0011_Item_00()
 EndFunction
 
 Function Fragment_Stage_0012_Item_00()
-  Alias_CF02_TheRaganaShip.GetShipRef().DisableWithTakeOfforLanding()
+  Quest __temp = Self as Quest
+  cf02_layerscript kmyQuest = __temp as cf02_layerscript
+  spaceshipreference RaganaRef = Alias_CF02_TheRaganaShip.GetShipRef()
+  RaganaRef.SetGhost(True)
+  RaganaRef.DisableWithTakeOfforLanding()
+  kmyQuest.CF02_Layer.Delete()
 EndFunction
 
 Function Fragment_Stage_0013_Item_00()
-  Alias_CF02_TheRaganaShip.GetShipRef().DisableWithTakeOfforLanding()
+  Quest __temp = Self as Quest
+  cf02_layerscript kmyQuest = __temp as cf02_layerscript
+  spaceshipreference RaganaRef = Alias_CF02_TheRaganaShip.GetShipRef()
+  RaganaRef.SetGhost(True)
+  RaganaRef.DisableWithTakeOfforLanding()
+  kmyQuest.CF02_Layer.Delete()
 EndFunction
 
 Function Fragment_Stage_0014_Item_00()
@@ -433,6 +443,12 @@ EndFunction
 
 Function Fragment_Stage_0500_Item_00()
   Self.SetObjectiveDisplayed(500, True, False)
+EndFunction
+
+Function Fragment_Stage_0508_Item_00()
+  Quest __temp = Self as Quest
+  cf02_layerscript kmyQuest = __temp as cf02_layerscript
+  kmyQuest.CF02_Layer.Delete()
 EndFunction
 
 Function Fragment_Stage_0509_Item_00()

@@ -23,6 +23,7 @@ ActorValue Property ShieldHealth Auto Const mandatory
 Faction Property SE_FAB02_Faction Auto Const mandatory
 Faction Property PlayerFaction Auto Const mandatory
 ReferenceAlias Property Alias_CaptainsLocker Auto Const mandatory
+ReferenceAlias Property Alias_SpaceshipInventory Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -42,6 +43,7 @@ Function Fragment_Stage_0010_Item_00()
   myCell.SetFactionOwner(SE_FAB02_Faction)
   myCell.SetPublic(True)
   Alias_CaptainsLocker.GetRef().SetFactionOwner(PlayerFaction, False)
+  Alias_SpaceshipInventory.GetRef().BlockActivation(True, True)
 EndFunction
 
 Function Fragment_Stage_0020_Item_00()
@@ -130,6 +132,8 @@ Function Fragment_Stage_0500_Item_00()
   TeacherRef.SetGhost(False)
   TeacherRef.SetRestrained(False)
   Alias_Trainee.GetActorRef().SetGhost(False)
+  Alias_SpaceshipInventory.GetRef().BlockActivation(False, False)
+  Alias_CaptainsLocker.GetRef().SetFactionOwner(SE_FAB02_Faction, False)
 EndFunction
 
 Function Fragment_Stage_0600_Item_00()

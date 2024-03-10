@@ -53,6 +53,7 @@ ReferenceAlias Property TempleStarbornMarker Auto Const
 ActorBase Property LvlStarborn_Boss_Aggro Auto Const mandatory
 ReferenceAlias Property TempleStarborn Auto Const
 Quest Property MQ106 Auto Const mandatory
+LocationAlias Property AnomalyLocation Auto Const mandatory
 GlobalVariable Property MQ401_SkipMQ Auto Const mandatory
 MusicType Property MUSGenesisStingerStarbornAppearB Auto Const mandatory
 mq_temple_subscript:imagespacedata[] Property TempleScanImods Auto Const
@@ -223,7 +224,7 @@ EndEvent
 
 Function UpdateTempleScan()
   If usingHandscanner && currentTarget as Bool
-    Float zAngle = playerRef.GetHeadingAngle(currentTarget)
+    Float zAngle = Game.GetCameraHeadingAngle(currentTarget)
     Float currentMaxImodAngle = Self.GetAngleExtent()
     If Math.abs(zAngle) <= MaxAngle
       Self.UpdateImod(zAngle, currentMaxImodAngle)
@@ -301,4 +302,10 @@ Function RemoveAllImods()
     EndIf
     I += 1
   EndWhile
+EndFunction
+
+Function RefillAnomalyOE()
+  AnomalyLocation.RefillAlias()
+  AnomalyMapMarker.RefillAlias()
+  Self.SetMapMarkerFlags(AnomalyMapMarker.GetRef())
 EndFunction

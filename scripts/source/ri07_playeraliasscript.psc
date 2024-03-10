@@ -7,6 +7,10 @@ MiscObject Property RI07_Prototype Auto Const mandatory
 ReferenceAlias Property Prototype Auto Const mandatory
 RefCollectionAlias Property RDEngineers Auto Const mandatory
 Faction Property LC051InfinityLTDPEnemyFaction Auto Const mandatory
+ReferenceAlias Property David Auto Const
+Location Property CityNewAtlantisLocation Auto Const
+Int Property DavidStartStage Auto Const
+Int Property DavidDoneStage Auto Const
 
 ;-- Functions ---------------------------------------
 
@@ -30,4 +34,17 @@ Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemRefere
       iCurrentCount += 1
     EndIf
   EndWhile
+EndEvent
+
+Event OnLocationChange(Location akOldLoc, Location akNewLoc)
+  Quest RI07 = Self.GetOwningQuest()
+  If RI07.GetStageDone(DavidStartStage) && !RI07.GetStageDone(DavidDoneStage)
+    If akNewLoc == CityNewAtlantisLocation
+      Actor DavidRef = David.GetActorRef()
+      If DavidRef.GetCurrentLocation() != CityNewAtlantisLocation
+        DavidRef.MoveTo(Game.GetPlayer() as ObjectReference, 0.0, 0.0, 0.0, True, False)
+        DavidRef.MoveToNearestNavmeshLocation()
+      EndIf
+    EndIf
+  EndIf
 EndEvent

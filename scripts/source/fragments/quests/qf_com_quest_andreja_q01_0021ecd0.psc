@@ -47,6 +47,7 @@ Scene Property COM_Quest_Andreja_Q01_Stage330_Andreja Auto Const mandatory
 GlobalVariable Property COM_AndrejaQ01_WaitToggle Auto Const mandatory
 sq_followersscript Property SQ_Followers Auto Const mandatory
 ReferenceAlias Property Alias_Jaeda Auto Const mandatory
+spaceshipbase Property LvlShip_COM_Quest_Andreja_VaruunShip01 Auto Const
 
 ;-- Functions ---------------------------------------
 
@@ -303,11 +304,27 @@ EndFunction
 Function Fragment_Stage_0130_Item_00()
   Self.SetObjectiveCompleted(120, True)
   Self.SetObjectiveDisplayed(130, True, False)
-  Alias_Zealot_Wave1_Ship01.GetShipReference().EnableWithGravJump()
+  spaceshipreference Ship01Ref = Alias_Zealot_Wave1_Ship01.GetShipReference()
+  spaceshipreference Ship02Ref = Alias_Zealot_Wave1_Ship02.GetShipReference()
+  spaceshipreference Ship03Ref = Alias_Zealot_Wave1_Ship03.GetShipReference()
+  spaceshipreference JaedaShipRef = Alias_Jaeda_Ship.GetShipRef()
+  If Ship01Ref == None
+    Ship01Ref = JaedaShipRef.PlaceShipAtMe(LvlShip_COM_Quest_Andreja_VaruunShip01 as Form, 4, True, False, True, True, None, Alias_Zealot_Wave1_Ship01 as Alias, None, True)
+    Ship01Ref.MoveNear(JaedaShipRef as ObjectReference, 0, 0, 0)
+  EndIf
+  If Ship02Ref == None
+    Ship02Ref = JaedaShipRef.PlaceShipAtMe(LvlShip_COM_Quest_Andreja_VaruunShip01 as Form, 4, True, False, True, True, None, Alias_Zealot_Wave1_Ship02 as Alias, None, True)
+    Ship02Ref.MoveNear(JaedaShipRef as ObjectReference, 0, 0, 0)
+  EndIf
+  If Ship03Ref == None
+    Ship03Ref = JaedaShipRef.PlaceShipAtMe(LvlShip_COM_Quest_Andreja_VaruunShip01 as Form, 4, True, False, True, True, None, Alias_Zealot_Wave1_Ship03 as Alias, None, True)
+    Ship03Ref.MoveNear(JaedaShipRef as ObjectReference, 0, 0, 0)
+  EndIf
+  Ship01Ref.EnableWithGravJump()
   Utility.wait(0.400000006)
-  Alias_Zealot_Wave1_Ship02.GetShipReference().EnableWithGravJump()
+  Ship02Ref.EnableWithGravJump()
   Utility.wait(0.200000003)
-  Alias_Zealot_Wave1_Ship03.GetShipReference().EnableWithGravJump()
+  Ship03Ref.EnableWithGravJump()
 EndFunction
 
 Function Fragment_Stage_0131_Item_00()

@@ -40,6 +40,8 @@ Group RefCollections
   { All the workers in the Minister Hall floor }
   RefCollectionAlias Property BackUpMinisterHallGuards Auto Const mandatory
   { Ref coll for the guards that come in post-post-explosion scene }
+  RefCollectionAlias Property LodgeDoorTriggers Auto Const mandatory
+  { SF-1629: Message triggers informing the player the Lodge is locked until the attack is complete }
 EndGroup
 
 Group Aliases

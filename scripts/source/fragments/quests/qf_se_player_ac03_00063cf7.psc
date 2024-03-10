@@ -7,8 +7,13 @@ Scene Property HailTemplate_100a_Hailing Auto Const mandatory
 ReferenceAlias Property Alias_HailingShip Auto Const mandatory
 Scene Property MoaraPostHailScene Auto Const
 ReferenceAlias Property Alias_MapMarker Auto Const mandatory
+ActorValue Property DockingPermission Auto Const mandatory
 
 ;-- Functions ---------------------------------------
+
+Function Fragment_Stage_0020_Item_00()
+  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 4.0)
+EndFunction
 
 Function Fragment_Stage_0050_Item_00()
   HailTemplate_100a_Hailing.Start()

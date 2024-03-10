@@ -59,18 +59,6 @@ Function Fragment_Stage_0503_Item_00()
   ; Empty function
 EndFunction
 
-Function Fragment_Stage_0101_Item_00()
-  Game.GetPlayer().ModValue(Oxygen, FitnessBonus as Float)
-EndFunction
-
-Function Fragment_Stage_0102_Item_00()
-  Game.GetPlayer().ModValue(Oxygen, FitnessBonus as Float)
-EndFunction
-
-Function Fragment_Stage_0103_Item_00()
-  Game.GetPlayer().ModValue(Oxygen, FitnessBonus as Float)
-EndFunction
-
 Function Fragment_Stage_0201_Item_00()
   Game.GetPlayer().SetValue(SecurityMenuMaxAutoattemptPoints, Game.GetPlayer().GetValue(SecurityMenuMaxAutoattemptPoints) + 1.0)
 EndFunction

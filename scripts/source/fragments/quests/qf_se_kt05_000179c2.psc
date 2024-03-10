@@ -33,6 +33,7 @@ EndFunction
 
 Function Fragment_Stage_0006_Item_00()
   Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 4.0)
+  Self.SetObjectiveFailed(10, True)
 EndFunction
 
 Function Fragment_Stage_0020_Item_00()

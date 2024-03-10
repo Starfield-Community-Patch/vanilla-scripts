@@ -17,6 +17,7 @@ Quest Property UC_GG_Connect_Misc Auto Const mandatory
 RefCollectionAlias Property Alias_ScanPoints Auto Const mandatory
 GlobalVariable Property UC_GG_Connect_HelenaKnowsCourierIsDead Auto Const mandatory
 ReferenceAlias Property Alias_MurderEnableMarker Auto Const mandatory
+Scene Property City_GG_Connections_Helena_120_Leads Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -63,9 +64,14 @@ Function Fragment_Stage_0250_Item_00()
 EndFunction
 
 Function Fragment_Stage_0300_Item_00()
+  Self.SetObjectiveCompleted(110, True)
+  Self.SetObjectiveCompleted(120, True)
   Self.SetObjectiveCompleted(200, True)
   Self.SetObjectiveCompleted(250, True)
   Self.SetObjectiveDisplayed(300, True, False)
+  If City_GG_Connections_Helena_120_Leads.IsPlaying()
+    City_GG_Connections_Helena_120_Leads.Stop()
+  EndIf
 EndFunction
 
 Function Fragment_Stage_0310_Item_00()

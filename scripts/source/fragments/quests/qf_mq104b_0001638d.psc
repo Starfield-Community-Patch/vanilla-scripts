@@ -461,4 +461,6 @@ Function Fragment_Stage_2000_Item_00()
   MatsuraREF.AddtoFaction(PlayerEnemyFaction)
   Alias_MatsuraBodyguards.AddtoFaction(PlayerEnemyFaction)
   Alias_Heller.GetActorRef().SetGhost(False)
+  LinEliteCrewQuest.SetStage(1)
+  HellerEliteCrewQuest.SetStage(1)
 EndFunction

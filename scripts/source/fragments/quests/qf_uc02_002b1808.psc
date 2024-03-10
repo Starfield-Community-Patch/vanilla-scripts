@@ -80,6 +80,7 @@ RefCollectionAlias Property Alias_SecurityBldgDoors Auto Const mandatory
 LeveledItem Property LL_Spacesuit_UCVanguard_LightArmored_FullSet_AnyQuality Auto Const mandatory
 ReferenceAlias Property Alias_SecurityOfficeEnableMarker Auto Const mandatory
 ReferenceAlias Property Alias_SecurityOfficeDoorCollision Auto Const mandatory
+Scene Property UC02_700d_HeadingToScope Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -414,6 +415,10 @@ Function Fragment_Stage_0655_Item_00()
   Self.SetObjectiveCompleted(615, True)
 EndFunction
 
+Function Fragment_Stage_0699_Item_00()
+  UC02_700b_TerrormorphKilled_CompanionResponse.Stop()
+EndFunction
+
 Function Fragment_Stage_0700_Item_00()
   UC02_TrackerQuest.SetStage(1000)
   UC02_607_TanksPrimed.Stop()
@@ -439,7 +444,9 @@ Function Fragment_Stage_0700_Item_00()
   If !Self.IsObjectiveCompleted(615)
     Self.SetObjectiveDisplayed(615, False, False)
   EndIf
-  UC02_700b_TerrormorphKilled_CompanionResponse.Start()
+  If !Self.GetStageDone(699)
+    UC02_700b_TerrormorphKilled_CompanionResponse.Start()
+  EndIf
   Alias_Hadrian.GetActorRef().EvaluatePackage(False)
 EndFunction
 
@@ -461,6 +468,12 @@ Function Fragment_Stage_0740_Item_00()
   Self.SetObjectiveCompleted(700, True)
   Self.SetObjectiveCompleted(300, True)
   Self.SetObjectiveDisplayed(710, True, False)
+EndFunction
+
+Function Fragment_Stage_0741_Item_00()
+  If Self.GetStageDone(740) && !Self.GetStageDone(750) && !UC02_700d_HeadingToScope.IsPlaying()
+    UC02_700d_HeadingToScope.Start()
+  EndIf
 EndFunction
 
 Function Fragment_Stage_0750_Item_00()

@@ -7,6 +7,7 @@ ReferenceAlias Property Alias_DataSlate Auto Const mandatory
 Quest Property DialogueFCNeon Auto Const mandatory
 Quest Property FFNeonZ02_SpeechChallengeQuest Auto Const mandatory
 Quest Property FFNeonGuardPointer_Z02 Auto Const mandatory
+ReferenceAlias Property Alias_Clover Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -66,5 +67,8 @@ EndFunction
 
 Function Fragment_Stage_0200_Item_00()
   DialogueFCNeon.SetStage(140)
+  Actor CloverRef = Alias_Clover.GetActorRef()
+  Alias_Clover.Clear()
+  CloverRef.SetEssential(False)
   Self.Stop()
 EndFunction

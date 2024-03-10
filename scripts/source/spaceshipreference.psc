@@ -318,11 +318,11 @@ EndFunction
 Bool Function IsLandingDeckClear()
   ObjectReference[] exteriorLoadDoors = Self.GetExteriorLoadDoors()
   If exteriorLoadDoors.Length == 0
-    Return False
+    Return True
   Else
     ObjectReference exteriorLandingDeckTrigger = exteriorLoadDoors[0].GetLinkedRef(None)
     If exteriorLandingDeckTrigger == None
-      Return False
+      Return True
     Else
       Return exteriorLandingDeckTrigger.GetTriggerObjectCount() == 0
     EndIf

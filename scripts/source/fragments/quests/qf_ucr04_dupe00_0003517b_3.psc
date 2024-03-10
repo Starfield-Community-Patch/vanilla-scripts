@@ -37,7 +37,10 @@ Function Fragment_Stage_0100_Item_00()
   Quest __temp = Self as Quest
   ucr04questscript kmyQuest = __temp as ucr04questscript
   Alias_ActiveUCR04Instance.ForceRefTo(Game.GetPlayer() as ObjectReference)
-  Game.GetPlayer().AddPerk(UCR04_HarvestSamplePerk, False)
+  Actor PlayACT = Game.GetPlayer()
+  If !PlayACT.HasPerk(UCR04_HarvestSamplePerk)
+    PlayACT.AddPerk(UCR04_HarvestSamplePerk, False)
+  EndIf
   kmyQuest.PrepQuest()
   UCR04_100_Jakob_StartUp.Start()
   If !DialogueRedDevilsHQ.GetStageDone(200)
@@ -66,7 +69,6 @@ Function Fragment_Stage_1000_Item_00()
   Alias_ActiveUCR04Instance.Clear()
   ObjectReference PlayREF = Game.GetPlayer() as ObjectReference
   PlayREF.RemoveItem(UCR04_SpecimenSample as Form, PlayREF.GetItemCount(UCR04_SpecimenSample as Form), False, None)
-  Game.GetPlayer().RemovePerk(UCR04_HarvestSamplePerk)
   ObjectReference XBRef = Alias_DropOffNPC.GetRef()
   If !XBRef.Is3DLoaded() && XBRef.IsEnabled()
     XBRef.Disable(False)

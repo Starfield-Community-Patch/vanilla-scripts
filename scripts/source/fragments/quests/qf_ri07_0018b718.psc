@@ -137,6 +137,9 @@ Scene Property DialogueCrimeGuardsForcegreetingScene Auto Const mandatory
 ReferenceAlias Property Alias_Faye Auto Const mandatory
 Key Property RI07_RDKeycard Auto Const mandatory
 ReferenceAlias Property Alias_IDCardKey Auto Const mandatory
+ReferenceAlias Property Alias_David Auto Const mandatory
+ReferenceAlias Property Alias_DavidFurniture Auto Const mandatory
+LocationAlias Property Alias_Location_InfinityLTD Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -1307,6 +1310,23 @@ Function Fragment_Stage_1400_Item_00()
     Alias_Nina.GetRef().Disable(False)
     Alias_Harper.GetRef().Enable(False)
   EndIf
+  Actor Nina = Alias_Nina.GetActorRef()
+  Actor Angelo = Alias_Angelo.GetActorRef()
+  Actor Stanley = Alias_Stanley.GetActorRef()
+  ObjectReference InfinityMarker = Alias_AelysQS.GetRef()
+  Location InfinityLocation = Alias_Location_InfinityLTD.GetLocation()
+  If !Nina.IsInLocation(InfinityLocation) && !Nina.IsDead()
+    Nina.MoveTo(InfinityMarker, 0.0, 0.0, 0.0, True, False)
+    Nina.EvaluatePackage(False)
+  EndIf
+  If !Angelo.IsInLocation(InfinityLocation) && !Angelo.IsDead()
+    Angelo.MoveTo(InfinityMarker, 0.0, 0.0, 0.0, True, False)
+    Angelo.EvaluatePackage(False)
+  EndIf
+  If !Stanley.IsInLocation(InfinityLocation) && !Stanley.IsDead()
+    Stanley.MoveTo(InfinityMarker, 0.0, 0.0, 0.0, True, False)
+    Stanley.EvaluatePackage(False)
+  EndIf
 EndFunction
 
 Function Fragment_Stage_1410_Item_00()
@@ -1591,6 +1611,9 @@ Function Fragment_Stage_1800_Item_00()
   EndIf
   Alias_Imogene.GetRef().Disable(False)
   Self.SetStage(1494)
+  Actor David = Alias_David.GetActorRef()
+  David.EvaluatePackage(False)
+  David.MoveToFurniture(Alias_DavidFurniture.GetRef())
 EndFunction
 
 Function Fragment_Stage_1850_Item_00()

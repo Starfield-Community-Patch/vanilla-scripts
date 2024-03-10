@@ -98,6 +98,7 @@ ReferenceAlias Property Alias_MoaraShipCockpitDoor Auto Const mandatory
 Activator Property COM_MQ102_TxtReplace_QuestName_SarahMorgan Auto Const mandatory
 Scene Property MQ102_033_NeptuneScene Auto Const mandatory
 Quest Property MQ00 Auto Const mandatory
+ReferenceAlias Property PlayerShipPassengerMarker Auto Const
 
 ;-- Functions ---------------------------------------
 
@@ -219,6 +220,10 @@ Function Fragment_Stage_0400_Item_00()
   Self.SetObjectiveCompleted(40, True)
   Self.SetObjectiveDisplayed(41, True, False)
   Self.SetObjectiveDisplayed(32, False, False)
+EndFunction
+
+Function Fragment_Stage_0405_Item_00()
+  Alias_SarahMorgan.GetRef().moveto(PlayerShipPassengerMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
 EndFunction
 
 Function Fragment_Stage_0410_Item_00()

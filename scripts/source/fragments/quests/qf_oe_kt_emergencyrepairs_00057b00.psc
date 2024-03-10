@@ -52,6 +52,7 @@ EndFunction
 
 Function Fragment_Stage_0019_Item_00()
   Alias_PilotSeat.GetRef().BlockActivation(True, False)
+  Self.SetStage(80)
 EndFunction
 
 Function Fragment_Stage_0080_Item_00()

@@ -16,6 +16,8 @@ Quest Property DialogueFCNeon Auto Const mandatory
 Scene Property FFNeonZ03_Scene Auto Const mandatory
 Quest Property FFNeonGuardPointer_Z03 Auto Const mandatory
 ActorValue Property Aggression Auto Const mandatory
+ReferenceAlias Property Alias_FCNeonStyxClean Auto Const mandatory
+ReferenceAlias Property Alias_StyxPost Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -77,8 +79,8 @@ EndFunction
 
 Function Fragment_Stage_0200_Item_00()
   ObjectReference StyxRef = Alias_Styx.GetRef()
-  StyxRef.RemoveMod(bot_ModelA_Styx_Graffiti_01)
-  StyxRef.AttachMod(bot_ModelA_Civ_01, 0)
+  Alias_Styx.GetRef().DisableNoWait(False)
+  Alias_FCNeonStyxClean.ForceRefTo(Alias_StyxPost.GetRef())
   DialogueFCNeon.SetStage(200)
   Self.Stop()
 EndFunction

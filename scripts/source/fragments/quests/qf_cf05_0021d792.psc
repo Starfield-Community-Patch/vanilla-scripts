@@ -222,6 +222,7 @@ ReferenceAlias Property Alias_Key_Scene03 Auto Const mandatory
 ReferenceAlias Property Alias_MQ204Ship Auto Const mandatory
 Faction Property CrimeFactionUCSysDef Auto Const mandatory
 Quest Property CF05_Guard_SpeechChallenge01 Auto Const mandatory
+ReferenceAlias Property Alias_StateChangeMarker Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -669,6 +670,7 @@ Function Fragment_Stage_0275_Item_00()
 EndFunction
 
 Function Fragment_Stage_0300_Item_00()
+  Self.SetObjectiveCompleted(100, True)
   Self.SetObjectiveCompleted(200, True)
   Self.SetObjectiveDisplayed(300, True, False)
   Actor HuanRef = Alias_CF05_Huan.GetActorRef()
@@ -1037,6 +1039,7 @@ Function Fragment_Stage_10000_Item_00()
   CF05_Alarm.Stop()
   Game.AddAchievement(21)
   CF06.SetStage(10)
+  Alias_StateChangeMarker.GetRef().DisableNoWait(False)
 EndFunction
 
 Function Fragment_Stage_1000_Item_00()
@@ -1044,7 +1047,6 @@ Function Fragment_Stage_1000_Item_00()
   Self.SetObjectiveCompleted(900, True)
   Self.SetObjectiveDisplayed(810, True, False)
   CF05_Guard_SpeechChallenge02.Start()
-  Alias_CF05_Location_HuanShipInterior.GetLocation().DisableSpaceTravelToAllExcept(CF05, False)
 EndFunction
 
 Function Fragment_Stage_1001_Item_00()
@@ -1501,6 +1503,7 @@ Function Fragment_Stage_1890_Item_00()
   spaceshipreference HuanshipRef = Alias_CF05_HuanShip.GetShipRef()
   HuanshipRef.AddtoFaction(CrimsonFleetFaction)
   HuanshipRef.SetCrimeFaction(CrimsonFleetFaction)
+  Alias_CF05_Location_HuanShipInterior.GetLocation().DisableSpaceTravelToAllExcept(CF05, False)
 EndFunction
 
 Function Fragment_Stage_1899_Item_00()
@@ -1584,6 +1587,10 @@ Function Fragment_Stage_1910_Item_00()
   ShipRef.EvaluatePackage(False)
   Self.SetStage(1850)
   Self.SetStage(2000)
+EndFunction
+
+Function Fragment_Stage_1910_Item_01()
+  Self.SetStage(1901)
 EndFunction
 
 Function Fragment_Stage_2000_Item_00()

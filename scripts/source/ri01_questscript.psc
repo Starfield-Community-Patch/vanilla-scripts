@@ -12,6 +12,8 @@ Faction Property CrimeFactionNeon Auto Const mandatory
 ActorBase Property FC_Neon_TerraBrewEmployee Auto Const mandatory
 GlobalVariable Property TrueGlobal Auto Const mandatory
 Int Property iPickUpCoffeeStage = 500 Auto Const
+Int Property iStartInterviewStage = 400 Auto Const
+Int Property iTimer = 1 Auto Const
 
 ;-- Functions ---------------------------------------
 
@@ -39,8 +41,17 @@ Function FreezeControls()
   Game.GetPlayer().StopCombatAlarm()
   InterviewLayer = inputenablelayer.Create()
   InterviewLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
+  Self.StartTimer(5.0, iTimer)
 EndFunction
 
 Function UnfreezeControls()
   InterviewLayer = None
 EndFunction
+
+Event OnTimer(Int aiTimerID)
+  If aiTimerID == iTimer
+    If !Self.GetStageDone(iStartInterviewStage)
+      Self.SetStage(iStartInterviewStage)
+    EndIf
+  EndIf
+EndEvent

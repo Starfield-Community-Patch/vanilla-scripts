@@ -98,9 +98,9 @@ Function Fragment_Stage_0150_Item_00()
   If Self.GetStageDone(110)
     Self.SetObjectiveDisplayed(160, True, False)
   Else
+    Alias_Davis.GetActorRef().SetEssential(True)
     Self.SetObjectiveCompleted(110, True)
     Self.SetObjectiveDisplayed(150, True, False)
-    Alias_Davis.GetActorRef().SetEssential(True)
   EndIf
 EndFunction
 

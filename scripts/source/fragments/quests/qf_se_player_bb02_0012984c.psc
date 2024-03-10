@@ -5,6 +5,7 @@ ScriptName Fragments:Quests:QF_SE_Player_BB02_0012984C Extends Quest Const hidde
 ;-- Properties --------------------------------------
 Scene Property HailTemplate_100a_Hailing Auto Const mandatory
 ReferenceAlias Property Alias_HailingShip Auto Const mandatory
+MiscObject Property credits Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -13,8 +14,11 @@ Function Fragment_Stage_0050_Item_00()
 EndFunction
 
 Function Fragment_Stage_0300_Item_00()
-  Utility.Wait(12.0)
+  Game.GetPlayer().AddItem(credits as Form, 2000, False)
   spaceshipreference oTarg = Alias_HailingShip.GetRef() as spaceshipreference
+  oTarg.SetGhost(True)
+  oTarg.BlockActivation(True, True)
+  Utility.Wait(3.0)
   oTarg.DisableWithGravJump()
 EndFunction
 

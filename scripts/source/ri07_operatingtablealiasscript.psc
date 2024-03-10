@@ -19,7 +19,8 @@ EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
   Quest OwningQuest = Self.GetOwningQuest()
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && OwningQuest.GetStageDone(iPreReqStage) && !OwningQuest.GetStageDone(iTurnOffStage)
+  Actor PlayerRef = Game.GetPlayer()
+  If (akActionRef == PlayerRef as ObjectReference) && PlayerRef.GetCombatState() == 0 && OwningQuest.GetStageDone(iPreReqStage) && !OwningQuest.GetStageDone(iTurnOffStage)
     OwningQuest.SetStage(iActivatedChairStage)
   EndIf
 EndEvent

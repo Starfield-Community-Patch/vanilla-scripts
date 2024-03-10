@@ -30,6 +30,7 @@ RefCollectionAlias Property DisembarkingCrew Auto Const mandatory
 Quest Property SQ_Crew Auto Const mandatory
 Activator Property COM_CQ_TxtReplace_QuestName_SamCoe Auto Const mandatory
 ObjectReference Property Commitment_SamCoe_Marker_RoundUp_Cora Auto Const mandatory
+ReferenceAlias Property Alias_CoeMainDoor Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -44,6 +45,7 @@ EndFunction
 Function Fragment_Stage_0100_Item_00()
   SQ_Companions.LockInCompanion(Alias_SamCoe.GetActorReference() as companionactorscript, True, None, COM_CQ_TxtReplace_QuestName_SamCoe)
   Self.SetObjectiveDisplayed(100, True, False)
+  Alias_CoeMainDoor.GetRef().Lock(False, False, True)
 EndFunction
 
 Function Fragment_Stage_0150_Item_00()

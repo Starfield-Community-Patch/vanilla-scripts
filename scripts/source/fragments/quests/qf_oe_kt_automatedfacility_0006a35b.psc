@@ -21,6 +21,11 @@ RefCollectionAlias Property Alias_Markers_Corpses Auto Const mandatory
 
 Function Fragment_Stage_0030_Item_00()
   Alias_NPC_Group00.KillAll(None)
+  Alias_NPC00.GetActorRef().Kill(None)
+  Alias_NPC01.GetActorRef().Kill(None)
+  Alias_NPC02.GetActorRef().Kill(None)
+  Alias_NPC03.GetActorRef().Kill(None)
+  Alias_NPC04.GetActorRef().Kill(None)
 EndFunction
 
 Function Fragment_Stage_0040_Item_00()

@@ -202,6 +202,7 @@ ReferenceAlias Property Alias_MQ204Ship Auto Const mandatory
 ActorValue Property Invulnerable Auto Const mandatory
 GlobalVariable Property UC04_TurnOffArrestScene Auto Const mandatory
 GlobalVariable Property MQ204_TurnOffCF01Arrest Auto Const mandatory
+RefCollectionAlias Property Alias_LodgeDoorTriggers Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -492,6 +493,7 @@ Function Fragment_Stage_0350_Item_00()
   kmyQuest.GetNPCsInPlace()
   If !MQ204.GetStageDone(600)
     ((Self as Quest) as uc04_questscript).LockAllDoors(Alias_LodgeDoorsExt, True)
+    Alias_LodgeDoorTriggers.EnableAll(False)
   EndIf
   Alias_MASTMaleWorker04.GetRef().Disable(False)
   If !Self.GetStageDone(4) && !Self.GetStageDone(8)
@@ -714,6 +716,7 @@ Function Fragment_Stage_0570_Item_00()
     Self.SetObjectiveDisplayed(570, True, False)
     ObjectReference HadEM = Alias_EMOrion.GetRef()
     Actor HadACT = Alias_Hadrian.GetActorRef()
+    HadACT.AddItem(AmmoLaser as Form, 100, False)
     HadACT.AddItem(HadEM as Form, 1, False)
     HadACT.RemoveItem(Crew_Elite_Orion as Form, 1, False, None)
   EndIf
@@ -974,7 +977,7 @@ Function Fragment_Stage_0602_Item_00()
   NTF02.RemoveFromFaction(UC04_NATThrallFaction)
   NTF02.AddToFaction(UC04_NATGuardFriendFaction)
   NTF02.StopCombatAlarm()
-  If (Self.GetStageDone(589) || Self.GetStageDone(592)) && (Self.GetStageDone(588) || Self.GetStageDone(591)) && (Self.GetStageDone(587) || Self.GetStageDone(583))
+  If (Self.GetStageDone(589) || Self.GetStageDone(592)) && (Self.GetStageDone(588) || Self.GetStageDone(591)) && (Self.GetStageDone(587) || Self.GetStageDone(593))
     Self.SetStage(590)
   ElseIf !Self.GetStageDone(583)
     UC04_583_Hadrian_FirstStunned.Start()
@@ -986,6 +989,26 @@ Function Fragment_Stage_0603_Item_00()
   If (Self.GetStageDone(589) || Self.GetStageDone(592)) && (Self.GetStageDone(587) || Self.GetStageDone(593)) && (Self.GetStageDone(588) || Self.GetStageDone(591))
     Self.SetStage(590)
   EndIf
+EndFunction
+
+Function Fragment_Stage_0606_Item_00()
+  Alias_NATThrallM02.GetActorRef().SetNoBleedoutRecovery(True)
+  Self.SetStage(587)
+EndFunction
+
+Function Fragment_Stage_0607_Item_00()
+  Alias_NATThrallM01.GetActorRef().SetNoBleedoutRecovery(True)
+  Self.SetStage(588)
+EndFunction
+
+Function Fragment_Stage_0608_Item_00()
+  Alias_NATThrallF01.GetActorRef().SetNoBleedoutRecovery(True)
+  Self.SetStage(589)
+EndFunction
+
+Function Fragment_Stage_0609_Item_00()
+  Alias_NATThrallF02.GetActorRef().SetNoBleedoutRecovery(True)
+  Self.SetStage(602)
 EndFunction
 
 Function Fragment_Stage_0610_Item_00()
@@ -1333,6 +1356,7 @@ Function Fragment_Stage_1000_Item_00()
   Game.SetPlayerReportCrime(True)
   kmyQuest.AttackEnableLayer.Delete()
   (Alias_SpaceportDoorToWell.GetRef() as loadelevatormanagerscript).SetElevatorOperational(True)
+  Alias_LodgeDoorTriggers.DisableAll(False)
   ((Self as Quest) as uc04_questscript).LockAllDoors(Alias_LodgeDoorsExt, False)
   (Alias_MinisterHallFloorManager.GetRef() as loadelevatormanagerscript).SetElevatorOperational(True)
   kmyQuest.ToggleElevatorCollAccessibility(Alias_PrimaryFloorManagers, True)

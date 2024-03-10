@@ -515,4 +515,5 @@ Function Fragment_Stage_2000_Item_00()
     (SQ_Companions as sq_companionsscript).SetRoleActive(SarahMorganREF, True, True, 0.0, 0.0)
     SarahMorganREF.EvaluatePackage(False)
   EndIf
+  Alias_LodgeBed.GetRef().BlockActivation(False, False)
 EndFunction

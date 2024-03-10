@@ -51,6 +51,8 @@ ReferenceAlias Property Alias_GasEnableMarker Auto Const mandatory
 wwiseevent Property Wwise_Event_OBJ_Alarm_Generic_Play Auto Const
 ReferenceAlias Property Alias_GeneratorAlarmSoundMarker Auto Const mandatory
 Quest Property RI_Support Auto Const mandatory
+ReferenceAlias Property Alias_RoofAccessDoor Auto Const mandatory
+Cell Property LC051InfinityHQ Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -240,10 +242,12 @@ EndFunction
 Function Fragment_Stage_2000_Item_00()
   Alias_EmployeeEnableMarker.getref().disable(False)
   Alias_PostQuestGuardDisableMarker.getref().disable(False)
+  Alias_GuardEnableMarker.getref().disable(False)
   Alias_Harper.getref().disable(False)
   Alias_Stanley.getref().disable(False)
   Alias_Angelo.getref().disable(False)
   Alias_Lucas.getref().disable(False)
   Alias_Faye.getref().disable(False)
   (Alias_ExteriorElevator.getref() as loadelevatormanagerscript).SetElevatorOperational(False)
+  LC051InfinityHQ.EnableFastTravel(True)
 EndFunction

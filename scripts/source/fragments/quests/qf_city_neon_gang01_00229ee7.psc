@@ -31,6 +31,7 @@ Function Fragment_Stage_0200_Item_00()
   Self.SetObjectiveDisplayed(200, True, False)
   Self.SetStage(210)
   Alias_StrikersDoor.GetRef().Unlock(False)
+  Alias_StrikersDoor.GetRef().SetLockLevel(0)
 EndFunction
 
 Function Fragment_Stage_0210_Item_00()

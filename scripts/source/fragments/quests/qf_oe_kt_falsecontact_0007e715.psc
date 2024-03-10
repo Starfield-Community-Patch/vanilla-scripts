@@ -35,6 +35,7 @@ ReferenceAlias Property Alias_NPC_Crew02 Auto Const mandatory
 ReferenceAlias Property Alias_MapMarker Auto Const mandatory
 LocationAlias Property Alias_OE_Location Auto Const mandatory
 Keyword Property LocTypeOE_ThemeEmptyKeyword Auto Const mandatory
+Keyword Property BlockPlayerActivation_Keyword Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -114,6 +115,10 @@ Function Fragment_Stage_0300_Item_00()
   If Alias_OE_Location.GetLocation().HasKeyword(LocTypeOE_ThemeEmptyKeyword)
     Alias_MapMarker.TryToDisable()
   EndIf
+EndFunction
+
+Function Fragment_Stage_0400_Item_00()
+  Alias_PilotSeat.GetRef().RemoveKeyword(BlockPlayerActivation_Keyword)
 EndFunction
 
 Function Fragment_Stage_1000_Item_00()
