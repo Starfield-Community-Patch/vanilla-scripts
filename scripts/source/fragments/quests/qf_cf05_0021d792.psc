@@ -834,6 +834,8 @@ Function Fragment_Stage_0714_Item_00()
   Alias_CF05_HuanShip.GetShipRef().SetExteriorLoadDoorInaccessible(True)
   Alias_CF05_Location_HuanShipInterior.GetLocation().DisableSpaceTravelToAllExcept(CF05, True)
   kmyQuest.CF05_Layer = inputenablelayer.Create()
+  kmyQuest.CF05_Layer.EnableFastTravel(False)
+  kmyQuest.CF05_Layer.EnableFarTravel(False)
   kmyQuest.CF05_Layer.DisablePlayerControls(False, True, False, False, False, False, False, False, False, False, False)
 EndFunction
 

@@ -45,6 +45,7 @@ EndFunction
 Function Fragment_Stage_0110_Item_00()
   Quest __temp = Self as Quest
   mq401questscript kmyQuest = __temp as mq401questscript
+  kmyQuest.CheckChargenMenu()
 EndFunction
 
 Function Fragment_Stage_0120_Item_00()

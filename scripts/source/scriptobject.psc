@@ -66,6 +66,10 @@ Event OnGainLOS(ObjectReference akViewer, ObjectReference akTarget)
   ; Empty function
 EndEvent
 
+Function OnGameplayOptionChanged(gameplayoption[] aChangedOptions)
+  ; Empty function
+EndFunction
+
 Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
   ; Empty function
 EndEvent
@@ -168,6 +172,8 @@ Function RegisterForDistanceGreaterThanEvent(ScriptObject akObj1, ScriptObject a
 
 Function RegisterForDistanceLessThanEvent(ScriptObject akObj1, ScriptObject akObj2, Float afDistance, Int aiEventID) Native
 
+Function RegisterForGameplayOptionChangedEvent() Native
+
 Function RegisterForHitEvent(ScriptObject akTarget, ScriptObject akAggressorFilter, Form akSourceFilter, Form akProjectileFilter, Int aiPowerFilter, Int aiSneakFilter, Int aiBashFilter, Int aiBlockFilter, Bool abMatch) Native
 
 Function RegisterForMagicEffectApplyEvent(ScriptObject akTarget, ScriptObject akCasterFilter, Form akEffectFilter, Bool abMatch) Native
@@ -241,6 +247,8 @@ Function UnregisterForChallengeEvents() Native
 Function UnregisterForCustomEvent(ScriptObject akSender, String asEventName) Native
 
 Function UnregisterForDistanceEvents(ScriptObject akObj1, ScriptObject akObj2, Int aiEventID) Native
+
+Function UnregisterForGameplayOptionChangedEvent() Native
 
 Function UnregisterForHitEvent(ScriptObject akTarget, ScriptObject akAggressorFilter, Form akSourceFilter, Form akProjectileFilter, Int aiPowerFilter, Int aiSneakFilter, Int aiBashFilter, Int aiBlockFilter, Bool abMatch) Native
 

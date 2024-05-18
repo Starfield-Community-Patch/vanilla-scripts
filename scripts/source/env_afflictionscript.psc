@@ -32,6 +32,9 @@ Group Autofill
   ActorValue Property ENV_AFFL_SkillChallengeAV_Injury Auto Const mandatory
   ActorValue Property ENV_AFFL_SkillChance_PreventInfection Auto Const mandatory
   ActorValue Property ENV_AFFL_SkillChance_PreventInjury Auto Const mandatory
+  ActorValue Property PEO_ENV_AFFL_Treatment_CureChance_AV Auto Const mandatory
+  GlobalVariable Property PEO_PrognosisChances_GV Auto Const mandatory
+  GlobalVariable Property PEO_PrognosisChances_IncChanceMult Auto Const mandatory
 EndGroup
 
 Group Data
@@ -87,23 +90,31 @@ Event OnInit()
   myStats.add(Stat_GainInfection, 1)
 EndEvent
 
-Bool Function Improve(Int ImprovementLevels)
+Bool Function Improve(Int ImprovementLevels, Bool isTreatment)
   Actor playerRef = Game.GetPlayer()
   Int currentValue = playerRef.GetValue(PrognosisAV) as Int
   Bool severityImproved = False
   Bool cured = False
-  If currentValue >= iPrognosis_Excellent
-    Int iCurrentSpell = Self.GetSpellListIndexForCurrentSpell()
-    If iCurrentSpell == 0
-      Self.Cure()
-      cured = True
+  Bool isPrognosisInitiallyExcellent = currentValue >= iPrognosis_Excellent
+  If isPrognosisInitiallyExcellent
+    If isTreatment
+      If Game.GetDieRollSuccess(Game.GetPlayer().GetValue(PEO_ENV_AFFL_Treatment_CureChance_AV) as Int, 1, 100, -1, -1)
+        Self.Cure()
+        cured = True
+      EndIf
     Else
-      Spell currentSpell = AfflictionSpellList.GetAt(iCurrentSpell) as Spell
-      Spell nextSpell = AfflictionSpellList.GetAt(iCurrentSpell - 1) as Spell
-      Game.GetPlayer().RemoveSpell(currentSpell)
-      Game.GetPlayer().AddSpell(nextSpell, False)
-      SQ_ENV.StartAfflictionTimer(Self as ScriptObject)
-      severityImproved = True
+      Int iCurrentSpell = Self.GetSpellListIndexForCurrentSpell()
+      If iCurrentSpell == 0
+        Self.Cure()
+        cured = True
+      Else
+        Spell currentSpell = AfflictionSpellList.GetAt(iCurrentSpell) as Spell
+        Spell nextSpell = AfflictionSpellList.GetAt(iCurrentSpell - 1) as Spell
+        Game.GetPlayer().RemoveSpell(currentSpell)
+        Game.GetPlayer().AddSpell(nextSpell, False)
+        SQ_ENV.StartAfflictionTimer(Self as ScriptObject)
+        severityImproved = True
+      EndIf
     EndIf
   EndIf
   Int newValue = currentValue + ImprovementLevels
@@ -112,7 +123,11 @@ Bool Function Improve(Int ImprovementLevels)
   If severityImproved
     SQ_ENV.ShowSeverityImprovedMessage(Self)
   ElseIf cured == False
-    SQ_ENV.ShowImprovedMessage(Self)
+    If isPrognosisInitiallyExcellent
+      SQ_ENV.ShowAttemptedToCureMessage(Self)
+    Else
+      SQ_ENV.ShowImprovedMessage(Self)
+    EndIf
   EndIf
   Return True
 EndFunction
@@ -233,7 +248,7 @@ Bool Function AttemptToImprove(Int ForcedDieRoll, Int DebugDieRoll)
     Bool ImproveSuccess = Game.GetDieRollSuccess(Chance_Improve, 1, 100, DebugDieRoll, ForcedDieRoll)
     Self.IncrementStat(strImproveAttempts)
     If ImproveSuccess
-      Return Self.Improve(1)
+      Return Self.Improve(1, False)
     EndIf
   EndIf
   Return False
@@ -329,19 +344,32 @@ Int Function GetChance_Cure()
       returnVal += Game.GetPlayer().GetValue(ENV_AFFL_BonusCureChance_Injury) as Int
     EndIf
   EndIf
+  returnVal = Self.PEO_ChangeCureOrImproveChance(returnVal)
   Return returnVal
 EndFunction
 
 Int Function GetChance_Improve()
-  Return Self.GetCurveChance(Curve_Improve_Chance)
+  Int returnVal = Self.GetCurveChance(Curve_Improve_Chance)
+  returnVal = Self.PEO_ChangeCureOrImproveChance(returnVal)
+  Return returnVal
 EndFunction
 
 Int Function GetChance_Worsen()
-  Return Self.GetCurveChance(Curve_Worsen_Chance)
+  Int returnVal = Self.GetCurveChance(Curve_Worsen_Chance)
+  Return returnVal
 EndFunction
 
 Int Function GetChance_Infection()
-  Return Self.GetCurveChance(Curve_Infection_Chance)
+  Int returnVal = Self.GetCurveChance(Curve_Infection_Chance)
+  Return returnVal
+EndFunction
+
+Int Function PEO_ChangeCureOrImproveChance(Int valueToChange)
+  Int prognosisChances_Setting = PEO_PrognosisChances_GV.GetValueInt()
+  If prognosisChances_Setting != 0
+    valueToChange = Math.Floor(valueToChange as Float * PEO_PrognosisChances_IncChanceMult.GetValue())
+  EndIf
+  Return valueToChange
 EndFunction
 
 String Function MakeStatString(env_afflictionscript:stat StatToGet)

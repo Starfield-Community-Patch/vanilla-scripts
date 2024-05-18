@@ -20,7 +20,7 @@ Function Fragment_Stage_0025_Item_00()
   Alias_Leader.GetActorRef().EvaluatePackage(False)
   Alias_Homesteaders.EnableAll(False)
   Alias_Homesteaders.EvaluateAll()
-  Alias_PredatorGroup.EnableAll(False)
+  Alias_PredatorGroup.DisableAll(False)
   Self.SetStage(50)
 EndFunction
 
@@ -73,13 +73,12 @@ EndFunction
 
 Function Fragment_Stage_0150_Item_00()
   Alias_Homesteaders.EvaluateAll()
+  Self.SetObjectiveCompleted(100, True)
 EndFunction
 
 Function Fragment_Stage_0200_Item_00()
   Quest __temp = Self as Quest
   oe_huntedhomesteaders_questscript kmyQuest = __temp as oe_huntedhomesteaders_questscript
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(200, True, False)
   Alias_Leader.TryToAddToFaction(REPlayerAlly)
   Alias_Homesteaders.AddToFaction(REPlayerAlly)
   Alias_Homesteaders.EvaluateAll()
@@ -95,13 +94,14 @@ Function Fragment_Stage_0250_Item_00()
   Quest __temp = Self as Quest
   oe_huntedhomesteaders_questscript kmyQuest = __temp as oe_huntedhomesteaders_questscript
   kmyQuest.StartWaitTimer()
+  Self.SetObjectiveDisplayed(200, True, False)
 EndFunction
 
 Function Fragment_Stage_0300_Item_00()
   Self.SetObjectiveCompleted(100, True)
   Self.SetObjectiveCompleted(200, True)
   Self.SetObjectiveDisplayed(300, True, False)
-  Alias_PredatorGroup.SetValue(Game.GetAggressionAV(), 1.0)
+  Alias_PredatorGroup.EnableAll(False)
   Alias_PredatorGroup.EvaluateAll()
   Alias_Homesteaders.EvaluateAll()
   Alias_Leader.GetActorRef().EvaluatePackage(False)
@@ -185,7 +185,6 @@ Function Fragment_Stage_0920_Item_00()
   ContainerRef.SetLockLevel(25)
   PlayerRef.AddKeyIfNeeded(ContainerRef)
   Self.SetStage(950)
-  Self.SetStage(930)
 EndFunction
 
 Function Fragment_Stage_0930_Item_00()
@@ -203,5 +202,4 @@ EndFunction
 
 Function Fragment_Stage_0999_Item_00()
   Self.CompleteAllObjectives()
-  Self.Stop()
 EndFunction

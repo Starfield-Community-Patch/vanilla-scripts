@@ -19,6 +19,7 @@ Quest Property City_NewAtlantis_Z_TheBoot Auto Const mandatory
 ReferenceAlias Property Alias_Kay Auto Const mandatory
 ReferenceAlias Property Alias_KayWait Auto Const mandatory
 LeveledItem Property LL_Quest_Reward_Credits_Misc_02_Medium Auto Const mandatory
+Quest Property FFNewAtlantis06 Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -121,7 +122,9 @@ Function Fragment_Stage_0100_Item_00()
 EndFunction
 
 Function Fragment_Stage_0200_Item_00()
-  Alias_TahirVala.GetRef().DisableNoWait(False)
+  If !FFNewAtlantis06.GetStageDone(60) || FFNewAtlantis06.GetStageDone(200)
+    Alias_TahirVala.GetRef().DisableNoWait(False)
+  EndIf
   Alias_UCGuard.GetRef().DisableNoWait(False)
   Self.Stop()
 EndFunction

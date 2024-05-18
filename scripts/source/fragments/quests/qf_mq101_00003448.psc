@@ -293,6 +293,7 @@ Perk Property FactionUnitedColoniesVanguardPerk Auto Const mandatory
 ActorValue Property SpaceshipRegistration Auto Const mandatory
 Message Property Tutorial_PlanetLandingMSGBox Auto Const mandatory
 GlobalVariable Property MQ101SaveOff Auto Const mandatory
+Perk Property PERK_StarterHome Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -1721,6 +1722,11 @@ Function Fragment_Stage_1800_Item_00()
   If TraitKidStuff.IsRunning()
     TraitKidStuff.SetStageNoWait(25)
   EndIf
+  If Game.GetPlayer().HasPerk(PERK_StarterHome)
+    TraitStarterHome.SetStageNoWait(100)
+  Else
+    TraitStarterHome.Stop()
+  EndIf
   VascoEliteCrewQuest.SetStageNoWait(1)
   Game.AddAchievement(2)
   MQ101VascoQuestFollower.SetValueInt(0)
@@ -1791,9 +1797,6 @@ Function Fragment_Stage_9000_Item_00()
   MQ101SpaceEncounter01.Stop()
   MQ101SpaceEncounter02.Stop()
   DNMQ101.Stop()
-  If TraitStarterHome.IsRunning()
-    TraitStarterHome.SetStage(100)
-  EndIf
   Alias_Heller.GetActorRef().SetOutfit(Outfit_Elite_Heller, False)
   Alias_Lin.GetActorRef().SetOutfit(Outfit_Elite_Lin, False)
   MQ101VascoQuestFollower.SetValueInt(0)

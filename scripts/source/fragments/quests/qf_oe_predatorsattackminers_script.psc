@@ -55,6 +55,13 @@ Function Fragment_Stage_0800_Item_00()
   EndIf
 EndFunction
 
+Function Fragment_Stage_0825_Item_00()
+  If Self.IsObjectiveDisplayed(800)
+    Self.SetObjectiveSkipped(800)
+    Self.SetObjectiveDisplayed(825, True, False)
+  EndIf
+EndFunction
+
 Function Fragment_Stage_0850_Item_00()
   If !Self.GetStageDone(600)
     Self.SetStage(600)

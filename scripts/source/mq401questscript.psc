@@ -14,6 +14,7 @@ Group QuestVariantsGroup
   Quest[] Property MQ401VariantsArray Auto Const
 EndGroup
 
+Int Property FaceGenStage = 110 Auto Const
 Int Property PostCharGenStage = 120 Auto Const
 Message Property MQ401SkipCharGenMSG Auto Const
 Scene Property MQ401_001_LodgeIntro Auto Const mandatory
@@ -76,7 +77,22 @@ Event OnQuestInit()
   Else
     Self.NormalStart()
   EndIf
+  Self.SetStage(FaceGenStage)
 EndEvent
+
+Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
+  If asMenuName == "ChargenMenu"
+    If abOpening == False
+      Self.UnRegisterForMenuOpenCloseEvent("ChargenMenu")
+      Game.FadeOutGame(False, True, 0.0, 0.100000001, False)
+    EndIf
+  EndIf
+EndEvent
+
+Function CheckChargenMenu()
+  Self.RegisterForMenuOpenCloseEvent("ChargenMenu")
+  Game.ShowRaceMenu(None, 1, None, None, None)
+EndFunction
 
 Function CleanUpNormalMainQuest()
   (MQ101 as mq101script).ShutdownMQ101ViaNG()

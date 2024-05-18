@@ -2,6 +2,7 @@ ScriptName SQ_Airlock_QuestScript Extends Quest
 { handles adding/removing actors to a ref collection meaning they are "inside" an airlocked location.Achievements_TrackedStatsScript }
 
 ;-- Variables ---------------------------------------
+Bool registeredForOnPlayerTeleportEvent
 Bool registeredForPlayerEvent
 
 ;-- Properties --------------------------------------
@@ -21,10 +22,19 @@ Function RegisterForOnPlayerFollowerWarp()
   Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerFollowerWarp")
 EndFunction
 
+Function RegisterForOnPlayerTeleport()
+  registeredForOnPlayerTeleportEvent = True
+  Self.RegisterForPlayerTeleport()
+EndFunction
+
 Event Actor.OnPlayerFollowerWarp(Actor akSender, ObjectReference akFollower)
   If Alias_InsideActors.Find(Game.GetPlayer() as ObjectReference) < 0
     Alias_InsideActors.RemoveRef(akFollower)
   EndIf
+EndEvent
+
+Event OnPlayerTeleport()
+  Self.RemoveActorFromInsideActorsAlias(Game.GetPlayer())
 EndEvent
 
 Function SetActorInside(Actor ActorToSet, Bool SetInside)
@@ -36,6 +46,9 @@ Function SetActorInside(Actor ActorToSet, Bool SetInside)
   If registeredForPlayerEvent == False
     Self.RegisterForOnPlayerFollowerWarp()
   EndIf
+  If registeredForOnPlayerTeleportEvent == False
+    Self.RegisterForOnPlayerTeleport()
+  EndIf
 EndFunction
 
 Function SetActorsInside(Actor[] ActorsToSet, Bool SetInside)
@@ -46,6 +59,10 @@ Function SetActorsInside(Actor[] ActorsToSet, Bool SetInside)
     EndIf
     I += 1
   EndWhile
+EndFunction
+
+Function RemoveActorFromInsideActorsAlias(Actor akActor)
+  Alias_InsideActors.RemoveRef(akActor as ObjectReference)
 EndFunction
 
 Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)

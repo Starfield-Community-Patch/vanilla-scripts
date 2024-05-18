@@ -1695,4 +1695,5 @@ Function Fragment_Stage_2000_Item_00()
   If COM_SQ01_SonaLeft.GetValueInt() == 1
     Alias_Sona.GetActorRef().EnableNoWait(False)
   EndIf
+  kmyQuest.MQ204EnableLayer.Delete()
 EndFunction

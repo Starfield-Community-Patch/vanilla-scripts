@@ -2,6 +2,8 @@ ScriptName ENV_PeriodicEffectScript Extends ActiveMagicEffect
 
 ;-- Structs -----------------------------------------
 Struct PeriodicEffectDatum
+  Potion PotionToConsume
+  { Optional: Consume this potion when this effect is fired }
   Bool FireOnStart
   { These effects should fire when the magic effect starts }
   Int FireOnTimerID = -1
@@ -142,6 +144,9 @@ Function ProcessPeriodicEventData(env_periodiceffectscript:periodiceffectdatum[]
       If currentPeriodicEffectDatum.SpellToCast
         currentPeriodicEffectDatum.SpellToCast.Cast(CasterActor as ObjectReference, TargetActor as ObjectReference)
       EndIf
+      If currentPeriodicEffectDatum.PotionToConsume
+        Self.ConsumePotion(currentPeriodicEffectDatum.PotionToConsume, TargetActor)
+      EndIf
       If currentPeriodicEffectDatum.IncrementalSpellListToCast
         FormList currentSpellList = currentPeriodicEffectDatum.IncrementalSpellListToCast
         Int iSpell = 0
@@ -217,6 +222,10 @@ Function DispelOrRemoveSpell(Spell SpellToDispelOrRemove, Actor TargetActor, Boo
   Else
     TargetActor.DispelSpell(SpellToDispelOrRemove)
   EndIf
+EndFunction
+
+Function ConsumePotion(Potion PotionToConsume, Actor TargetActor)
+  TargetActor.EquipItem(PotionToConsume as Form, False, True)
 EndFunction
 
 env_periodiceffectscript:periodiceffectdatum[] Function GetAllPeriodicEffectsFiringOnStart()

@@ -574,6 +574,8 @@ Function Fragment_Stage_1130_Item_00()
 EndFunction
 
 Function Fragment_Stage_2000_Item_00()
+  Quest __temp = Self as Quest
+  mq103script kmyQuest = __temp as mq103script
   Self.CompleteAllObjectives()
   Actor PlayerREF = Game.GetPlayer()
   If MQ104A.GetStageDone(1000) && MQ104B.GetStageDone(1000)
@@ -585,5 +587,6 @@ Function Fragment_Stage_2000_Item_00()
   If !SamREF.HasKeyword(TeammateReadyWeapon_DO)
     SamREF.AddKeyword(TeammateReadyWeapon_DO)
   EndIf
+  kmyQuest.MQ103EnableLayer.Delete()
   Self.Stop()
 EndFunction

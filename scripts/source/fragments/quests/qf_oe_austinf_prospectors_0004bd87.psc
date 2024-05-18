@@ -32,6 +32,16 @@ Function Fragment_Stage_0275_Item_00()
   Alias_NPCDialogue01.GetActorRef().EvaluatePackage(False)
 EndFunction
 
+Function Fragment_Stage_0300_Item_00()
+  Self.SetStage(325)
+EndFunction
+
+Function Fragment_Stage_0325_Item_00()
+  Alias_NPCDialogue01.GetActorRef().AddToFaction(PlayerEnemyFaction)
+  Alias_NPCDialogue01.GetActorRef().StartCombat(Game.GetPlayer() as ObjectReference, False)
+  Alias_NPCDialogue01.GetActorRef().EvaluatePackage(False)
+EndFunction
+
 Function Fragment_Stage_0800_Item_00()
   Self.SetStage(900)
 EndFunction

@@ -153,5 +153,8 @@ Function Fragment_Stage_0995_Item_00()
 EndFunction
 
 Function Fragment_Stage_0999_Item_00()
-  Alias_WoundedPerson.GetRef().Removekeyword(SQ_Captive_HasFollowWaitTopics)
+  Actor WoundedNPC = Alias_WoundedPerson.GetActorRef()
+  WoundedNPC.Removekeyword(SQ_Captive_HasFollowWaitTopics)
+  WoundedNPC.SetProtected(False)
+  WoundedNPC.EvaluatePackage(False)
 EndFunction

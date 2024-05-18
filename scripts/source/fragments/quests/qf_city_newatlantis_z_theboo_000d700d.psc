@@ -58,6 +58,10 @@ Function Fragment_Stage_0030_Item_00()
   City_NewAtlantis_Z_TheBoot_Intro.Start()
 EndFunction
 
+Function Fragment_Stage_0034_Item_00()
+  Self.SetObjectiveFailed(70, True)
+EndFunction
+
 Function Fragment_Stage_0035_Item_00()
   City_NewAtlantis_Z_TheBoot_Buyer.Start()
 EndFunction

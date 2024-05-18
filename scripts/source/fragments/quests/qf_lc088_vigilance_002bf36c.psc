@@ -142,6 +142,8 @@ ObjectReference Property LC088_Vigilance_EngineRoom02EndBreadcrumb Auto Const ma
 ObjectReference Property LC088_Vigilance_EngineRoom03EndBreadcrumb Auto Const mandatory
 ObjectReference Property LC088_Vigilance_MessHallStartBreadcrumb Auto Const mandatory
 ObjectReference Property LC088_Vigilance_MessHallEndBreadcrumb Auto Const mandatory
+ReferenceAlias Property Alias_Patch_MessHallDoor Auto Const
+ReferenceAlias Property Alias_Patch_QuartersDoor Auto Const
 
 ;-- Functions ---------------------------------------
 
@@ -252,6 +254,8 @@ Function Fragment_Stage_0011_Item_00()
   EndWhile
   kmyQuest.SetupBrigPrisoners()
   kmyQuest.SetupAllCaptainEvents()
+  Alias_Patch_MessHallDoor.GetRef().Lock(True, False, True)
+  Alias_Patch_QuartersDoor.GetRef().Lock(True, False, True)
   Self.SetStage(12)
 EndFunction
 
@@ -290,6 +294,10 @@ Function Fragment_Stage_0018_Item_00()
   EstelleRef.SetOutfit(Outfit_Clothes_CrimsonFleet_Captain_04, False)
   EstelleRef.RemoveFromFaction(CrimeFactionNeon)
   EstelleRef.AddToFaction(CrimeFactionCrimsonFleet)
+EndFunction
+
+Function Fragment_Stage_0020_Item_00()
+  Alias_Patch_MessHallDoor.GetRef().Unlock(False)
 EndFunction
 
 Function Fragment_Stage_0095_Item_00()
@@ -598,6 +606,7 @@ Function Fragment_Stage_0700_Item_00()
   If !CF08_Fleet.GetStageDone(370)
     CF08_Fleet.SetStage(375)
   EndIf
+  Alias_Patch_MessHallDoor.GetRef().Unlock(False)
 EndFunction
 
 Function Fragment_Stage_0710_Item_00()
@@ -618,6 +627,7 @@ Function Fragment_Stage_0730_Item_00()
   Quest __temp = Self as Quest
   lc088_vigilancequestscript kmyQuest = __temp as lc088_vigilancequestscript
   LC088_Vigilance_QTMarkerQuartersRef.MoveTo(LC088_Vigilance_MessHallEndBreadcrumb, 0.0, 0.0, 0.0, True, False)
+  Alias_Patch_QuartersDoor.GetRef().Unlock(False)
   LC088_Vigilance_MessHallNavcutRef.Disable(False)
   Utility.Wait(2.0)
   If Self.GetStageDone(17)

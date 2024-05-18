@@ -31,6 +31,9 @@ GlobalVariable Property Neon_Euphorika_LoungeCost Auto Const mandatory
 Quest Property FFNeonZ11 Auto Const mandatory
 Quest Property CF06 Auto Const mandatory
 ReferenceAlias Property Alias_FCNeonFranchescaMoore Auto Const mandatory
+sq_playerhousescript Property PlayerHouseSystem Auto Const mandatory
+GlobalVariable Property FCNeon_TradeTowerHomeGlobal Auto Const mandatory
+Key Property FCNeon_TradeTowerPlayerHomeKey Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -44,6 +47,9 @@ EndFunction
 
 Function Fragment_Stage_0101_Item_00()
   DialogueFCNeon_PlayerHomeQuest.SetStage(30)
+  If !DialogueFCNeon_PlayerHomeQuest.GetStageDone(30)
+    PlayerHouseSystem.PurchaseHouse(FCNeon_TradeTowerHomeGlobal, FCNeon_TradeTowerPlayerHomeKey)
+  EndIf
 EndFunction
 
 Function Fragment_Stage_0115_Item_00()

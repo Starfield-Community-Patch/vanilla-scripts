@@ -40,6 +40,7 @@ Function Fragment_Stage_0001_Item_00()
   OE_KT_Execution_Scene_Stage30_Opening.Start()
   Actor AttackRef = Alias_NPC_Attacker01.GetActorRef()
   Actor ThreatRef = Alias_NPC_Attacker02.GetActorRef()
+  AttackRef.SetProtected(False)
   Alias_NPC_Group01.AddRef(AttackRef as ObjectReference)
   Alias_NPC_Group01.AddRef(ThreatRef as ObjectReference)
 EndFunction
@@ -70,6 +71,7 @@ EndFunction
 Function Fragment_Stage_0005_Item_00()
   Actor ThreatRef = Alias_NPC_Attacker01.GetActorRef()
   Actor AttackerRef = Alias_NPC_Attacker02.GetActorRef()
+  Alias_NPC_Attacker02.GetActorRef().SetProtected(False)
   ThreatRef.EvaluatePackage(False)
   ThreatRef.StartCombat(AttackerRef as ObjectReference, False)
 EndFunction
@@ -103,6 +105,7 @@ Function Fragment_Stage_0014_Item_00()
 EndFunction
 
 Function Fragment_Stage_0019_Item_00()
+  Alias_NPC_Captive.GetActorRef().SetProtected(False)
   Alias_NPC_Captive.GetActorRef().Kill(None)
 EndFunction
 
@@ -111,6 +114,7 @@ Function Fragment_Stage_0040_Item_00()
 EndFunction
 
 Function Fragment_Stage_0040_Item_01()
+  Alias_NPC_Attacker02.GetActorRef().SetProtected(False)
   Alias_NPC_Attacker02.GetActorRef().Kill(None)
   OE_KT_Execution_Scene_Stage30_BountySplit.Stop()
   Utility.Wait(1.5)
@@ -121,6 +125,7 @@ Function Fragment_Stage_0044_Item_00()
   Actor Attacker = Alias_NPC_Attacker04.GetActorRef()
   Attacker.EvaluatePackage(False)
   Utility.Wait(2.0)
+  Alias_NPC_Attacker04.GetActorRef().SetProtected(False)
   Alias_NPC_Captive.GetActorRef().StartCombat(Attacker as ObjectReference, False)
 EndFunction
 
@@ -129,6 +134,7 @@ Function Fragment_Stage_0045_Item_00()
 EndFunction
 
 Function Fragment_Stage_0046_Item_00()
+  Alias_NPC_Captive.GetActorRef().SetProtected(False)
   Alias_NPC_Captive.GetActorRef().Kill(None)
 EndFunction
 

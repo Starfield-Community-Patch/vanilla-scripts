@@ -26,6 +26,7 @@ ReferenceAlias Property Alias_KeeperAquilus Auto Const mandatory
 Perk Property TRAIT_RaisedEnlightened Auto Const mandatory
 ReferenceAlias Property Alias_AndySingh Auto Const mandatory
 Quest[] Property CREW_EliteQuests Auto Const mandatory
+ReferenceAlias Property Alias_Player Auto Const mandatory
 
 ;-- Functions ---------------------------------------
 
@@ -59,6 +60,60 @@ Function Fragment_Stage_0001_Item_00()
     Alias_AdministratorRookes_UC.Clear()
   EndIf
   Self.SetStage(100)
+EndFunction
+
+Function Fragment_Stage_0099_Item_00()
+  Quest __temp = Self as Quest
+  defaultquestchangelocationscript kmyQuest = __temp as defaultquestchangelocationscript
+  Actor aPlayer = Game.GetPlayer()
+  Bool bExtrovert = aPlayer.HasPerk(TRAIT_Extrovert)
+  Bool bIntrovert = aPlayer.HasPerk(TRAIT_Introvert)
+  Bool bUniversal = aPlayer.HasPerk(TRAIT_RaisedUniversal)
+  Bool bEnlightened = aPlayer.HasPerk(TRAIT_RaisedEnlightened)
+  Bool bTaskmaster = aPlayer.HasPerk(TRAIT_Taskmaster)
+  Bool bFC = aPlayer.HasPerk(TRAIT_FreestarCollectiveSettler)
+  Bool bSerpent = aPlayer.HasPerk(TRAIT_SerpentsEmbrace)
+  Bool bUC = aPlayer.HasPerk(TRAIT_UnitedColoniesNative)
+  Bool bNeon = aPlayer.HasPerk(TRAIT_NeonStreetRat)
+  If !bExtrovert && !bIntrovert && !bTaskmaster && !bUniversal
+    Alias_KeeperAquilus.Clear()
+  EndIf
+  If !bExtrovert && !bIntrovert && !bTaskmaster && !bEnlightened
+    Alias_AndySingh.Clear()
+  EndIf
+  If !bSerpent
+    Alias_Mirza.Clear()
+  EndIf
+  If !bNeon
+    Alias_MadameSauvage.Clear()
+  EndIf
+  If !bFC
+    Alias_MayorCartwright_FC.Clear()
+  EndIf
+  If !bUC
+    Alias_AdministratorRookes_UC.Clear()
+  EndIf
+  Alias_Player.Clear()
+  Self.SetStage(100)
+EndFunction
+
+Function Fragment_Stage_0099_Item_01()
+  If Game.GetPlayer().HasPerk(TRAIT_KidStuff)
+    TraitKidStuff.Start()
+  EndIf
+  If Game.GetPlayer().HasPerk(TRAIT_StarterHome)
+    TraitStarterHome.Start()
+  Else
+    TraitStarterHome.Stop()
+  EndIf
+EndFunction
+
+Function Fragment_Stage_0099_Item_02()
+  TraitUnwantedHero.Start()
+EndFunction
+
+Function Fragment_Stage_0099_Item_03()
+  TraitWanted.Start()
 EndFunction
 
 Function Fragment_Stage_0100_Item_00()

@@ -27,11 +27,14 @@ Int iSystem_Worsen = 2 Const
 Group Autofill
   sq_envscript Property SQ_ENV Auto Const mandatory
   Message Property ENV_AFFL_Cured_Msg Auto Const mandatory
+  Message Property ENV_AFFL_AttemptedToCure_Msg Auto Const mandatory
   Message Property ENV_AFFL_Gained_Msg Auto Const mandatory
   Message Property ENV_AFFL_Worsened_Msg Auto Const mandatory
   Message Property ENV_AFFL_Improved_Msg Auto Const mandatory
   Message Property ENV_AFFL_Improved_Severity_Msg Auto Const mandatory
   GlobalVariable Property ENV_AFFL_InfectionSpreadAllowed Auto Const mandatory
+  GlobalVariable Property ENV_AFFL_WorsenAllowed Auto Const mandatory
+  GlobalVariable Property PEO_AfflictionTreatment_GV Auto Const mandatory
   ActorValue Property ENV_AFFL_Treatment_CureChance_Infection Auto Const mandatory
   ActorValue Property ENV_AFFL_Treatment_CureChance_Injury Auto Const mandatory
 EndGroup
@@ -50,7 +53,14 @@ Event OnTimer(Int aiTimerID)
 EndEvent
 
 Bool Function IsInfectionSpreadAllowed()
-  Bool returnVal = ENV_AFFL_InfectionSpreadAllowed.GetValue() == 1.0
+  Bool returnVal = ENV_AFFL_InfectionSpreadAllowed.GetValueInt() == 0
+  returnVal = !returnVal
+  Return returnVal
+EndFunction
+
+Bool Function IsWorsenAllowed()
+  Bool returnVal = ENV_AFFL_WorsenAllowed.GetValueInt() == 0
+  returnVal = !returnVal
   Return returnVal
 EndFunction
 
@@ -72,7 +82,7 @@ Function HandleTimer()
     activeAfflictionDataToProcess = Self.GetActiveAfflictions(True, False, False, False, None)
   ElseIf iNextSystem == iSystem_Infection && Self.IsInfectionSpreadAllowed()
     activeAfflictionDataToProcess = Self.GetActiveAfflictions(False, True, False, False, None)
-  ElseIf iNextSystem == iSystem_Worsen
+  ElseIf iNextSystem == iSystem_Worsen && Self.IsWorsenAllowed()
     activeAfflictionDataToProcess = Self.GetActiveAfflictions(False, False, True, False, None)
   ElseIf iNextSystem == iSystem_Improve
     activeAfflictionDataToProcess = Self.GetActiveAfflictions(False, False, False, True, None)
@@ -123,24 +133,26 @@ EndFunction
 
 Function ImproveActiveAfflictions(Keyword TreatmentEffectKeyword, Int ImprovementLevels, Bool IsTreatment)
   env_afflictionscript[] afflictionsToImprove = Self.GetActiveAfflictions(False, False, False, False, TreatmentEffectKeyword)
-  Bool hardcoreMode = False
   Bool cureRandomInfection = IsTreatment && Game.GetDieRollSuccess(Game.GetPlayer().GetValue(ENV_AFFL_Treatment_CureChance_Infection) as Int, 1, 100, -1, -1)
   Bool cureRandomInjury = IsTreatment && Game.GetDieRollSuccess(Game.GetPlayer().GetValue(ENV_AFFL_Treatment_CureChance_Injury) as Int, 1, 100, -1, -1)
   Int[] randomizedIndexes = commonarrayfunctions.GetRandomizedIndexes(afflictionsToImprove.Length)
   Int I = 0
   While I < randomizedIndexes.Length
     env_afflictionscript currentAffliction = afflictionsToImprove[randomizedIndexes[I]]
-    If hardcoreMode
-      If cureRandomInfection && currentAffliction.IsInfection
-        currentAffliction.Cure()
-        cureRandomInfection = False
-      ElseIf cureRandomInjury && currentAffliction.IsInfection == False
-        currentAffliction.Cure()
-        cureRandomInjury = False
-      Else
-        currentAffliction.Improve(ImprovementLevels)
-      EndIf
-    Else
+    Bool cured = False
+    If cureRandomInfection && currentAffliction.IsInfection
+      cured = True
+      cureRandomInfection = False
+    ElseIf cureRandomInjury && currentAffliction.IsInfection == False
+      cured = True
+      cureRandomInjury = False
+    EndIf
+    If PEO_AfflictionTreatment_GV.GetValueInt() != 0 && cured == False
+      currentAffliction.Improve(ImprovementLevels, True)
+    ElseIf IsTreatment
+      cured = True
+    EndIf
+    If cured
       currentAffliction.Cure()
     EndIf
     I += 1
@@ -213,6 +225,11 @@ Function ShowCuredMessage(env_afflictionscript AfflictionToShowMessageFor)
   wwiseevent.PlayMenuSound("UIAfflictionPopUpMessageCured")
 EndFunction
 
+Function ShowAttemptedToCureMessage(env_afflictionscript AfflictionToShowMessageFor)
+  SQ_ENV.DisplayTextReplacedMessage(ENV_AFFL_AttemptedToCure_Msg, AfflictionToShowMessageFor as Form)
+  wwiseevent.PlayMenuSound("UIAfflictionPopUpMessageCured")
+EndFunction
+
 Function ShowGainedMessage(env_afflictionscript AfflictionToShowMessageFor)
   SQ_ENV.DisplayTextReplacedMessage(ENV_AFFL_Gained_Msg, AfflictionToShowMessageFor as Form)
   wwiseevent.PlayMenuSound("UIAfflictionPopUpMessageGained")
@@ -274,14 +291,29 @@ Function DebugCureAffliction(String stringID)
   Affliction.Cure()
 EndFunction
 
-Function DebugAttemptToCureAFfliction(String stringID)
+Function DebugAttemptToCureAffliction(String stringID)
   env_afflictionscript Affliction = Self.GetAfflictionByID(stringID)
   Affliction.AttemptToCure(-1, -1)
 EndFunction
 
+Function DebugAttemptToWorsen(String stringID)
+  env_afflictionscript Affliction = Self.GetAfflictionByID(stringID)
+  Affliction.AttemptToWorsen(-1, -1)
+EndFunction
+
+Function DebugAttemptToGainInfection(String stringID)
+  env_afflictionscript Affliction = Self.GetAfflictionByID(stringID)
+  Affliction.AttemptToGainInfection(-1, -1)
+EndFunction
+
+Function DebugAttemptToImprove(String stringID)
+  env_afflictionscript Affliction = Self.GetAfflictionByID(stringID)
+  Affliction.AttemptToImprove(-1, -1)
+EndFunction
+
 Function DebugImproveAffliction(String stringID)
   env_afflictionscript Affliction = Self.GetAfflictionByID(stringID)
-  Affliction.Improve(1)
+  Affliction.Improve(1, False)
 EndFunction
 
 Function DebugSetTimerDuration(Float duration)
