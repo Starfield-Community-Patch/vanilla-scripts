@@ -1,19 +1,18 @@
-ScriptName LandmarkScript Extends Quest
+Scriptname LandmarkScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property LandmarkCompleteMessage Auto Const mandatory
-GlobalVariable Property LandmarkTotal Auto Const mandatory
-GlobalVariable Property LandmarkTracker Auto Const mandatory
-LeveledItem Property Landmark_SpacesuitRewardArmor Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message Property LandmarkCompleteMessage Auto Const Mandatory
+GlobalVariable Property LandmarkTotal Auto Const Mandatory
+GlobalVariable Property LandmarkTracker Auto Const Mandatory
+LeveledItem Property Landmark_SpacesuitRewardArmor Auto Const Mandatory
 
 Function LandmarkFound()
-  Float fLandmarksFound = LandmarkTracker.Mod(1.0)
-  If fLandmarksFound == LandmarkTotal.GetValue()
-    Game.GetPlayer().AddItem(Landmark_SpacesuitRewardArmor as Form, 1, False)
-    LandmarkCompleteMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
+    ; Add one to the tracking global
+    Float fLandmarksFound = LandmarkTracker.Mod(1.0)
+
+    ; Have you found all the Landmarks?
+    if ( fLandmarksFound == LandmarkTotal.GetValue() )
+        ; If you've found them all - play a message and get the Spacesuit
+        Game.GetPlayer().AddItem(Landmark_SpacesuitRewardArmor)
+        LandmarkCompleteMessage.Show()
+    EndIf
 EndFunction

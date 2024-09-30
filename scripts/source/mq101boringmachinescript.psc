@@ -1,15 +1,11 @@
-ScriptName MQ101BoringMachineScript Extends ObjectReference Const
+Scriptname MQ101BoringMachineScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MQ101 Auto Const mandatory
-Int Property iDrillStage = 33 Auto Const
-
-;-- Functions ---------------------------------------
+Quest Property MQ101 Mandatory Const Auto
+Int Property iDrillStage=33 Const Auto
 
 Event OnLoad()
-  If MQ101.IsCompleted() || MQ101.GetStageDone(iDrillStage)
-    Self.PlayAnimation("Stage2NoTransition")
-  EndIf
+    ;set to post-drill state if we've advanced far enough
+    If MQ101.IsCompleted() || MQ101.GetStageDone(iDrillStage)
+        Self.PlayAnimation("Stage2NoTransition")
+    EndIf
 EndEvent

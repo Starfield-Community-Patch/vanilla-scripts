@@ -1,17 +1,14 @@
-ScriptName UC01_LeechCollScript Extends RefCollectionAlias
+Scriptname UC01_LeechCollScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet Auto Const mandatory
-{ Stage to set once this collecting is cleared }
-
-;-- Functions ---------------------------------------
+int Property StageToSet Mandatory Const Auto
+{Stage to set once this collecting is cleared}
 
 Event OnObjectDestroyed(ObjectReference akSenderRef, ObjectReference akReference)
-  Self.RemoveRef(akSenderRef)
-  Int iCount = Self.GetCount()
-  If iCount <= 0
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
+    RemoveRef(akSenderRef)
+    int iCount = GetCount()
+
+    if iCount <= 0
+        GetOwningQuest().SetStage(StageToSet)
+    endif
 EndEvent
+

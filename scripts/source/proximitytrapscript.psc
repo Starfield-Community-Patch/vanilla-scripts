@@ -1,47 +1,49 @@
-ScriptName ProximityTrapScript Extends ObjectReference Const
-{ Damages itself when linked trigger is entered. }
+Scriptname ProximityTrapScript extends ObjectReference Const
+{Damages itself when linked trigger is entered.}
 
-;-- Variables ---------------------------------------
+float Property TimeToExplode = 3.0 Const Auto
+float Property DamageToDo = 100.0 Const Auto
 
-;-- Properties --------------------------------------
-Float Property TimeToExplode = 3.0 Auto Const
-Float Property DamageToDo = 100.0 Auto Const
-String Property SequenceName = "Play01" Auto Const
-{ Effect Sequence to play when this is activated. }
-ObjectReference Property TargetArt Auto Const
-wwiseevent Property WarningSound Auto Const
-Keyword Property IgnoredByTrapFloraKeyword Auto Const mandatory
+string property SequenceName = "Play01" auto const
+	{Effect Sequence to play when this is activated.}
+ObjectReference Property TargetArt Auto const
 
-;-- Functions ---------------------------------------
+WwiseEvent Property WarningSound Const Auto
+Keyword Property IgnoredByTrapFloraKeyword Mandatory Const Auto
 
 Event OnCellLoad()
-  If Self.GetLinkedRef(None)
-    Self.RegisterForRemoteEvent(Self.GetLinkedRef(None) as ScriptObject, "OnTriggerEnter")
-    Self.RegisterForRemoteEvent(Self.GetLinkedRef(None) as ScriptObject, "OnTriggerLeave")
-  EndIf
+    if(GetLinkedRef())
+        RegisterForRemoteEvent(GetLinkedRef(), "OnTriggerEnter")
+        RegisterForRemoteEvent(GetLinkedRef(), "OnTriggerLeave")
+    EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllEvents()
+    UnregisterForAllEvents()
 EndEvent
 
 Event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
-  If !akActionRef.HasKeyword(IgnoredByTrapFloraKeyword)
-    If TimeToExplode != 0.0
-      Self.StartTimer(TimeToExplode, 0)
-      WarningSound.Play(Self as ObjectReference, None, None)
-    Else
-      Self.Explode()
-      TargetArt.StartSequence(SequenceName, True, 1.0)
+    if!(akActionRef.HasKeyword(IgnoredByTrapFloraKeyword))
+        if(timeToExplode != 0.0)
+            StartTimer(timeToExplode)
+            ;Start Warning VFX
+            ;Start Warning Sound
+            WarningSound.Play(self)
+        Else
+            Explode()
+	     TargetArt.StartSequence(SequenceName, true)
+	 
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  Self.Explode()
+Event OnTimer(int aiTimerID)
+    Explode()
 EndEvent
 
 Function Explode()
-  Self.DamageObject(DamageToDo)
-  Self.UnregisterForAllEvents()
+    DamageObject(DamageToDo)
+    UnregisterForAllEvents()
+    ;Stop Warning VFX
+    ;Stop Warning Sound
 EndFunction

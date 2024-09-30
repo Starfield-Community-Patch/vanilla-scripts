@@ -1,28 +1,31 @@
-ScriptName AudioContainerNoAnimScript Extends ObjectReference conditional
-{ plays a sound on menu open/close }
+Scriptname AudioContainerNoAnimScript extends ObjectReference Conditional
+{plays a sound on menu open/close}
 
-;-- Variables ---------------------------------------
+WwiseEvent Property OpenSound Auto Const
+WwiseEvent Property CloseSound Auto Const
 
-;-- Properties --------------------------------------
-wwiseevent Property OpenSound Auto Const
-wwiseevent Property CloseSound Auto Const
-
-;-- Functions ---------------------------------------
+;************************************
 
 Event OnLoad()
-  Self.RegisterForMenuOpenCloseEvent("ContainerMenu")
+    RegisterForMenuOpenCloseEvent("ContainerMenu")
 EndEvent
+
+;************************************
 
 Event OnUnload()
-  Self.UnregisterForMenuOpenCloseEvent("ContainerMenu")
+	UnregisterForMenuOpenCloseEvent("ContainerMenu")   
 EndEvent
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If asMenuName == "ContainerMenu"
-    If abOpening == False
-      CloseSound.PlayAndWait(Self as ObjectReference, None, None)
-    Else
-      OpenSound.PlayAndWait(Self as ObjectReference, None, None)
-    EndIf
-  EndIf
+;************************************
+
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    if (asMenuName== "ContainerMenu")
+        if (abOpening == FALSE)
+        	CloseSound.PlayAndWait(self)
+        else
+        	OpenSound.PlayAndWait(self)
+        endif
+    endif
 EndEvent
+
+;************************************

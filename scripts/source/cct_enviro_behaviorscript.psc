@@ -1,29 +1,23 @@
-ScriptName CCT_Enviro_BehaviorScript Extends Quest Const
-{ optional script for CCT_Enviro quests }
+Scriptname CCT_Enviro_BehaviorScript extends Quest Const
+{optional script for CCT_Enviro quests}
 
-;-- Variables ---------------------------------------
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard abilityGuard
-
-;-- Properties --------------------------------------
-ReferenceAlias Property BehaviorActor Auto Const mandatory
+ReferenceAlias property BehaviorActor auto const mandatory
 { behavior actor alias }
-Spell Property BehaviorAbility Auto Const
+
+Spell property BehaviorAbility auto const
 { optional ability to apply via function call }
 
-;-- Functions ---------------------------------------
+guard abilityGuard protectsFunctionLogic
 
-Function ApplyBehaviorAbility(Bool bApply)
-  If BehaviorAbility
-    Guard abilityGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      Actor behaviorActorRef = BehaviorActor.GetActorRef()
-      If bApply
-        behaviorActorRef.AddSpell(BehaviorAbility, True)
-      Else
-        behaviorActorRef.RemoveSpell(BehaviorAbility)
-      EndIf
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  EndIf
+Function ApplyBehaviorAbility(bool bApply = true)
+    if BehaviorAbility
+        LockGuard abilityGuard
+            Actor behaviorActorRef = BehaviorActor.GetActorRef()
+            if bApply
+                behaviorActorRef.AddSpell(BehaviorAbility)
+            Else
+                behaviorActorRef.RemoveSpell(BehaviorAbility)
+            endif
+        EndLockGuard
+    endif
 EndFunction

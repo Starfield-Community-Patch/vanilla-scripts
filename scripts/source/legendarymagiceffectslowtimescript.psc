@@ -1,18 +1,14 @@
-ScriptName LegendaryMagicEffectSlowTimeScript Extends ActiveMagicEffect Const
+Scriptname LegendaryMagicEffectSlowTimeScript extends ActiveMagicEffect Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Spell Property SlowTime Auto Const
-Message Property modLegendarySlowTimeMsg Auto Const mandatory
+Message Property modLegendarySlowTimeMsg Auto Const Mandatory
 
-;-- Functions ---------------------------------------
-
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  ; Empty function
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	debug.trace(self + "OnEffectStart() akTarget: " + akTarget + ", akCaster:" + akCaster)
+	modLegendarySlowTimeMsg.Show()
+	SlowTime.Cast(akTarget)
 EndEvent
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  modLegendarySlowTimeMsg.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  SlowTime.Cast(akTarget, None)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	debug.trace(self + "OnEffectFinish() akTarget: " + akTarget + ", akCaster:" + akCaster)
 EndEvent

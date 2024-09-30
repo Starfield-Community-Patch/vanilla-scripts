@@ -1,9 +1,10 @@
-ScriptName DefaultRefOnCellLoad Extends DefaultRefParent default
-{ Sets quest stage when this reference's cell loads. }
-
-;-- Functions ---------------------------------------
+Scriptname DefaultRefOnCellLoad extends DefaultRefParent Default
+{Sets quest stage when this reference's cell loads.}
 
 Event OnCellLoad()
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, None, None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnCellLoad()", ShowTraces)
+	
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = None)
+	DefaultScriptFunctions.Trace(self, "OnCellLoad() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent

@@ -1,45 +1,61 @@
-ScriptName SQ_TreasureMapSpaceQuestScript Extends SQ_TreasureMapQuestScript
+Scriptname SQ_TreasureMapSpaceQuestScript extends SQ_TreasureMapQuestScript
 
-;-- Variables ---------------------------------------
+RefCollectionAlias property GeneralMarkers Auto Const Mandatory
+{Possible locations at which loot items can be placed.}
 
-;-- Properties --------------------------------------
-RefCollectionAlias Property GeneralMarkers Auto Const mandatory
-{ Possible locations at which loot items can be placed. }
-RefCollectionAlias Property TreasureContainers Auto Const mandatory
+RefCollectionAlias property TreasureContainers Auto Const Mandatory
 { put created containers here }
-Container Property SQ_TreasureMap_SpaceCrate Auto Const mandatory
-{ standard "space crate" }
 
-;-- Functions ---------------------------------------
+Container property SQ_TreasureMap_SpaceCrate auto const mandatory
+{ standard "space crate"}
 
-Bool Function CreateTreasure()
-  Bool success = False
-  ObjectReference treasureRef = Treasure.GetRef()
-  sq_treasuremapspacescript treasureMapRef = TreasureMapOriginal.GetRef() as sq_treasuremapspacescript
-  If treasureRef as Bool && treasureMapRef as Bool
-    Int I = Utility.RandomInt(treasureMapRef.TreasureContainersMin, treasureMapRef.TreasureContainersMax)
-    Int markerCount = GeneralMarkers.GetCount()
-    If I > markerCount
-      I = markerCount
-    EndIf
-    Form treasureItem = None
-    If treasureMapRef.TreasureAllTheSameThing
-      treasureItem = treasureRef.GetBaseObject()
-    Else
-      treasureItem = treasureMapRef.Treasure
-    EndIf
-    While I > 0
-      ObjectReference spawnMarker = GeneralMarkers.GetAt(Utility.RandomInt(0, GeneralMarkers.GetCount() - 1))
-      ObjectReference newContainer = spawnMarker.PlaceAtMe(SQ_TreasureMap_SpaceCrate as Form, 1, False, False, True, None, None, True)
-      GeneralMarkers.RemoveRef(GeneralMarkers.GetAt(I))
-      TreasureContainers.AddRef(newContainer)
-      Int amountToAdd = Utility.RandomInt(treasureMapRef.TreasureQuantityMin, treasureMapRef.TreasureQuantityMax)
-      If amountToAdd > 0
-        newContainer.AddItem(treasureItem, amountToAdd, False)
-        success = True
-      EndIf
-      I -= 1
-    EndWhile
-  EndIf
-  Return success
+bool Function CreateTreasure()
+    debug.trace(self + " CreateTreasure - space")
+
+    bool success = false
+
+    ObjectReference treasureRef = Treasure.GetRef()
+    SQ_TreasureMapSpaceScript treasureMapRef= TreasureMapOriginal.GetRef() as SQ_TreasureMapSpaceScript
+
+    debug.trace(self + " treasureMapRef=" + treasureMapRef + " treasureRef=" + treasureRef)
+    if treasureRef && treasureMapRef
+        int i = utility.RandomInt(treasureMapRef.TreasureContainersMin, treasureMapRef.TreasureContainersMax)
+        int markerCount = GeneralMarkers.GetCount()
+    ;Set max number of loot to place.
+        if (i > markerCount)
+            i = markerCount
+        EndIf
+
+        debug.trace(self + "GeneralMarkers count is " + markerCount)
+        debug.trace(self + "Creating " + i + " containers")
+
+        Form treasureItem
+        if treasureMapRef.TreasureAllTheSameThing
+            ; get base object from treasureRef and use that instead of Treasure
+            treasureItem = treasureRef.GetBaseObject()
+        else
+            treasureItem = treasureMapRef.Treasure
+        endif
+
+    ;Place container at a random marker and add treasure to it until all containers are placed.
+        while i > 0
+            ObjectReference spawnMarker = GeneralMarkers.GetAt(Utility.RandomInt(0,GeneralMarkers.GetCount()-1)) as ObjectReference
+            ObjectReference newContainer = spawnMarker.PlaceAtMe(SQ_TreasureMap_SpaceCrate)
+            debug.trace(self + " Container " + newContainer + " placed at " + spawnMarker)        
+            GeneralMarkers.RemoveRef(GeneralMarkers.GetAt(i))
+            TreasureContainers.AddRef(newContainer)
+
+            ; add treasure to the container
+            int amountToAdd = Utility.RandomInt(treasureMapRef.TreasureQuantityMin, treasureMapRef.TreasureQuantityMax)
+            if amountToAdd > 0
+                newContainer.AddItem(treasureItem, amountToAdd)
+                success = true
+            endif
+
+            i = i - 1
+        endwhile
+    endif
+    return success
 EndFunction
+
+

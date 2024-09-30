@@ -1,140 +1,140 @@
-ScriptName IDCardReader Extends ObjectReference
-{ Script for ID Card Readers }
+Scriptname IDCardReader extends ObjectReference
+{Script for ID Card Readers}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group RequiredProperties
-  Key Property IDCard Auto Const
-  { The ID Card required by this card reader. If not present, all activations will fail. }
+    Key property IDCard Auto Const
+    {The ID Card required by this card reader. If not present, all activations will fail.}
 EndGroup
 
 Group OptionalProperties
-  Bool Property ShouldAutoReset = False Auto Const
-  { Default=False. If true, return to the Waiting state after a successful activation, instead of remaining in the Success state. }
-  Bool Property ShouldDisplaySuccessMessage = False Auto Const
-  { Default=False. If true, display IDCardReaderSuccessMessage when used successfully. }
-  Quest Property QuestToCheck Auto Const
-  { Default=None. If set, QuestToCheck's PrereqStage must be set in order for activation to succeed. }
-  Int Property PrereqStage = -1 Auto Const
-  { Default=-1. If set, QuestToCheck's PrereqStage must be set in order for activation to succeed. }
+    bool property ShouldAutoReset = False Auto Const
+    {Default=False. If true, return to the Waiting state after a successful activation, instead of remaining in the Success state.}
+
+    bool property ShouldDisplaySuccessMessage = False Auto Const
+    {Default=False. If true, display IDCardReaderSuccessMessage when used successfully.}
+
+    Quest property QuestToCheck Auto Const
+    {Default=None. If set, QuestToCheck's PrereqStage must be set in order for activation to succeed.}
+
+    int property PrereqStage = -1 Auto Const
+    {Default=-1. If set, QuestToCheck's PrereqStage must be set in order for activation to succeed.}
 EndGroup
 
-Group AutofillProperties collapsedonbase
-  Keyword Property LinkIDReader Auto Const mandatory
-  Message Property IDCardReaderSuccessMessage Auto Const mandatory
-  Message Property IDCardReaderFailMissingCardMessage Auto Const mandatory
-  Message Property IDCardReaderFailMissingPrereqMessage Auto Const mandatory
-  Message Property IDCardReaderNotRespondingMessage Auto Const mandatory
+Group AutofillProperties CollapsedOnBase
+    Keyword property LinkIDReader Auto Const Mandatory
+    Message property IDCardReaderSuccessMessage Auto Const Mandatory
+    Message property IDCardReaderFailMissingCardMessage Auto Const Mandatory
+    Message property IDCardReaderFailMissingPrereqMessage Auto Const Mandatory
+    Message property IDCardReaderNotRespondingMessage Auto Const Mandatory
 EndGroup
 
-Bool Property bDoorOpen Auto
+bool Property bDoorOpen Auto
 
-;-- Functions ---------------------------------------
+CustomEvent IDReaderActivated
+CustomEvent IDReaderActivatedSuccess
+CustomEvent IDReaderActivatedFailure
 
-Function IDReaderOpenDoor(Bool shouldBeOpen)
-  ObjectReference linkedRef = Self.GetLinkedRef(LinkIDReader)
-  Int openState = linkedRef.GetOpenState()
-  If openState == 1 || openState == 2
-    linkedRef.SetOpen(False)
-  ElseIf openState == 3 || openState == 4
-    linkedRef.SetOpen(True)
-  EndIf
-  linkedRef.lock(!shouldBeOpen, False, True)
-EndFunction
+Auto State WaitingForInit
+    Event OnLoad()
+        BlockActivation()
+        GotoState("IDReaderWaiting")
+    EndEvent
+EndState
 
-Function GotoSuccessState()
-  Self.PlayAnimation("Play01")
-  Self.IDReaderOpenDoor(True)
-  Self.GotoState("SuccessIDReaderState")
-EndFunction
 
-Function ResetIDCardReader()
-  Self.PlayAnimation("StateA_Idle")
-  Self.IDReaderOpenDoor(False)
-  Self.GotoState("IDReaderWaiting")
-EndFunction
+State IDReaderWaiting
+    Event OnActivate(ObjectReference akActionRef)
+        GotoState("Busy")
+        Var[] kargs = new Var[1]
+        kargs[0] = akActionRef
+        SendCustomEvent("IDReaderActivated", kargs)
+        if ((IDCard == None) || (akActionRef.GetItemCount(IDCard) == 0))
+            ;Fail: The player doesn't have the card.
+            SendCustomEvent("IDReaderActivatedFailure", kargs)
+            if (IDCardReaderFailMissingCardMessage != None)
+                PlayAnimation("StateD_Play")
+                if akActionRef == game.getplayer()
+                    IDCardReaderFailMissingCardMessage.Show()
+                endif
+            endif
+            GotoState("IDReaderWaiting")
+        ElseIf ((QuestToCheck != None) && (PrereqStage >= 0) && (!QuestToCheck.GetStageDone(PrereqStage)))
+            ;Fail: The prereq stage isn't set.
+            SendCustomEvent("IDReaderActivatedFailure", kargs)
+            if (IDCardReaderFailMissingPrereqMessage != None && akActionRef == game.getplayer())
+                IDCardReaderFailMissingPrereqMessage.Show()
+            endif
+            GotoState("IDReaderWaiting")
+        Else
+            ;Success
+            SendCustomEvent("IDReaderActivatedSuccess", kargs)
+            PlayAnimationAndWait("Play01", "Done")
+            if (ShouldDisplaySuccessMessage && (IDCardReaderSuccessMessage != None) && akActionRef == game.getplayer())
+                IDCardReaderSuccessMessage.show()
+            endif
+            if ShouldAutoReset
+                GotoState("IDReaderWaiting")
+            else
+                GotoState("SuccessIDReaderState")
+            endif
+        IDReaderOpenDoor()
+        endif
+    EndEvent
+EndState
 
-Function GotoWaitState()
-  Self.GotoState("IDReaderWaiting")
-EndFunction
+State SuccessIDReaderState
+    Event OnActivate(ObjectReference akActionRef)
+	    ;do nothing/blocking any interaction
+	EndEvent
+EndState
 
-Function GotoLockdownState()
-  Self.PlayAnimation("StateC_Idle")
-  Self.GotoState("LockdownIDReaderState")
-EndFunction
+State LockdownIDReaderState
+    Event OnActivate(ObjectReference akActionRef)
+        GotoState("Busy")
+        if IDCardReaderNotRespondingMessage != none
+            PlayAnimationAndWait("Play04", "Done")
+            if akActionRef == game.getplayer()
+                IDCardReaderNotRespondingMessage.show()
+            endif
+        endif
+        GotoState("LockdownIDReaderState")
+	EndEvent
+EndState
 
-;-- State -------------------------------------------
 State Busy
 EndState
 
-;-- State -------------------------------------------
-State IDReaderWaiting
+Function IDReaderOpenDoor(bool shouldBeOpen=true)
+    ObjectReference linkedRef = GetLinkedRef(LinkIDReader) 
+    int openState = linkedRef.GetOpenState()
+    if (openState == 1 || openState == 2) ; Open or opening
+        linkedRef.SetOpen(false)
+    elseif (openState == 3 || openState == 4) ; Closed or closing
+        linkedRef.SetOpen(true)
+    endIf
+    debug.trace(self + " Door Opened ")
+    linkedRef.lock(!shouldBeOpen)
+EndFunction
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.GotoState("Busy")
-    Var[] kargs = new Var[1]
-    kargs[0] = akActionRef as Var
-    Self.SendCustomEvent("idcardreader_IDReaderActivated", kargs)
-    If IDCard == None || akActionRef.GetItemCount(IDCard as Form) == 0
-      Self.SendCustomEvent("idcardreader_IDReaderActivatedFailure", kargs)
-      If IDCardReaderFailMissingCardMessage != None
-        Self.PlayAnimation("StateD_Play")
-        If akActionRef == Game.getplayer() as ObjectReference
-          IDCardReaderFailMissingCardMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        EndIf
-      EndIf
-      Self.GotoState("IDReaderWaiting")
-    ElseIf QuestToCheck != None && PrereqStage >= 0 && !QuestToCheck.GetStageDone(PrereqStage)
-      Self.SendCustomEvent("idcardreader_IDReaderActivatedFailure", kargs)
-      If IDCardReaderFailMissingPrereqMessage != None && (akActionRef == Game.getplayer() as ObjectReference)
-        IDCardReaderFailMissingPrereqMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-      Self.GotoState("IDReaderWaiting")
-    Else
-      Self.SendCustomEvent("idcardreader_IDReaderActivatedSuccess", kargs)
-      Self.PlayAnimationAndWait("Play01", "Done")
-      If ShouldDisplaySuccessMessage && IDCardReaderSuccessMessage != None && (akActionRef == Game.getplayer() as ObjectReference)
-        IDCardReaderSuccessMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-      If ShouldAutoReset
-        Self.GotoState("IDReaderWaiting")
-      Else
-        Self.GotoState("SuccessIDReaderState")
-      EndIf
-      Self.IDReaderOpenDoor(True)
-    EndIf
-  EndEvent
-EndState
+;Functions to call to go directly to different states
 
-;-- State -------------------------------------------
-State LockdownIDReaderState
+Function GotoSuccessState()
+    PlayAnimation("Play01")
+    IDReaderOpenDoor(true)
+    GotoState("SuccessIDReaderState")
+EndFunction
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.GotoState("Busy")
-    If IDCardReaderNotRespondingMessage != None
-      Self.PlayAnimationAndWait("Play04", "Done")
-      If akActionRef == Game.getplayer() as ObjectReference
-        IDCardReaderNotRespondingMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-    EndIf
-    Self.GotoState("LockdownIDReaderState")
-  EndEvent
-EndState
+Function ResetIDCardReader()
+    PlayAnimation("StateA_Idle")
+    IDReaderOpenDoor(false)
+    GotoState("IDReaderWaiting")
+EndFunction
 
-;-- State -------------------------------------------
-State SuccessIDReaderState
+Function GotoWaitState()
+    GotoState("IDReaderWaiting")
+EndFunction
 
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForInit
-
-  Event OnLoad()
-    Self.BlockActivation(True, False)
-    Self.GotoState("IDReaderWaiting")
-  EndEvent
-EndState
+Function GotoLockdownState()
+    PlayAnimation("StateC_Idle")  
+    GotoState("LockdownIDReaderState")
+EndFunction

@@ -1,32 +1,35 @@
-ScriptName ShipTerminalScript Extends ObjectReference
+Scriptname ShipTerminalScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Int MenuItemID_ReleaseDockingClamps = 1 Const
+int MenuItemID_ReleaseDockingClamps = 1 const
 
-;-- Properties --------------------------------------
-ActorValue Property SpaceshipDockingclamps Auto Const mandatory
+ActorValue property SpaceshipDockingclamps auto const mandatory
 { docking clamps actor value - will be > 0 when a ship initiates docking with another ship }
-terminalmenu Property DefaultShipTerminal Auto Const mandatory
+
+TerminalMenu property DefaultShipTerminal auto const mandatory
 { top level ship terminal }
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  Self.CheckForDockingClamps()
+	debug.trace(self + " OnActivate")
+	; initialize docking clamp entry
+	CheckForDockingClamps()
 EndEvent
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, terminalmenu akTerminalBase, ObjectReference akTerminalRef)
-  If akTerminalBase == DefaultShipTerminal
-    If auiMenuItemID == MenuItemID_ReleaseDockingClamps
-      spaceshipreference myShip = Self.GetCurrentShipRef()
-      If myShip as Bool && myShip.GetValue(SpaceshipDockingclamps) > 0.0
-        myShip.ModValueTo(SpaceshipDockingclamps, 0.0)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+	debug.trace(self + "**********************")
+	debug.trace(self + "**** OnTerminalMenuItemRun: auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+	debug.trace(self + "**********************")
+	if akTerminalBase == DefaultShipTerminal
+		if auiMenuItemID == MenuItemID_ReleaseDockingClamps
+			SpaceshipReference myShip = GetCurrentShipRef()
+			if myShip && myShip.GetValue(SpaceshipDockingclamps) > 0
+				myShip.ModValueTo(SpaceshipDockingClamps, 0)
+			endif
+		endif
+	endif
+endEvent
 
 Function CheckForDockingClamps()
-  spaceshipreference myShip = Self.GetCurrentShipRef()
-  Self.SetValue(SpaceshipDockingclamps, myShip.GetValue(SpaceshipDockingclamps))
+	; for now, set AV on terminal to match ship
+	SpaceshipReference myShip = GetCurrentShipRef()
+	SetValue(SpaceshipDockingclamps, myShip.GetValue(SpaceshipDockingclamps))
 EndFunction

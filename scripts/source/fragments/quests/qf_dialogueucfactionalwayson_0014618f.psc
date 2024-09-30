@@ -1,25 +1,38 @@
-ScriptName Fragments:Quests:QF_DialogueUCFactionAlwaysOn_0014618F Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueUCFactionAlwaysOn_0014618F Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_ReconstructionMarker Auto Const mandatory
-GlobalVariable Property UC04_PostAttackDialogueActive Auto Const mandatory
-ReferenceAlias Property Alias_OverhangMarker Auto Const mandatory
-Quest Property DialogueUCFactionNewAtlantis Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0990_Item_00
 Function Fragment_Stage_0990_Item_00()
-  Quest __temp = Self as Quest
-  ucparentfactionquestscript kmyQuest = __temp as ucparentfactionquestscript
-  kmyQuest.BeginStateChangeTimer()
-  DialogueUCFactionNewAtlantis.SetStage(990)
-EndFunction
+;BEGIN AUTOCAST TYPE UCParentFactionQuestScript
+Quest __temp = self as Quest
+UCParentFactionQuestScript kmyQuest = __temp as UCParentFactionQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.BeginStateChangeTimer()
 
-Function Fragment_Stage_1000_Item_00()
-  Alias_ReconstructionMarker.GetRef().Enable(False)
-  Alias_OverhangMarker.GetRef().Enable(False)
-  UC04_PostAttackDialogueActive.SetValue(0.0)
-  DialogueUCFactionNewAtlantis.SetStage(1000)
+DialogueUCFactionNewAtlantis.SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
+Function Fragment_Stage_1000_Item_00()
+;BEGIN CODE
+Alias_ReconstructionMarker.GetRef().Enable()
+Alias_OverhangMarker.GetRef().Enable()
+UC04_PostAttackDialogueActive.SetValue(0)
+
+DialogueUCFactionNewAtlantis.SetStage(1000)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_ReconstructionMarker Auto Const Mandatory
+
+GlobalVariable Property UC04_PostAttackDialogueActive Auto Const Mandatory
+
+ReferenceAlias Property Alias_OverhangMarker Auto Const Mandatory
+
+Quest Property DialogueUCFactionNewAtlantis Auto Const Mandatory

@@ -1,44 +1,52 @@
-ScriptName MasterAmbushAnimationScript Extends ObjectReference
-{ This script causes the ref to animate when activated }
+scriptName MasterAmbushAnimationScript extends ObjectReference
+{This script causes the ref to animate when activated}
 
-;-- Variables ---------------------------------------
-Bool isOpened = False
 
-;-- Properties --------------------------------------
-String Property sInitialAnim = "Reset" Auto
-{ By default, this property is set to Reset. }
-String Property sActivateAnim = "Open" Auto
-{ By default, this property is set to Open. }
-Float Property fDelay = 0.0 Auto
-{ By default, this property is set to 0.0f. }
+import debug
+import utility
 
-;-- Functions ---------------------------------------
+string property sInitialAnim = "Reset"  auto
+{By default, this property is set to Reset.}
+
+string property sActivateAnim = "Open"  auto
+{By default, this property is set to Open.}
+
+float property fDelay = 0.0 auto
+{By default, this property is set to 0.0f.}
+
+bool isOpened = false
+
+;*******************************************
 
 Event onReset()
-  Self.onLoad()
-EndEvent
+	onLoad()
+endEvent
+
+;*******************************************
 
 Event onLoad()
-  If !isOpened
-    Self.playAnimation(sInitialAnim)
-  EndIf
-EndEvent
+	if(!isOpened)
+		playAnimation( sInitialAnim )
+	endif
+endEvent
 
-;-- State -------------------------------------------
-State busy
+;*******************************************
 
-  Event onActivate(ObjectReference triggerRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
 Auto State waiting
+	Event onActivate (objectReference triggerRef)
+		gotoState ("busy")
+		isOpened = true
+		Wait( fDelay )
+		playAnimation( sActivateAnim )	
+	endEvent
+endState
 
-  Event onActivate(ObjectReference triggerRef)
-    Self.gotoState("busy")
-    isOpened = True
-    Utility.Wait(fDelay)
-    Self.playAnimation(sActivateAnim)
-  EndEvent
-EndState
+;*******************************************
+
+State busy
+	Event onActivate (objectReference triggerRef)
+		;do nothing
+	endEvent
+endState
+
+;*******************************************

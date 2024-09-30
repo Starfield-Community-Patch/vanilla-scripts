@@ -1,40 +1,36 @@
-ScriptName UC04_RefColl_WarnIfHitScript Extends DefaultCollectionAliasOnHit
+Scriptname UC04_RefColl_WarnIfHitScript extends DefaultCollectionAliasOnHit
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property WeaponTypeEM Auto Const mandatory
-{ Weapon type we're checking the player has equipped before triggering Hadrian's scene }
-
-;-- Functions ---------------------------------------
+Keyword Property WeaponTypeEM Mandatory Const Auto
+{Weapon type we're checking the player has equipped before triggering Hadrian's scene}
 
 Event OnAliasInit()
-  Self.RegisterOnHitFilters()
+	RegisterOnHitFilters()
 EndEvent
 
 Event OnLoad(ObjectReference akSenderRef)
-  Self.RegisterOnHitFilters()
+	RegisterOnHitFilters()
 EndEvent
 
 Event OnUnload(ObjectReference akSenderRef)
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  Actor PlayACT = Game.GetPlayer()
-  If (akAggressor == PlayACT as ObjectReference) && PlayACT.WornHasKeyword(WeaponTypeEM)
-    defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akAggressor, akTarget.GetCurrentLocation(), None)
-    Self.CheckAndSetStageAndCallDoSpecificThing(akTarget, ParentScriptFunctionParams)
-    If DoOnce == False
-      Self.RegisterOnHitFilters()
-    EndIf
-  EndIf
-EndEvent
-
-;-- State -------------------------------------------
 State Done
-
-  Event OnLoad(ObjectReference akSenderRef)
-    ; Empty function
-  EndEvent
+	Event OnLoad(ObjectReference akSenderRef)
+		;don't register
+	EndEvent
 EndState
+
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    Actor PlayACT = Game.GetPlayer()
+    if akAggressor == PlayACT && PlayACT.WornHasKeyword(WeaponTypeEM)
+
+        DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akAggressor, LocationToCheck = akTarget.GetCurrentLocation())
+        DefaultScriptFunctions.Trace(self, "OnHit() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+        CheckAndSetStageAndCallDoSpecificThing(akTarget, ParentScriptFunctionParams)
+        
+        if DoOnce == false
+            RegisterOnHitFilters()
+        EndIf
+    endif
+EndEvent

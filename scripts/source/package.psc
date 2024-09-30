@@ -1,19 +1,19 @@
-ScriptName Package Extends Form Native hidden
+Scriptname Package extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Returns the quest that owns this package
+Quest Function GetOwningQuest() native
 
-Quest Function GetOwningQuest() Native
+; Obtains the package that is the parent template of this one (if any)
+Package Function GetTemplate() native
 
-Package Function GetTemplate() Native
-
-Event OnChange(Actor akActor)
-  ; Empty function
-EndEvent
-
-Event OnEnd(Actor akActor)
-  ; Empty function
-EndEvent
-
+; Event called when the package first starts (in parallel with the fragment)
 Event OnStart(Actor akActor)
-  ; Empty function
+EndEvent
+
+; Event called when the package ends (in parallel with the fragment)
+Event OnEnd(Actor akActor)
+EndEvent
+
+; Event called when the package changes (in parallel with the fragment)
+Event OnChange(Actor akActor)
 EndEvent

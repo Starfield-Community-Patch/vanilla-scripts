@@ -1,15 +1,10 @@
-ScriptName MQ204VladimirScript Extends ReferenceAlias
+Scriptname MQ204VladimirScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property MQ204VladimirInjuredMarker Auto Const mandatory
-Keyword Property AnimFlavorWounded Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ObjectReference Property MQ204VladimirInjuredMarker Mandatory Const Auto
+Keyword Property AnimFlavorWounded Mandatory Const Auto
 
 Event OnGetUp(ObjectReference akFurniture)
-  If akFurniture == MQ204VladimirInjuredMarker
-    Self.GetActorRef().ChangeAnimFlavor(AnimFlavorWounded)
-  EndIf
+    If akFurniture == MQ204VladimirInjuredMarker
+        Self.GetActorRef().ChangeAnimFlavor(AnimFlavorWounded)
+    EndIf
 EndEvent

@@ -1,8 +1,6 @@
-ScriptName DefaultMoveToEditorLocationOnLoad Extends ObjectReference Const default
-{ Script that will move this reference to it's editor location any time it loads. }
-
-;-- Functions ---------------------------------------
+Scriptname DefaultMoveToEditorLocationOnLoad extends ObjectReference Const Default
+{Script that will move this reference to it's editor location any time it loads.}
 
 Event OnLoad()
-  Self.MoveToMyEditorLocation()
+    self.MoveToMyEditorLocation()
 EndEvent

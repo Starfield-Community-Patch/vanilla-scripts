@@ -1,113 +1,136 @@
-ScriptName LandingZoneTriggerScript Extends ObjectReference
-{ get creatures to flee when a ship lands }
+Scriptname LandingZoneTriggerScript extends ObjectReference
+{get creatures to flee when a ship lands}
 
-;-- Variables ---------------------------------------
-Bool alerted = False
-spaceshipreference landedSpaceship
-ObjectReference landingMarker
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard AlertGuard
-
-;-- Properties --------------------------------------
-Keyword Property SQ_LinkLandingZoneTrigger Auto Const mandatory
+Keyword property SQ_LinkLandingZoneTrigger auto Const mandatory
 { keyword to link creatures to the landing zone trigger }
-ActorValue Property LandingZoneHot Auto Const mandatory
+
+ActorValue property LandingZoneHot auto const mandatory
 { AV to set on creatures when the ship is landing/taking off }
-Keyword Property LandingZoneTriggerKeyword Auto Const mandatory
+
+Keyword property LandingZoneTriggerKeyword auto const mandatory
 { keyword that links the landing marker TO the landing zone trigger }
-Keyword Property DMP_ShipLandingMarker Auto Const mandatory
+
+Keyword property DMP_ShipLandingMarker auto const mandatory
 { keyword to find NPCs linked to the landing marker }
 
-;-- Functions ---------------------------------------
+SpaceshipReference landedSpaceship
+ObjectReference landingMarker
+bool alerted = false ; set to true when NPCs are alerted
+
+Guard AlertGuard ProtectsFunctionLogic
 
 Event OnUnload()
-  Self.ClearLinks()
-  Self.AlertLinkedNPCs(False)
+    ; clear links
+    ClearLinks()
+    AlertLinkedNPCs(false)
 EndEvent
 
-Event SpaceshipReference.OnShipLanding(spaceshipreference akSource, Bool abComplete)
-  If abComplete
-    Self.ClearLinks()
-    Self.AlertLinkedNPCs(True)
-  EndIf
-EndEvent
+Event SpaceshipReference.OnShipLanding(SpaceshipReference akSource, bool abComplete)
+    debug.trace(self + " OnShipLanding " + abComplete)
+    if abComplete
+        ; clear links
+        ClearLinks()
+        ; alert NPCs linked to the landing marker
+        AlertLinkedNPCs()
+    endif
+endEvent
 
-Event SpaceshipReference.OnShipTakeOff(spaceshipreference akSource, Bool abComplete)
-  If abComplete
-    landedSpaceship = None
-    landingMarker = None
-    Self.ClearLinks()
-    Self.UnregisterForRemoteEvent(akSource as ScriptObject, "OnShipLanding")
-    Self.UnregisterForRemoteEvent(akSource as ScriptObject, "OnShipTakeoff")
-  Else
-    Self.SetLinks()
-    Self.AlertLinkedNPCs(False)
-  EndIf
-EndEvent
+Event SpaceshipReference.OnShipTakeOff(SpaceshipReference akSource, bool abComplete)
+    debug.trace(self + " OnShipTakeOff " + abComplete)
+    if abComplete
+        landedSpaceship = NONE
+		landingMarker = NONE
+        ; clear links
+        ClearLinks()
+        UnregisterForRemoteEvent(akSource, "OnShipLanding")
+        UnregisterForRemoteEvent(akSource, "OnShipTakeoff")
+    Else
+        ; set links
+        SetLinks()
+        ; clear alert on NPCs linked to the landing marker
+        AlertLinkedNPCs(false)
+    endif
+endEvent
 
 Event Actor.OnCombatListAdded(Actor akSource, Actor akTarget)
-  Self.AlertLinkedNPCs(False)
+    debug.trace(self + " OnCombatListAdded: akSource=" + akSource)
+    ; always clear alert state on linked NPCs when they get into combat with anything
+    AlertLinkedNPCs(false)
 EndEvent
 
-Function BeginLanding(spaceshipreference mySpaceship, ObjectReference mylandingMarker)
-  If landedSpaceship == None || landedSpaceship != mySpaceship
-    landedSpaceship = mySpaceship
-    Self.RegisterForRemoteEvent(mySpaceship as ScriptObject, "OnShipLanding")
-    Self.RegisterForRemoteEvent(mySpaceship as ScriptObject, "OnShipTakeoff")
-    Self.SetLinks()
-  EndIf
-  landingMarker = mylandingMarker
+function BeginLanding(SpaceshipReference mySpaceship, ObjectReference mylandingMarker)
+    debug.trace(self + " BeginLanding: " + mySpaceship)
+    ; set links for creatures to flee landing zone
+    if landedSpaceship == NONE || landedSpaceship != mySpaceship
+        landedSpaceship = mySpaceship
+        RegisterForRemoteEvent(myspaceship, "OnShipLanding")
+        RegisterForRemoteEvent(myspaceship, "OnShipTakeoff")
+        SetLinks()
+    endif
+    landingMarker = myLandingMarker
 EndFunction
 
-Function SetLinks()
-  Self.SetValue(LandingZoneHot, 1.0)
-  ObjectReference[] triggerRefs = Self.GetAllRefsInTrigger()
-  Int I = 0
-  While I < triggerRefs.Length
-    Actor triggerActor = triggerRefs[I] as Actor
-    If triggerActor
-      triggerActor.SetLinkedRef(Self as ObjectReference, SQ_LinkLandingZoneTrigger, True)
-      triggerActor.EvaluatePackage(False)
-    EndIf
-    I += 1
-  EndWhile
+function SetLinks()
+    debug.trace(self + " SetLinks")
+    SetValue(LandingZoneHot, 1)
+    ; get everything in trigger and link them to this trigger temporarily
+    ObjectReference[] triggerRefs = GetAllRefsInTrigger()
+    debug.trace(self + " SetLinks: triggerRefs=" + triggerRefs)
+    ; run through and link valid actors
+    int i = 0
+    while i < triggerRefs.Length
+        Actor triggerActor = triggerRefs[i] as Actor
+        if triggerActor
+            debug.trace(self + "   linking " + triggerActor)
+            triggerActor.SetLinkedRef(self, SQ_LinkLandingZoneTrigger)
+            triggerActor.EvaluatePackage()
+        endif
+        i += 1
+    EndWhile
+endFunction
+
+function ClearLinks()
+    debug.trace(self + " ClearLinks")
+    SetValue(LandingZoneHot, 0)
+    ObjectReference[] linkedRefs = GetRefsLinkedToMe(SQ_LinkLandingZoneTrigger)
+    ; run through and link valid actors
+    int i = 0
+    while i < linkedRefs.Length
+        ObjectReference theRef = linkedRefs[i]
+        debug.trace(self + "   unlinking " + theRef)
+        theRef.SetLinkedRef(NONE, SQ_LinkLandingZoneTrigger)
+        i += 1
+    EndWhile
 EndFunction
 
-Function ClearLinks()
-  Self.SetValue(LandingZoneHot, 0.0)
-  ObjectReference[] linkedRefs = Self.GetRefsLinkedToMe(SQ_LinkLandingZoneTrigger, None)
-  Int I = 0
-  While I < linkedRefs.Length
-    ObjectReference theRef = linkedRefs[I]
-    theRef.SetLinkedRef(None, SQ_LinkLandingZoneTrigger, True)
-    I += 1
-  EndWhile
-EndFunction
+function AlertLinkedNPCs(bool bAlerted=true)
+    debug.trace(self + " AlertLinkedNPCs: bAlerted=" + bAlerted + " alerted=" + alerted)
+	LockGuard AlertGuard
 
-Function AlertLinkedNPCs(Bool bAlerted)
-  Guard AlertGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If landingMarker
-      If alerted != bAlerted
-        alerted = bAlerted
-        ObjectReference[] linkedRefs = landingMarker.GetRefsLinkedToMe(DMP_ShipLandingMarker, None)
-        Int I = 0
-        While I < linkedRefs.Length
-          Actor triggerActor = linkedRefs[I] as Actor
-          If triggerActor
-            If bAlerted
-              Self.RegisterForRemoteEvent(triggerActor as ScriptObject, "OnCombatListAdded")
-              triggerActor.SetValue(LandingZoneHot, 1.0)
-            Else
-              Self.UnregisterForRemoteEvent(triggerActor as ScriptObject, "OnCombatListAdded")
-              triggerActor.SetValue(LandingZoneHot, 0.0)
-            EndIf
-            triggerActor.EvaluatePackage(False)
-          EndIf
-          I += 1
-        EndWhile
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+        if landingMarker
+            if alerted != bAlerted
+                alerted = bAlerted
+                ObjectReference[] linkedRefs = landingMarker.GetRefsLinkedToMe(DMP_ShipLandingMarker)
+                debug.trace(self + " AlertLinkedNPCs: linkedRefs=" + linkedRefs + " bAlerted=" + bAlerted)
+                ; run through and set the AV on the valid actors
+                int i = 0
+                while i < linkedRefs.Length
+                    Actor triggerActor = linkedRefs[i] as Actor
+                    if triggerActor
+                        if bAlerted
+                            debug.trace(self + "   alerting " + triggerActor)
+                            RegisterForRemoteEvent(triggerActor, "OnCombatListAdded")
+                            triggerActor.SetValue(LandingZoneHot, 1)
+                        Else
+                            debug.trace(self + "   clearing alert on " + triggerActor)
+                            UnregisterForRemoteEvent(triggerActor, "OnCombatListAdded")
+                            triggerActor.SetValue(LandingZoneHot, 0)
+                        endif
+                        triggerActor.EvaluatePackage()
+                    endif
+                    i += 1
+                EndWhile
+            endif
+        endif
+    EndLockGuard
+endFunction

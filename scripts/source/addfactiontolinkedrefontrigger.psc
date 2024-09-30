@@ -1,19 +1,15 @@
-ScriptName AddFactionToLinkedRefOnTrigger Extends ObjectReference Const
-{ Add Faction to linked actors on trigger. }
+Scriptname AddFactionToLinkedRefOnTrigger extends ObjectReference Const
+{Add Faction to linked actors on trigger.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property FactionToAdd Auto Const mandatory
-Keyword Property LinkKeyword Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Faction Property FactionToAdd Mandatory Const Auto
+Keyword Property LinkKeyword Mandatory Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  ObjectReference[] LinkedRefs = Self.GetLinkedRefChain(LinkKeyword, 100)
-  Int I = 0
-  While I < LinkedRefs.Length
-    (LinkedRefs[I] as Actor).AddToFaction(FactionToAdd)
-    I += 1
-  EndWhile
+    ;For each linked creature add faction.
+    ObjectReference[] LinkedRefs = GetLinkedRefChain(LinkKeyword)
+    int i = 0
+    while (i < LinkedRefs.length)
+        (LinkedRefs[i] as Actor).AddToFaction(FactionToAdd)
+        i += 1
+    endwhile
 EndEvent

@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_MissionBoardTerminalFar_00001EE7 Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_MissionBoardTerminalFar_00001EE7 Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MissionBoardFarCourier01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  MissionBoardFarCourier01.SetStage(10)
+;BEGIN CODE
+MissionBoardFarCourier01.SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property MissionBoardFarCourier01 Auto Const Mandatory

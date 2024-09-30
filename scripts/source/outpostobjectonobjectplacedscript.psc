@@ -1,25 +1,24 @@
-ScriptName OutpostObjectOnObjectPlacedScript Extends ObjectReference Const
-{ sets a global or quest stage when this object is placed (built) }
+Scriptname OutpostObjectOnObjectPlacedScript extends ObjectReference Const
+{sets a global or quest stage when this object is placed (built)}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property GlobalToSet Auto Const
+GlobalVariable property GlobalToSet auto const
 { optional: global to set when object is placed }
-Float Property ValueToSet = 1.0 Auto Const
+
+float property ValueToSet = 1.0 auto const
 { value to set GlobalToSet to }
-Quest Property QuestToSetStage Auto Const
+
+Quest property QuestToSetStage auto Const
 { optional: quest to set a stage on when object is placed }
-Int Property StageToSet = -1 Auto Const
+
+int property StageToSet = -1 auto const
 { stage to set on QuestToSetStage }
 
-;-- Functions ---------------------------------------
-
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  If GlobalToSet as Bool && GlobalToSet.GetValue() != ValueToSet
-    GlobalToSet.SetValue(ValueToSet)
-  EndIf
-  If (QuestToSetStage as Bool && StageToSet > -1) && QuestToSetStage.GetStageDone(StageToSet) == False
-    QuestToSetStage.SetStage(StageToSet)
-  EndIf
+    if GlobalToSet && GlobalToSet.GetValue() != ValueToSet
+        GlobalToSet.SetValue(ValueToSet)
+    endif
+
+    if QuestToSetStage && StageToSet > -1 && QuestToSetStage.GetStageDone(StageToSet) == false
+        QuestToSetStage.SetStage(StageToSet)
+    endif
 EndEvent

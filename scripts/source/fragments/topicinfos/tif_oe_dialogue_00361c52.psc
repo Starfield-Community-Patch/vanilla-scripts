@@ -1,9 +1,16 @@
-ScriptName Fragments:TopicInfos:TIF_OE_Dialogue_00361C52 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_OE_Dialogue_00361C52 Extends TopicInfo Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  oe_dialogueavscript kmyQuest = Self.GetOwningQuest() as oe_dialogueavscript
-  kmyQuest.SetCanIHelp(akSpeakerRef, 4)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN AUTOCAST TYPE OE_DialogueAVScript
+OE_DialogueAVScript kmyQuest = GetOwningQuest() as OE_DialogueAVScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.SetCanIHelp(akSpeakerRef, 4)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

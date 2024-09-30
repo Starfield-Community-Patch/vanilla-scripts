@@ -1,20 +1,18 @@
-ScriptName MQ205StarbornCaptiveScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname MQ205StarbornCaptiveScript extends ReferenceAlias
 
 Function RegisterForHits()
-  Self.RegisterForHitEvent(Self.GetActorRef() as ScriptObject, Game.GetPlayer() as ScriptObject, None, None, -1, -1, -1, -1, True)
+    RegisterForHitEvent(Self.GetActorRef(), Game.GetPlayer())
 EndFunction
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If akAggressor == Game.GetPlayer() as ObjectReference
-    Quest MQ205Quest = Self.GetOwningQuest()
-    If MQ205Quest.GetStageDone(310) && MQ205Quest.GetStageDone(315) == False
-      MQ205Quest.SetStage(315)
-    ElseIf MQ205Quest.GetStageDone(320) && MQ205Quest.GetStageDone(325) == False
-      MQ205Quest.SetStage(325)
-    ElseIf MQ205Quest.GetStageDone(330) && MQ205Quest.GetStageDone(350) == False
-      MQ205Quest.SetStage(350)
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+    If akAggressor == Game.GetPlayer()
+        Quest MQ205Quest = GetOwningQuest()
+        If MQ205Quest.GetStageDone(310) && MQ205Quest.GetStageDone(315) == 0
+            MQ205Quest.SetStage(315)
+        ElseIf MQ205Quest.GetStageDone(320) && MQ205Quest.GetStageDone(325) == 0
+            MQ205Quest.SetStage(325)
+        ElseIf MQ205Quest.GetStageDone(330) && MQ205Quest.GetStageDone(350) == 0
+            MQ205Quest.SetStage(350)
+        EndIf
     EndIf
-  EndIf
 EndEvent

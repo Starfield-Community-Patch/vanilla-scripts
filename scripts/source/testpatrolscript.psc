@@ -1,25 +1,25 @@
-ScriptName TestPatrolScript Extends ObjectReference
+Scriptname TestPatrolScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Int currentPatrolPoint
-
-;-- Properties --------------------------------------
-Float Property Speed Auto Const
-ObjectReference[] Property PatrolMarkers Auto Const mandatory
-Float Property SplineMagnitude Auto Const
-Float Property TurnSpeed = 10.0 Auto Const
-
-;-- Functions ---------------------------------------
+int currentPatrolPoint
 
 Event OnLoad()
-  currentPatrolPoint = 0
-  Self.SplineTranslateToRef(PatrolMarkers[currentPatrolPoint], 200.0, Speed, 10.0)
+	currentPatrolPoint=0
+	SplineTranslateToRef(PatrolMarkers[currentPatrolPoint], 200.0, Speed, 10.0)
 EndEvent
 
 Event OnTranslationAlmostComplete()
-  currentPatrolPoint += 1
-  If currentPatrolPoint >= PatrolMarkers.Length
-    currentPatrolPoint = 0
-  EndIf
-  Self.SplineTranslateToRef(PatrolMarkers[currentPatrolPoint], SplineMagnitude, Speed, TurnSpeed)
+	currentPatrolPoint=currentPatrolPoint + 1
+	if( currentPatrolPoint >= PatrolMarkers.Length )
+		currentPatrolPoint=0
+	endif
+	SplineTranslateToRef(PatrolMarkers[currentPatrolPoint], SplineMagnitude, Speed, TurnSpeed)
 EndEvent
+
+Float Property Speed Auto Const
+
+ObjectReference[] Property PatrolMarkers Auto Const Mandatory
+
+Float Property SplineMagnitude Auto Const
+
+Float Property TurnSpeed = 10.0 Auto Const
+

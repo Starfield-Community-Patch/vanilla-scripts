@@ -1,47 +1,56 @@
-ScriptName MS01Script Extends Quest
+Scriptname MS01Script extends Quest
 
-;-- Variables ---------------------------------------
+GlobalVariable Property MS01_GroupsRescued Auto Const Mandatory
+ReferenceAlias Property ScientistDoorPackin Mandatory Const Auto
+Keyword Property Link_AirlockDoor01 Mandatory Const Auto
+Keyword Property Link_AirlockDoor02 Mandatory Const Auto
 
-;-- Properties --------------------------------------
-GlobalVariable Property MS01_GroupsRescued Auto Const mandatory
-ReferenceAlias Property ScientistDoorPackin Auto Const mandatory
-Keyword Property Link_AirlockDoor01 Auto Const mandatory
-Keyword Property Link_AirlockDoor02 Auto Const mandatory
 
-;-- Functions ---------------------------------------
+int Function SpacerGroupKilled()
 
-Int Function SpacerGroupKilled()
-  Int nSpacersKilled = 0
-  If Self.GetStageDone(410)
-    nSpacersKilled += 1
-  EndIf
-  If Self.GetStageDone(420)
-    nSpacersKilled += 1
-  EndIf
-  If Self.GetStageDone(430)
-    nSpacersKilled += 1
-  EndIf
-  If Self.GetStageDone(440)
-    nSpacersKilled += 1
-  EndIf
-  MS01_GroupsRescued.SetValue(nSpacersKilled as Float)
-  Self.UpdateCurrentInstanceGlobal(MS01_GroupsRescued)
-  Self.SetObjectiveDisplayed(300, True, True)
-  If nSpacersKilled >= 4
-    Self.SetStage(400)
-  EndIf
+    int nSpacersKilled = 0
+
+    ; Counting the clues - maybe make this a loop at some point?
+    if ( GetStageDone(410) )
+        nSpacersKilled += 1
+    endif
+    if ( GetStageDone(420) )
+        nSpacersKilled += 1
+    endif
+    if ( GetStageDone(430) )
+        nSpacersKilled += 1
+    endif
+    if ( GetStageDone(440) )
+        nSpacersKilled += 1
+    endif
+
+    ; Update the global and refresh the objective text
+    MS01_GroupsRescued.SetValue(nSpacersKilled)
+    UpdateCurrentInstanceGlobal(MS01_GroupsRescued)
+    SetObjectiveDisplayed(300, true, true)    
+
+    ; If you found all 7 flag the quest
+    if ( nSpacersKilled >= 4 )
+        SetStage(400)
+    endif
+
 EndFunction
+
 
 Function LockDoors(Bool bLock)
-  ObjectReference myDoor01 = ScientistDoorPackin.GetRef().GetLinkedRef(Link_AirlockDoor01)
-  ObjectReference myDoor02 = ScientistDoorPackin.GetRef().GetLinkedRef(Link_AirlockDoor02)
-  myDoor01.Lock(bLock, False, True)
-  myDoor02.Lock(bLock, False, True)
-  If bLock == True
-    myDoor01.SetLockLevel(100)
-    myDoor02.SetLockLevel(100)
-  Else
-    myDoor01.SetLockLevel(0)
-    myDoor02.SetLockLevel(0)
-  EndIf
+    ObjectReference myDoor01 = ScientistDoorPackin.GetRef().GetLinkedRef(Link_AirlockDoor01)
+    ObjectReference myDoor02 = ScientistDoorPackin.GetRef().GetLinkedRef(Link_AirlockDoor02)
+    myDoor01.Lock(bLock)
+    myDoor02.Lock(bLock)
+    If bLock == True
+        myDoor01.SetLockLevel(100)
+        myDoor02.SetLockLevel(100)
+    Else
+        myDoor01.SetLockLevel(0)
+        myDoor02.SetLockLevel(0)
+    EndIf
 EndFunction
+
+
+
+

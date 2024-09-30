@@ -1,75 +1,88 @@
-ScriptName TestExplodingBarrel Extends ObjectReference
-{ A script to prototype the functionality of an exploding barrel. }
+Scriptname TestExplodingBarrel extends ObjectReference
+{A script to prototype the functionality of an exploding barrel.}
 
-;-- Variables ---------------------------------------
-ObjectReference FireFX
-ObjectReference FireHazard
-Bool exploded = False
-Bool punctured = False
-Bool readyToExplode = False
-Int remainingFuel = 3
-
-;-- Properties --------------------------------------
 Explosion Property Test_Fire_Sm_Explosion Auto Const
 Weapon Property UnarmedHuman Auto Const
-Form Property FireMed01 Auto Const
-Form Property ENV_GasVentHazard_Heat_Small Auto Const
-Form Property Test_Hazard_Pool_Fire Auto Const
-
-;-- Functions ---------------------------------------
+Form Property FireMed01 Const Auto
+Form Property ENV_GasVentHazard_Heat_Small Const Auto
+bool readyToExplode = false
+bool punctured = false
+bool exploded = false
+ObjectReference FireFX
+ObjectReference FireHazard
+Form Property Test_Hazard_Pool_Fire Const Auto
+int remainingFuel = 3
 
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndIf
+	if Is3DLoaded()
+		RegisterForHitEvent(self)
+	EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If abBashAttack || (akSource == UnarmedHuman as Form)
-    
-  ElseIf readyToExplode
-    If !exploded
-      Self.Explode()
-    EndIf
-  ElseIf punctured
-    FireFX = Self.PlaceAtMe(FireMed01, 1, False, False, True, None, None, True)
-    FireHazard = Self.PlaceAtMe(ENV_GasVentHazard_Heat_Small, 1, False, False, True, None, None, True)
-    Self.StartTimer(3.0, 0)
-    readyToExplode = True
-  Else
-    Self.StartTimer(3.0, 1)
-    punctured = True
-  EndIf
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+    debug.trace(self + " On Hit registered")
+    ; Check for the weapon type somehow.
+    debug.trace(self + " Source = " + akSource)
+    debug.trace(self + " Bash Attack = " + abBashAttack)
+    debug.trace(self + " Aggressor = " + akAggressor)
+    debug.trace(self + " Projectile = " + akProjectile)
+
+    if(abBashAttack || akSource == UnarmedHuman as Form)
+        debug.trace(self + " bash attack registered.")
+        ;Checking for Bash Attack does not seem to work.
+    Else
+        if (readyToExplode)
+                if(!exploded)
+                    Explode()
+                endif
+        elseif(punctured)
+            ;Catch on Fire
+            FireFX = self.PlaceAtMe(FireMed01)
+            FireHazard = self.PlaceAtMe(ENV_GasVentHazard_Heat_Small)
+            StartTimer(3, 0) ;Onfire, going to explode
+            readyToExplode = true
+        Else
+            StartTimer(3, 1)
+            punctured = true
+        EndIf
+
+    endif
+    ; Check if the barrel is punctured.
+RegisterForHitEvent(self)
+
+
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == 0
-    If !exploded
-      Self.Explode()
+Event OnTimer(int aiTimerID)
+    if(aiTimerID == 0)
+        if(!exploded)
+            Explode()
+        endif
+    elseif (aiTimerID == 1)
+        if(!exploded && remainingFuel > 0 && punctured)
+            LeakFuel()
+        EndIf
     EndIf
-  ElseIf aiTimerID == 1
-    If !exploded && remainingFuel > 0 && punctured
-      Self.LeakFuel()
-    EndIf
-  EndIf
+
+
 EndEvent
 
 Function Explode()
-  exploded = True
-  Self.PlaceAtMe(Test_Fire_Sm_Explosion as Form, 1, False, False, True, None, None, True)
-  Self.UnregisterForAllHitEvents(None)
-  FireFX.Disable(False)
-  FireHazard.Disable(False)
-  Self.Disable(False)
+    exploded = true
+    self.PlaceAtMe(Test_Fire_Sm_Explosion)
+    UnregisterForAllHitEvents()
+    FireFX.Disable()
+    FireHazard.Disable()
+    self.Disable()
 EndFunction
 
 Function LeakFuel()
-  Self.PlaceAtMe(Test_Hazard_Pool_Fire, 1, False, False, True, None, None, True)
-  remainingFuel -= 1
-  Self.StartTimer(3.0, 1)
+    self.PlaceAtMe(Test_Hazard_Pool_Fire)
+    remainingFuel = remainingFuel - 1
+    StartTimer(3, 1)
 EndFunction

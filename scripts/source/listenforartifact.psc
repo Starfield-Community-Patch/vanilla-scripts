@@ -1,23 +1,27 @@
-ScriptName ListenForArtifact Extends ReferenceAlias
+Scriptname ListenForArtifact extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property VisionStartedStage Auto Const mandatory
-Int Property VisionEndedStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+int Property VisionStartedStage Auto Mandatory Const
+int Property VisionEndedStage Auto Mandatory Const
 
 Event OnLoad()
-  buriedartifact myRef = Self.GetRef() as buriedartifact
-  Self.RegisterForCustomEvent(myRef as ScriptObject, "buriedartifact_OnArtifactAcquireEnded")
-  Self.RegisterForCustomEvent(myRef as ScriptObject, "buriedartifact_OnArtifactAcquireStarted")
+	BuriedArtifact myRef = Self.GetRef() as BuriedArtifact
+    RegisterForCustomEvent(myRef, "OnArtifactAcquireEnded")
+	RegisterForCustomEvent(myRef, "OnArtifactAcquireStarted")
 EndEvent
 
-Event BuriedArtifact.OnArtifactAcquireEnded(buriedartifact akSender, Var[] akArgs)
-  Self.GetOwningQuest().SetStage(50)
+;Artifact vision has completed
+Event BuriedArtifact.OnArtifactAcquireEnded(BuriedArtifact akSender, Var[] akArgs)
+	GetOwningQuest().SetStage(50)
 EndEvent
 
-Event BuriedArtifact.OnArtifactAcquireStarted(buriedartifact akSender, Var[] akArgs)
-  Self.GetOwningQuest().SetStage(49)
+Event BuriedArtifact.OnArtifactAcquireStarted(BuriedArtifact akSender, Var[] akArgs)
+	GetOwningQuest().SetStage(49)
 EndEvent
+
+
+;shut down any other scenes
+;MQ101_002_LinSupervisorScene.Stop()
+;MQ101_004_WallDownScene.Stop()
+
+;disable controls
+;kmyquest.VSEnableLayer.DisablePlayerControls()

@@ -1,23 +1,40 @@
-ScriptName Fragments:Quests:QF__01000D1A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF__01000D1A Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Self.SetStage(50)
+;BEGIN CODE
+SetStage(50)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Int SelectedScene = Utility.RandomInt(1, 10)
-  If SelectedScene <= 2
-    Self.SetStage(110)
-  ElseIf SelectedScene <= 6
-    Self.SetStage(120)
-  Else
-    Self.SetStage(130)
-  EndIf
-EndFunction
+;BEGIN CODE
+int SelectedScene = Utility.RandomInt(1,10)
 
-Function Fragment_Stage_9999_Item_00()
-  Quest __temp = Self as Quest
-  oescript kmyQuest = __temp as oescript
+If SelectedScene <= 2
+   SetStage(110) ; Basic Scene 20%
+ElseIf SelectedScene <= 6
+   SetStage(120) ; Stranded Scene 40%
+Else 
+   SetStage(130) ; Challenge Scene 40%
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_9999_Item_00
+Function Fragment_Stage_9999_Item_00()
+;BEGIN AUTOCAST TYPE OEScript
+Quest __temp = self as Quest
+OEScript kmyQuest = __temp as OEScript
+;END AUTOCAST
+;BEGIN CODE
+;(Alias_Trigger.GetRef() as RETriggerScript).ReArmTrigger()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

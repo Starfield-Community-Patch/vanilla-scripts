@@ -1,118 +1,141 @@
-ScriptName DefaultTutorialQuestScript Extends Quest
+Scriptname DefaultTutorialQuestScript extends Quest
 
-;-- Structs -----------------------------------------
 Struct TutorialMessageDatum
-  String asEvent
-  { Note: if you want multiple messages showing "together" you will need to make each have a different asEvent string. As per the ShowAsHelpMessage() param }
-  String asUserEventToEnd = "None"
-  { The User Event (button press) we are listening for in order to end the tutorial early. }
-  Bool AlwaysShow = False
-  { If True, then always show this Tutorial, even if the player has seen it before. }
-  Float DelayTime = -1.0
-  { If set, it will delay this amount of time before showing the message }
-  Bool DelayFinished hidden
-  { will be set when the timer has delayed this, and we are ready to show it }
-  Bool TutorialSeen hidden
-  { tracks if the player has seen this tutorial already }
-  String asEventNext
-  { This is the next event to send immediately after this one (for multiple part messages), make sure there is a struct defined for it in this array as well AND make sure there is a DelayTime set so they don't bash. }
-  Message TutorialMessage
-  { the message to display along with the objective which tells the player how to complete the objective }
-  Message TutorialMessageMouseAndKeyboardSpecific
-  { the message to display along with the objective which tells the player how to complete the objective... if NONE (default), show TutorialMessage for both, othewise show this if PC }
-  Int AfDuration = 30
-  { As per the ShowAsHelpMessage() param - how long to display }
-  Int AfInterval = 30
-  { As per the ShowAsHelpMessage() param - how much time between intervals }
-  Int aiMaxTimes = 1
-  { As per the ShowAsHelpMessage() param - how many times this message repeats. Defaults to only display once. }
-  String asContext = ""
-  { As per the ShowAsHelpMessage() param }
-  Int aiPriority = 0
-  { As per the ShowAsHelpMessage() param }
+	string asEvent
+	{Note: if you want multiple messages showing "together" you will need to make each have a different asEvent string. As per the ShowAsHelpMessage() param}
+
+	string asUserEventToEnd = "None"
+	{The User Event (button press) we are listening for in order to end the tutorial early.}
+
+	bool AlwaysShow = false
+	{If True, then always show this Tutorial, even if the player has seen it before.}
+
+	float DelayTime = -1.0
+	{If set, it will delay this amount of time before showing the message}
+
+	bool DelayFinished Hidden
+	{will be set when the timer has delayed this, and we are ready to show it}
+
+    bool TutorialSeen Hidden
+    {tracks if the player has seen this tutorial already}
+
+	string asEventNext
+	{This is the next event to send immediately after this one (for multiple part messages), make sure there is a struct defined for it in this array as well AND make sure there is a DelayTime set so they don't bash.}
+
+	message TutorialMessage
+	{the message to display along with the objective which tells the player how to complete the objective}
+	message TutorialMessageMouseAndKeyboardSpecific
+	{the message to display along with the objective which tells the player how to complete the objective... if NONE (default), show TutorialMessage for both, othewise show this if PC}
+
+	int AfDuration = 30
+	{As per the ShowAsHelpMessage() param - how long to display}
+	int AfInterval = 30
+	{As per the ShowAsHelpMessage() param - how much time between intervals}
+	int aiMaxTimes = 1
+	{As per the ShowAsHelpMessage() param - how many times this message repeats. Defaults to only display once.}
+	string asContext = ""
+	{As per the ShowAsHelpMessage() param}
+	int aiPriority = 0
+	{As per the ShowAsHelpMessage() param}
 EndStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group TutorialProperty
-  defaulttutorialquestscript:tutorialmessagedatum[] Property TutorialMessageData Auto Const mandatory
-  GlobalVariable Property TutorialAllowedGlobal Auto Const
-  { if set, this global must be >= 1 to }
+	TutorialMessageDatum[] Property TutorialMessageData Auto Const Mandatory
+	GlobalVariable Property TutorialAllowedGlobal Const Auto
+	{if set, this global must be >= 1 to }
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
-Event OnTimer(Int aiTimerID)
-  TutorialMessageData[aiTimerID].DelayFinished = True
-  Self.ShowHelpMessage(TutorialMessageData[aiTimerID].asEvent)
+Event OnTimer(int aiTimerID)
+	Debug.Trace(Self + "OnTimer() aiTimerID: " + aiTimerID)
+    ;delayed tutorial message - uses index for ID
+	TutorialMessageData[aiTimerID].DelayFinished = true
+	ShowHelpMessage(TutorialMessageData[aiTimerID].asEvent)
 EndEvent
 
 Function ShowHelpMessage(String EventName)
-  If TutorialAllowedGlobal as Bool && TutorialAllowedGlobal.GetValue() < 1.0
-    Return 
-  EndIf
-  Int iFound = TutorialMessageData.findstruct("asEvent", EventName, 0)
-  If iFound > -1
-    If TutorialMessageData[iFound].AlwaysShow == True
-      Self.ResetTutorial(EventName)
-    EndIf
-    If TutorialMessageData[iFound].TutorialSeen == True
-      
-    ElseIf TutorialMessageData[iFound].DelayTime > 0.0 && TutorialMessageData[iFound].DelayFinished == False
-      Self.StartTimer(TutorialMessageData[iFound].DelayTime, iFound)
-    Else
-      Self.DoShowMessage(iFound)
-      TutorialMessageData[iFound].TutorialSeen = True
-      TutorialMessageData[iFound].DelayFinished = False
-      If TutorialMessageData[iFound].asEventNext
-        Self.ShowHelpMessage(TutorialMessageData[iFound].asEventNext)
-      EndIf
-    EndIf
-  EndIf
+	if TutorialAllowedGlobal && TutorialAllowedGlobal.GetValue() < 1
+		RETURN
+	endif
+
+
+	Debug.Trace(Self + " ShowHelpMessage() EventName: " + EventName, 0)
+
+;TEMP
+	Debug.TraceStack()
+
+	int iFound = TutorialMessageData.FindStruct("asEvent", EventName)
+
+	if iFound > -1
+		If TutorialMessageData[iFound].AlwaysShow == True
+			;if we always want to see this tutorial, reset it
+			ResetTutorial(EventName)
+		EndIf
+
+        If TutorialMessageData[iFound].TutorialSeen == True
+           	;do nothing if we've already seen this tutorial
+    	ElseIf TutorialMessageData[iFound].DelayTime > 0 && TutorialMessageData[iFound].DelayFinished == false
+			Debug.Trace(self + " ShowHelpMessage() starting delay timer for TutorialMessageData[iFound]: " + TutorialMessageData[iFound], 0)
+			StartTimer(TutorialMessageData[iFound].DelayTime, iFound)
+		Else
+            DoShowMessage(iFound)
+            TutorialMessageData[iFound].TutorialSeen = True ;player has now seen the tutorial and shouldn't see it again
+			TutorialMessageData[iFound].DelayFinished = false ;clear the flag in case we need to display it again with a delay
+
+			if TutorialMessageData[iFound].asEventNext
+				ShowHelpMessage(TutorialMessageData[iFound].asEventNext)
+			EndIf
+		endif
+	endif
+
 EndFunction
 
 Function UnshowHelpMessage(String EventName)
-  Int iFound = TutorialMessageData.findstruct("asEvent", EventName, 0)
-  If iFound > -1
-    If TutorialMessageData[iFound].TutorialMessage
-      TutorialMessageData[iFound].TutorialMessage.UnshowAsHelpMessage()
-    EndIf
-    If TutorialMessageData[iFound].TutorialMessageMouseAndKeyboardSpecific
-      TutorialMessageData[iFound].TutorialMessageMouseAndKeyboardSpecific.UnshowAsHelpMessage()
-    EndIf
-  EndIf
+	Debug.Trace(self + " StopHelpMessage() EventName: " + EventName)
+	int iFound = TutorialMessageData.FindStruct("asEvent", EventName)
+
+	if iFound > -1
+		if TutorialMessageData[iFound].TutorialMessage
+			TutorialMessageData[iFound].TutorialMessage.UnshowAsHelpMessage()
+		endif
+		if TutorialMessageData[iFound].TutorialMessageMouseAndKeyboardSpecific
+			TutorialMessageData[iFound].TutorialMessageMouseAndKeyboardSpecific.UnshowAsHelpMessage()
+		endif
+	endif
+
 EndFunction
 
-Function DoShowMessage(Int iFound)
-  String asUserEventToEnd = TutorialMessageData[iFound].asUserEventToEnd
-  Message TutorialMessage = TutorialMessageData[iFound].TutorialMessage
-  Message TutorialMessageMouseAndKeyboardSpecific = TutorialMessageData[iFound].TutorialMessageMouseAndKeyboardSpecific
-  Int AfDuration = TutorialMessageData[iFound].AfDuration
-  Int AfInterval = TutorialMessageData[iFound].AfInterval
-  Int aiMaxTimes = TutorialMessageData[iFound].aiMaxTimes
-  String asContext = TutorialMessageData[iFound].asContext
-  Int aiPriority = TutorialMessageData[iFound].aiPriority
-  Message.ClearHelpMessages()
-  If TutorialMessageMouseAndKeyboardSpecific == None
-    TutorialMessage.ShowAsHelpMessage(asUserEventToEnd, AfDuration as Float, AfInterval as Float, aiMaxTimes, asContext, aiPriority, None)
-  Else
-    TutorialMessageMouseAndKeyboardSpecific.ShowAsHelpMessage(asUserEventToEnd, AfDuration as Float, AfInterval as Float, aiMaxTimes, asContext, aiPriority, TutorialMessage)
-  EndIf
-EndFunction
+Function DoShowMessage(Int iFound) private
+	string 		asUserEventToEnd 						= TutorialMessageData[iFound].asUserEventToEnd
+	message 	TutorialMessage 						= TutorialMessageData[iFound].TutorialMessage
+	message 	TutorialMessageMouseAndKeyboardSpecific	= TutorialMessageData[iFound].TutorialMessageMouseAndKeyboardSpecific
+	int 		AfDuration 								= TutorialMessageData[iFound].AfDuration
+	int 		AfInterval 								= TutorialMessageData[iFound].AfInterval
+	int 		aiMaxTimes 								= TutorialMessageData[iFound].aiMaxTimes
+	string 		asContext 								= TutorialMessageData[iFound].asContext
+	int 		aiPriority 								= TutorialMessageData[iFound].aiPriority
+
+	;Clear any help messages that are currently on display. The most recent tutorial message should always win.
+	Message.ClearHelpMessages()
+
+	;display the help message. If there's a MKB vs GamePad message, then display the MKB message with an optional parameter to swap to the Gamepad message if we hot-swap
+	if (TutorialMessageMouseAndKeyboardSpecific == None)
+		TutorialMessage.ShowAsHelpMessage(asEvent = asUserEventToEnd, AfDuration = AfDuration, AfInterval = AfInterval, aiMaxTimes = aiMaxTimes, asContext = asContext, aiPriority = aiPriority)
+	else
+		TutorialMessageMouseAndKeyboardSpecific.ShowAsHelpMessage(asEvent = asUserEventToEnd, AfDuration = AfDuration, AfInterval = AfInterval, aiMaxTimes = aiMaxTimes, asContext = asContext, aiPriority = aiPriority, GamepadMsg=TutorialMessage)
+	endif
+endfunction	
 
 Function ResetTutorial(String EventName)
-  Int iFound = TutorialMessageData.findstruct("asEvent", EventName, 0)
-  TutorialMessageData[iFound].TutorialSeen = False
-  Message.ResetHelpMessage(TutorialMessageData[iFound].asUserEventToEnd)
+	;reset this tutorial so it always displays
+	int iFound = TutorialMessageData.FindStruct("asEvent", EventName)
+	TutorialMessageData[iFound].TutorialSeen = False
+	Message.ResetHelpMessage(TutorialMessageData[iFound].asUserEventToEnd)
 EndFunction
 
 Function ResetAll()
-  Int I = 0
-  While I < TutorialMessageData.Length
-    Self.ResetTutorial(TutorialMessageData[I].asEvent)
-    I += 1
-  EndWhile
+	int i = 0
+	While (i < TutorialMessageData.length)
+		ResetTutorial(TutorialMessageData[i].asEvent)
+		i += 1
+	EndWhile
 EndFunction

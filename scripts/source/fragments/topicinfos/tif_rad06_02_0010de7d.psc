@@ -1,9 +1,16 @@
-ScriptName Fragments:TopicInfos:TIF_RAD06_02_0010DE7D Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_RAD06_02_0010DE7D Extends TopicInfo Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  rad06script kmyQuest = Self.GetOwningQuest() as rad06script
-  kmyQuest.CargoHoldResourceCheck()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN AUTOCAST TYPE rad06script
+rad06script kmyQuest = GetOwningQuest() as rad06script
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.CargoHoldResourceCheck()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

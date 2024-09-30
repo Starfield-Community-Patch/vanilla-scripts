@@ -1,26 +1,30 @@
-ScriptName DefaultRefMapMarkerOnDiscoveryScript Extends ObjectReference Const default
-{ Set map marker flags OnMapMarkerDiscovered event }
+Scriptname DefaultRefMapMarkerOnDiscoveryScript extends ObjectReference Default Const
+{Set map marker flags OnMapMarkerDiscovered event}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property VisibleOnStarMap = True Auto Const
+bool property VisibleOnStarMap = true auto Const
 { Visible on Star Map? }
-Int Property MapMarkerType = -1 Auto Const
-{ map marker type. See SetMapMarkerType in CS wiki for enum values
-    -1 = don't change }
-Int Property MapMarkerCategory = -1 Auto Const
-{ map marker category. See SetMapMarkerCategory in CS wiki for enum values
-    -1 = don't change }
 
-;-- Functions ---------------------------------------
+int property MapMarkerType = -1 auto Const
+{ map marker type. See SetMapMarkerType in CS wiki for enum values
+    -1 = don't change
+}
+
+int property MapMarkerCategory = -1 auto Const
+{ map marker category. See SetMapMarkerCategory in CS wiki for enum values
+    -1 = don't change
+}
 
 Event OnMapMarkerDiscovered()
-  Self.SetMarkerVisibleOnStarMap(VisibleOnStarMap)
-  If MapMarkerType > -1
-    Self.SetMapMarkerType(MapMarkerType)
-  EndIf
-  If MapMarkerCategory > -1
-    Self.SetMapMarkerCategory(MapMarkerCategory)
-  EndIf
+    debug.trace(self + " OnMapMarkerDiscovered setting VisibleOnStarmap=" + VisibleOnStarMap)
+    SetMarkerVisibleOnStarMap(VisibleOnStarMap)
+
+    if MapMarkerType > -1
+        debug.trace(self + " setting MapMarkerType=" + MapMarkerType)
+        SetMapMarkerType(MapMarkerType)
+    EndIf
+    if MapMarkerCategory > -1
+        debug.trace(self + " setting MapMarkerCategory=" + MapMarkerCategory)
+        SetMapMarkerCategory(MapMarkerCategory)
+    endif
+
 EndEvent

@@ -1,12 +1,17 @@
-ScriptName Fragments:Quests:QF_FC02_BE_Quest_000D5B2C Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FC02_BE_Quest_000D5B2C Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FC02 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  FC02.SetStage(520)
+;BEGIN CODE
+; Set stage on FC02 that moves the slate from holding cell to captain's locker on 
+; the stolen HopeTech ship
+
+FC02.SetStage(520)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FC02 Auto Const Mandatory

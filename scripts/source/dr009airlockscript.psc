@@ -1,63 +1,70 @@
-ScriptName DR009AirlockScript Extends ObjectReference
+Scriptname DR009AirlockScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool initialized = False
-Bool waitForPlayerArrival = False
+Keyword property CosmeticDoorKeyword auto const mandatory
+Keyword property InvisibleDoorKeyword auto const mandatory
+Keyword property ArrivalTriggerVolumeKeyword auto const mandatory
+Keyword property LinkedAirlockKeyword auto const mandatory
+float property doorClosingSeconds auto const mandatory
+float property WaitSeconds = 1.5 auto const mandatory
 
-;-- Properties --------------------------------------
-Keyword Property CosmeticDoorKeyword Auto Const mandatory
-Keyword Property InvisibleDoorKeyword Auto Const mandatory
-Keyword Property ArrivalTriggerVolumeKeyword Auto Const mandatory
-Keyword Property LinkedAirlockKeyword Auto Const mandatory
-Float Property doorClosingSeconds Auto Const mandatory
-Float Property WaitSeconds = 1.5 Auto Const mandatory
+bool initialized = false
+bool waitForPlayerArrival = false
 
-;-- Functions ---------------------------------------
+event OnCellLoad()
+	if(initialized == false)
+        self.Init()
 
-Event OnCellLoad()
-  If initialized == False
-    Self.Init()
-    DR009AirlockScript linkedAirlockScript = Self.GetLinkedRef(LinkedAirlockKeyword) as DR009AirlockScript
-    If linkedAirlockScript != None
-      linkedAirlockScript.Init()
-    EndIf
-  EndIf
-EndEvent
+        DR009AirlockScript linkedAirlockScript = self.GetLinkedRef(LinkedAirlockKeyword) as DR009AirlockScript
 
-Function Init()
-  initialized == True
-  ObjectReference arrivalTriggerVolume = Self.GetLinkedRef(ArrivalTriggerVolumeKeyword)
-  If arrivalTriggerVolume != None
-    Self.RegisterForRemoteEvent(arrivalTriggerVolume as ScriptObject, "OnTriggerEnter")
-  EndIf
-EndFunction
+        if(linkedAirlockScript != None)
+            linkedAirlockScript.Init()
+        endIf
+    endIf
+endEvent
 
-Event OnActivate(ObjectReference akActionRef)
-  ObjectReference player = Game.GetPlayer() as ObjectReference
-  If akActionRef == player
-    ObjectReference cosmeticDoor = Self.GetLinkedRef(CosmeticDoorKeyword)
-    ObjectReference invisibleDoor = Self.GetLinkedRef(InvisibleDoorKeyword)
-    DR009AirlockScript linkedAirlockScript = Self.GetLinkedRef(LinkedAirlockKeyword) as DR009AirlockScript
-    If cosmeticDoor != None && invisibleDoor != None && linkedAirlockScript != None
-      cosmeticDoor.SetOpen(False)
-      Utility.Wait(doorClosingSeconds)
-      linkedAirlockScript.waitForPlayerArrival()
-      invisibleDoor.Activate(player, False)
-    EndIf
-  EndIf
-EndEvent
+function Init()
+    initialized == true
 
-Function waitForPlayerArrival()
-  waitForPlayerArrival = True
-EndFunction
+    ObjectReference arrivalTriggerVolume = GetLinkedRef(ArrivalTriggerVolumeKeyword)
 
-Event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
-  If waitForPlayerArrival
-    waitForPlayerArrival = False
-    ObjectReference cosmeticDoor = Self.GetLinkedRef(CosmeticDoorKeyword)
-    If cosmeticDoor != None
-      Utility.Wait(WaitSeconds)
-      cosmeticDoor.SetOpen(True)
-    EndIf
-  EndIf
-EndEvent
+    if(arrivalTriggerVolume != None)
+	    RegisterForRemoteEvent(arrivalTriggerVolume, "OnTriggerEnter")
+    endIf
+endFunction
+
+event OnActivate(ObjectReference akActionRef)
+    ObjectReference player = Game.GetPlayer()
+	if(akActionRef == player)
+        ObjectReference cosmeticDoor = self.GetLinkedRef(CosmeticDoorKeyword)
+        ObjectReference invisibleDoor = self.GetLinkedRef(InvisibleDoorKeyword)
+        DR009AirlockScript linkedAirlockScript = self.GetLinkedRef(LinkedAirlockKeyword) as DR009AirlockScript
+
+        if(cosmeticDoor != None && invisibleDoor != None && linkedAirlockScript != None)
+            cosmeticDoor.SetOpen(false)
+            
+            Utility.Wait(doorClosingSeconds)
+
+            linkedAirlockScript.WaitForPlayerArrival()
+
+            invisibleDoor.Activate(player)
+        endIF
+    endIf
+endEvent
+
+function WaitForPlayerArrival()
+    waitForPlayerArrival = true
+endFunction
+
+event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
+    if(waitForPlayerArrival)
+        waitForPlayerArrival = false
+
+        ObjectReference cosmeticDoor = self.GetLinkedRef(CosmeticDoorKeyword)
+        
+        if(cosmeticDoor != None)
+            Utility.Wait(WaitSeconds)
+
+            cosmeticDoor.SetOpen(true)
+        endIF
+    endIf
+endEvent

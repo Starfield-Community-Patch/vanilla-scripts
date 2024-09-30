@@ -1,27 +1,33 @@
-ScriptName QATests Extends Quest
+Scriptname QATests extends Quest
 
-;-- Variables ---------------------------------------
-String sDisableVanity = "setIni \"bDisableAutoVanityMode:camera\" 1" Const
-String sScreenshot = "Screenshot" Const
+string sDisableVanity = "setIni \"bDisableAutoVanityMode:camera\" 1" const
+string sScreenshot = "Screenshot" const
 
-;-- Functions ---------------------------------------
 
-Function TestEquip(Actor ActorToEquip, FormList FormlistToTest, Float PauseDuration, Bool RemoveAllFirst, Bool TakeScreenshot)
-  If RemoveAllFirst
-    ActorToEquip.RemoveAllItems(None, False, False)
-  EndIf
-  If TakeScreenshot
+;some functionality required Debug.psc compiled locally or using Debug archives/
+Function TestEquip(Actor ActorToEquip, Formlist FormlistToTest, float PauseDuration, bool RemoveAllFirst, bool TakeScreenshot)
+
+    if RemoveAllFirst
+        ActorToEquip.RemoveAllItems()
+    endif
+
+    if TakeScreenshot
+        Debug.ExecuteConsole(sDisableVanity)
+    endif
+
+   int i = 0
+   int iMax = FormlistToTest.GetSize()
+   While (i < iMax)
+       Form currentForm = FormlistToTest.GetAt(i) as Form
     
-  EndIf
-  Int I = 0
-  Int iMax = FormlistToTest.GetSize()
-  While I < iMax
-    Form currentForm = FormlistToTest.GetAt(I)
-    ActorToEquip.EquipItem(currentForm, False, True)
-    If TakeScreenshot
-      
-    EndIf
-    Utility.Wait(PauseDuration)
-    I += 1
-  EndWhile
+        ActorToEquip.EquipItem(currentForm, abPreventRemoval = false, abSilent = true)
+
+        if TakeScreenshot
+            Debug.ExecuteConsole(sScreenshot)
+        endif
+
+        Utility.Wait(PauseDuration)
+
+       i += 1
+   EndWhile
 EndFunction

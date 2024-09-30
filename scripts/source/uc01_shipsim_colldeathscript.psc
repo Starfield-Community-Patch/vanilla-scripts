@@ -1,27 +1,26 @@
-ScriptName UC01_ShipSim_CollDeathScript Extends RefCollectionAlias
+Scriptname UC01_ShipSim_CollDeathScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
+GlobalVariable Property UC01_ShipSim_CurrentWaveEnemyCountDefeated Mandatory Const Auto
+{Global used to display how many enemies the player's knocked out in this wave}
 
-;-- Properties --------------------------------------
-GlobalVariable Property UC01_ShipSim_CurrentWaveEnemyCountDefeated Auto Const mandatory
-{ Global used to display how many enemies the player's knocked out in this wave }
-Int Property EnemyCountObj = 300 Auto Const
-{ Objective to update as the player defeats enemies }
-
-;-- Functions ---------------------------------------
+int Property EnemyCountObj = 300 Const Auto
+{Objective to update as the player defeats enemies}
 
 Event OnDeath(ObjectReference akSenderRef, ObjectReference akKiller)
-  Self.RemoveRef(akSenderRef)
-  uc01_shipsimulationquestscript OQ = Self.GetOwningQuest() as uc01_shipsimulationquestscript
-  If Self.GetCount() <= 0
-    UC01_ShipSim_CurrentWaveEnemyCountDefeated.SetValue(0.0)
-    OQ.UpdateCurrentInstanceGlobal(UC01_ShipSim_CurrentWaveEnemyCountDefeated)
-    OQ.EnemyDefeated()
-  Else
-    UC01_ShipSim_CurrentWaveEnemyCountDefeated.Mod(1.0)
-    OQ.UpdateCurrentInstanceGlobal(UC01_ShipSim_CurrentWaveEnemyCountDefeated)
-    OQ.SetObjectiveDisplayedAtTop(EnemyCountObj)
-  EndIf
-  Utility.Wait(3.0)
-  akSenderRef.Disable(False)
+    RemoveRef(akSenderRef)
+
+    UC01_ShipSimulationQuestScript OQ = GetOwningQuest() as UC01_ShipSimulationQuestScript
+    if GetCount() <= 0
+       UC01_ShipSim_CurrentWaveEnemyCountDefeated.SetValue(0)
+       OQ.UpdateCurrentInstanceGlobal(UC01_ShipSim_CurrentWaveEnemyCountDefeated)
+       OQ.EnemyDefeated()
+    else
+        UC01_ShipSim_CurrentWaveEnemyCountDefeated.Mod(1)
+        OQ.UpdateCurrentInstanceGlobal(UC01_ShipSim_CurrentWaveEnemyCountDefeated)
+        OQ.SetObjectiveDisplayedAtTop(EnemyCountObj)
+    endif
+
+     ;GEN-481048 - disable the ship after a few seconds
+     Utility.Wait(3.0)
+     akSenderRef.Disable()
 EndEvent

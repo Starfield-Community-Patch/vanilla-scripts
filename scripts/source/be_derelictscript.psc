@@ -1,44 +1,44 @@
-ScriptName BE_DerelictScript Extends Quest
-{ Script to handle additional derelict functions }
+Scriptname BE_DerelictScript extends Quest
 
-;-- Variables ---------------------------------------
+{Script to handle additional derelict functions}
 
-;-- Properties --------------------------------------
-Group MusicProperties collapsedonbase
-  MusicType[] Property MusicTrack Auto Const
-  { The array of music tracks. }
-  Int Property TrackNumber Auto
-  { The music track number in the array we will play. }
-  Bool Property RandomTrack = False Auto
-  { Default=false. Do we want to play a random track each time the player enters the cell? }
-EndGroup
+ReferenceAlias Property ModuleCockpit Auto Const Mandatory
+{The module cockpit.}
 
-ReferenceAlias Property ModuleCockpit Auto Const mandatory
-{ The module cockpit. }
+Group MusicProperties CollapsedOnBase
+    MusicType[] Property MusicTrack Auto Const
+    {The array of music tracks.}
 
-;-- Functions ---------------------------------------
+    int Property TrackNumber Auto
+    {The music track number in the array we will play.}
+
+    bool property RandomTrack = false Auto
+    {Default=false. Do we want to play a random track each time the player enters the cell?}
+endGroup
 
 Event OnQuestStarted()
-  ObjectReference enemyShipCockpit = ModuleCockpit.GetRef()
-  Self.RegisterForRemoteEvent(enemyShipCockpit as ScriptObject, "OnCellAttach")
-  Self.RegisterForRemoteEvent(enemyShipCockpit as ScriptObject, "OnCellDetach")
-EndEvent
+    ObjectReference enemyShipCockpit = ModuleCockpit.GetRef()
+
+    ;Unregistered when quest is stopped
+    RegisterForRemoteEvent(enemyShipCockpit, "OnCellAttach")
+    RegisterForRemoteEvent(enemyShipCockpit, "OnCellDetach")
+endEvent
 
 Event ObjectReference.OnCellAttach(ObjectReference akSource)
-  If RandomTrack == True
-    TrackNumber = Utility.RandomInt(0, MusicTrack.Length)
-  EndIf
-  Self.PlayMusic(MusicTrack[TrackNumber], True)
-EndEvent
+    if RandomTrack == true
+        TrackNumber = Utility.RandomInt(0, MusicTrack.Length)
+    endif
+    PlayMusic(MusicTrack[TrackNumber], true)
+endEvent 
 
 Event ObjectReference.OnCellDetach(ObjectReference akSource)
-  Self.PlayMusic(MusicTrack[TrackNumber], False)
-EndEvent
+    PlayMusic(MusicTrack[TrackNumber], false)
+endEvent 
 
-Function PlayMusic(MusicType MusicTrack, Bool abPlay)
-  If abPlay == True
-    MusicTrack[TrackNumber].Add()
-  Else
-    MusicTrack[TrackNumber].Remove()
-  EndIf
-EndFunction
+Function PlayMusic(MusicType MusicTrack, bool abPlay)
+	if abPlay == true
+		MusicTrack[TrackNumber].Add()
+	else
+		MusicTrack[TrackNumber].Remove()
+	endif
+endFunction

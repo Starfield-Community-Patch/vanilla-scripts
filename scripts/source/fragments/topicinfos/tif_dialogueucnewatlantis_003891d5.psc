@@ -1,15 +1,18 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueUCNewAtlantis_003891D5 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueUCNewAtlantis_003891D5 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property UC_NA_SalinasVendorActive Auto Const mandatory
-ActorBase Property UC_NA_VicenteSalinas Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  UC_NA_SalinasVendorActive.SetValue(1.0)
-  UC_NA_VicenteSalinas.GetUniqueActor().EvaluatePackage(False)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+UC_NA_SalinasVendorActive.SetValue(1)
+UC_NA_VicenteSalinas.GetUniqueActor().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property UC_NA_SalinasVendorActive Auto Const Mandatory
+
+ActorBase Property UC_NA_VicenteSalinas Auto Const Mandatory

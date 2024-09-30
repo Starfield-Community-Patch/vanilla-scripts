@@ -1,14 +1,16 @@
-ScriptName LocationAlias Extends Alias Native hidden
+Scriptname LocationAlias extends Alias Native Hidden
 
-;-- Functions ---------------------------------------
+; Clears the alias - fails on non-optional aliases
+Function Clear() native
 
-Function Clear() Native
+; Get the object reference this alias refers to
+Location Function GetLocation() native
 
-Function ForceLocationTo(Location akNewLocation) Native
+; Forces this alias to the specified location
+Function ForceLocationTo(Location akNewLocation) native
 
-Location Function GetLocation() Native
-
+; kmk - first clears, then refills alias (so alias will be empty if nothing is found by RefillAlias call)
 Function ClearAndRefillAlias()
-  Self.Clear()
-  Self.RefillAlias()
-EndFunction
+	Clear()
+	RefillAlias()
+endFunction

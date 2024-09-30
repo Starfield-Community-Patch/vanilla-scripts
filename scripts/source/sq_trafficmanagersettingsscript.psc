@@ -1,15 +1,15 @@
-ScriptName SQ_TrafficManagerSettingsScript Extends ObjectReference
-{ Settings for Traffic Manager }
+Scriptname SQ_TrafficManagerSettingsScript extends ObjectReference
+{Settings for Traffic Manager}
 
-;-- Variables ---------------------------------------
+Quest Property TrafficManagerQuest Auto Const Mandatory
+{Quest that handles this system}
 
-;-- Properties --------------------------------------
-Quest Property TrafficManagerQuest Auto Const mandatory
-{ Quest that handles this system }
-Float Property MinRefreshTime Auto Const mandatory
-Float Property MaxRefreshTime Auto Const mandatory
-{ how often the system checks to see if ships need to be spawned or despawned }
-FormList Property TrafficShiplist Auto Const mandatory
-{ List of Ships that will appear at this location }
-Int Property MaxShips Auto Const
-{ Maximum number of ships that can be in this cell }
+float Property MinRefreshTime Auto Const Mandatory
+float Property MaxRefreshTime Auto Const Mandatory
+{how often the system checks to see if ships need to be spawned or despawned}
+
+Formlist Property TrafficShiplist Auto Const Mandatory
+{List of Ships that will appear at this location}
+
+int Property MaxShips Auto Const
+{Maximum number of ships that can be in this cell}

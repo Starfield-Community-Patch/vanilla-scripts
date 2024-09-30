@@ -1,18 +1,15 @@
-ScriptName UC08_FuelTankScript Extends RefCollectionAlias
+Scriptname UC08_FuelTankScript extends RefCollectionAlias
+;Script cut from the game
 
-;-- Variables ---------------------------------------
+int Property StageToSet = 590 Const Auto
+{Stage to set when the proper switch is thrown}
 
-;-- Properties --------------------------------------
-Int Property StageToSet = 590 Auto Const
-{ Stage to set when the proper switch is thrown }
-Int Property PrereqStage = 570 Auto Const
-{ Only set the stage if we're at the right part of the quest }
-
-;-- Functions ---------------------------------------
+int Property PrereqStage = 570 Auto Const
+{Only set the stage if we're at the right part of the quest}
 
 Event OnActivate(ObjectReference akSenderRef, ObjectReference akActionRef)
-  Quest OQ = Self.GetOwningQuest()
-  If OQ.GetStageDone(PrereqStage) && !OQ.GetStageDone(StageToSet)
-    OQ.SetStage(StageToSet)
-  EndIf
+    Quest OQ = GetOwningQuest()
+    if OQ.GetStageDone(PrereqStage) && !OQ.GetStageDone(StageToSet)
+        OQ.SetStage(StageToSet)
+    endif
 EndEvent

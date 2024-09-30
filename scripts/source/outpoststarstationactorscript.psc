@@ -1,122 +1,175 @@
-ScriptName OutpostStarstationActorScript Extends Actor
+Scriptname OutpostStarstationActorScript extends Actor
 
-;-- Variables ---------------------------------------
-Bool initialized = False
-ObjectReference myOutpostObject
-spaceshipreference orbitalShip
-spaceshipreference orbitalStarstation
-
-;-- Properties --------------------------------------
-Keyword Property SQ_OutpostCreateStarstationStoryEvent Auto Const mandatory
+Keyword property SQ_OutpostCreateStarstationStoryEvent auto const mandatory
 { used to create orbital marker }
-Keyword Property LinkOutpostStarstationObject Auto Const mandatory
+
+Keyword property LinkOutpostStarstationObject auto const mandatory
 { used to link actor to outpost functional proxy }
-spaceshipbase Property OutpostStarstationShip01 Auto Const mandatory
+
+SpaceshipBase property OutpostStarstationShip01 auto const mandatory
 { use to create defense ships in orbit }
-ObjectReference Property myLandingMarker Auto hidden
+
+ObjectReference property myLandingMarker auto hidden
 { landing marker, set by Initialize }
-sq_outpostcreatestarstationscript Property SQ_OutpostCreateStarstation Auto hidden
+
+SQ_OutpostCreateStarstationScript property SQ_OutpostCreateStarstation auto hidden
 { quest that holds orbital marker data }
-ActorValue Property SpaceshipRegistration Auto Const mandatory
+
+ActorValue property SpaceshipRegistration auto const mandatory
 { to register the starstation }
-ActorValue Property PowerGenerated Auto Const mandatory
+
+ActorValue property PowerGenerated auto const mandatory
 { outpost stat }
-ActorValue Property OutpostStarstationShips Auto Const mandatory
+
+ActorValue property OutpostStarstationShips auto const mandatory
 { create ships in orbit to match this }
-ActorValue Property OutpostScannerMultiplier Auto Const mandatory
+
+ActorValue property OutpostScannerMultiplier auto const mandatory
 { outpost stat }
-ActorValue Property OutpostScannerRadius Auto Const mandatory
+
+ActorValue property OutpostScannerRadius auto const mandatory
 { outpost stat }
-Float Property OutpostScannerMultBase = 5.0 Auto Const
+
+float property OutpostScannerMultBase = 5.0 auto Const
 { this is what the outpost OutpostScannerMultiplier will be set to if the starstation OutpostScannerMultiplier > 0 }
-Float Property OutpostScannerRadiusMax = 1000.0 Auto Const
+
+float property OutpostScannerRadiusMax = 1000.0 auto Const
 { outpost scanner radius can't exceed this no matter what value is on the starstation }
 
-;-- Functions ---------------------------------------
+SpaceshipReference orbitalShip
 
+SpaceshipReference orbitalStarstation
+
+ObjectReference myOutpostObject
+
+bool initialized = false
+
+; called by activator after linked refs are set up
 Function Initialize(ObjectReference landingMarkerRef)
-  If initialized == False
-    myLandingMarker = landingMarkerRef
-    myOutpostObject = myLandingMarker.GetLinkedRef(LinkOutpostStarstationObject)
-    sq_outpostcreatestarstationscript[] createOrbitalQuests = SQ_OutpostCreateStarstationStoryEvent.SendStoryEventAndWait(None, myLandingMarker, None, 0, 0) as sq_outpostcreatestarstationscript[]
-    If createOrbitalQuests.Length > 0
-      SQ_OutpostCreateStarstation = createOrbitalQuests[0]
-      While SQ_OutpostCreateStarstation.IsStarting()
-        Utility.wait(0.5)
-      EndWhile
-      Self.CreateStarstation()
-      initialized = True
-    EndIf
-  EndIf
+    debug.trace(self + " Initialize " + landingMarkerRef)
+    if initialized == false
+        myLandingMarker = landingMarkerRef
+        debug.trace(self + " setting myLandingMarker=" + myLandingMarker)
+        ; get my outpost object
+        myOutpostObject = myLandingMarker.GetLinkedRef(LinkOutpostStarstationObject)
+
+        ; create orbital
+        SQ_OutpostCreateStarstationScript[] createOrbitalQuests = SQ_OutpostCreateStarstationStoryEvent.SendStoryEventAndWait(akRef1=myLandingMarker) as SQ_OutpostCreateStarstationScript[]
+        if createOrbitalQuests.Length > 0
+            SQ_OutpostCreateStarstation = createOrbitalQuests[0]
+            while SQ_OutpostCreateStarstation.IsStarting()
+                utility.wait(0.5)
+            endWhile
+            CreateStarstation()
+            initialized = true
+        Else
+            Game.Warning(self + " failed to start a create starstation quest - no outpost starstation created")
+        endif
+    endif
 EndFunction
 
-Function Cleanup()
-  If SQ_OutpostCreateStarstation
-    SQ_OutpostCreateStarstation.Stop()
-  EndIf
+function Cleanup()
+    if SQ_OutpostCreateStarstation
+        SQ_OutpostCreateStarstation.Stop()
+    endif
 EndFunction
 
 Function ModifyStarstation()
-  If initialized
-    ObjectReference myOrbitMarker = SQ_OutpostCreateStarstation.CreatedOrbitalMarker.GetRef()
-    myOrbitMarker.ShowHangarMenu(0, Self as Actor, orbitalStarstation, False)
-  EndIf
+    if initialized
+        ObjectReference myOrbitMarker = SQ_OutpostCreateStarstation.CreatedOrbitalMarker.GetRef()
+        myOrbitMarker.ShowHangarMenu(0, self, akMenuTarget=orbitalStarstation, abOpenToAvailableTab = false)
+    endif
 EndFunction
 
 Function CreateStarstation()
-  orbitalStarstation = SQ_OutpostCreateStarstation.Starstation.GetShipRef()
-  ObjectReference myOrbitMarker = SQ_OutpostCreateStarstation.CreatedOrbitalMarker.GetRef()
-  If orbitalStarstation
-    orbitalStarstation.SetActorRefOwner(Self as Actor, False)
-    Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerModifiedShip")
-    sq_playershipscript SQ_PlayerShip = Game.GetForm(95394) as sq_playershipscript
-    SQ_PlayerShip.AddPlayerOwnedShip(orbitalStarstation)
-    orbitalStarstation.SetValue(SpaceshipRegistration, 1.0)
-    Self.UpdateStarstationStats()
-  EndIf
-EndFunction
+    orbitalStarstation = SQ_OutpostCreateStarstation.Starstation.GetShipRef()
+    ObjectReference myOrbitMarker = SQ_OutpostCreateStarstation.CreatedOrbitalMarker.GetRef()
+    if orbitalStarstation
+        ; orbitalStarstation vendor ownership
+        orbitalStarstation.SetActorRefOwner(self)
+        ; register for mod events
+        RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerModifiedShip")
+        
+        ; add to player ship list (in order to be able to mod)
+        ; TEMP until we get the event: GEN-527399
+        SQ_PlayerShipScript SQ_PlayerShip = Game.GetForm(0x000174a2) as SQ_PlayerShipScript
+        SQ_PlayerShip.AddPlayerOwnedShip(orbitalStarstation)
+        ; once bug is fixed, can return to using:
+        ;Game.AddPlayerOwnedShip(orbitalStarstation)
+        
+        ; register it
+        orbitalStarstation.SetValue(SpaceshipRegistration, 1)
+        ; update stats
+        UpdateStarstationStats()
+        debug.trace(self + "   created " + orbitalStarstation)
+    Else
+        debug.trace(self + " CreateStarstation: " + SQ_OutpostCreateStarstation + " failed to create a ship")
+    endif
+endFunction
 
-Event Actor.OnPlayerModifiedShip(Actor akSender, spaceshipreference akShip)
-  If akShip == orbitalStarstation
-    Self.UpdateStarstationStats()
-  EndIf
+Event Actor.OnPlayerModifiedShip(Actor akSender, SpaceshipReference akShip)
+    debug.trace(self + " OnPlayerModifiedShip akShip=" + akShip)
+    if akShip == orbitalStarstation
+        debug.trace(self + " my starstation - check for updated stats etc.")
+        UpdateStarstationStats()
+    endif
 EndEvent
 
+; call this to update outpost object stats to match the starstation
 Function UpdateStarstationStats()
-  If orbitalStarstation
-    Float powerStat = orbitalStarstation.GetValue(PowerGenerated)
-    myOutpostObject.SetValue(PowerGenerated, powerStat)
-    Float scanStat = orbitalStarstation.GetValue(OutpostScannerRadius)
-    If scanStat > 0.0
-      myOutpostObject.SetValue(OutpostScannerMultiplier, OutpostScannerMultBase)
-      scanStat = Math.Min(scanStat, OutpostScannerRadiusMax)
-      myOutpostObject.SetValue(OutpostScannerRadius, scanStat)
-    Else
-      myOutpostObject.SetValue(OutpostScannerMultiplier, 1.0)
-      myOutpostObject.SetValue(OutpostScannerRadius, 0.0)
-    EndIf
-    Int shipsStat = orbitalStarstation.GetValueInt(OutpostStarstationShips)
-    Int currentShipCount = SQ_OutpostCreateStarstation.Ships.GetCount()
-    If shipsStat > currentShipCount
-      Int numberToCreate = shipsStat - currentShipCount
-      ObjectReference orbitMarker = SQ_OutpostCreateStarstation.CreatedOrbitalPatrolStart.GetRef()
-      While numberToCreate > 0
-        spaceshipreference newShip = orbitMarker.PlaceShipAtMe(OutpostStarstationShip01 as Form, 4, True, False, False, True, None, None, None, True)
-        SQ_OutpostCreateStarstation.Ships.AddRef(newShip as ObjectReference)
-        numberToCreate -= 1
-      EndWhile
-    ElseIf shipsStat < currentShipCount
-      Int numberToDelete = currentShipCount - shipsStat
-      While numberToDelete > 0
-        ObjectReference shipToDelete = SQ_OutpostCreateStarstation.Ships.GetAt(0)
-        SQ_OutpostCreateStarstation.Ships.RemoveRef(shipToDelete)
-        shipToDelete.DisableNoWait(False)
-        numberToDelete -= 1
-      EndWhile
-    EndIf
-  EndIf
+    debug.trace(self + "UpdateStarstationStats")
+    if orbitalStarstation
+        ; power generated?
+        float powerStat = orbitalStarstation.GetValue(PowerGenerated)
+        debug.trace(self + " current power = " + powerStat)
+        myOutpostObject.SetValue(PowerGenerated, powerStat)
+
+        ; scan booster?
+        float scanStat = orbitalStarstation.GetValue(OutpostScannerRadius)
+        debug.trace(self + " scan boost range from starstation = " + scanStat)
+        if scanStat > 0
+            ; set to base multiplier (starstation doesn't increase the multiplier, just the range)
+            myOutpostObject.SetValue(OutpostScannerMultiplier, OutpostScannerMultBase)
+            scanStat = Math.Min(scanStat, OutpostScannerRadiusMax)
+            myOutpostObject.SetValue(OutpostScannerRadius, scanStat)
+        Else
+            ; set back to 1 - no mult
+            myOutpostObject.SetValue(OutpostScannerMultiplier, 1)
+            myOutpostObject.SetValue(OutpostScannerRadius, 0)
+        endif
+
+        ; orbital ships?
+        int shipsStat = orbitalStarstation.GetValueInt(OutpostStarstationShips)
+        int currentShipCount = SQ_OutpostCreateStarstation.Ships.GetCount()
+        debug.trace(self + " ships= " + shipsStat + " currentShipCount=" + currentShipCount)
+        if shipsStat > currentShipCount
+            ; need to create new ships
+            int numberToCreate = shipsStat - currentShipCount
+            debug.trace(self + " creating " + numberToCreate + " new ships")
+            ObjectReference orbitMarker = SQ_OutpostCreateStarstation.CreatedOrbitalPatrolStart.GetRef()
+            while numberToCreate > 0
+                SpaceshipReference newShip = orbitMarker.PlaceShipAtMe(OutpostStarstationShip01)
+                SQ_OutpostCreateStarstation.Ships.AddRef(newShip)
+                debug.trace(self + "     created " + newShip)
+                numberToCreate -= 1
+            endWhile
+        elseif shipsStat < currentShipCount
+            ; need to delete ships to match shipsStat
+            int numberToDelete = currentShipCount - shipsStat
+            debug.trace(self + " deleting " + numberToDelete + " ships")
+            while numberToDelete > 0
+                ObjectReference shipToDelete = SQ_OutpostCreateStarstation.Ships.GetAt(0)
+                debug.trace(self + "    removing " + shipToDelete + " from collection")
+                SQ_OutpostCreateStarstation.Ships.RemoveRef(shipToDelete)
+                shipToDelete.DisableNoWait()
+                numbertoDelete -= 1
+            EndWhile
+        endif
+
+    endif
 EndFunction
 
-Function TestShowHangarMenu()
-  myLandingMarker.ShowHangarMenu(0, Self as Actor, None, False)
-EndFunction
+function TestShowHangarMenu()
+    myLandingMarker.ShowHangarMenu(0, self, NONE)
+endFunction
+

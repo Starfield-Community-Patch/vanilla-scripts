@@ -1,18 +1,15 @@
-ScriptName Test_PryOpenDoors Extends ObjectReference Const
+Scriptname Test_PryOpenDoors extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property ActivatorLever Auto Const mandatory
-
-;-- Functions ---------------------------------------
+; On activate, slowly open the lift doors
+Keyword Property ActivatorLever Mandatory Const Auto
 
 Event OnLoad()
-  Self.RegisterForRemoteEvent(Self.GetLinkedRef(ActivatorLever) as ScriptObject, "OnTriggerEnter")
+    RegisterForRemoteEvent(GetLinkedRef(ActivatorLever), "OnTriggerEnter")
 EndEvent
 
 Event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
-  Utility.Wait(5.0)
-  ObjectReference Destination = Self.GetLinkedRef(None)
-  Self.TranslateToRef(Destination, 0.001, 0.0)
+    utility.Wait(5.0)
+    ObjectReference Destination = self.GetLinkedRef()
+    self.TranslateToRef(Destination, 0.001)
 EndEvent
+

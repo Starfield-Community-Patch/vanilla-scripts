@@ -1,5 +1,4 @@
-ScriptName VoiceType Extends Form Native hidden
+Scriptname VoiceType extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Int Function GetSex() Native
+; returns the gender of the voice type. -1 = None, 0 = Male, 1 = Female
+int Function GetSex() native

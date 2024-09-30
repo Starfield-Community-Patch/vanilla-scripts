@@ -1,36 +1,39 @@
-ScriptName WalkInWaterFX Extends ObjectReference
-{ Add an fx when in the water }
+Scriptname WalkInWaterFX extends ObjectReference 
+{Add an fx when in the water}
 
-;-- Variables ---------------------------------------
-ObjectReference mySplash
-Bool playFX = False
-Actor primeIntrigger
-
-;-- Properties --------------------------------------
 Activator Property pLibertyPrimeWaterSplash Auto Const
-Race Property LibertyPrimeRace Auto Const
-Int Property WaterHeight = 450 Auto
+race Property LibertyPrimeRace Auto Const
 
-;-- Functions ---------------------------------------
+int Property WaterHeight = 450 Auto 
+
+bool playFX = false
+
+ObjectReference mySplash
+
+actor primeIntrigger
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If (akActionRef as Actor).GetRace() == LibertyPrimeRace && playFX == False
-    primeIntrigger = akActionRef as Actor
-    playFX = True
-    mySplash = primeIntrigger.placeatme(pLibertyPrimeWaterSplash as Form, 1, False, False, True, None, None, True)
-  EndIf
-  While playFX == True
-    mySplash.SetPosition(primeIntrigger.GetPositionX(), primeIntrigger.GetPositionY(), WaterHeight as Float)
-    Utility.wait(0.050000001)
-  EndWhile
+
+
+    if  (akActionRef as actor).GetRace() == LibertyPrimeRace && playFX == false
+    	primeIntrigger = (akActionRef as actor)
+		playFX = true
+		mySplash = primeIntrigger.placeatme(pLibertyPrimeWaterSplash)
+	endIf
+    
+    while playFX == true
+    	mySplash.SetPosition(primeIntrigger.GetPositionX(), primeIntrigger.GetPositionY(), WaterHeight)
+    	utility.wait(0.05)
+	endWhile
+
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  If (akActionRef as Actor).GetRace() == LibertyPrimeRace && playFX == True
-    playFX = False
-    mySplash.playAnimation("StopEffect")
-    Utility.wait(0.300000012)
-    mySplash = None
-    mySplash.delete()
-  EndIf
+    if  (akActionRef as actor).GetRace() == LibertyPrimeRace && playFX == true
+		playFX = false
+		mySplash.playAnimation("StopEffect")
+		utility.wait(0.3)
+		mySplash = none
+		mySplash.delete()
+	endIf
 EndEvent

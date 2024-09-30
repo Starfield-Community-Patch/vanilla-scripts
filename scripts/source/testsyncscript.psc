@@ -1,14 +1,15 @@
-ScriptName TestSyncScript Extends ObjectReference Const
+Scriptname TestSyncScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkCustom01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Keyword Property LinkCustom01 Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference theThing = Self as ObjectReference
-  theThing = Self.GetLinkedRef(LinkCustom01)
-  theThing.SetOpen(False)
+    ;self.GetLinkedRef(LinkCustom01).SetOpen(false)
+    ObjectReference theThing = self
+    debug.trace("TestDoorScript: Self: " + theThing)
+    theThing = self.GetLinkedRef(LinkCustom01)
+    debug.trace("TestDoorScript: LinkCustom01 LinkedRef: " + theThing)
+    theThing.SetOpen(false)
+    debug.trace("TestDoorScript: " + theThing + " OpenState: " + theThing.GetOpenState())
 EndEvent
+
+

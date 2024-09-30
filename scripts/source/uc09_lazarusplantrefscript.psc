@@ -1,15 +1,10 @@
-ScriptName UC09_LazarusPlantRefScript Extends ObjectReference Const
+Scriptname UC09_LazarusPlantRefScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property UC09_CleanUpLazarusPlant Auto Const mandatory
-{ Global used to determine if the player decided to destroy all the Lazarus Plant }
-
-;-- Functions ---------------------------------------
+GlobalVariable Property UC09_CleanUpLazarusPlant Auto Const Mandatory
+{Global used to determine if the player decided to destroy all the Lazarus Plant}
 
 Event OnLoad()
-  If !Self.IsDisabled() && UC09_CleanUpLazarusPlant.GetValueInt() > 0
-    Self.Disable(False)
-  EndIf
+    if !IsDisabled() && UC09_CleanUpLazarusPlant.GetValueInt() > 0
+        Disable()
+    endif
 EndEvent

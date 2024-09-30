@@ -1,48 +1,74 @@
-ScriptName IncendiaryBurnSCRIPT Extends ActiveMagicEffect
-{ If hit with enough incendiaty ammo over a period of time you will burn }
+Scriptname IncendiaryBurnSCRIPT extends ActiveMagicEffect
+{If hit with enough incendiaty ammo over a period of time you will burn}
 
-;-- Variables ---------------------------------------
-Int bulletTimer = 10
-Actor victim
+import debug
+import FormList
 
-;-- Properties --------------------------------------
-ActorValue Property Incendiary Auto
-Keyword Property IncendiaryState01 Auto
-Keyword Property IncendiaryState02 Auto
-Bool Property RANK2 = False Auto
-{ Should we apply the burn effect? }
-Spell Property pCryoFreezeSpell Auto
-{ The Cryo freeze spell }
-Float Property ShaderDuration = 10.0 Auto
-{ shatter shader duration }
-Keyword Property pOnFireState Auto
-{ on fire property }
+ACTORVALUE PROPERTY Incendiary AUTO
 
-;-- Functions ---------------------------------------
+;Different frozen states
+KEYWORD PROPERTY IncendiaryState01 AUTO
+KEYWORD PROPERTY IncendiaryState02 AUTO
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  victim = akTarget as Actor
-  If victim
-    If !RANK2 && victim.getValue(Incendiary) < 5.0
-      victim.modValue(Incendiary, 1.0)
-      Self.startTimer(1.0, bulletTimer)
-    ElseIf RANK2 && victim.getValue(Incendiary) >= 5.0
-      victim.addKeyword(pOnFireState)
-    EndIf
-  EndIf
+BOOL PROPERTY RANK2 = FALSE AUTO
+{Should we apply the burn effect?}
+
+SPELL PROPERTY pCryoFreezeSpell AUTO
+{The Cryo freeze spell}
+
+FLOAT PROPERTY ShaderDuration = 10.00 auto 
+{shatter shader duration}
+
+KEYWORD PROPERTY pOnFireState AUTO
+{on fire property}
+
+INT bulletTimer = 10
+
+; the victim
+ACTOR victim
+
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    
+    victim = akTarget as Actor
+	If victim
+
+		;if the incendiary value is above a threshold, set onfire
+		IF(!RANK2 && victim.getValue(Incendiary) < 5)
+
+			;increase the "fire" value by one
+			victim.modValue(Incendiary, 1)
+			startTimer(1, bulletTimer)
+
+		ELSEIF(RANK2 && victim.getValue(Incendiary) >= 5)
+			victim.addKeyword(pOnFireState)
+
+		ENDIF
+	EndIf
+	
+ENDEVENT
+
+Event OnTimer(int aiTimerID)
+
+	; are we the bullet timer?
+    if aiTimerID == bulletTimer
+    
+    	;the bullet effect expired before we hit Rank 2
+    	IF(!RANK2 && victim.getValue(Incendiary) < 5)
+    		victim.damageValue(Incendiary, victim.getValue(Incendiary))
+
+    	ENDIF
+
+    endif
+
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == bulletTimer
-    If !RANK2 && victim.getValue(Incendiary) < 5.0
-      victim.damageValue(Incendiary, victim.getValue(Incendiary))
-    EndIf
-  EndIf
-EndEvent
+EVENT OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	
+	IF(victim && RANK2)
+		
+		;when we're done burning, set us back to 0
+		victim.damageValue(Incendiary, victim.getValue(Incendiary) - 3)
+		victim.removeKeyword(pOnFireState)
+	ENDIF
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  If victim as Bool && RANK2
-    victim.damageValue(Incendiary, victim.getValue(Incendiary) - 3.0)
-    victim.removeKeyword(pOnFireState)
-  EndIf
-EndEvent
+ENDEVENT

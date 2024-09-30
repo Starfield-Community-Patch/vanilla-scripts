@@ -1,21 +1,16 @@
-ScriptName MQ101PirateLandingShipScript Extends ReferenceAlias
+Scriptname MQ101PirateLandingShipScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Quest Property MQ101LandingEncounter01 Auto Const
 
-;-- State -------------------------------------------
 Auto State WaitingToTrigger
-
-  Event OnShipLanding(Bool abComplete)
-    If MQ101LandingEncounter01.IsRunning() == False
-      Self.GotoState("hasbeentriggered")
-      MQ101LandingEncounter01.Start()
-    EndIf
-  EndEvent
+	Event OnShipLanding(bool abComplete)
+		If MQ101LandingEncounter01.IsRunning() == False
+			GotoState("hasbeentriggered")
+			MQ101LandingEncounter01.Start()
+		EndIf
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-State hasbeentriggered
+State HasBeenTriggered
+	;empty state
 EndState

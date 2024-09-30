@@ -1,181 +1,258 @@
-ScriptName Fragments:Quests:QF_OE_MP_MysteriousTragedy_0008DF6F Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_OE_MP_MysteriousTragedy_0008DF6F Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property PCM_TerrormorphEncountersAllowed Auto Const mandatory
-ReferenceAlias Property Alias_Note Auto Const mandatory
-GlobalVariable Property UC09_Result Auto Const mandatory
-Perk Property BackgroundBigGameHunter Auto Const mandatory
-Perk Property BackgroundExplorer Auto Const mandatory
-ReferenceAlias Property Alias_Trigger Auto Const mandatory
-ReferenceAlias Property Alias_Terrormorph Auto Const mandatory
-ReferenceAlias Property Alias_Enemy Auto Const mandatory
-ReferenceAlias Property Alias_ApexPredator Auto Const mandatory
-ReferenceAlias Property Alias_Predator Auto Const mandatory
-ReferenceAlias[] Property Alias_Predators Auto Const mandatory
-RefCollectionAlias Property Alias_Enemies Auto Const
-RefCollectionAlias Property Alias_Critters Auto Const mandatory
-ReferenceAlias Property Alias_Predator_Corpse00 Auto Const mandatory
-ReferenceAlias Property Alias_Predator_Corpse01 Auto Const mandatory
-ReferenceAlias Property Alias_Predator_Corpse02 Auto Const mandatory
-ReferenceAlias Property Alias_ApexPredator_Corpse Auto Const mandatory
-ReferenceAlias Property Alias_EnemyCorpse00 Auto Const mandatory
-ReferenceAlias Property Alias_EnemyCorpse01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Int PlayerLevel = Game.GetPlayer().GetLevel()
-  Int Randomizer = Utility.RandomInt(1, 5)
-  If PlayerLevel > 100
-    Randomizer += 5
-  ElseIf PlayerLevel > 75
-    Randomizer += 4
-  ElseIf PlayerLevel > 50
-    Randomizer += 3
-  ElseIf PlayerLevel > 25
-    Randomizer += 2
-  ElseIf PlayerLevel > 15
-    Randomizer += 1
-  EndIf
-  If Game.GetPlayer().HasPerk(BackgroundBigGameHunter)
-    Randomizer += 3
-  EndIf
-  If Game.GetPlayer().HasPerk(BackgroundExplorer)
-    Randomizer += 1
-  EndIf
-  If Utility.RandomInt(1, 10) < Randomizer
-    Self.SetStage(20)
-  ElseIf Utility.RandomInt(1, 10) < Randomizer
-    Self.SetStage(30)
-  EndIf
-  If Utility.RandomInt(1, 10) < Randomizer
-    Self.SetStage(50)
-  ElseIf Utility.RandomInt(1, 10) < Randomizer
-    Self.SetStage(60)
-  ElseIf Utility.RandomInt(1, 10) < Randomizer
-    Self.SetStage(70)
-  EndIf
-EndFunction
+;BEGIN CODE
+int PlayerLevel = Game.GetPlayer().GetLevel()
+int Randomizer = Utility.RandomInt(1,5)
 
+If PlayerLevel  > 100
+   Randomizer += 5
+ElseIf PlayerLevel > 75
+   Randomizer += 4
+ElseIf PlayerLevel > 50
+   Randomizer += 3
+ElseIf PlayerLevel > 25
+   Randomizer += 2
+ElseIf PlayerLevel > 15
+   Randomizer += 1
+EndIf
+
+If Game.GetPlayer().HasPerk(BackgroundBigGameHunter)
+   Randomizer += 3
+EndIf
+
+If Game.GetPlayer().HasPerk(BackgroundExplorer)
+   Randomizer += 1
+EndIf
+
+; Check for Enemies
+If Utility.RandomInt(1,10) < Randomizer
+   SetStage(20)
+ElseIf Utility.RandomInt(1,10) < Randomizer
+   SetStage(30)
+EndIf
+
+; Add creature corpses
+If Utility.RandomInt(1,10) < Randomizer
+   SetStage(50)
+ElseIf Utility.RandomInt(1,10) < Randomizer
+   SetStage(60)
+ElseIf Utility.RandomInt(1,10) < Randomizer
+   SetStage(70)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  If !Self.GetStageDone(10)
-    Self.SetStage(10)
-  EndIf
+;BEGIN CODE
+If !GetStageDone(10)
+   SetStage(10)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Alias_ApexPredator_Corpse.TryToEnable()
+;BEGIN CODE
+Alias_ApexPredator_Corpse.TryToEnable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Int numToSpawn = Utility.RandomInt(1, 4)
-  Alias_Predator_Corpse00.TryToEnable()
-  If numToSpawn > 1
-    Alias_Predator_Corpse01.TryToEnable()
-  EndIf
-  If numToSpawn > 2
-    Alias_Predator_Corpse02.TryToEnable()
-  EndIf
-EndFunction
+;BEGIN CODE
+int numToSpawn = Utility.RandomInt(1,4)
 
+Alias_Predator_Corpse00.TryToEnable()
+
+If numToSpawn > 1
+   Alias_Predator_Corpse01.TryToEnable()
+EndIf 
+
+If numToSpawn > 2
+   Alias_Predator_Corpse02.TryToEnable()
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  If !Self.GetStageDone(10)
-    Self.SetStage(10)
-  EndIf
-  If Self.GetStageDone(40)
-    If Utility.RandomInt(1, 2) == 1
-      Self.SetStage(150)
-    EndIf
-  EndIf
-  If Self.GetStageDone(20)
-    Self.SetStage(110)
-  EndIf
-EndFunction
+;BEGIN CODE
+If !GetStageDone(10)
+   SetStage(10)
+EndIf
 
+; If Enemies are present, launch the ship
+If GetStageDone(40)
+   If Utility.RandomInt(1,2) == 1
+      SetStage(150)
+   EndIf 
+EndIf 
+
+If GetStageDone(20)
+   SetStage(110)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  Alias_Enemy.GetActorRef().AddItem(Alias_Note.GetRef() as Form, 1, False)
+;BEGIN CODE
+; Move note to the Enemy's inventory
+Alias_Enemy.GetActorRef().AddItem(Alias_Note.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Quest __temp = Self as Quest
-  oe_shipsaddonscript kmyQuest = __temp as oe_shipsaddonscript
-  kmyQuest.LaunchShip(0, None, False)
+;BEGIN AUTOCAST TYPE oe_shipsaddonscript
+Quest __temp = self as Quest
+oe_shipsaddonscript kmyQuest = __temp as oe_shipsaddonscript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.LaunchShip(0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Bool apexAllowed = Alias_ApexPredator.GetRef() == None
-  apexAllowed = !apexAllowed
-  Bool predatorsAllowed = Alias_Predator.GetRef() == None
-  predatorsAllowed = !predatorsAllowed
-  Bool terrormorphAllowed = Alias_Trigger.GetRef().GetCurrentPlanet().HasKeyword(PCM_TerrormorphEncountersAllowed)
-  Int Randomizer = Utility.RandomInt(1, 5)
-  Int PlayerLevel = Game.GetPlayer().GetLevel()
-  If PlayerLevel > 100
-    Randomizer += 5
-  ElseIf PlayerLevel > 75
-    Randomizer += 4
-  ElseIf PlayerLevel > 50
-    Randomizer += 3
-  ElseIf PlayerLevel > 25
-    Randomizer += 2
-  ElseIf PlayerLevel > 15
-    Randomizer += 1
-  EndIf
-  If PlayerLevel < 25 && Self.GetStageDone(20)
-    Randomizer -= 3
-  EndIf
-  If Game.GetPlayer().HasPerk(BackgroundBigGameHunter)
-    Randomizer += 3
-  EndIf
-  If Game.GetPlayer().HasPerk(BackgroundExplorer)
-    Randomizer += 1
-  EndIf
-  If terrormorphAllowed
-    If Utility.RandomInt(1, 10) < Randomizer
-      Self.SetStage(310)
+;BEGIN CODE
+bool apexAllowed = ( Alias_ApexPredator.GetRef() != NONE )
+bool predatorsAllowed = ( Alias_Predator.GetRef() != NONE )
+bool terrormorphAllowed = Alias_Trigger.GetRef().GetCurrentPlanet().HasKeyword(PCM_TerrormorphEncountersAllowed)
+int Randomizer = Utility.RandomInt(1,5)
+int PlayerLevel = Game.GetPlayer().GetLevel()
+
+If PlayerLevel  > 100
+   Randomizer += 5
+ElseIf PlayerLevel > 75
+   Randomizer += 4
+ElseIf PlayerLevel > 50
+   Randomizer += 3
+ElseIf PlayerLevel > 25
+   Randomizer += 2
+ElseIf PlayerLevel > 15
+   Randomizer += 1
+EndIf
+
+If PlayerLevel < 25 && GetStageDone(20)
+   Randomizer -= 3
+EndIf
+
+If Game.GetPlayer().HasPerk(BackgroundBigGameHunter)
+   Randomizer += 3
+EndIf
+
+If Game.GetPlayer().HasPerk(BackgroundExplorer)
+   Randomizer += 1
+EndIf
+
+; Check for Terrormorphs
+If terrormorphAllowed 
+   If Utility.RandomInt(1,10) < Randomizer
+      SetStage(310)
       Randomizer -= 4
-    EndIf
-  EndIf
-  If apexAllowed
-    If Utility.RandomInt(1, 10) < Randomizer
-      Self.SetStage(320)
+   EndIf
+EndIf 
+
+; Roll for Predators
+If apexAllowed
+   If Utility.RandomInt(1,10) < Randomizer
+      SetStage(320)
       Randomizer -= 3
-    EndIf
-  ElseIf predatorsAllowed
-    If Utility.RandomInt(1, 10) < Randomizer
-      Self.SetStage(330)
+   EndIf
+ElseIf predatorsAllowed 
+   If Utility.RandomInt(1,10) < Randomizer
+      SetStage(330)
       Randomizer -= 2
-    EndIf
-  EndIf
-  If !Self.GetStageDone(20) && !Self.GetStageDone(310) && !Self.GetStageDone(320) && !Self.GetStageDone(330)
-    Self.SetStage(350)
-  EndIf
-EndFunction
+   EndIf 
+EndIf
 
+
+If !GetStageDone(20) && !GetStageDone(310) && !GetStageDone(320) && !GetStageDone(330)
+   SetStage(350)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0310_Item_00
 Function Fragment_Stage_0310_Item_00()
-  If UC09_Result.GetValue() == 1.0
-    Alias_Terrormorph.TryToEnable()
-  EndIf
+;BEGIN CODE
+If UC09_Result.GetValue() == 1
+   Alias_Terrormorph.TryToEnable()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0320_Item_00
 Function Fragment_Stage_0320_Item_00()
-  Alias_ApexPredator.TryToEnable()
-  Alias_ApexPredator.TryToSetValue(Game.GetAggressionAV(), 1.0)
+;BEGIN CODE
+Alias_ApexPredator.TryToEnable()
+Alias_ApexPredator.TryToSetValue(Game.GetAggressionAV(), 1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0330_Item_00
 Function Fragment_Stage_0330_Item_00()
-  ActorValue aggression = Game.GetAggressionAV()
-  Int numToEnable = Utility.RandomInt(2, Alias_Predators.Length)
-  Int I = 0
-  While I < numToEnable
-    Alias_Predators[I].TryToEnable()
-    Alias_Predators[I].TryToSetValue(aggression, 1.0)
-    I += 1
-  EndWhile
-EndFunction
+;BEGIN CODE
+ActorValue aggression = Game.GetAggressionAV()
+int numToEnable = Utility.RandomInt(2, Alias_Predators.Length)
+int i = 0
 
-Function Fragment_Stage_0350_Item_00()
-  Alias_Critters.EnableAll(False)
+; pick some of group to enable
+while i < numToEnable
+   Alias_Predators[i].TryToEnable()
+   Alias_Predators[i].TryToSetValue(aggression, 1)
+   i += 1
+EndWhile
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0350_Item_00
+Function Fragment_Stage_0350_Item_00()
+;BEGIN CODE
+Alias_Critters.EnableAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+; General Quest Setup
+Keyword Property PCM_TerrormorphEncountersAllowed Auto Const Mandatory
+ReferenceAlias Property Alias_Note Auto Const Mandatory
+GlobalVariable Property UC09_Result Auto Const Mandatory
+Perk Property BackgroundBigGameHunter Auto Const Mandatory
+Perk Property BackgroundExplorer Auto Const Mandatory
+
+; Hostile Actors 
+ReferenceAlias Property Alias_Trigger Auto Const Mandatory
+ReferenceAlias Property Alias_Terrormorph Auto Const Mandatory
+ReferenceAlias Property Alias_Enemy Auto Const Mandatory
+ReferenceAlias Property Alias_ApexPredator Auto Const Mandatory
+ReferenceAlias Property Alias_Predator Auto Const Mandatory
+ReferenceAlias[] Property Alias_Predators Auto Const Mandatory
+RefCollectionAlias Property Alias_Enemies Auto Const
+RefCollectionAlias Property Alias_Critters Auto Const Mandatory
+
+; Corpses
+ReferenceAlias Property Alias_Predator_Corpse00 Auto Const Mandatory
+ReferenceAlias Property Alias_Predator_Corpse01 Auto Const Mandatory
+ReferenceAlias Property Alias_Predator_Corpse02 Auto Const Mandatory
+ReferenceAlias Property Alias_ApexPredator_Corpse Auto Const Mandatory
+ReferenceAlias Property Alias_EnemyCorpse00 Auto Const Mandatory
+ReferenceAlias Property Alias_EnemyCorpse01 Auto Const Mandatory

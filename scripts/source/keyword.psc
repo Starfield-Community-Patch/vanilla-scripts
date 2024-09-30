@@ -1,7 +1,9 @@
-ScriptName Keyword Extends Form Native hidden
+Scriptname Keyword Extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Sends this keyword as a story event to the story manager
+Function SendStoryEvent(Location akLoc = None, ObjectReference akRef1 = None, ObjectReference akRef2 = None, int aiValue1 = 0, \
+	int aiValue2 = 0) native
 
-Function SendStoryEvent(Location akLoc, ObjectReference akRef1, ObjectReference akRef2, Int aiValue1, Int aiValue2) Native
-
-Quest[] Function SendStoryEventAndWait(Location akLoc, ObjectReference akRef1, ObjectReference akRef2, Int aiValue1, Int aiValue2) Native
+; Sends this keyword as a story event to the story manager and waits for it to be processed. Returns the array of quests that were started if any.
+Quest[] Function SendStoryEventAndWait(Location akLoc = None, ObjectReference akRef1 = None, ObjectReference akRef2 = None, \
+	int aiValue1 = 0, int aiValue2 = 0) native

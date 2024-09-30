@@ -1,8 +1,6 @@
-ScriptName DefaultCounterAliasIncOnceOnActivateC Extends DefaultCounterQuestIncOnceOnActivate default
-{ Once this ALIAS is activated (by the PLAYER) it increments the counter on its Quest's DefaultCounterQuestC script }
-
-;-- Functions ---------------------------------------
+ScriptName DefaultCounterAliasIncOnceOnActivateC extends DefaultCounterQuestIncOnceOnActivate Default
+{Once this ALIAS is activated (by the PLAYER) it increments the counter on its Quest's DefaultCounterQuestC script}
 
 Function Increment()
-  (Self.GetOwningQuest() as defaultcounterquestc).Increment()
+	(GetOwningQuest() as DefaultCounterQuestC).Increment()
 EndFunction

@@ -1,12 +1,8 @@
-ScriptName OutpostCrewStationScript Extends ObjectReference Const
+Scriptname OutpostCrewStationScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-sq_crewscript Property SQ_Crew Auto Const mandatory
-
-;-- Functions ---------------------------------------
+SQ_CrewScript property SQ_Crew auto const mandatory
 
 Event OnWorkshopObjectRemoved(ObjectReference akReference)
-  SQ_Crew.CheckCrewCountAtOutpost(akReference)
+    debug.trace(self + " OnWorkshopObjectRemoved " + akReference)
+    SQ_Crew.CheckCrewCountAtOutpost(akReference)
 EndEvent

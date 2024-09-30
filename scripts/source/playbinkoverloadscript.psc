@@ -1,12 +1,13 @@
-ScriptName PlayBinkOverLoadScript Extends ObjectReference
+Scriptname PlayBinkOverLoadScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+OBJECTREFERENCE PROPERTY DestinationMarker AUTO
 
-;-- Properties --------------------------------------
-ObjectReference Property DestinationMarker Auto
+EVENT OnTriggerEnter(ObjectReference akActionRef)
 
-;-- Functions ---------------------------------------
+		SELF.Activate(SELF)
 
-Event OnTriggerEnter(ObjectReference akActionRef)
-  Self.Activate(Self as ObjectReference, False)
-EndEvent
+		;Game.PlayBink("White.bik", false, false, false)
+		;Debug.Trace("Playing Movie...")
+		;Game.getPlayer().moveTo(DestinationMarker)
+
+ENDEVENT

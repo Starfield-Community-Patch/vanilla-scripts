@@ -1,6 +1,6 @@
-ScriptName Fragments:TopicInfos:TIF_TestQuest_LVC_003A2FF9 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_TestQuest_LVC_003A2FF9 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
 ReferenceAlias Property FaceCycle Auto Const

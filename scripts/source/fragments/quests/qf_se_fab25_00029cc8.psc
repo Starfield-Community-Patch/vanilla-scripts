@@ -1,33 +1,56 @@
-ScriptName Fragments:Quests:QF_SE_FAB25_00029CC8 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_FAB25_00029CC8 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property HailTemplate_100a_Hailing Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-Scene Property PHailTemplate_100a_Hailing Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-Potion Property DrinkPack_Orange_Juice Auto Const mandatory
-Float Property RunTime Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  PHailTemplate_100a_Hailing.Start()
+;BEGIN CODE
+; Start the hailing scene
+PHailTemplate_100a_Hailing.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0066_Item_00
 Function Fragment_Stage_0066_Item_00()
-  spaceshipreference ShipRef = Alias_HailingShip.GetShipRef()
-  ShipRef.BlockActivation(True, True)
-  Utility.Wait(RunTime)
-  Self.SetStage(300)
-EndFunction
+;BEGIN CODE
+SpaceshipReference ShipRef = Alias_HailingShip.GetShipRef()
+ShipRef.BlockActivation(true, true)
 
+Utility.Wait(RunTime)
+SetStage(300)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0225_Item_00
 Function Fragment_Stage_0225_Item_00()
-  Game.GetPlayer().AddItem(DrinkPack_Orange_Juice as Form, 1, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(DrinkPack_Orange_Juice)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  spaceshipreference oTarg = Alias_HailingShip.GetRef() as spaceshipreference
-  oTarg.DisableWithGravJump()
+;BEGIN CODE
+; When the hailing ship reaches its orbit destination (currently CenterMarker)
+; it fast travels away.
+SpaceshipReference oTarg = Alias_HailingShip.GetRef() as SpaceshipReference 
+oTarg.DisableWithGravJump()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property HailTemplate_100a_Hailing Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+Scene Property PHailTemplate_100a_Hailing Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+Potion Property DrinkPack_Orange_Juice Auto Const Mandatory
+
+Float Property RunTime Auto Const Mandatory

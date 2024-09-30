@@ -1,12 +1,14 @@
-ScriptName Fragments:Quests:QF_City_NA_Viewport_Base_0007031D Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_NA_Viewport_Base_0007031D Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Potion Property NewArrival Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Game.GetPlayer().AddItem(NewArrival as Form, 1, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(NewArrival,1)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Potion Property NewArrival Auto Const

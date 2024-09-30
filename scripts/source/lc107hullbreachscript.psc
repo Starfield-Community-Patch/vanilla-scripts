@@ -1,88 +1,97 @@
-ScriptName LC107HullBreachScript Extends ObjectReference
-{ Script for the Hull Breach Packins in LC107. }
+Scriptname LC107HullBreachScript extends ObjectReference
+{Script for the Hull Breach Packins in LC107.}
+;
+;To simplify editor placement, Hull Breaches begin in a breached state (Health=2).
+;Their first damage state (Health=1) swaps their geometry to a marker, making them invisible.
+;Their second damage state (Health=0) sets them back to a breached state.
 
-;-- Variables ---------------------------------------
-Int CONST_DamageObjectHealth = 1 Const
-
-;-- Properties --------------------------------------
-Group AutofillProperties collapsedonref
-  lc107questscript Property LC107 Auto Const mandatory
-  GlobalVariable Property LC107VaultInstantBreachesCurrentGlobal Auto Const mandatory
-  Keyword Property LC107_LinkHullBreach Auto Const mandatory
-  Keyword Property LinkCustom01 Auto Const mandatory
-  Keyword Property LinkCustom02 Auto Const mandatory
+Group AutofillProperties CollapsedOnRef
+	LC107QuestScript property LC107 Auto Const Mandatory
+	GlobalVariable property LC107VaultInstantBreachesCurrentGlobal Auto Const Mandatory
+	Keyword property LC107_LinkHullBreach Auto Const Mandatory
+	Keyword property LinkCustom01 Auto Const Mandatory
+	Keyword property LinkCustom02 Auto Const Mandatory
 EndGroup
 
+int CONST_DamageObjectHealth = 1 Const
 
-;-- Functions ---------------------------------------
 
-Function InitHullBreach()
-  Self.GoToState("WaitingForBreach")
-  ObjectReference hullBreach = Self.GetLinkedRef(LC107_LinkHullBreach)
-  hullBreach.EnableNoWait(False)
-  hullBreach.DamageObject(CONST_DamageObjectHealth as Float)
-EndFunction
+Auto State WaitingForInit
+	Function InitHullBreach()
+		GoToState("WaitingForBreach")
+		;Set the breach to the intact state.
+		ObjectReference hullBreach = GetLinkedRef(LC107_LinkHullBreach)
+		hullBreach.Enable()
+		hullBreach.DamageObject(CONST_DamageObjectHealth)
+	EndFunction
+EndState
 
-Function TriggerBreach(Bool isQuestWaitingOnBreach)
-  If isQuestWaitingOnBreach
-    LC107VaultInstantBreachesCurrentGlobal.Mod(1.0)
-  EndIf
-EndFunction
+State WaitingForBreach
+	Function TriggerBreach(bool isQuestWaitingOnBreach=False)
+		GoToState("Done")
 
-;-- State -------------------------------------------
+		;Find our explosion source, if any.
+		ObjectReference[] myLinkedRefs = GetRefsLinkedToMe()
+		LC107HullBreachExplosionSourceScript myExplosionSource
+		int i = 0
+		While ((i < myLinkedRefs.Length) && (myExplosionSource == None))
+			myExplosionSource = myLinkedRefs[i] as LC107HullBreachExplosionSourceScript
+			if (myExplosionSource != None)
+				myLinkedRefs.Remove(i)
+			EndIf
+			i = i + 1
+		EndWhile
+
+		;Trigger the explosion source, if any.
+		if (myExplosionSource != None)
+			myExplosionSource.TriggerBreach()
+		EndIf
+
+		;Enable the Hull Breach, VFX, and Hazard.
+		ObjectReference myBreach = GetLinkedRef(LC107_LinkHullBreach)
+		myBreach.DamageObject(CONST_DamageObjectHealth)
+		ObjectReference myVFX = GetLinkedRef(LinkCustom01)
+		myVFX.EnableNoWait()
+		ObjectReference myHazard = GetLinkedRef(LinkCustom02)
+		myHazard.EnableNoWait()
+
+		;If the quest was waiting on this breach, we've done enough to allow it to proceed.
+		if (isQuestWaitingOnBreach)
+			LC107VaultInstantBreachesCurrentGlobal.Mod(1)
+		EndIf
+
+		;Then process any other linked refs.
+		i = 0
+		While (i < myLinkedRefs.Length)
+			if (myLinkedRefs[i] != None)
+				if ((myLinkedRefs[i] as LC107HullBreachExplosionSourceScript) != None)
+					(myLinkedRefs[i] as LC107HullBreachExplosionSourceScript).TriggerBreach()
+				ElseIf ((myLinkedRefs[i] as TrapPipeSpray) != None)
+					(myLinkedRefs[i] as TrapPipeSpray).BreakPipe()
+				Else
+					myLinkedRefs[i].EnableNoWait()
+				EndIf
+			EndIf
+			i = i + 1
+		EndWhile
+	EndFunction
+EndState
+
 State Done
 EndState
 
-;-- State -------------------------------------------
-State WaitingForBreach
 
-  Function TriggerBreach(Bool isQuestWaitingOnBreach)
-    Self.GoToState("Done")
-    ObjectReference[] myLinkedRefs = Self.GetRefsLinkedToMe(None, None)
-    lc107hullbreachexplosionsourcescript myExplosionSource = None
-    Int I = 0
-    While I < myLinkedRefs.Length && myExplosionSource == None
-      myExplosionSource = myLinkedRefs[I] as lc107hullbreachexplosionsourcescript
-      If myExplosionSource != None
-        myLinkedRefs.remove(I, 1)
-      EndIf
-      I += 1
-    EndWhile
-    If myExplosionSource != None
-      myExplosionSource.TriggerBreach()
-    EndIf
-    ObjectReference myBreach = Self.GetLinkedRef(LC107_LinkHullBreach)
-    myBreach.DamageObject(CONST_DamageObjectHealth as Float)
-    ObjectReference myVFX = Self.GetLinkedRef(LinkCustom01)
-    myVFX.EnableNoWait(False)
-    ObjectReference myHazard = Self.GetLinkedRef(LinkCustom02)
-    myHazard.EnableNoWait(False)
-    If isQuestWaitingOnBreach
-      LC107VaultInstantBreachesCurrentGlobal.Mod(1.0)
-    EndIf
-    I = 0
-    While I < myLinkedRefs.Length
-      If myLinkedRefs[I] != None
-        If myLinkedRefs[I] as lc107hullbreachexplosionsourcescript != None
-          (myLinkedRefs[I] as lc107hullbreachexplosionsourcescript).TriggerBreach()
-        ElseIf myLinkedRefs[I] as trappipespray != None
-          (myLinkedRefs[I] as trappipespray).BreakPipe()
-        Else
-          myLinkedRefs[I].EnableNoWait(False)
-        EndIf
-      EndIf
-      I += 1
-    EndWhile
-  EndFunction
-EndState
+Function InitHullBreach()
+	GoToState("WaitingForBreach")
+	;Set the breach to the intact state.
+	ObjectReference hullBreach = GetLinkedRef(LC107_LinkHullBreach)
+	hullBreach.EnableNoWait()
+	hullBreach.DamageObject(CONST_DamageObjectHealth)
+EndFunction
 
-;-- State -------------------------------------------
-Auto State WaitingForInit
-
-  Function InitHullBreach()
-    Self.GoToState("WaitingForBreach")
-    ObjectReference hullBreach = Self.GetLinkedRef(LC107_LinkHullBreach)
-    hullBreach.Enable(False)
-    hullBreach.DamageObject(CONST_DamageObjectHealth as Float)
-  EndFunction
-EndState
+Function TriggerBreach(bool isQuestWaitingOnBreach=False)
+	;If the quest was waiting on this breach, it's already triggered, so just return immediately.
+	if (isQuestWaitingOnBreach)
+		LC107VaultInstantBreachesCurrentGlobal.Mod(1)
+	EndIf
+EndFunction

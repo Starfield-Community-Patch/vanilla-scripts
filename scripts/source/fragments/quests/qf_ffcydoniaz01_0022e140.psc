@@ -1,66 +1,106 @@
-ScriptName Fragments:Quests:QF_FFCydoniaZ01_0022E140 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFCydoniaZ01_0022E140 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Ship Auto Const mandatory
-ReferenceAlias Property Alias_Denis Auto Const mandatory
-Scene Property FFCydoniaZ01_0201_Companion_Leech Auto Const mandatory
-ActorValue Property FFCydoniaZ01_Foreknowledge_AV Auto Const mandatory
-ReferenceAlias Property Alias_MapMarker Auto Const mandatory
-RefCollectionAlias Property Alias_RefsToEnable Auto Const mandatory
-ReferenceAlias Property Alias_DeadLeech Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  Game.GetPlayer().MoveTo(Alias_MapMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+Game.GetPlayer().MoveTo(Alias_MapMarker.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  Game.GetPlayer().MoveTo(Alias_Denis.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+Game.GetPlayer().MoveTo(Alias_Denis.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  ObjectReference myLeech = Alias_DeadLeech.GetRef()
-  myLeech.Enable(False)
-  (myLeech as Actor).Kill(None)
-  Alias_Ship.GetRef().Enable(False)
-  Alias_RefsToEnable.EnableAll(False)
-  Alias_MapMarker.GetRef().Enable(False)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+ObjectReference myLeech = Alias_DeadLeech.GetRef()
+myLeech.Enable()
+(myLeech as Actor).Kill()
+Alias_Ship.GetRef().Enable()
+Alias_RefsToEnable.EnableAll()
+Alias_MapMarker.GetRef().Enable()
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(200, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0201_Item_00
 Function Fragment_Stage_0201_Item_00()
-  FFCydoniaZ01_0201_Companion_Leech.Start()
-  Self.SetObjectiveDisplayed(250, True, False)
+;BEGIN CODE
+FFCydoniaZ01_0201_Companion_Leech.Start()
+SetObjectiveDisplayed(250)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0251_Item_00
 Function Fragment_Stage_0251_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  If Self.GetStageDone(252)
-    Self.SetStage(300)
-  EndIf
+;BEGIN CODE
+SetObjectivecompleted(200)
+If GetStageDone(252)
+	SetStage(300)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0252_Item_00
 Function Fragment_Stage_0252_Item_00()
-  Self.SetObjectiveCompleted(250, True)
-  If Self.GetStageDone(251)
-    Self.SetStage(300)
-  EndIf
+;BEGIN CODE
+SetObjectiveCompleted(250)
+If GetStageDone(251)
+	SetStage(300)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveDisplayed(300, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  Game.GetPlayer().SetValue(FFCydoniaZ01_Foreknowledge_AV, 1.0)
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Game.GetPlayer().SetValue(FFCydoniaZ01_Foreknowledge_AV, 1)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Ship Auto Const Mandatory
+
+ReferenceAlias Property Alias_Denis Auto Const Mandatory
+
+Scene Property FFCydoniaZ01_0201_Companion_Leech Auto Const Mandatory
+
+ActorValue Property FFCydoniaZ01_Foreknowledge_AV Auto Const Mandatory
+
+ReferenceAlias Property Alias_MapMarker Auto Const Mandatory
+
+RefCollectionAlias Property Alias_RefsToEnable Auto Const Mandatory
+
+ReferenceAlias Property Alias_DeadLeech Auto Const Mandatory

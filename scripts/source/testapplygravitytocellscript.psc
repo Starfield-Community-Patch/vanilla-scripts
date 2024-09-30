@@ -1,17 +1,14 @@
-ScriptName TestApplyGravityToCellScript Extends ObjectReference Const
+Scriptname TestApplyGravityToCellScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group RequiredProperties
-  Float Property targetGravity Auto Const
-  { the gravity you want to set on the cell }
+	float Property targetGravity Auto Const
+	{the gravity you want to set on the cell}
 EndGroup
 
-
-;-- Functions ---------------------------------------
+;**********************************************
 
 Event OnCellLoad()
-  Cell currentCell = Self.getParentCell()
-  currentCell.setGravityScale(targetGravity)
+    Cell currentCell = getParentCell()
+
+    currentCell.setGravityScale(targetGravity)
 EndEvent

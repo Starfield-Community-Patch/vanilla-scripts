@@ -1,61 +1,77 @@
-ScriptName DialogueShipServicesScript Extends Quest
+Scriptname DialogueShipServicesScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
+SQ_PlayerShipScript property SQ_PlayerShip auto const mandatory
 { autofill }
-GlobalVariable Property ShipServicesFuelCurrent Auto Const mandatory
+
+GlobalVariable property ShipServicesFuelCurrent auto const mandatory
 { will be current fuel on player's ship }
-GlobalVariable Property ShipServicesFuelAmount Auto Const mandatory
+
+GlobalVariable property ShipServicesFuelAmount auto const mandatory
 { will be amount of fuel player needs to buy to top up }
-GlobalVariable Property ShipServicesFuelCost Auto Const mandatory
+
+GlobalVariable property ShipServicesFuelCost auto const mandatory
 { will be cost of fuel amount needed }
-ActorValue Property SpaceshipGravJumpFuel Auto Const mandatory
+
+ActorValue property SpaceshipGravJumpFuel auto const mandatory
 { AV on ship that tracks fuel amount/capacity }
-MiscObject Property InorgCommonHelium3 Auto Const mandatory
+
+MiscObject property InorgCommonHelium3 auto const mandatory
 { use to get price }
-Float Property FuelCostMult = 1.0 Auto Const
+
+Float property FuelCostMult = 1.0 auto const
 { multiplier on base value of He3 }
-ActorValue Property Health Auto Const mandatory
+
+ActorValue Property Health Auto Const Mandatory
 { autofill }
-GlobalVariable Property ShipServicesRepairCost Auto Const mandatory
+
+GlobalVariable Property ShipServicesRepairCost Auto Const Mandatory
 { will be cost to fully repair ship }
 
-;-- Functions ---------------------------------------
-
+; update globals used for refueling dialogue
 Function UpdateFuelGlobals()
-  Float fuelCostPerUnit = InorgCommonHelium3.GetGoldValue() as Float
-  spaceshipreference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
-  Float fuelCurrent = 0.0
-  Float fuelAmount = 0.0
-  Float fuelCost = 0.0
-  If playerShipRef
-    fuelCurrent = playerShipRef.GetValue(SpaceshipGravJumpFuel)
-    fuelAmount = playerShipRef.GetBaseValue(SpaceshipGravJumpFuel) - fuelCurrent
-    fuelCost = Math.Round(fuelAmount * fuelCostPerUnit) as Float
-  EndIf
-  ShipServicesFuelCurrent.SetValue(fuelCurrent)
-  ShipServicesFuelAmount.SetValue(fuelAmount)
-  ShipServicesFuelCost.SetValue(fuelCost)
-  Self.UpdateCurrentInstanceGlobal(ShipServicesFuelCurrent)
-  Self.UpdateCurrentInstanceGlobal(ShipServicesFuelAmount)
-  Self.UpdateCurrentInstanceGlobal(ShipServicesFuelCost)
-EndFunction
+    ; get base fuel cost
+    float fuelCostPerUnit = InorgCommonHelium3.GetGoldValue()
+    ; TODO - modify based on player Commerce skill multiplier (will be an AV on the player)
+    ; GEN-347874
+
+    SpaceshipReference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
+    float fuelCurrent = 0.0
+    float fuelAmount = 0.0
+    float fuelCost = 0.0
+
+    if playerShipRef
+        fuelCurrent = playerShipRef.GetValue(SpaceshipGravJumpFuel)
+        fuelAmount = playershipRef.GetBaseValue(SpaceshipGravJumpFuel) - fuelCurrent
+        fuelCost = Math.Round(fuelAmount *  fuelCostPerUnit)
+        debug.trace(self + " UpdateFuelGlobals: fuelCurrent=" + fuelCurrent + ", fuelAmount=" + fuelAmount + ", fuelCost=" + fuelCost)
+    endif
+    ShipServicesFuelCurrent.SetValue(fuelCurrent)
+    ShipServicesFuelAmount.SetValue(fuelAmount)
+    ShipServicesFuelCost.SetValue(fuelCost)
+    UpdateCurrentInstanceGlobal(ShipServicesFuelCurrent)
+    UpdateCurrentInstanceGlobal(ShipServicesFuelAmount)
+    UpdateCurrentInstanceGlobal(ShipServicesFuelCost)
+endFunction
 
 Function RefuelPlayerShip()
-  spaceshipreference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
-  If playerShipRef
-    Game.GetPlayer().RemoveItem(Game.GetCredits() as Form, ShipServicesFuelCost.GetValueInt(), False, None)
-    playerShipRef.RestoreValue(SpaceshipGravJumpFuel, ShipServicesFuelAmount.GetValue())
-    Self.UpdateFuelGlobals()
-  EndIf
+    SpaceshipReference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
+    if playerShipRef
+        ; remove credits
+        Game.GetPlayer().RemoveItem(Game.GetCredits(), ShipServicesFuelCost.GetValueInt())
+        ; restore fuel to max
+        playerShipRef.RestoreValue(SpaceshipGravJumpFuel, ShipServicesFuelAmount.GetValue())
+        ; update globals after refueling
+        UpdateFuelGlobals()
+    endif
 EndFunction
 
 Function RepairPlayerShip()
-  spaceshipreference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
-  If playerShipRef
-    Game.GetPlayer().RemoveItem(Game.GetCredits() as Form, ShipServicesRepairCost.GetValueInt(), False, None)
-    playerShipRef.RestoreValue(Health, 99999.0)
-  EndIf
+	SpaceshipReference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
+	if PlayerShipRef
+		; remove credits
+		Game.GetPlayer().RemoveItem(Game.GetCredits(), ShipServicesRepairCost.GetValueInt())
+		; restore ship health
+		PlayerShipRef.RestoreValue(Health, 99999)
+	endif
 EndFunction
+

@@ -1,18 +1,15 @@
-ScriptName DialogueFCNeon_TimerScript Extends Quest
+Scriptname DialogueFCNeon_TimerScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Int Property StageToSet Auto Const
 
-;-- Functions ---------------------------------------
-
+;wait 24 hours
 Function Wait24()
-  Self.StartTimerGameTime(24.0, 1)
+    StartTimerGameTime(24, 1)
 EndFunction
 
-Event OnTimerGameTime(Int aiTimerID)
-  If aiTimerID == 1
-    Self.SetStage(StageToSet)
-  EndIf
+Event OnTimerGameTime(int aiTimerID)
+    If aiTimerID == 1
+        SetStage(StageToSet)
+    EndIf
 EndEvent
+

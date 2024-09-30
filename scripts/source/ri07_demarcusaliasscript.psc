@@ -1,24 +1,25 @@
-ScriptName RI07_DeMarcusAliasScript Extends ReferenceAlias
+Scriptname RI07_DeMarcusAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Int Property iStageToSet Auto Const
 Int Property iPreReqStage Auto Const
 Int Property iTurnOffStage Auto Const
-MagicEffect Property SocialSkill_Manipulation Auto Const mandatory
 
-;-- Functions ---------------------------------------
+MagicEffect Property SocialSkill_Manipulation Auto Const Mandatory
 
 Event OnAliasInit()
-  Self.RegisterForMagicEffectApplyEvent(Self as ScriptObject, None, SocialSkill_Manipulation as Form, True)
+    RegisterForMagicEffectApplyEvent(Self, akEffectFilter = SocialSkill_Manipulation)
 EndEvent
 
 Event OnMagicEffectApply(ObjectReference akTarget, ObjectReference akCaster, MagicEffect akEffect)
-  If akEffect == SocialSkill_Manipulation
-    Quest OwningQuest = Self.GetOwningQuest()
-    If OwningQuest.GetStageDone(iPreReqStage) && !OwningQuest.GetStageDone(iTurnOffStage)
-      OwningQuest.SetStage(iStageToSet)
+
+    If akEffect == SocialSkill_Manipulation
+    
+        Quest OwningQuest = GetOwningQuest()
+
+        If OwningQuest.GetStageDone(iPreReqStage) && !OwningQuest.GetStageDone(iTurnOffStage)
+            OwningQuest.SetStage(iStageToSet)
+        EndIf
+
     EndIf
-  EndIf
+
 EndEvent

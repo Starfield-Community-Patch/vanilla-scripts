@@ -1,75 +1,78 @@
-ScriptName LC102CrowdAudioScript Extends ObjectReference
+Scriptname LC102CrowdAudioScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+Keyword property CrowdAudioMarkerKeyword auto Const
+Keyword property CrowdFleeAudioMarkerKeyword auto Const
+int property MinCrowdPopulation = 10 auto const
 
-;-- Properties --------------------------------------
-Keyword Property CrowdAudioMarkerKeyword Auto Const
-Keyword Property CrowdFleeAudioMarkerKeyword Auto Const
-Int Property MinCrowdPopulation = 10 Auto Const
+event OnCellLoad()
+    Actor player = Game.GetPlayer() as Actor
+    RegisterForRemoteEvent(player, "OnCombatStateChanged")
 
-;-- Functions ---------------------------------------
+    int playerCombatState = player.GetCombatState()
 
-Event OnCellLoad()
-  Actor player = Game.GetPlayer()
-  Self.RegisterForRemoteEvent(player as ScriptObject, "OnCombatStateChanged")
-  Int playerCombatState = player.GetCombatState()
-  If playerCombatState == 0
-    Self.DisableFleeAudio()
-    Self.EvaluateActorPopulation()
-  ElseIf playerCombatState == 1
-    Self.DisableCrowdAudio()
-    Self.EnableFleeAudio()
-  EndIf
-EndEvent
+    if(playerCombatState == 0)
+        DisableFleeAudio()
+        EvaluateActorPopulation()
+    elseif(playerCombatState == 1)
+        DisableCrowdAudio()
+        EnableFleeAudio()
+    endIf
+endEvent
 
-Event OnUnload()
-  Actor player = Game.GetPlayer()
-  Self.UnregisterForRemoteEvent(player as ScriptObject, "OnCombatStateChanged")
-EndEvent
+event OnUnload()
+    Actor player = Game.GetPlayer() as Actor
+    UnregisterForRemoteEvent(player, "OnCombatStateChanged")
+endEvent
 
-Event Actor.OnCombatStateChanged(Actor akSender, ObjectReference akTarget, Int aeCombatState)
-  If aeCombatState == 0
-    Self.DisableFleeAudio()
-    Self.EvaluateActorPopulation()
-  ElseIf aeCombatState == 1
-    Self.DisableCrowdAudio()
-    Self.EnableFleeAudio()
-  EndIf
-EndEvent
+event Actor.OnCombatStateChanged(Actor akSender, ObjectReference akTarget, int aeCombatState)
+    if(aeCombatState == 0)
+        DisableFleeAudio()
+        EvaluateActorPopulation()
+    elseif(aeCombatState == 1)
+        DisableCrowdAudio()
+        EnableFleeAudio()
+    endIf
+endEvent
 
-Function EvaluateActorPopulation()
-  Int objCount = Self.GetTriggerObjectCount()
-  If objCount < MinCrowdPopulation
-    Self.DisableCrowdAudio()
-  Else
-    Self.EnableCrowdAudio()
-  EndIf
-EndFunction
+function EvaluateActorPopulation()
+    int objCount = GetTriggerObjectCount()
 
-Function EnableCrowdAudio()
-  ObjectReference crowdAudioMarkerRef = Self.GetLinkedRef(CrowdAudioMarkerKeyword)
-  If crowdAudioMarkerRef != None && crowdAudioMarkerRef.IsEnabled() == False
-    crowdAudioMarkerRef.Enable(False)
-  EndIf
-EndFunction
+    if(objCount < MinCrowdPopulation)
+        DisableCrowdAudio()
+    else
+        EnableCrowdAudio()
+    endIf
+endFunction
 
-Function DisableCrowdAudio()
-  ObjectReference crowdAudioMarkerRef = Self.GetLinkedRef(CrowdAudioMarkerKeyword)
-  If crowdAudioMarkerRef != None && crowdAudioMarkerRef.IsEnabled() == True
-    crowdAudioMarkerRef.Disable(False)
-  EndIf
-EndFunction
+function EnableCrowdAudio()
+        ObjectReference crowdAudioMarkerRef = GetLinkedRef(CrowdAudioMarkerKeyword)
+            
+        if(crowdAudioMarkerRef != None && crowdAudioMarkerRef.IsEnabled() == false)
+            crowdAudioMarkerRef.Enable()
+        endIf
+endFunction
 
-Function EnableFleeAudio()
-  ObjectReference crowdFleeAudioMarkerRef = Self.GetLinkedRef(CrowdFleeAudioMarkerKeyword)
-  If crowdFleeAudioMarkerRef != None && crowdFleeAudioMarkerRef.IsEnabled() == False
-    crowdFleeAudioMarkerRef.Enable(False)
-  EndIf
-EndFunction
+function DisableCrowdAudio()
+        ObjectReference crowdAudioMarkerRef = GetLinkedRef(CrowdAudioMarkerKeyword)
+            
+        if(crowdAudioMarkerRef != None && crowdAudioMarkerRef.IsEnabled() == true)
+            crowdAudioMarkerRef.Disable()
+        endIf
+endFunction
 
-Function DisableFleeAudio()
-  ObjectReference crowdFleeAudioMarkerRef = Self.GetLinkedRef(CrowdFleeAudioMarkerKeyword)
-  If crowdFleeAudioMarkerRef != None && crowdFleeAudioMarkerRef.IsEnabled() == True
-    crowdFleeAudioMarkerRef.Disable(False)
-  EndIf
-EndFunction
+function EnableFleeAudio()
+    ObjectReference crowdFleeAudioMarkerRef = GetLinkedRef(CrowdFleeAudioMarkerKeyword)
+        
+    if(crowdFleeAudioMarkerRef != None && crowdFleeAudioMarkerRef.IsEnabled() == false)
+        crowdFleeAudioMarkerRef.Enable()
+    endIf
+endFunction
+
+function DisableFleeAudio()
+    ObjectReference crowdFleeAudioMarkerRef = GetLinkedRef(CrowdFleeAudioMarkerKeyword)
+        
+    if(crowdFleeAudioMarkerRef != None && crowdFleeAudioMarkerRef.IsEnabled() == true)
+        crowdFleeAudioMarkerRef.Disable()
+    endIf
+endFunction
+

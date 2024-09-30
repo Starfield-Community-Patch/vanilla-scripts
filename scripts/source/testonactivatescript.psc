@@ -1,7 +1,5 @@
-ScriptName TestOnActivateScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestOnActivateScript extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  ; Empty function
+    debug.trace(self + " OnActivate akActionRef=" + akActionRef)
 EndEvent

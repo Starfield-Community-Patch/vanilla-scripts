@@ -1,16 +1,12 @@
-ScriptName TestOpenStarbornTempleScript Extends ObjectReference Const
+Scriptname TestOpenStarbornTempleScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property TempleWall Mandatory Const Auto
+ObjectReference Property TempleWallMoveToMarker Mandatory Const Auto
+ObjectReference Property TempleWallOpenSoundMarker Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ObjectReference Property TempleWall Auto Const mandatory
-ObjectReference Property TempleWallMoveToMarker Auto Const mandatory
-ObjectReference Property TempleWallOpenSoundMarker Auto Const mandatory
-wwiseevent Property sOpenWallEvent Auto Const mandatory
-
-;-- Functions ---------------------------------------
+WwiseEvent Property sOpenWallEvent Mandatory Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  TempleWall.TranslateToRef(TempleWallMoveToMarker, 4.0, 0.0)
-  sOpenWallEvent.Play(TempleWallOpenSoundMarker, None, None)
+    TempleWall.TranslateToRef(TempleWallMoveToMarker, 4)
+    sOpenWallEvent.Play(TempleWallOpenSoundMarker)
 EndEvent

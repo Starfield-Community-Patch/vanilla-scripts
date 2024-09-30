@@ -1,7 +1,5 @@
-ScriptName BE_MQ102_MoaraScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname BE_MQ102_MoaraScript extends ReferenceAlias
 
 Event OnAliasInit()
-  Self.GetOwningQuest().SetStage(20)
-EndEvent
+	GetOwningQuest().SetStage(20)
+endEvent

@@ -1,15 +1,10 @@
-ScriptName ShipVendorListScript Extends Activator
+Scriptname ShipVendorListScript extends Activator
 { Contains a list of ships that should be sold by a ship vendor. }
 
-;-- Structs -----------------------------------------
-Struct ShipToSell
-  leveledspaceshipbase leveledShip
-  Int minLevel = 1
-EndStruct
+struct ShipToSell
+    LeveledSpaceshipBase leveledShip
+    int minLevel = 1
+endStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-shipvendorlistscript:shiptosell[] Property ShipList Auto Const
+ShipToSell[] property ShipList auto const
 { List of ships to sell. }

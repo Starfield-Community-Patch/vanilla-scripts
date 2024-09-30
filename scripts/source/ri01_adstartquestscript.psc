@@ -1,16 +1,11 @@
-ScriptName RI01_AdStartQuestScript Extends ObjectReference Const
+Scriptname RI01_AdStartQuestScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property RI01 Auto Const mandatory
-Message Property RI01_AdMessage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property RI01 Auto Const Mandatory
+Message Property RI01_AdMessage Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  If !RI01.IsActive() && !RI01.IsCompleted()
-    RI01_AdMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    RI01.Start()
-  EndIf
+	If !RI01.IsActive() && !RI01.IsCompleted()
+		RI01_AdMessage.Show()
+		RI01.Start()
+	EndIf
 EndEvent

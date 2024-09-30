@@ -1,18 +1,15 @@
-ScriptName POI064_SetLinkRefAggressiveOnDoorOpen Extends ObjectReference Const
+Scriptname POI064_SetLinkRefAggressiveOnDoorOpen extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ActorValue Property Aggression Mandatory Const Auto
+{Aggression actor value}
 
-;-- Properties --------------------------------------
-ActorValue Property Aggression Auto Const mandatory
-{ Aggression actor value }
-Float Property NewValue = 2.0 Auto Const
-{ New value to set the linked ref's aggression once the door is open }
-
-;-- Functions ---------------------------------------
+float Property NewValue = 2.0 Const Auto
+{New value to set the linked ref's aggression once the door is open}
 
 Event OnOpen(ObjectReference akActionRef)
-  ObjectReference myAct = (Self.GetLinkedRef(None) as Actor) as ObjectReference
-  If myAct != None
-    myAct.SetValue(Aggression, NewValue)
-  EndIf
+    ObjectReference myAct = GetLinkedRef() as Actor
+
+    if myAct != none
+        myAct.SetValue(Aggression, NewValue)
+    endif
 EndEvent

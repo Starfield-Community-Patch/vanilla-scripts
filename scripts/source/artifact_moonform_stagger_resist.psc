@@ -1,17 +1,17 @@
-ScriptName Artifact_Moonform_Stagger_Resist Extends ActiveMagicEffect
-{ Awards a perk. }
+Scriptname Artifact_Moonform_Stagger_Resist extends ActiveMagicEffect
+{Awards a perk.}
 
-;-- Variables ---------------------------------------
+Perk Property StaggerResist_Perk Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Perk Property StaggerResist_Perk Auto Const mandatory
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
 
-;-- Functions ---------------------------------------
+    akCaster.addPerk(StaggerResist_Perk)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akCaster.addPerk(StaggerResist_Perk, False)
-EndEvent
+ENDEVENT
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akCaster.removePerk(StaggerResist_Perk)
-EndEvent
+EVENT OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+
+    akCaster.removePerk(StaggerResist_Perk)
+
+ENDEVENT
+

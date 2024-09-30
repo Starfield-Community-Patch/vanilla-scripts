@@ -1,12 +1,10 @@
-ScriptName TestOpenCloseSyncScript Extends ObjectReference Const
+Scriptname TestOpenCloseSyncScript extends ObjectReference Const
 
-;-- Functions ---------------------------------------
-
-Function ToggleState()
-  Int currentState = Self.GetOpenState()
-  Self.SetOpen(currentState >= 3)
+function ToggleState()
+	int currentState = GetOpenState()
+	SetOpen(currentState >= 3)
 EndFunction
 
-Function SetState(Bool bOpenMe)
-  Self.SetOpen(bOpenMe)
-EndFunction
+function SetState(bool bOpenMe)
+	SetOpen(bOpenMe)
+endFunction

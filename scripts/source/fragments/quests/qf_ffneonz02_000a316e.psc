@@ -1,74 +1,114 @@
-ScriptName Fragments:Quests:QF_FFNeonZ02_000A316E Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNeonZ02_000A316E Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_DataSlate Auto Const mandatory
-Quest Property DialogueFCNeon Auto Const mandatory
-Quest Property FFNeonZ02_SpeechChallengeQuest Auto Const mandatory
-Quest Property FFNeonGuardPointer_Z02 Auto Const mandatory
-ReferenceAlias Property Alias_Clover Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Self.SetObjectiveCompleted(5, True)
-  If Self.GetStageDone(10)
-    Self.SetObjectiveDisplayed(30, True, False)
-  EndIf
+;BEGIN CODE
+SetObjectiveCompleted(5)
+if GetStageDone(10)
+    SetObjectiveDisplayed(30)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  If Self.GetStageDone(5)
-    Self.SetObjectiveDisplayed(30, True, False)
-  ElseIf Self.GetStageDone(30)
-    Self.SetObjectiveDisplayed(5, True, False)
-  Else
-    Self.SetObjectiveDisplayed(20, True, False)
-  EndIf
-  FFNeonZ02_SpeechChallengeQuest.Start()
-  FFNeonGuardPointer_Z02.SetStage(200)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+if GetStageDone(5)
+    SetObjectiveDisplayed(30)
+elseif GetStageDone(30)
+    SetObjectiveDisplayed(5)
+else
+    SetObjectiveDisplayed(20)
+endif
+FFNeonZ02_SpeechChallengeQuest.Start()
 
+; End the pointer
+FFNeonGuardPointer_Z02.SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  If !Self.GetStageDone(5)
-    Self.SetObjectiveDisplayed(5, True, False)
-  EndIf
+;BEGIN CODE
+SetObjectiveCompleted(20)
+if !GetStageDone(5)
+    SetObjectiveDisplayed(5)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0035_Item_00
 Function Fragment_Stage_0035_Item_00()
-  Game.GetPlayer().RemoveItem(Alias_DataSlate.GetRef() as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Alias_DataSlate.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetStage(70)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveCompleted(30)
+SetStage(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetStage(70)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetStage(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  Self.SetObjectiveSkipped(5)
-  Self.SetObjectiveSkipped(20)
-  Self.SetObjectiveSkipped(30)
-  Self.SetObjectiveDisplayed(70, True, False)
+;BEGIN CODE
+SetObjectiveSkipped(5)
+SetObjectiveSkipped(20)
+SetObjectiveSkipped(30)
+SetObjectiveDisplayed(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.CompleteAllObjectives()
-  FFNeonZ02_SpeechChallengeQuest.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+FFNeonZ02_SpeechChallengeQuest.Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  DialogueFCNeon.SetStage(140)
-  Actor CloverRef = Alias_Clover.GetActorRef()
-  Alias_Clover.Clear()
-  CloverRef.SetEssential(False)
-  Self.Stop()
+;BEGIN CODE
+DialogueFCNeon.SetStage(140)
+Actor CloverRef = Alias_Clover.GetActorRef()
+Alias_Clover.Clear()
+CloverRef.SetEssential(False)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_DataSlate Auto Const Mandatory
+
+Quest Property DialogueFCNeon Auto Const Mandatory
+
+Quest Property FFNeonZ02_SpeechChallengeQuest Auto Const Mandatory
+
+Quest Property FFNeonGuardPointer_Z02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Clover Auto Const Mandatory

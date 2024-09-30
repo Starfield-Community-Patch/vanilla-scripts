@@ -1,21 +1,29 @@
-ScriptName Fragments:Quests:QF_SQ_PEO_SustenanceQuest_FE000040_2 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SQ_PEO_SustenanceQuest_FE000040_2 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Potion Property PEO_WellFedPotion Auto Const mandatory
-Potion Property NEW_PEO_WellHydratedPotion Auto Const mandatory
-Message Property PEO_WellHydrated_Msg Auto Const mandatory
-Message Property PEO_WellFed_Msg Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  peo:peo_sustenancestart kmyQuest = __temp as peo:peo_sustenancestart
-  Actor PlayerREF = Game.GetPlayer()
-  PlayerREF.equipitem(PEO_WellFedPotion as Form, False, True)
-  PEO_WellFed_Msg.show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  PlayerREF.equipitem(NEW_PEO_WellHydratedPotion as Form, False, True)
-  PEO_WellHydrated_Msg.show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN AUTOCAST TYPE PEO:PEO_SustenanceStart
+Quest __temp = self as Quest
+PEO:PEO_SustenanceStart kmyQuest = __temp as PEO:PEO_SustenanceStart
+;END AUTOCAST
+;BEGIN CODE
+Actor PlayerREF = Game.GetPlayer()
+
+PlayerRef.equipitem(PEO_WellFedPotion, absilent = true)
+PEO_WellFed_Msg.show()
+PlayerRef.equipitem(NEW_PEO_WellHydratedPotion, absilent = true)
+PEO_WellHydrated_Msg.show()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Potion Property PEO_WellFedPotion Auto Const Mandatory
+
+Potion Property NEW_PEO_WellHydratedPotion Auto Const Mandatory
+
+Message Property PEO_WellHydrated_Msg Auto Const Mandatory
+
+Message Property PEO_WellFed_Msg Auto Const Mandatory

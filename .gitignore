@@ -1,0 +1,8 @@
+# .gitignore
+# Folders
+
+# Ignore vs code folders
+**/.vscode
+
+# Ignore User folder
+scripts/source/User

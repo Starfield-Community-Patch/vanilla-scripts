@@ -1,51 +1,65 @@
-ScriptName SQ_CaptiveScript Extends Quest
-{ sends the CaptiveSetFree event for DefaultCaptiveXXX scripts to respond to. }
+Scriptname SQ_CaptiveScript extends Quest
+{sends the CaptiveSetFree event for DefaultCaptiveXXX scripts to respond to.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill
-  affinityevent Property SQ_Captive_Freed Auto Const mandatory
-  affinityevent Property SQ_Wounded_Actor_Healed Auto Const mandatory
-  sq_followersscript Property SQ_Followers Auto Const mandatory
-  ReferenceAlias Property PrimaryActor Auto Const mandatory
-EndGroup
+    AffinityEvent Property SQ_Captive_Freed  Mandatory Const Auto
+	AffinityEvent Property SQ_Wounded_Actor_Healed Mandatory Const Auto
+	SQ_FollowersScript Property SQ_Followers Mandatory Const Auto
+	ReferenceAlias Property PrimaryActor Mandatory Const Auto
+endGroup
+
+CustomEvent CaptiveSetFree
+CustomEvent WoundedActorHealed
+
+Function SendCaptiveSetFree(Actor captive, bool playerIsLiberator = true, bool showInventory = false)
+
+	var[] akArgs = new var[3]
+	akArgs[0] = captive
+	akArgs[1] = playerIsLiberator
+	akArgs[2] = showInventory
 
 
-;-- Functions ---------------------------------------
+	Trace(self, "SendCaptiveSetFree() captive: " + captive + ", playerIsLiberator: " + playerIsLiberator + ", showInventory: " + showInventory)
+	SendCustomEvent("CaptiveSetFree", akArgs)
 
-Function SendCaptiveSetFree(Actor captive, Bool playerIsLiberator, Bool showInventory)
-  Var[] akArgs = new Var[3]
-  akArgs[0] = captive as Var
-  akArgs[1] = playerIsLiberator as Var
-  akArgs[2] = showInventory as Var
-  Self.SendCustomEvent("sq_captivescript_CaptiveSetFree", akArgs)
-  SQ_Captive_Freed.Send(captive as ObjectReference)
+	SQ_Captive_Freed.Send(akTarget = captive)
 EndFunction
 
-Function SendWoundedActorHealed(Actor woundedActor, Bool playerIsHealer)
-  Var[] akArgs = new Var[3]
-  akArgs[0] = woundedActor as Var
-  akArgs[1] = playerIsHealer as Var
-  Self.SendCustomEvent("sq_captivescript_WoundedActorHealed", akArgs)
-  SQ_Wounded_Actor_Healed.Send(woundedActor as ObjectReference)
+Function SendWoundedActorHealed(Actor woundedActor, bool playerIsHealer = true)
+
+	var[] akArgs = new var[3]
+	akArgs[0] = woundedActor
+	akArgs[1] = playerIsHealer
+
+	Trace(self, "SendWoundedActorHealed() woundedActor: " + woundedActor + ", playerIsHealer: " + playerIsHealer)
+	SendCustomEvent("WoundedActorHealed", akArgs)
+
+	SQ_Wounded_Actor_Healed.Send(akTarget = woundedActor)
 EndFunction
 
+; Used by the SQ_Captive Quest's Follower dialogue for telling the freed captive to wait.
 Function CaptiveFollowerWaitSceneEnded()
-  Actor primaryActorRef = PrimaryActor.GetActorReference()
-  SQ_Followers.CommandWait(primaryActorRef, None)
+	Actor primaryActorRef = PrimaryActor.GetActorReference()
+	
+	Trace(self, "WaitSceneEnded()... calling SQ_Followers.CommandWait() primaryActorRef: " + primaryActorRef)
+	SQ_Followers.CommandWait(primaryActorRef)
 EndFunction
 
+; Used by the SQ_Captive Quest's Follower dialogue for telling the freed captive to resume following.
 Function CaptiveFollowerFollowSceneEnded()
-  Actor primaryActorRef = PrimaryActor.GetActorReference()
-  SQ_Followers.CommandFollow(primaryActorRef)
+	Actor primaryActorRef = PrimaryActor.GetActorReference()
+
+	Trace(self, "FollowSceneEnded()... calling SQ_Followers.CommandFollow() primaryActorRef: " + primaryActorRef)
+	SQ_Followers.CommandFollow(primaryActorRef)
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Captive",  string SubLogName = "SQ_CaptiveScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Captive",  string SubLogName = "SQ_CaptiveScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

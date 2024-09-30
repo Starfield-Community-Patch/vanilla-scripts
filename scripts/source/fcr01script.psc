@@ -1,32 +1,33 @@
-ScriptName FCR01Script Extends Quest
+Scriptname FCR01Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-missionparentscript Property MissionParent Auto Const mandatory
+MissionParentScript Property MissionParent Auto Const Mandatory
 { mission parent quest }
-Int Property AcceptStage = 50 Auto Const
-{ The stage to set when mission is accepted }
 
-;-- Functions ---------------------------------------
+Int Property AcceptStage = 50 Auto Const
+{The stage to set when mission is accepted}
 
 Event OnMissionAccepted()
-  Self.HandleOnMissionAccepted()
+	debug.trace(self + " OnMissionAccepted")
+	HandleOnMissionAccepted()
 EndEvent
 
-Function HandleOnMissionAccepted()
-  If MissionParent.MissionBoardAcceptMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) == 0
-    Self.MissionAccepted(True)
-  Else
-    Self.MissionAccepted(False)
-  EndIf
-EndFunction
+function HandleOnMissionAccepted()
+	debug.trace(self + " HandleOnMissionAccepted")
+	if MissionParent.MissionBoardAcceptMessage.Show() == 0
+		MissionAccepted(true)
+	else
+		MissionAccepted(false)
+	endif
+endFunction
 
-Function MissionAccepted(Bool bAccepted)
-  If bAccepted
-    wwiseevent.PlayMenuSound("UITerminalMissionBoardMissionAcceptYes")
-    Self.setstage(AcceptStage)
-  Else
-    wwiseevent.PlayMenuSound("UITerminalMissionBoardMissionAcceptNo")
-  EndIf
+Function MissionAccepted(bool bAccepted)
+	debug.trace(self + " MissionAccepted " + bAccepted)
+	if bAccepted
+		; Play a sound for accepting the mission
+		WwiseEvent.PlayMenuSound("UITerminalMissionBoardMissionAcceptYes")
+        setstage(AcceptStage)
+	Else
+		; Play a sound for not accepting the mission
+		WwiseEvent.PlayMenuSound("UITerminalMissionBoardMissionAcceptNo")
+	endif
 EndFunction

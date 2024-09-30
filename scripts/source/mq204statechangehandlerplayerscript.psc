@@ -1,19 +1,15 @@
-ScriptName MQ204StateChangeHandlerPlayerScript Extends ReferenceAlias
+Scriptname MQ204StateChangeHandlerPlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Location Property CityNewAtlantisLocation Auto Const mandatory
-MusicType Property _MUSExplore_WwiseSilence Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Location Property CityNewAtlantisLocation Auto Const Mandatory
+MusicType Property _MUSExplore_WwiseSilence Mandatory Const Auto
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If akNewLoc == CityNewAtlantisLocation
-    _MUSExplore_WwiseSilence.Add()
-  ElseIf akOldLoc == CityNewAtlantisLocation
-    If Game.GetPlayer().IsInLocation(CityNewAtlantisLocation) == False
-      _MUSExplore_WwiseSilence.Remove()
+
+    If akNewLoc == CityNewAtlantisLocation
+        _MUSExplore_WwiseSilence.Add()
+    ElseIf akOldLoc == CityNewAtlantisLocation
+        If Game.GetPlayer().IsInLocation(CityNewAtlantisLocation) == False
+            _MUSExplore_WwiseSilence.Remove()
+        EndIf
     EndIf
-  EndIf
 EndEvent

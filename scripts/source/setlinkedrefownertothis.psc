@@ -1,11 +1,10 @@
-ScriptName SetLinkedRefOwnerToThis Extends Actor Const
-{ Sets this actor's LinkedRef to be owned by this actor. }
-
-;-- Functions ---------------------------------------
+Scriptname SetLinkedRefOwnerToThis extends Actor Const
+{Sets this actor's LinkedRef to be owned by this actor.}
 
 Event OnCellAttach()
-  ObjectReference linkedRef = Self.GetLinkedRef(None)
-  Actor actorSelf = Self as Actor
-  linkedRef.SetActorRefOwner(actorSelf, False)
-  actorSelf = linkedRef.GetActorRefOwner()
-EndEvent
+	Debug.Trace("Our parent cell has attached")
+	ObjectReference linkedRef = Self.GetLinkedRef( )
+	Actor actorSelf = (Self As Actor)
+	linkedRef.SetActorRefOwner( actorSelf )
+	actorSelf = linkedRef.GetActorRefOwner( )
+endEvent

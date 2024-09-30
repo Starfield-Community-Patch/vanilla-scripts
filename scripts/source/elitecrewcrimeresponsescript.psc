@@ -1,53 +1,64 @@
-ScriptName EliteCrewCrimeResponseScript Extends CompanionCrimeResponseScript
-{ ***REMINDER
-all actors with this script MUST have their own "personal crime faction" faction that has a shared crime faction list of factions they consider "civilians" }
+Scriptname EliteCrewCrimeResponseScript extends CompanionCrimeResponseScript
+{***REMINDER
+all actors with this script MUST have their own "personal crime faction" faction that has a shared crime faction list of factions they consider "civilians"
+}
 
-;-- Variables ---------------------------------------
-Int GameTimerID_CrewAnger = 200 Const
-Float TimerDur_CrewAngerTime = 6.0 Const
-
-;-- Properties --------------------------------------
 Group Autofill
-  sq_crewscript Property SQ_Crew Auto Const mandatory
-  Message Property EliteCrew_Angry_Message Auto Const mandatory
+SQ_CrewScript Property SQ_Crew Mandatory Const Auto
+message Property EliteCrew_Angry_Message Mandatory Const Auto
 EndGroup
 
-ActorValue Property CREW_Elite_IsAngry Auto Const mandatory
+ActorValue Property CREW_Elite_IsAngry Mandatory Const Auto
 
-;-- Functions ---------------------------------------
+float TimerDur_CrewAngerTime = 6.0 const
+int GameTimerID_CrewAnger = 200 const ;REMINDER don't clash with timer ids in parent
 
-Event OnTimerGameTime(Int aiTimerID)
-  Parent.OnTimerGameTime(aiTimerID)
-  If aiTimerID == GameTimerID_CrewAnger
-    Self.SetValue(CREW_Elite_IsAngry, 0.0)
-  EndIf
+;cool down timer on anger
+Event OnTimerGameTime(int aiTimerID)
+    Trace(self, "OnTimerGameTime() aiTimerID: " + aiTimerID + ",  first calling parents event")
+    Parent.OnTimerGameTime(aiTimerID)
+
+    if aiTimerID == GameTimerID_CrewAnger
+        SetValue(CREW_Elite_IsAngry, 0)
+    endif
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  Parent.OnActivate(akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && Self.GetValue(CREW_Elite_IsAngry) as Bool
-    SQ_Crew.ShowTextReplacedMessage(Self as Actor, EliteCrew_Angry_Message, False, None, 0.0, 0.0)
-  EndIf
+    Parent.OnActivate(akActionRef) ;in case we add it in the future
+    
+    if akActionRef == Game.GetPlayer() && GetValue(CREW_Elite_IsAngry)
+        Trace(self, "OnActivate() Is Angry, showing " + EliteCrew_Angry_Message)
+        SQ_Crew.ShowTextReplacedMessage(self, EliteCrew_Angry_Message)
+    endif
 EndEvent
 
-Bool Function AmIAngry()
-  Bool returnVal = Self.GetValue(CREW_Elite_IsAngry) == 1.0
-  Return returnVal
+
+bool Function AmIAngry()
+    bool returnVal = GetValue(CREW_Elite_IsAngry) == 1
+    
+    Trace(self, "AmIAngry() returnVal: " + returnVal)
+
+    return returnVal
+endFunction
+
+;overridden function from parent script:
+Function CivilianKilled(Actor CivilianActor) Protected
+	Trace(self, "CivilianKilled()")
+	AffinityEventOnKill.Send(CivilianActor)
+	AutoDismiss()
 EndFunction
 
-Function CivilianKilled(Actor CivilianActor)
-  AffinityEventOnKill.Send(CivilianActor as ObjectReference)
-  Self.AutoDismiss()
-EndFunction
-
-Function AutoDismiss()
-  If SQ_Crew.IsActiveEliteCrew(Self as Actor)
-    Self.MakeAngry()
-    SQ_Crew.SetEliteCrewInactive(Self as Actor, False)
-  EndIf
+;overridden function from parent script:
+Function AutoDismiss() Protected
+	Trace(self, "AutoDimiss()")
+    if SQ_Crew.IsActiveEliteCrew(self)
+        MakeAngry()
+        SQ_Crew.SetEliteCrewInactive(self) ;combat is also ultimately stopped here
+    endif
 EndFunction
 
 Function MakeAngry()
-  Self.SetValue(CREW_Elite_IsAngry, 1.0)
-  Self.StartTimerGameTime(TimerDur_CrewAngerTime, GameTimerID_CrewAnger)
+    Trace(self, "MakeAngry() ")
+    SetValue(CREW_Elite_IsAngry, 1)
+    StartTimerGameTime(TimerDur_CrewAngerTime, GameTimerID_CrewAnger)
 EndFunction

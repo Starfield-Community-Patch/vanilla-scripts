@@ -1,12 +1,13 @@
-ScriptName DefaultAliasOnContainerChangedToA Extends DefaultAlias default
-{ Set stage when THIS object's container changes.
+Scriptname DefaultAliasOnContainerChangedToA extends DefaultAlias Default
+{Set stage when THIS object's container changes.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is the container THIS object was moved to.
-<LocationToCheck> is the current location of the container THIS object was moved to. }
-
-;-- Functions ---------------------------------------
+<LocationToCheck> is the current location of the container THIS object was moved to.}
 
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akNewContainer, akOldContainer.GetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnContainerChanged() akNewContainer: " + akNewContainer + ", akOldContainer: " + akOldContainer, ShowTraces)
+	
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akNewContainer, LocationToCheck = akOldContainer.GetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnContainerChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent

@@ -1,68 +1,112 @@
-ScriptName Fragments:Quests:QF_FFNeonZ01_000B2A73 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNeonZ01_000B2A73 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Stratos Auto Const mandatory
-Quest Property FFNeonZ01_SpeechChallengeQuest Auto Const mandatory
-Quest Property DialogueFCNeon Auto Const mandatory
-ReferenceAlias Property Alias_Slate Auto Const mandatory
-GlobalVariable Property CreditAmount Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-GlobalVariable Property FFNeonZ01_BribeLarge Auto Const mandatory
-Potion Property Drug_Aurora Auto Const mandatory
-Quest Property FFNeonGuardPointer_Z01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0004_Item_00
 Function Fragment_Stage_0004_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, FFNeonZ01_BribeLarge.GetValueInt(), False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Credits, FFNeonZ01_BribeLarge.GetValueInt())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, CreditAmount.GetValueInt(), False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Credits, CreditAmount.GetValueInt())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0008_Item_00
 Function Fragment_Stage_0008_Item_00()
-  Game.GetPlayer().RemoveItem(Drug_Aurora as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Drug_Aurora)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Alias_Stratos.GetRef().EnableNoWait(False)
-  FFNeonZ01_SpeechChallengeQuest.Start()
-  FFNeonGuardPointer_Z01.SetStage(200)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+Alias_Stratos.GetRef().EnableNoWait()
+FFNeonZ01_SpeechChallengeQuest.Start()
 
+; Flag the pointer quest to end (or never play)
+FFNeonGuardPointer_Z01.SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0011_Item_00
 Function Fragment_Stage_0011_Item_00()
-  If !Self.GetStageDone(30)
-    Self.SetObjectiveSkipped(30)
-  EndIf
+;BEGIN CODE
+if !GetStageDone(30)
+    SetObjectiveSkipped(30)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
-  Self.SetObjectiveDisplayed(30, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+SetObjectiveDisplayed(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Game.GetPlayer().AddItem(Alias_Slate.GetRef() as Form, 1, False)
-  Self.SetObjectiveCompleted(30, True)
+;BEGIN CODE
+Game.GetPlayer().AddItem(Alias_Slate.GetRef())
+SetObjectiveCompleted(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0090_Item_00
 Function Fragment_Stage_0090_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  If !Self.GetStageDone(30)
-    Self.SetObjectiveSkipped(30)
-  EndIf
-  Self.SetObjectiveDisplayed(40, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+if !GetStageDone(30)
+    SetObjectiveSkipped(30)
+endif
+SetObjectiveDisplayed(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.CompleteAllObjectives()
-  Game.GetPlayer().RemoveItem(Alias_Slate.GetRef() as Form, 1, False, None)
-  FFNeonZ01_SpeechChallengeQuest.Stop()
-  DialogueFCNeon.SetStage(120)
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Game.GetPlayer().RemoveItem(Alias_Slate.GetRef())
+FFNeonZ01_SpeechChallengeQuest.Stop()
+DialogueFCNeon.SetStage(120)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Stratos Auto Const Mandatory
+
+Quest Property FFNeonZ01_SpeechChallengeQuest Auto Const Mandatory
+
+Quest Property DialogueFCNeon Auto Const Mandatory
+
+ReferenceAlias Property Alias_Slate Auto Const Mandatory
+
+GlobalVariable Property CreditAmount Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+GlobalVariable Property FFNeonZ01_BribeLarge Auto Const Mandatory
+
+Potion Property Drug_Aurora Auto Const Mandatory
+
+Quest Property FFNeonGuardPointer_Z01 Auto Const Mandatory

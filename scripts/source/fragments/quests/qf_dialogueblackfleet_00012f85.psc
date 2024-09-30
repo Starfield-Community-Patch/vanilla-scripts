@@ -1,6 +1,6 @@
-ScriptName Fragments:Quests:QF_DialogueBlackFleet_00012F85 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueBlackFleet_00012F85 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-Keyword Property TestKurtHealerStoryEvent Auto Const mandatory
+Keyword Property TestKurtHealerStoryEvent Auto Const Mandatory

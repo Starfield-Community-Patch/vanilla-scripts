@@ -1,7 +1,5 @@
-ScriptName InvisibleDoorBlockActivationScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname InvisibleDoorBlockActivationScript extends ObjectReference Const
 
 Event OnInit()
-  Self.BlockActivation(True, False)
+	Self.BlockActivation()
 EndEvent

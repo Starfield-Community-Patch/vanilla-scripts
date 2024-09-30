@@ -1,42 +1,51 @@
-ScriptName UC09QuestScript Extends Quest
+Scriptname UC09QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias[] Property CabinetNPCAliases Mandatory Const Auto
+{Array of Cabinet NPC aliases we use to get everyone in place for the big conversation}
 
-;-- Properties --------------------------------------
-ReferenceAlias[] Property CabinetNPCAliases Auto Const mandatory
-{ Array of Cabinet NPC aliases we use to get everyone in place for the big conversation }
 ReferenceAlias Property EmergencyRecording Auto
-{ Holding alias for the emergency recording the player uses in the Cabinet scene }
-
-;-- Functions ---------------------------------------
+{Holding alias for the emergency recording the player uses in the Cabinet scene}
 
 Function GetNPCsInPlace()
-  Int I = 0
-  Int iLength = CabinetNPCAliases.Length
-  While I < iLength
-    Actor currACT = CabinetNPCAliases[I].GetActorRef()
-    If currACT
-      currACT.EvaluatePackage(False)
-      currACT.MoveToPackageLocation()
-    EndIf
-    I += 1
-  EndWhile
+    int i = 0
+    int iLength = CabinetNPCAliases.Length
+
+    while i < iLength
+        Actor currACT = CabinetNPCAliases[i].GetActorRef()
+        trace(self, "CurrAct: "+ currACT +" pre-Move location: " + currACT.GetCurrentLocation() + ". Cell:" + currACT.GetParentCell())
+
+        if currACT
+            currACT.EvaluatePackage()
+            trace(self, "CurrAct: "+ currACT +" currect package: " + currACT.GetCurrentPackage() + "." )
+            currACT.MoveToPackageLocation()
+            trace(self, "CurrAct: "+ currACT +" post-Move location: " + currACT.GetCurrentLocation() + "." )
+        endif
+
+        i += 1
+    endwhile
 EndFunction
 
 Function StaggeredEvalPackages()
-  Int I = 0
-  Int iLength = CabinetNPCAliases.Length
-  Float minwait = 0.200000003
-  Float maxwait = 0.400000006
-  While I < iLength
-    Float fRand = Utility.RandomFloat(minwait, maxwait)
-    Actor currACT = CabinetNPCAliases[I].GetActorRef()
-    Utility.Wait(fRand)
-    currACT.EvaluatePackage(False)
-    I += 1
-  EndWhile
+    int i = 0
+    int iLength = CabinetNPCAliases.Length
+    float minwait = 0.2
+    float maxwait = 0.4
+
+    While (i < iLength)
+        float fRand = Utility.RandomFloat(minwait, maxwait)
+        Actor currAct = CabinetNPCAliases[i].GetActorRef()
+        Utility.Wait(fRand)
+        currAct.EvaluatePackage()
+
+        i += 1
+    EndWhile
+
+
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC09", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

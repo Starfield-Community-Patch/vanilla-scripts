@@ -1,6 +1,3 @@
-ScriptName TestFormPropertyScript Extends ObjectReference Const
+Scriptname TestFormPropertyScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Form Property myForm Auto Const

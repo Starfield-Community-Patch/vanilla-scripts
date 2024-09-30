@@ -1,15 +1,10 @@
-ScriptName UC09_InvasivePestRefScript Extends UC09_HeatleechRefScript
+Scriptname UC09_InvasivePestRefScript extends UC09_HeatleechRefScript
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property ActorTypeHeatleech Auto Const mandatory
-{ Heetleech keyword. }
-
-;-- Functions ---------------------------------------
+Keyword property ActorTypeHeatleech Auto Const Mandatory
+{Heetleech keyword.}
 
 Event OnCellLoad()
-  If Self.HasKeyword(ActorTypeHeatleech)
-    Parent.OnCellLoad()
-  EndIf
+    if (HasKeyword(ActorTypeHeatleech))
+        Parent.OnCellLoad()
+    EndIf
 EndEvent

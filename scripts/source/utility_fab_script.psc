@@ -1,27 +1,25 @@
-ScriptName Utility_FAB_Script Extends Quest
+Scriptname Utility_FAB_Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property PlayerEnemyFaction Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+ActorValue Property Aggression Auto Const Mandatory
 
 Function AttackPlayer(Actor aHostile)
-  aHostile.RemoveFromAllFactions()
-  aHostile.SetValue(Aggression, 1.0)
-  aHostile.AddtoFaction(PlayerEnemyFaction)
-  aHostile.StartCombat(Game.GetPlayer() as ObjectReference, False)
-  aHostile.SetEssential(False)
-  aHostile.EvaluatePackage(False)
+    ; Make the Actor go hostile
+    aHostile.RemoveFromAllFactions()
+    aHostile.SetValue(Aggression, 1)
+    aHostile.AddtoFaction(PlayerEnemyFaction)
+    aHostile.StartCombat(Game.GetPlayer())    
+    aHostile.SetEssential(FALSE)
+    aHostile.EvaluatePackage()
 EndFunction
 
-Function ShipAttackPlayer(spaceshipreference sHostile)
-  sHostile.RemoveFromAllFactions()
-  sHostile.SetValue(Aggression, 1.0)
-  sHostile.AddtoFaction(PlayerEnemyFaction)
-  sHostile.StartCombat(Game.GetPlayer().GetCurrentShipRef(), False)
-  sHostile.SetEssential(False)
-  sHostile.EvaluatePackage(False)
+Function ShipAttackPlayer(SpaceshipReference sHostile)
+    ; Make the Spaceship go hostile
+    sHostile.RemoveFromAllFactions()
+    sHostile.SetValue(Aggression, 1)
+    sHostile.AddtoFaction(PlayerEnemyFaction)
+    sHostile.StartCombat(Game.GetPlayer().GetCurrentShipRef())    
+    sHostile.SetEssential(FALSE)
+    sHostile.EvaluatePackage()
 EndFunction
+

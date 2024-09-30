@@ -1,18 +1,33 @@
-ScriptName Fragments:Quests:QF_MB_BountySpace01Far00_000E87AA_5 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MB_BountySpace01Far00_000E87AA_5 Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  missionbountyspacescript kmyQuest = __temp as missionbountyspacescript
-  kmyQuest.MissionComplete()
+;BEGIN AUTOCAST TYPE missionbountyspacescript
+Quest __temp = self as Quest
+missionbountyspacescript kmyQuest = __temp as missionbountyspacescript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.MissionComplete()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

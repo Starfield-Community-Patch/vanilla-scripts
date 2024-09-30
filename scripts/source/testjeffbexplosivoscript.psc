@@ -1,64 +1,73 @@
-ScriptName TestJeffBExplosivoScript Extends ObjectReference
+Scriptname TestJeffBExplosivoScript extends ObjectReference  
 
-;-- Variables ---------------------------------------
-ObjectReference[] myArray
-ObjectReference[] myTempArray
-Int numExplosionMarkers = 0
+import debug
 
-;-- Properties --------------------------------------
 Explosion Property myExplosion Auto Const
 
-;-- Functions ---------------------------------------
+int numExplosionMarkers = 0
+ObjectReference[] myArray
+ObjectReference[] myTempArray
+
+;************************************************************
 
 Event OnLoad()
-  numExplosionMarkers = Self.CountLinkedRefChain(None, 100)
-  myArray = new ObjectReference[numExplosionMarkers]
-  myTempArray = new ObjectReference[numExplosionMarkers]
-  Int I = 0
-  While I < numExplosionMarkers
-    myArray[I] = Self.getNthLinkedRef(I + 1, None)
-    I += 1
-  EndWhile
+    numExplosionMarkers = CountLinkedRefChain()
+    myArray = new ObjectReference[numExplosionMarkers]
+    myTempArray = new ObjectReference[numExplosionMarkers]
+
+    int i = 0
+	While(i < numExplosionMarkers)
+		myArray[i] = getNthLinkedRef(i + 1)
+		i = i + 1
+	EndWhile
 EndEvent
 
-Function RandomExplosions()
-  Int I = 0
-  While I < numExplosionMarkers
-    Int rand = Utility.randomint(0, myArray.Length - 1)
-    myTempArray[I] = myArray[rand]
-    myArray.remove(rand, 1)
-    I += 1
-  EndWhile
-  I = 0
-  While I < numExplosionMarkers
-    myArray.add(myTempArray[I], 1)
-    I += 1
-  EndWhile
-EndFunction
+;************************************************************
 
-;-- State -------------------------------------------
-State DoNothing
-
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
 Auto State Waiting
+	Event OnActivate(ObjectReference akActionRef)
+	    If(akActionRef == game.getPlayer())
+	    	GotoState("DoNothing")
+	    	RandomExplosions()
+	    	int i = 0
+	    	while(i < numExplosionMarkers)
+	    		myArray[i].placeatme(myExplosion)
+	    		float rand = Utility.RandomFloat(0.5, 3)
+	    		Utility.Wait(rand)
+	    		i = i + 1
+	    	EndWhile
+	    	GotoState("Waiting")
+	    EndIf
+	EndEvent
 
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.getPlayer() as ObjectReference
-      Self.GotoState("DoNothing")
-      Self.RandomExplosions()
-      Int I = 0
-      While I < numExplosionMarkers
-        myArray[I].placeatme(myExplosion as Form, 1, False, False, True, None, None, True)
-        Float rand = Utility.RandomFloat(0.5, 3.0)
-        Utility.Wait(rand)
-        I += 1
-      EndWhile
-      Self.GotoState("Waiting")
-    EndIf
-  EndEvent
 EndState
+
+;************************************************************
+
+State DoNothing
+	Event OnActivate(ObjectReference akActionRef)
+	    ;do nothing
+	EndEvent
+
+EndState
+
+;************************************************************
+
+Function RandomExplosions()
+	int i = 0
+
+	While(i < numExplosionMarkers)
+		int rand = Utility.randomint(0, myArray.Length - 1)
+		myTempArray[i] = myArray[rand]
+		myArray.Remove(rand)
+		i = i + 1
+	EndWhile
+
+	i = 0
+
+	While (i < numExplosionMarkers)
+		myArray.add(myTempArray[i])
+		i = i + 1
+	EndWhile
+
+EndFunction

@@ -1,16 +1,15 @@
-ScriptName City_Neon_Drug03_Script Extends Quest
+Scriptname City_Neon_Drug03_Script extends Quest
 
-;-- Variables ---------------------------------------
+Quest Property City_Neon_Drug_Game Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Quest Property City_Neon_Drug_Game Auto Const mandatory
-Int Property maxRefills = 1 Auto Const
+int property maxRefills = 1 auto Const
 { how many "refills" will player get on retries, per round }
 
-;-- Functions ---------------------------------------
-
 Function ReplayGame()
-  City_Neon_Drug_Game.Stop()
-  City_Neon_Drug_Game.Reset()
-  City_Neon_Drug_Game.Start()
+; The minigame can't restart itself
+
+    City_Neon_Drug_Game.Stop()
+    City_Neon_Drug_Game.Reset()
+    City_Neon_Drug_Game.Start()
+
 EndFunction

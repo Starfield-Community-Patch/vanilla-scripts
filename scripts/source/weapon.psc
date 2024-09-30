@@ -1,7 +1,7 @@
-ScriptName Weapon Extends Form Native hidden
+Scriptname Weapon extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Fire this weapon base object from the specified source
+Function Fire(ObjectReference akSource, Ammo akAmmo = None) native
 
-Function Fire(ObjectReference akSource, Ammo akAmmo) Native
-
-Ammo Function GetAmmo() Native
+; Get the ammo for this weapon base object
+Ammo Function GetAmmo() native

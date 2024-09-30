@@ -1,23 +1,19 @@
-ScriptName DebugStopAllScenesQuestScript Extends Quest Const default
-{ Stops all current scenes for specified aliases }
+Scriptname DebugStopAllScenesQuestScript extends Quest Const Default
+{Stops all current scenes for specified aliases}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias[] Property Aliases Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ReferenceAlias[] Property Aliases Mandatory Const Auto
 
 Function StopAllScenes()
-  Int I = 0
-  While I < Aliases.Length
-    ObjectReference refToStopSceneFor = Aliases[I].GetReference()
-    If refToStopSceneFor
-      Scene sceneToStop = refToStopSceneFor.GetCurrentScene()
-      If sceneToStop
-        sceneToStop.Stop()
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
+	int i = 0
+	While (i < Aliases.length)
+		ObjectReference refToStopSceneFor = Aliases[i].GetReference()
+		if refToStopSceneFor
+			Scene sceneToStop = refToStopSceneFor.GetCurrentScene()
+			if sceneToStop
+				DefaultScriptFunctions.Trace(self, "StopAllScenes() stopping sceneToStop: " + sceneToStop, ShowNormalTrace = true)
+				sceneToStop.Stop()
+			endif
+		endif
+		i += 1
+	EndWhile
 EndFunction

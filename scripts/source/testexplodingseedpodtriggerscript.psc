@@ -1,28 +1,27 @@
-ScriptName TestExplodingSeedPodTriggerScript Extends ObjectReference
+Scriptname TestExplodingSeedPodTriggerScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool bPlayerInTrigger = False
+ActorValue Property SpeedMult Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ActorValue Property SpeedMult Auto Const mandatory
-
-;-- Functions ---------------------------------------
+bool bPlayerInTrigger = false
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  bPlayerInTrigger = True
-  Self.AffectPlayer()
+    bPlayerInTrigger = true
+    AffectPlayer()
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  bPlayerInTrigger = False
-  Self.AffectPlayer()
+    bPlayerInTrigger = false
+    AffectPlayer()
 EndEvent
 
 Function AffectPlayer()
-  inputenablelayer myLayer = inputenablelayer.Create()
-  If bPlayerInTrigger
-    Game.GetPlayer().SetValue(SpeedMult, 30.0)
-  ElseIf bPlayerInTrigger == False
-    Game.GetPlayer().SetValue(SpeedMult, 100.0)
-  EndIf
+;Slow player movement speed while in corrosive goo.
+InputEnableLayer myLayer = InputEnableLayer.Create()
+    if bPlayerInTrigger
+        Game.GetPlayer().SetValue(SpeedMult, 30)
+        ;myLayer.EnableJumping(false)
+    ElseIf bPlayerInTrigger == false
+        Game.GetPlayer().SetValue(SpeedMult, 100)
+        ;myLayer.EnableJumping()
+    EndIf
 EndFunction

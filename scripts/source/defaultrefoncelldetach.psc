@@ -1,9 +1,10 @@
-ScriptName DefaultRefOnCellDetach Extends DefaultRefParent default
-{ Sets quest stage when this reference's cell detaches. }
-
-;-- Functions ---------------------------------------
+Scriptname DefaultRefOnCellDetach extends DefaultRefParent Default
+{Sets quest stage when this reference's cell detaches.}
 
 Event OnCellDetach()
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, None, None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnCellDetach()", ShowTraces)
+	
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = None)
+	DefaultScriptFunctions.Trace(self, "OnCellDetach() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent

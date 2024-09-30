@@ -1,45 +1,55 @@
-ScriptName BuriedArtifact Extends ObjectReference
+Scriptname BuriedArtifact extends ObjectReference
 
-;-- Variables ---------------------------------------
+CustomEvent OnArtifactAcquireStarted
+CustomEvent OnArtifactAcquireEnded
 
-;-- Properties --------------------------------------
-Group SharedDefaults collapsedonref
-  wwiseevent Property VisionAmbient Auto Const
-  { The ambient sound that leads into the vision }
-  VisualEffect Property VisionEffects Auto Const
-  { The visual component of the vision. }
-  MusicType Property VisionMusic Auto Const
-  { Music To Play during the vision, should be flagged as "Plays One Selection" }
-  inputenablelayer Property ArtifactEnableLayer Auto hidden
+Group SharedDefaults CollapsedOnRef
+	WwiseEvent Property VisionAmbient auto  const
+	{The ambient sound that leads into the vision}
+	VisualEffect Property VisionEffects auto  const
+	{The visual component of the vision.}
+	MusicType Property VisionMusic Auto Const
+	{Music To Play during the vision, should be flagged as "Plays One Selection" }
+	InputEnableLayer Property ArtifactEnableLayer Auto Hidden
 EndGroup
 
-Bool Property PickupEnabled = False Auto
+bool Property PickupEnabled = false auto
+
 ObjectReference Property FXlights Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If PickupEnabled
-    ArtifactEnableLayer = inputenablelayer.Create()
-    ArtifactEnableLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
-    FXlights.Enable(False)
-    PickupEnabled = False
-    Self.SendCustomEvent("buriedartifact_OnArtifactAcquireStarted", None)
-    If VisionEffects
-      VisionEffects.Play(Game.GetPlayer() as ObjectReference, -1.0, None)
-    EndIf
-    If VisionMusic
-      VisionMusic.Add()
-    EndIf
-    VisionAmbient.PlayAndWait(Game.GetPlayer() as ObjectReference, None, None)
-    Self.ArtifactAcquired()
-  EndIf
+	if(PickupEnabled)
+		ArtifactEnableLayer = InputEnableLayer.Create()
+		;poo edit---------
+		;ArtifactEnableLayer.DisablePlayerControls(true, true, true, true, true, true, true, true, true, true, true)
+		ArtifactEnableLayer.DisablePlayerControls()
+		FXlights.Enable()
+		;endpoo edit-------
+		PickupEnabled = false
+		SendCustomEvent("OnArtifactAcquireStarted")
+	    ;VFX and SFX for vision here.
+		if(VisionEffects)
+	    	VisionEffects.Play(Game.GetPlayer() as ObjectReference)
+		endif
+		if (VisionMusic)
+			VisionMusic.Add()
+		endif
+	    VisionAmbient.PlayAndWait(Game.GetPlayer() as ObjectReference)
+		;Utility.Wait(15)
+	    ArtifactAcquired()
+	EndIf
 EndEvent
 
 Function ArtifactAcquired()
-  If VisionEffects
-    VisionEffects.Stop(Game.GetPlayer() as ObjectReference)
-  EndIf
-  ArtifactEnableLayer.Delete()
-  Self.SendCustomEvent("buriedartifact_OnArtifactAcquireEnded", None)
+	if(VisionEffects)
+	    VisionEffects.Stop(Game.GetPlayer() as ObjectReference)
+	endif
+	ArtifactEnableLayer.Delete()
+	SendCustomEvent("OnArtifactAcquireEnded")
 EndFunction
+
+
+
+
+
+

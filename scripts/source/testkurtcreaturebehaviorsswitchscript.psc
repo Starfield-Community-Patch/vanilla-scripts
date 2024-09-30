@@ -1,45 +1,45 @@
-ScriptName TestKurtCreatureBehaviorsSwitchScript Extends ObjectReference
+Scriptname TestKurtCreatureBehaviorsSwitchScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-testkurtcreaturebehaviorscript myQuest
-
-;-- Properties --------------------------------------
-Message Property TestKurtCreatureBehaviorMessage Auto Const mandatory
+Message property TestKurtCreatureBehaviorMessage auto const mandatory
 { message box for player choices }
-Keyword Property TestKurtCreatureBehaviorKeyword Auto Const
-Int Property CreatureRigIndex = 7 Auto
-{ what rig to create from this button? }
-Int Property ResetMessageIndex = 9 Auto Const
 
-;-- Functions ---------------------------------------
+Keyword Property TestKurtCreatureBehaviorKeyword auto const
+
+TestKurtCreatureBehaviorScript myQuest
+
+int property CreatureRigIndex = 7 auto
+{ what rig to create from this button? }
+
+int property ResetMessageIndex = 9 auto Const
 
 Event OnActivate(ObjectReference akActionRef)
-  Int messageIndex = TestKurtCreatureBehaviorMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Self.StartQuest()
-  If messageIndex == ResetMessageIndex
+    int messageIndex = TestKurtCreatureBehaviorMessage.Show()
+    StartQuest()
+    if messageIndex == ResetMessageIndex
+        myQuest.ResetCreatures()
+    elseif messageIndex > -1
+        myQuest.CreateCreature(messageIndex)
+    endif
+endEvent
+
+function ChangeRig(int newRigIndex)
     myQuest.ResetCreatures()
-  ElseIf messageIndex > -1
-    myQuest.CreateCreature(messageIndex)
-  EndIf
-EndEvent
-
-Function ChangeRig(Int newRigIndex)
-  myQuest.ResetCreatures()
-  myQuest.Stop()
-  myQuest = None
-  CreatureRigIndex = newRigIndex
-  Self.StartQuest()
-EndFunction
-
-Function StartQuest()
-  If myQuest == None
-    myQuest = TestKurtCreatureBehaviorKeyword.SendStoryEventAndWait(None, Self as ObjectReference, Self.GetLinkedRef(None), CreatureRigIndex, 0)[0] as testkurtcreaturebehaviorscript
-  EndIf
-EndFunction
-
-Event OnUnload()
-  If myQuest
     myQuest.Stop()
     myQuest = None
-  EndIf
+    CreatureRigIndex = newRigIndex
+    StartQuest()
+endFunction
+
+function StartQuest()
+    if myQuest == NONE
+        myQuest = TestKurtCreatureBehaviorKeyword.SendStoryEventAndWait(akRef1 = self, akRef2 = GetLinkedRef(), aiValue1=CreatureRigIndex)[0] as TestKurtCreatureBehaviorScript
+    endif
+endFunction
+
+Event OnUnload()
+    ; stop the quest so we can use it elsewhere
+    if myQuest
+        myQuest.Stop()
+        myQuest = NONE
+    endif
 EndEvent

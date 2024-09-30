@@ -1,22 +1,18 @@
-ScriptName UC02_PlayerAliasScript Extends ReferenceAlias
+Scriptname UC02_PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property Terrormorph Mandatory Const Auto
+{Ref alias for the Terrormorph}
 
-;-- Properties --------------------------------------
-ReferenceAlias Property Terrormorph Auto Const mandatory
-{ Ref alias for the Terrormorph }
-Int Property StageToSet = 550 Auto Const
-{ Stage to set when the player gains LOS with the Terrormorph }
-
-;-- Functions ---------------------------------------
+int Property StageToSet = 550 Const Auto
+{Stage to set when the player gains LOS with the Terrormorph}
 
 Event OnAliasInit()
-  Self.RegisterForDirectLOSGain(Self.GetRef(), Terrormorph.GetRef(), "", "")
+    RegisterForDirectLOSGain(GetRef(), Terrormorph.GetRef())
 EndEvent
 
 Event OnGainLOS(ObjectReference akViewer, ObjectReference akTarget)
-  If akViewer == Self.GetRef() && akTarget == Terrormorph.GetRef()
-    Self.UnregisterForLOS(Self.GetRef(), Terrormorph.GetRef())
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
+    if akViewer == GetRef() && akTarget == Terrormorph.GetRef()
+        UnregisterForLOS(GetRef(), Terrormorph.GetRef())
+        GetOwningQuest().SetStage(StageToSet)
+    EndIf
 EndEvent

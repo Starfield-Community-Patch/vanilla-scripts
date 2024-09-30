@@ -1,22 +1,17 @@
-ScriptName SocialSkill_Manipulation_ForceCommand Extends ActiveMagicEffect
+Scriptname SocialSkill_Manipulation_ForceCommand extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Faction Property CharmFaction Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Faction Property CharmFaction Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor myTarget = akTarget as Actor
-  myTarget.AddToFaction(CharmFaction)
-  myTarget.SetCanDoCommand(True)
-  myTarget.SetCommandState(True)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+Actor myTarget = akTarget as Actor
+	myTarget.AddToFaction(CharmFaction)
+	myTarget.SetCanDoCommand(true)
+	myTarget.SetCommandState(true)
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor myTarget = akTarget as Actor
-  myTarget.RemoveFromFaction(CharmFaction)
-  myTarget.SetCanDoCommand(False)
-  myTarget.SetCommandState(False)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+Actor myTarget = akTarget as Actor
+	myTarget.RemoveFromFaction(CharmFaction)
+	myTarget.SetCanDoCommand(false)
+	myTarget.SetCommandState(false)
 EndEvent

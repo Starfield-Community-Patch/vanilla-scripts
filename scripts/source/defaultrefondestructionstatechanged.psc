@@ -1,20 +1,20 @@
-ScriptName DefaultRefOnDestructionStateChanged Extends DefaultRefParent default
-{ Set stage when THIS object's destruction stage changes. }
+Scriptname DefaultRefOnDestructionStateChanged extends DefaultRefParent Default
+{Set stage when THIS object's destruction stage changes.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Int Property DestructionStateToCheckFor = 1 Auto Const
-  { Set the stage when this destruction state is reached. }
+	Int Property DestructionStateToCheckFor = 1 Auto Const
+	{Set the stage when this destruction state is reached.}
 EndGroup
 
 
-;-- Functions ---------------------------------------
+Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+	
+	DefaultScriptFunctions.Trace(self, "OnDestructionStageChanged() aiOldStage: " + aiOldStage + ", aiCurrentStage: " + aiCurrentStage, ShowTraces)
+	if aiCurrentStage <= DestructionStateToCheckFor
+		DefaultScriptFunctions.Trace(self, "OnDestructionStageChanged() aiCurrentStage <= DestructionStateToCheckFor", ShowTraces)
 
-Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-  If aiCurrentStage <= DestructionStateToCheckFor
-    defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, None, None)
-    Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
-  EndIf
+		DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = None)
+		DefaultScriptFunctions.Trace(self, "OnDestructionStageChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+		CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	endif
 EndEvent

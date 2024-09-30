@@ -1,1 +1,1 @@
-ScriptName SoulGem Extends MiscObject Native hidden
+Scriptname SoulGem extends MiscObject Native Hidden

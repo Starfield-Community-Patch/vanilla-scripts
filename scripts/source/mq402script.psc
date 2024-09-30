@@ -1,61 +1,63 @@
-ScriptName MQ402Script Extends Quest
+Scriptname MQ402Script extends Quest
 
-;-- Structs -----------------------------------------
 Struct LodgeArtifacts
-  Int ArtifactNumber
-  ObjectReference PlacementMarker
-  ReferenceAlias ArtifactRefAlias
+    Int ArtifactNumber
+    ObjectReference PlacementMarker
+    ReferenceAlias ArtifactRefAlias
 EndStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-mq402script:lodgeartifacts[] Property LodgeArtifactsArray Auto Const mandatory
-Quest Property StarbornTempleQuest Auto Const mandatory
-GlobalVariable Property MQ402LodgeActorsSkip Auto Const mandatory
-ReferenceAlias Property Andreja Auto Const mandatory
-ReferenceAlias Property Barrett Auto Const mandatory
-ReferenceAlias Property SamCoe Auto Const mandatory
-ReferenceAlias Property CoraCoe Auto Const mandatory
-Faction Property AvailableCompanionFaction Auto Const mandatory
-ObjectReference Property Lodge_RoomMarker_Library01 Auto Const mandatory
-Quest Property COM_Companion_Andreja Auto Const mandatory
-
-;-- Functions ---------------------------------------
+LodgeArtifacts[] Property LodgeArtifactsArray Mandatory Const Auto
+Quest Property StarbornTempleQuest Mandatory Const Auto
+GlobalVariable Property MQ402LodgeActorsSkip Mandatory Const Auto
+ReferenceAlias Property Andreja Mandatory Const Auto
+ReferenceAlias Property Barrett Mandatory Const Auto
+ReferenceAlias Property SamCoe Mandatory Const Auto
+ReferenceAlias Property CoraCoe Mandatory Const Auto
+Faction Property AvailableCompanionFaction Mandatory Const Auto
+ObjectReference Property Lodge_RoomMarker_Library01 Mandatory Const Auto
+Quest Property COM_Companion_Andreja Mandatory Const Auto
 
 Function AddLodgeArtifacts(Actor akActorRef)
-  Int currentElement = 0
-  While currentElement < LodgeArtifactsArray.Length
-    Int CurrentArtifactNumber = LodgeArtifactsArray[currentElement].ArtifactNumber
-    ObjectReference CurrentPlacementMarker = LodgeArtifactsArray[currentElement].PlacementMarker
-    ReferenceAlias CurrentRefAlias = LodgeArtifactsArray[currentElement].ArtifactRefAlias
-    ObjectReference ArtifactREF = (StarbornTempleQuest as starborntemplequestscript).PlaceArtifact(CurrentArtifactNumber, CurrentPlacementMarker)
-    ArtifactREF.Enable(False)
-    akActorRef.AddItem(ArtifactREF as Form, 1, False)
-    CurrentRefAlias.ForceRefTo(ArtifactREF)
-    (StarbornTempleQuest as starborntemplequestscript).SetPlayerAcquiredArtifact(CurrentArtifactNumber)
-    currentElement += 1
-  EndWhile
+;give the player all the Artifacts that the Lodge collects during the Skip Main Quest path
+    int currentElement = 0
+    while (currentElement < LodgeArtifactsArray.Length)
+        int CurrentArtifactNumber = LodgeArtifactsArray[currentElement].ArtifactNumber
+        ObjectReference CurrentPlacementMarker = LodgeArtifactsArray[currentElement].PlacementMarker
+        ReferenceAlias CurrentRefAlias = LodgeArtifactsArray[currentElement].ArtifactRefAlias
+
+        ObjectReference ArtifactREF = (StarbornTempleQuest as StarbornTempleQuestScript).PlaceArtifact(CurrentArtifactNumber, CurrentPlacementMarker)
+        ArtifactREF.Enable()
+        akActorRef.AddItem(ArtifactREF) ;give Artifact to the Actor specified in the function
+        CurrentRefAlias.ForceRefTo(ArtifactREF) ;variant quests need to be able to point to these Artifacts via external link
+        ;set this artifacts as having been acquired for Temple finding purposes
+        (StarbornTempleQuest as StarbornTempleQuestScript).SetPlayerAcquiredArtifact(CurrentArtifactNumber)
+        currentElement += 1
+    endWhile
 EndFunction
 
 Function EnableLodgeActors()
-  Actor AndrejaREF = Andreja.GetActorRef()
-  Actor BarrettREF = Barrett.GetActorRef()
-  Actor SamCoeREF = SamCoe.GetActorRef()
-  Actor CoraCoeREF = CoraCoe.GetActorRef()
-  MQ402LodgeActorsSkip.SetValueInt(1)
-  AndrejaREF.AddToFaction(AvailableCompanionFaction)
-  BarrettREF.AddToFaction(AvailableCompanionFaction)
-  SamCoeREF.AddToFaction(AvailableCompanionFaction)
-  AndrejaREF.EvaluatePackage(False)
-  BarrettREF.EvaluatePackage(False)
-  SamCoeREF.EvaluatePackage(False)
-  CoraCoeREF.EvaluatePackage(False)
-  AndrejaREF.moveto(Lodge_RoomMarker_Library01, 0.0, 0.0, 0.0, True, False)
-  BarrettREF.moveto(Lodge_RoomMarker_Library01, 0.0, 0.0, 0.0, True, False)
-  SamCoeREF.moveto(Lodge_RoomMarker_Library01, 0.0, 0.0, 0.0, True, False)
-  CoraCoeREF.moveto(Lodge_RoomMarker_Library01, 0.0, 0.0, 0.0, True, False)
-  COM_Companion_Andreja.SetStage(50)
-  COM_Companion_Andreja.SetStage(100)
+    ;Andreja, Barrett, Sam, and Cora need to be at the Lodge if we've skipped the Main Quest
+    Actor AndrejaREF = Andreja.GetActorRef()
+    Actor BarrettREF = Barrett.GetActorRef()
+    Actor SamCoeREF = SamCoe.GetActorRef()
+    Actor CoraCoeREF = CoraCoe.GetActorRef()
+
+    MQ402LodgeActorsSkip.SetValueInt(1)
+    AndrejaREF.AddToFaction(AvailableCompanionFaction)
+    BarrettREF.AddToFaction(AvailableCompanionFaction)
+    SamCoeREF.AddToFaction(AvailableCompanionFaction)
+
+    AndrejaREF.EvaluatePackage()
+    BarrettREF.EvaluatePackage()
+    SamCoeREF.EvaluatePackage()
+    CoraCoeREF.EvaluatePackage()
+
+    AndrejaREF.moveto(Lodge_RoomMarker_Library01)
+    BarrettREF.moveto(Lodge_RoomMarker_Library01)
+    SamCoeREF.moveto(Lodge_RoomMarker_Library01)
+    CoraCoeREF.moveto(Lodge_RoomMarker_Library01)     
+
+    ;skip Andreja's intro scenes
+    COM_Companion_Andreja.SetStage(50)
+    COM_Companion_Andreja.SetStage(100)     
 EndFunction

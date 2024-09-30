@@ -1,24 +1,24 @@
-ScriptName MQ101ArtifactDepositScript Extends ReferenceAlias
+Scriptname MQ101ArtifactDepositScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property MQ101ArtifactMineralBedMSG Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message Property MQ101ArtifactMineralBedMSG Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  Quest MyQuest = Self.GetOwningQuest()
-  If Self.GetRef().GetCurrentDestructionStage() < 3
-    MQ101ArtifactMineralBedMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Else
-    MyQuest.SetStage(50)
-  EndIf
+	Quest MyQuest = GetOwningQuest()
+
+	;show the helper message if the player hasn't drilled out the mineral bed
+	If Self.GetRef().GetCurrentDestructionStage() < 3
+		MQ101ArtifactMineralBedMSG.Show()
+	Else
+		MyQuest.SetStage(50)
+	EndIf
+
 EndEvent
 
-Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-  Quest MyQuest = Self.GetOwningQuest()
-  If aiCurrentStage >= 3
-    MyQuest.SetStage(51)
-  EndIf
+Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+	Quest MyQuest = GetOwningQuest()
+
+	if aiCurrentStage >= 3
+		MyQuest.SetStage(51)
+	EndIf
+
 EndEvent

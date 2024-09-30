@@ -1,102 +1,101 @@
-ScriptName TrapBase Extends ObjectReference conditional
-{ base script for all trap scripts }
+Scriptname TrapBase extends ObjectReference conditional
+{base script for all trap scripts}
 
-;-- Variables ---------------------------------------
+group TrapBaseData
+    Keyword Property TrapStartInactiveKeyword Mandatory Const Auto
+    {keyword to indicate if the trap should start in the inactive state }
 
-;-- Properties --------------------------------------
-Group TrapBaseData
-  Keyword Property TrapStartInactiveKeyword Auto Const mandatory
-  { keyword to indicate if the trap should start in the inactive state }
-  Bool Property bActive = True Auto conditional hidden
-  Bool Property bDisarmed = False Auto conditional hidden
+    bool property bActive = true auto hidden conditional        ; Whether trap is on or off
+    bool property bDisarmed = false auto hidden conditional     ; set to true when trap is disarmed (won't turn on at all)
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
-Function BecomeActive()
-  ; Empty function
-EndFunction
-
-Function BecomeInactive()
-  ; Empty function
-EndFunction
-
-Function HandleOnLoad()
-  ; Empty function
-EndFunction
-
-Function HandleOnUnload()
-  ; Empty function
-EndFunction
-
 Event OnCellLoad()
-  Self.HandleOnLoad()
-  If bDisarmed
-    Self.GotoState("unloaded")
-  ElseIf Self.HasKeyword(TrapStartInactiveKeyword)
-    Self.GotoState("Inactive")
-  Else
-    Self.GotoState("Active")
-  EndIf
+    ; fill my ref target array, and go to correct state
+    HandleOnLoad()
+    if bDisarmed
+        GotoState("Unloaded")
+    else
+        If HasKeyword(TrapStartInactiveKeyword)
+            GotoState("Inactive")
+        Else
+            GotoState("Active")
+        EndIf
+    endif
 EndEvent
 
 Event OnUnload()
-  Self.HandleOnUnload()
-  Self.GotoState("unloaded")
+    HandleOnUnload()
+    GotoState("Unloaded")
 EndEvent
 
-Function SetActive(Bool bSetActive)
-  ; Empty function
-EndFunction
+auto State unloaded
+    function SetActive(bool bSetActive=true)
+        debug.trace(self + " SetActive " + bSetActive + " - called on Unloaded state - do nothing")
+    endFunction
+EndState
 
-Function Disarm()
-  bDisarmed = True
-  Self.GotoState("unloaded")
-EndFunction
-
-;-- State -------------------------------------------
 State Active
+	event OnBeginState(string asOldState)
+        bActive = true
+        BecomeActive()
+	endEvent
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.SetActive(False)
-  EndEvent
+    Event OnActivate(ObjectReference akActionRef)
+        SetActive(false)
+    EndEvent
 
-  Function SetActive(Bool bSetActive)
-    If bSetActive == False
-      Self.GotoState("Inactive")
-    EndIf
-  EndFunction
-
-  Event OnBeginState(String asOldState)
-    bActive = True
-    Self.BecomeActive()
-  EndEvent
+    function SetActive(bool bSetActive=true)
+        debug.trace(self + " SetActive " + bSetActive + " - called on Active state")
+        if bSetActive == false
+            ;If system is powered, shut it down
+            Debug.Trace(self + "Becoming inactive")
+            GotoState("Inactive")
+        endif
+    endFunction
 EndState
 
-;-- State -------------------------------------------
 State Inactive
+	event OnBeginState(string asOldState)
+		bActive = false
+        BecomeInactive()
+	endEvent
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.SetActive(True)
-  EndEvent
+    Event OnActivate(ObjectReference akActionRef)
+        SetActive(true)
+    EndEvent
 
-  Function SetActive(Bool bSetActive)
-    If bSetActive
-      Self.GotoState("Active")
-    EndIf
-  EndFunction
-
-  Event OnBeginState(String asOldState)
-    bActive = False
-    Self.BecomeInactive()
-  EndEvent
+    function SetActive(bool bSetActive=true)
+        debug.trace(self + " SetActive " + bSetActive + " - called on Inactive state")
+        if bSetActive
+            ;If system is unpowered, turn it on
+            Debug.Trace(self + "Becoming active")
+            GotoState("Active")
+        endif
+    endFunction
 EndState
 
-;-- State -------------------------------------------
-Auto State unloaded
+; override on child scripts
+function HandleOnLoad()
+EndFunction
 
-  Function SetActive(Bool bSetActive)
-    ; Empty function
-  EndFunction
-EndState
+; override on child scripts
+function HandleOnUnload()
+endFunction
+
+; override on child scripts
+function BecomeActive()
+endFunction
+
+; override on child scripts
+function BecomeInactive()
+endFunction
+
+function Disarm()
+    bDisarmed = true
+    GotoState("Unloaded")
+endFunction
+
+function SetActive(bool bSetActive=true)
+    debug.trace(self + " SetActive called on empty state - do nothing")
+    ; do nothing in empty state
+endFunction

@@ -1,18 +1,13 @@
-ScriptName TestAddSkillOnActivateScript Extends ObjectReference Const
-{ adds a skill on activate for testing }
+Scriptname TestAddSkillOnActivateScript extends ObjectReference Const
+{adds a skill on activate for testing}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Perk Property PerkToAdd Auto Const mandatory
-conditionform Property AddPerkCondition Auto Const
-
-;-- Functions ---------------------------------------
+Perk property PerkToAdd auto const mandatory
+ConditionForm property AddPerkCondition auto Const
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If AddPerkCondition as Bool && AddPerkCondition.IsTrue(Game.GetPlayer() as ObjectReference, None)
-      Game.GetPlayer().AddPerk(PerkToAdd, False)
+    if akActionRef == Game.GetPlayer()
+        if AddPerkCondition && AddPerkCondition.IsTrue(Game.GetPlayer())
+            Game.GetPlayer().AddPerk(PerkToAdd)
+        endif
     EndIf
-  EndIf
 EndEvent

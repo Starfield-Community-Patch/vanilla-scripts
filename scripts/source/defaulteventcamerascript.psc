@@ -1,23 +1,22 @@
-ScriptName DefaultEventCameraScript Extends ObjectReference conditional
+Scriptname DefaultEventCameraScript extends ObjectReference conditional
 
-;-- Variables ---------------------------------------
-Float Camera_Angle conditional
-Float Camera_Move conditional
+GlobalVariable property CameraAngle auto const
+{Prefixed with "EC_Angle"}
 
-;-- Properties --------------------------------------
-GlobalVariable Property CameraAngle Auto Const
-{ Prefixed with "EC_Angle" }
-GlobalVariable Property CameraMove Auto Const
-{ Prefixed with "EC_Move" }
-camerashot Property CameraShotToPlay Auto Const
+GlobalVariable property CameraMove auto const
+{Prefixed with "EC_Move"}
 
-;-- Functions ---------------------------------------
+CameraShot Property CameraShotToPlay Auto Const
+
+float Camera_Angle conditional
+float Camera_Move conditional
 
 Event OnInit()
-  Camera_Angle = CameraAngle.GetValue()
-  Camera_Move = CameraMove.GetValue()
+	Camera_Angle = CameraAngle.GetValue()
+	Camera_Move = CameraMove.GetValue()
 EndEvent
 
 Function Play()
-  Game.PlayEventCamera(CameraShotToPlay, Self as ObjectReference)
+	Game.PlayEventCamera(CameraShotToPlay, self)
+
 EndFunction

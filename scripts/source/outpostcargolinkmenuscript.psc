@@ -1,20 +1,19 @@
-ScriptName OutpostCargoLinkMenuScript Extends ObjectReference Const
+Scriptname OutpostCargoLinkMenuScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkOutpostCargoLink Auto Const mandatory
+keyword property LinkOutpostCargoLink auto const mandatory
 { keyword to find linked ref of my cargo link }
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    outpostcargolinkmarkerscript myCargoLink = Self.GetLinkedRef(LinkOutpostCargoLink) as outpostcargolinkmarkerscript
-    If myCargoLink
-      Bool includeIntersystem = myCargoLink.RequiresFuel
-      Keyword requiredKeyword = myCargoLink.CargoLinkMenuKeyword
-      myCargoLink.ShowWorkshopTargetMenu(True, None, includeIntersystem, requiredKeyword)
-    EndIf
-  EndIf
+    if akActionRef == Game.GetPlayer()
+        OutpostCargoLinkMarkerScript myCargoLink = GetLinkedRef(LinkOutpostCargoLink) as OutpostCargoLinkMarkerScript
+        debug.trace(self + " OnActivate: myCargoLink=" + myCargoLink)
+        if myCargoLink
+            ; open cargo link menu
+            bool includeIntersystem = myCargoLink.RequiresFuel
+            keyword requiredKeyword = myCargoLink.CargoLinkMenuKeyword
+            debug.trace(self + " opening menu with: includeIntersystem=" + includeIntersystem + " akRequiredKeyword=" + requiredKeyword)
+            myCargoLink.ShowWorkshopTargetMenu(abIncludeSameSystem = true, akSameSystemRequiredKeyword = None, abIncludeIntersystem = includeIntersystem, akIntersystemRequiredKeyword = requiredKeyword)
+        endif
+    endif
 EndEvent
+

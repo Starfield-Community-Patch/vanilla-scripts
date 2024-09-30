@@ -1,17 +1,14 @@
-ScriptName RI01_TBEmployeeAliasScript Extends ReferenceAlias
+Scriptname RI01_TBEmployeeAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property iStageToSet Auto Const mandatory
-Int Property iPreReqStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property iStageToSet Auto Const Mandatory
+Int Property iPreReqStage Auto Const Mandatory
 
 Event OnDying(ObjectReference akKiller)
-  Quest OwningQuest = Self.GetOwningQuest()
-  If OwningQuest.GetStageDone(iPreReqStage)
+
+Quest OwningQuest = GetOwningQuest()
+If OwningQuest.GetStageDone(iPreReqStage)
     OwningQuest.SetStage(iStageToSet)
     Self.Clear()
-  EndIf
+EndIf
+
 EndEvent

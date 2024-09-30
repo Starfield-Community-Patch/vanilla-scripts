@@ -1,40 +1,38 @@
-ScriptName PlanetTraitScanTargetScript Extends ObjectReference
+Scriptname PlanetTraitScanTargetScript extends ObjectReference
 { script for uncovering a planet trait when all the loc refs in this location are scanned }
 
-;-- Variables ---------------------------------------
-Location myLocation
-
-;-- Properties --------------------------------------
-sq_parentscript Property SQ_Parent Auto Const mandatory
+SQ_ParentScript property SQ_Parent auto const mandatory
 { use to get planet trait data }
-ObjectReference Property PlanetTraitScanTargetRef Auto Const mandatory
+
+ObjectReference property PlanetTraitScanTargetRef auto const mandatory
 { ref from ScanTargetNames array on SQ_ParentScript to use for name }
 
-;-- Functions ---------------------------------------
-
-Function testIsScanned()
-  ; Empty function
-EndFunction
+Location myLocation
 
 Event OnLoad()
-  myLocation = Self.GetCurrentLocation()
-  Self.BlockActivation(True, True)
-  SQ_Parent.CheckForScanTargetUpdate(Self as ObjectReference)
+    myLocation = GetCurrentLocation()
+    BlockActivation(true, true)
+    SQ_Parent.CheckForScanTargetUpdate(self)
+    debug.trace(self + " IsScanned=" + IsScanned())
 EndEvent
 
-;-- State -------------------------------------------
+auto State ready
+
+    Event OnScanned()
+        gotoState("done")
+        debug.trace(self + " OnScanned: myLocation=" + myLocation)
+        ; discover any traits for this location
+        SQ_Parent.DiscoverMatchingPlanetTraits(self)
+    EndEvent
+
+EndState
+
 State done
-
-  Event OnScanned()
-    ; Empty function
-  EndEvent
+    Event OnScanned()
+        ; do nothing
+    endEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State ready
-
-  Event OnScanned()
-    Self.gotoState("done")
-    SQ_Parent.DiscoverMatchingPlanetTraits(Self as ObjectReference, True)
-  EndEvent
-EndState
+function testIsScanned()
+    debug.trace(self + " IsScanned=" + IsScanned())
+endFunction

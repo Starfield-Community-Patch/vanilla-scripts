@@ -1,1 +1,1 @@
-ScriptName Static Extends Form Native hidden
+Scriptname Static Extends Form Native Hidden

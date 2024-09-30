@@ -1,17 +1,23 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueFCAkilaCity_0005D84B Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueFCAkilaCity_0005D84B Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property EleosLocationMiscPointer Auto Const mandatory
-Quest Property MS02 Auto Const mandatory
-Quest Property MS02_Intro Auto Const mandatory
-Quest Property ParadisoLocationMiscPointer Auto Const mandatory
-Quest Property RedMileLocationMiscPointer Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  RedMileLocationMiscPointer.SetStage(5)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+RedMileLocationMiscPointer.SetStage(5)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property EleosLocationMiscPointer Auto Const Mandatory
+
+Quest Property MS02 Auto Const Mandatory
+
+Quest Property MS02_Intro Auto Const Mandatory
+
+Quest Property ParadisoLocationMiscPointer Auto Const Mandatory
+
+Quest Property RedMileLocationMiscPointer Auto Const Mandatory

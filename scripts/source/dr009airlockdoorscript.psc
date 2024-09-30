@@ -1,18 +1,18 @@
-ScriptName DR009AirlockDoorScript Extends ObjectReference
+Scriptname DR009AirlockDoorScript extends ObjectReference
 
-;-- Functions ---------------------------------------
+event OnActivate(ObjectReference akActionRef)
+    ObjectReference player = Game.GetPlayer()
+	if(akActionRef == player)
+        ObjectReference cosmeticDoor = self.GetLinkedRef()
 
-Event OnActivate(ObjectReference akActionRef)
-  ObjectReference player = Game.GetPlayer() as ObjectReference
-  If akActionRef == player
-    ObjectReference cosmeticDoor = Self.GetLinkedRef(None)
-    If cosmeticDoor != None
-      Int openState = cosmeticDoor.GetOpenState()
-      If openState == 1 || openState == 2
-        cosmeticDoor.SetOpen(False)
-      ElseIf openState == 3 || openState == 4
-        cosmeticDoor.SetOpen(True)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+        if(cosmeticDoor != None)
+            int openState = cosmeticDoor.GetOpenState()
+
+            if(openState == 1 || openState == 2)
+                cosmeticDoor.SetOpen(false)
+            elseIf(openState == 3 || openState == 4)
+                cosmeticDoor.SetOpen(true)
+            endIf
+        endIF
+    endIf
+endEvent

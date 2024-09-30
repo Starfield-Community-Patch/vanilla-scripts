@@ -1,37 +1,39 @@
-ScriptName FXScripts:TestShipLandingCamera Extends ObjectReference
-{ Test script for ship landing effects. }
+Scriptname FXScripts:TestShipLandingCamera extends ObjectReference
+{Test script for ship landing effects.}
 
-;-- Variables ---------------------------------------
+ObjectReference Property GroundCameraMarker Auto Const Mandatory
+
 ObjectReference ObjRef
-String sLandingEvent = "Land"
-String sTakeoffEvent = "TakeOff"
-
-;-- Properties --------------------------------------
-ObjectReference Property GroundCameraMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
+string sTakeoffEvent = "TakeOff"
+string sLandingEvent = "Land"
 
 Event OnInit()
-  ObjRef = Self as ObjectReference
+	ObjRef = Self as ObjectReference
 EndEvent
 
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.RegisterForAnimationEvent(ObjRef, sLandingEvent)
-    Self.RegisterForAnimationEvent(ObjRef, sTakeoffEvent)
-  EndIf
+	if self.Is3DLoaded()
+	    RegisterForAnimationEvent(ObjRef, sLandingEvent)
+	    RegisterForAnimationEvent(ObjRef, sTakeoffEvent)
+	EndIf
 EndEvent
 
 Event OnUnLoad()
-  Self.UnRegisterForAnimationEvent(ObjRef, sLandingEvent)
-  Self.UnRegisterForAnimationEvent(ObjRef, sTakeoffEvent)
+    UnRegisterForAnimationEvent(ObjRef, sLandingEvent)
+    UnRegisterForAnimationEvent(ObjRef, sTakeoffEvent)
 EndEvent
 
-Event OnAnimationEvent(ObjectReference akSource, String asEventName)
-  If asEventName == sLandingEvent
-    GroundCameraMarker.PlayAnimation(sLandingEvent)
-  EndIf
-  If asEventName == sTakeoffEvent
-    GroundCameraMarker.PlayAnimation(sTakeoffEvent)
-  EndIf
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+	debug.Trace("SourceRef is " + akSource + " and Event is " + asEventName)
+	if asEventName == sLandingEvent
+		GroundCameraMarker.PlayAnimation(sLandingEvent)
+		debug.trace("Starting Timer for Landing Animation")
+	EndIf
+
+	if asEventName == sTakeoffEvent
+		GroundCameraMarker.PlayAnimation(sTakeoffEvent)
+		debug.trace("Finished FXAnimation Sequence")
+	EndIf
 EndEvent
+
+;old sequences PlayLandingFX PlayTakeOffFX

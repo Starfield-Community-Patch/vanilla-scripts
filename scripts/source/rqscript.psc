@@ -1,373 +1,477 @@
-ScriptName RQScript Extends Quest
+Scriptname RQScript extends Quest
 { Parent script that can be used directly or extended by other Random Quest scripts as required. }
 
-;-- Variables ---------------------------------------
-Int DialogueAV_LastHello = -1
-rescript REScriptIns
-Form previouslyRandomlySpawnedForm
-planet questPlanet
 
-;-- Properties --------------------------------------
 Group Autofill
-  sq_groups_questscript Property SQ_Groups Auto Const mandatory
-  GlobalVariable Property RQ_Debug_SummonShipOnStart Auto Const mandatory
-  ActorValue Property RQ_AV_PrimaryObjectiveKnown Auto Const mandatory
-  ActorValue Property RQ_AV_PrimaryObjectiveFail Auto Const mandatory
-  ActorValue Property RQ_AV_PrimaryObjectiveSuccess Auto Const mandatory
-  ActorValue Property RQ_AV_Hello Auto Const mandatory
-  ActorValue Property RQ_AV_SecondaryObjectiveKnown Auto Const mandatory
-  ActorValue Property RQ_AV_SecondaryObjectiveFail Auto Const mandatory
-  ActorValue Property RQ_AV_SecondaryObjectiveSuccess Auto Const mandatory
-  ActorValue Property RQ_AV_EnemyGroup Auto Const mandatory
-  ActorValue Property RQ_AV_Dungeon_LocTheme Auto Const mandatory
-  rq_parentscript Property RQ_Parent Auto Const mandatory
-  GlobalVariable Property RQ_Hello_NoneValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Calm_PreAcceptValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Calm_PostAcceptValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Calm_SuccessValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Calm_FailureValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Stressed_PreAcceptValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Stressed_PostAcceptValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Stressed_SuccessValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_Stressed_FailureValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_AboardShipValue Auto Const mandatory
-  GlobalVariable Property RQ_Hello_DepartingShipValue Auto Const mandatory
+	SQ_Groups_QuestScript Property SQ_Groups Mandatory Const Auto
+	
+	GlobalVariable Property RQ_Debug_SummonShipOnStart Mandatory Const Auto
+
+	ActorValue Property RQ_AV_PrimaryObjectiveKnown Mandatory Const Auto
+	ActorValue Property RQ_AV_PrimaryObjectiveFail Mandatory Const Auto
+	ActorValue Property RQ_AV_PrimaryObjectiveSuccess Mandatory Const Auto
+	ActorValue Property RQ_AV_Hello Mandatory Const Auto
+	
+	ActorValue Property RQ_AV_SecondaryObjectiveKnown Mandatory Const Auto
+	ActorValue Property RQ_AV_SecondaryObjectiveFail Mandatory Const Auto
+	ActorValue Property RQ_AV_SecondaryObjectiveSuccess Mandatory Const Auto
+
+	ActorValue Property RQ_AV_EnemyGroup Mandatory Const Auto
+	ActorValue Property RQ_AV_Dungeon_LocTheme Mandatory Const Auto
+
+	RQ_ParentScript property RQ_Parent Mandatory Const Auto
+
+	GlobalVariable property RQ_Hello_NoneValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Calm_PreAcceptValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Calm_PostAcceptValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Calm_SuccessValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Calm_FailureValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Stressed_PreAcceptValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Stressed_PostAcceptValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Stressed_SuccessValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_Stressed_FailureValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_AboardShipValue Mandatory Const Auto
+	GlobalVariable property RQ_Hello_DepartingShipValue Mandatory Const Auto
 EndGroup
 
 Group Dialogue_Variable_Handling
-{ Calls to "SetDialogueAV_xxx()" functions will set AVs on DialogueAliases so we can conditionalize dialogue "imported" via "Use Dialogue Subtype" }
-  Alias[] Property DialogueAliases Auto Const mandatory
-  { Aliases in here will have actorvalues set on them via calls to "SetDialogueAV()" usually in quest stages. }
-  ReferenceAlias Property RepresentativeEnemyAlias Auto Const
-  { An alias holding a representative of the "enemy group" of the quest (ex: the Boss of a dungeon)
-	This will be used to set the RQ_AV_EnemyGroup on DialogueAliases }
-  LocationAlias Property DungeonLocationAlias Auto Const
-  { An alias holding the dungeon location for the quest, if any. This is used to set the RQ_AV_Dungeon_LocTheme on DialogueAliases }
-  GlobalVariable Property DialogueAV_Initial_Hello Auto Const mandatory
-  { The initial Hello state for Actors in this RQ. }
-  LocationAlias[] Property OwnedLocations Auto Const
-  { An array holding any locations that should get ownership passed along by the starting quest (for settlement RQs) }
+{Calls to "SetDialogueAV_xxx()" functions will set AVs on DialogueAliases so we can conditionalize dialogue "imported" via "Use Dialogue Subtype"} 
+	Alias[] Property DialogueAliases Mandatory Const Auto
+	{Aliases in here will have actorvalues set on them via calls to "SetDialogueAV()" usually in quest stages. }
+
+	ReferenceAlias Property RepresentativeEnemyAlias Const Auto
+	{An alias holding a representative of the "enemy group" of the quest (ex: the Boss of a dungeon)
+	This will be used to set the RQ_AV_EnemyGroup on DialogueAliases}
+
+	LocationAlias Property DungeonLocationAlias Const Auto
+	{An alias holding the dungeon location for the quest, if any. This is used to set the RQ_AV_Dungeon_LocTheme on DialogueAliases }
+
+	GlobalVariable Property DialogueAV_Initial_Hello Mandatory Const Auto
+	{ The initial Hello state for Actors in this RQ. }
+
+	LocationAlias[] Property OwnedLocations Const Auto
+	{ An array holding any locations that should get ownership passed along by the starting quest (for settlement RQs) }
 EndGroup
 
 Group Quest_Giver_Handling
-  ReferenceAlias Property Alias_ForcedPrimary Auto Const mandatory
-  { An alias that represents the first NPC in a group spoken to at the outset of a quest. Filled by the Greeting scene. }
-  ReferenceAlias Property Alias_QuestGiver Auto Const mandatory
-  { An alias that represents the Quest Giver. Assigned at runtime when the quest is initialized, and when ForcedPrimary (the first NPC the player decides to speak to) is assigned.
+	ReferenceAlias property Alias_ForcedPrimary Mandatory Const Auto
+	{ An alias that represents the first NPC in a group spoken to at the outset of a quest. Filled by the Greeting scene. }
+
+	ReferenceAlias property Alias_QuestGiver Mandatory Const Auto
+	{ An alias that represents the Quest Giver. Assigned at runtime when the quest is initialized, and when ForcedPrimary (the first NPC the player decides to speak to) is assigned.
 	  Used to refer back to this NPC after the Greeting Scene. }
-  RefCollectionAlias Property RefCollectionToPromoteQuestGiverFromOnSpawn Auto Const
-  { if not none, when the SpawnEvent comes from the DefaultGroupSpawnQuestEvent, the first actor in this RefCollection will be promoted to the Alias_QuestGiver and Alias_ForcedPrimary alias }
-EndGroup
+
+	RefCollectionAlias Property RefCollectionToPromoteQuestGiverFromOnSpawn Const Auto
+	{if not none, when the SpawnEvent comes from the DefaultGroupSpawnQuestEvent, the first actor in this RefCollection will be promoted to the Alias_QuestGiver and Alias_ForcedPrimary alias}
+endGroup
 
 Group Locks_And_Keys
-  Alias[] Property ObjectsToLock Auto Const
-  Alias[] Property ObjectsToPutKeysIn Auto Const
-  { will randonly put keys to ObjectsToLock in containers of ObjectsToPutKeysIn }
-  RefCollectionAlias Property PlacedKeys Auto Const
-  { will hold refs to keys that were created and placed }
+	Alias[] Property ObjectsToLock Const Auto
+	Alias[] Property ObjectsToPutKeysIn Const Auto
+	{will randonly put keys to ObjectsToLock in containers of ObjectsToPutKeysIn}
+
+	RefCollectionAlias Property PlacedKeys Const Auto
+	{will hold refs to keys that were created and placed}
 EndGroup
 
 Group Shutdown
-  Alias[] Property ShutdownAliases Auto Const mandatory
-  { Aliases that will be considered when determining shutdown logic }
-  Int Property ShutdownStageRequired_Stage = 100 Auto Const
-  { Prior to this stage being set, quest will shutdown when player leaves the planet.
-	  After this stage is set, quest won't shutdown until ShutdownAllowed_Stage is set. }
-  Int Property ShutdownAllowed_Stage Auto Const mandatory
-  { Automated system (defined by ShutdownOn_ property below) will shutdown the quest only if this stage has been set. }
-  Bool Property ShutdownAllowed_UnloadedOrDeadAlisaes = True Auto Const
-  { If true (default), automated system (defined by ShutdownOn_ property) will shutdown the quest only if refs in ShutdownAliases have no 3d or are dead. }
-  Bool Property ShutdownOn_LocationChange = True Auto Const
-  { if true (default), will attempt to shut down when player changes locations }
-  Bool Property AlsoCallShutDownOnREScript = True Auto Const
-  { if true (default), when shutting down, will cast self as REScript and call the Shutdown() function on it }
+	Alias[] Property ShutdownAliases Mandatory Const Auto
+	{Aliases that will be considered when determining shutdown logic}
+
+	int Property ShutdownStageRequired_Stage = 100 Const Auto
+	{ Prior to this stage being set, quest will shutdown when player leaves the planet.
+	  After this stage is set, quest won't shutdown until ShutdownAllowed_Stage is set.
+	}
+
+	int Property ShutdownAllowed_Stage Mandatory Const Auto
+	{Automated system (defined by ShutdownOn_ property below) will shutdown the quest only if this stage has been set.}
+
+	bool Property ShutdownAllowed_UnloadedOrDeadAlisaes = true Const Auto
+	{If true (default), automated system (defined by ShutdownOn_ property) will shutdown the quest only if refs in ShutdownAliases have no 3d or are dead.}
+
+	bool Property ShutdownOn_LocationChange = true Const Auto
+	{if true (default), will attempt to shut down when player changes locations}
+
+	bool Property AlsoCallShutDownOnREScript = true Const Auto
+	{if true (default), when shutting down, will cast self as REScript and call the Shutdown() function on it}
 EndGroup
 
+REScript REScriptIns
 
-;-- Functions ---------------------------------------
+Form previouslyRandomlySpawnedForm
 
-Function OnAliasChangedSpecific(ReferenceAlias akSender, ObjectReference akObject, Bool abRemove)
-  ; Empty function
-EndFunction
+int DialogueAV_LastHello = -1
 
-Function OnQuestGiverSet(ObjectReference akQuestGiver)
-  ; Empty function
-EndFunction
-
-Function QuestStartedSpecific()
-  ; Empty function
-EndFunction
+Planet questPlanet ; set during OnQuestStarted
 
 Event OnQuestStarted()
-  REScriptIns = (Self as Quest) as rescript
-  defaultgroupspawnquestscript DefaultGroupSpawnQuestScriptIns = (Self as Quest) as defaultgroupspawnquestscript
-  If DefaultGroupSpawnQuestScriptIns
-    Self.RegisterForCustomEvent(DefaultGroupSpawnQuestScriptIns as ScriptObject, "defaultgroupspawnquestscript_SpawnGroupDoneEvent")
-  Else
-    Self.InitializeNPCs()
-  EndIf
-  If ShutdownOn_LocationChange
-    Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-    questPlanet = Game.GetPlayer().GetCurrentPlanet()
-  EndIf
-  Self.LockObjectsAndPlaceKeys()
-  If RepresentativeEnemyAlias
-    Self.SetDialogueAV_EnemyGroup()
-  EndIf
-  Self.RegisterForRemoteEvent(Alias_ForcedPrimary as ScriptObject, "OnAliasChanged")
-  If RepresentativeEnemyAlias
-    Self.RegisterForRemoteEvent(RepresentativeEnemyAlias as ScriptObject, "OnAliasChanged")
-  EndIf
-  Int I = 0
-  While I < DialogueAliases.Length
-    ReferenceAlias currentRefAlias = DialogueAliases[I] as ReferenceAlias
-    RefCollectionAlias currentRefColAlias = DialogueAliases[I] as RefCollectionAlias
-    If currentRefAlias
-      Self.RegisterForRemoteEvent(currentRefAlias as ScriptObject, "OnAliasChanged")
-    ElseIf currentRefColAlias
-      Self.RegisterForRemoteEvent(currentRefColAlias as ScriptObject, "OnAliasChanged")
-    EndIf
-    I += 1
-  EndWhile
-  Self.QuestStartedSpecific()
+	Trace(self, "OnQuestStarted() ")
+
+	REScriptIns = (self as quest) as REScript
+
+	;register for spawn event
+	DefaultGroupSpawnQuestScript DefaultGroupSpawnQuestScriptIns = (self as quest) as DefaultGroupSpawnQuestScript
+	if DefaultGroupSpawnQuestScriptIns
+		Trace(self, " waiting for spawn event to initialize NPCs")
+		RegisterForCustomEvent(DefaultGroupSpawnQuestScriptIns, "SpawnGroupDoneEvent")
+	Else
+		; if no spawn script, it means we aren't spawning NPCs but finding them
+		InitializeNPCs()
+	endif
+
+	if ShutdownOn_LocationChange
+		RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+		questPlanet = Game.GetPlayer().GetCurrentPlanet()
+	endif
+
+	LockObjectsAndPlaceKeys()
+	if RepresentativeEnemyAlias
+		SetDialogueAV_EnemyGroup() 
+	endif
+
+	;Register for alias change events
+
+	RegisterForRemoteEvent(Alias_ForcedPrimary, "OnAliasChanged") ;to call SetDialogueAV_EnemyGroup() again if it changes after startup
+	if RepresentativeEnemyAlias
+		RegisterForRemoteEvent(RepresentativeEnemyAlias, "OnAliasChanged") ;to call SetDialogueAV_EnemyGroup() again if it changes after startup
+	EndIf
+
+	int i = 0
+	While (i < DialogueAliases.length)
+		ReferenceAlias currentRefAlias = DialogueAliases[i] as ReferenceAlias
+		RefCollectionAlias currentRefColAlias = DialogueAliases[i] as RefCollectionAlias
+		
+		if currentRefAlias
+			RegisterForRemoteEvent(currentRefAlias, "OnAliasChanged") ;to call SetDialogueAV_EnemyGroup() again if it changes after startup
+		elseif currentRefColAlias
+			RegisterForRemoteEvent(currentRefColAlias, "OnAliasChanged") ;to call SetDialogueAV_EnemyGroup() again if it changes after startup
+		endif
+		
+		i += 1
+	EndWhile
+
+	QuestStartedSpecific()
 EndEvent
 
-Function SetLocationOwnership(Faction owningFaction)
-  If owningFaction as Bool && OwnedLocations.Length > 0
-    Int I = 0
-    While I < OwnedLocations.Length
-      Location ownedLocation = OwnedLocations[I].GetLocation()
-      If ownedLocation
-        ownedLocation.SetFactionOwner(owningFaction)
-      EndIf
-      I += 1
-    EndWhile
-  EndIf
+function QuestStartedSpecific()
+	; do nothing - override on child script
+endFunction
+
+function SetLocationOwnership(Faction owningFaction)
+	if owningFaction && OwnedLocations.Length > 0
+		int i = 0
+		while i < OwnedLocations.Length
+			Location ownedLocation = OwnedLocations[i].GetLocation()
+			if ownedLocation
+				ownedLocation.SetFactionOwner(owningFaction)
+			endif
+			i += 1
+		EndWhile
+	endif
 EndFunction
 
-Event OnStoryScript(Keyword akKeyword, Location akLocation, ObjectReference akRef1, ObjectReference akRef2, Int aiValue1, Int aiValue2)
-  If RQ_Debug_SummonShipOnStart.GetValue() == 1.0
-    (Game.GetPlayer() as debugplayersummonshipscript).DebugSummonShip()
-  EndIf
+Event OnStoryScript(Keyword akKeyword, Location akLocation, ObjectReference akRef1, ObjectReference akRef2, int aiValue1, int aiValue2)
+	Trace(self, "OnStoryScript() akKeyword: " + akKeyword + ", akLocation: " + akLocation + ", akRef1: " + akRef1 + ", akRef2: " + akRef2 + ", aiValue1: " + aiValue1 + ", aiValue2: " + aiValue2)
+
+	if RQ_Debug_SummonShipOnStart.GetValue() == 1
+		Trace(self, "OnStoryScript() RQ_Debug_SummonShipOnStart == 1, calling DebugSummonShip()")
+		(Game.GetPlayer() as DebugPlayerSummonShipScript).DebugSummonShip()
+	endif
 EndEvent
 
-Event DefaultGroupSpawnQuestScript.SpawnGroupDoneEvent(defaultgroupspawnquestscript akSender, Var[] akArgs)
-  defaultgroupspawnquestscript:spawngroupdoneeventargs spawnArgs = akArgs[0] as defaultgroupspawnquestscript:spawngroupdoneeventargs
-  Int spawnGroupID = spawnArgs.SpawnGroupNumber
-  sq_groupscript spawnedGroup = spawnArgs.spawnedGroup
-  Self.InitializeNPCs()
-  defaultgroupspawnquestscript DefaultGroupSpawnQuestScriptIns = (Self as Quest) as defaultgroupspawnquestscript
-  Faction owningFaction = DefaultGroupSpawnQuestScriptIns.GetGroupOwnershipFaction(spawnGroupID)
-  If owningFaction
-    Self.SetLocationOwnership(owningFaction)
-  EndIf
+Event DefaultGroupSpawnQuestScript.SpawnGroupDoneEvent(DefaultGroupSpawnQuestScript akSender, var[] akArgs)
+	Trace(self, "SpawnGroupDoneEvent() args: " + akArgs)
+	DefaultGroupSpawnQuestScript:SpawnGroupDoneEventArgs spawnArgs = akArgs[0] as DefaultGroupSpawnQuestScript:SpawnGroupDoneEventArgs
+    int spawnGroupID = spawnArgs.SpawnGroupNumber
+	SQ_GroupScript spawnedGroup = spawnArgs.SpawnedGroup
+	
+    ; spawning is finished
+	InitializeNPCs()
+
+	; set ownership
+	DefaultGroupSpawnQuestScript DefaultGroupSpawnQuestScriptIns = (self as quest) as DefaultGroupSpawnQuestScript
+	Faction owningFaction = DefaultGroupSpawnQuestScriptIns.GetGroupOwnershipFaction(spawnGroupID)
+	if owningFaction
+		SetLocationOwnership(owningFaction)
+	endif
 EndEvent
 
-Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, Bool abRemove)
-  If abRemove == False
-    If akSender == RepresentativeEnemyAlias || DialogueAliases.find(akSender as Alias, 0) >= 0
-      Self.SetDialogueAV_EnemyGroup()
-    EndIf
-    If akSender == Alias_ForcedPrimary
-      Alias_QuestGiver.ForceRefTo(akObject)
-      Self.OnQuestGiverSet(akObject)
-    EndIf
-    Self.SetDialogueAV_InitialHello()
-  EndIf
-  Self.OnAliasChangedSpecific(akSender, akObject, abRemove)
+Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, bool abRemove)
+	Trace(self, "OnAliasChanged() akSender: " + akSender + ", akObject: " + akObject + ", abRemove: " + abRemove)
+	if abRemove == false
+		if (akSender == RepresentativeEnemyAlias || DialogueAliases.Find(akSender) >= 0)
+			SetDialogueAV_EnemyGroup() ;we do this in the OnAliasChanged event in case another script spawns the actor and forces it into the alias. We need to do this after that happens.
+		endif
+
+		if akSender == Alias_ForcedPrimary
+			Alias_QuestGiver.ForceRefTo(akObject)
+			OnQuestGiverSet(akObject)
+		endif
+
+		SetDialogueAV_InitialHello()
+	endif
+	OnAliasChangedSpecific(akSender, akObject, abRemove)
 EndEvent
 
-Function InitializeNPCs()
-  If RefCollectionToPromoteQuestGiverFromOnSpawn
-    If Alias_QuestGiver.GetActorRef() == None
-      ObjectReference initialQuestGiverRef = RefCollectionToPromoteQuestGiverFromOnSpawn.GetAt(0)
-      Alias_QuestGiver.ForceRefTo(initialQuestGiverRef)
-    EndIf
-  EndIf
+function OnAliasChangedSpecific(ReferenceAlias akSender, ObjectReference akObject, bool abRemove)
+	; override on children
 EndFunction
 
-Event RefCollectionAlias.OnAliasChanged(RefCollectionAlias akSender, ObjectReference akObject, Bool abRemove)
-  If abRemove == False
-    Self.SetDialogueAV_EnemyGroup()
-  EndIf
-  Self.SetDialogueAV_InitialHello()
+function InitializeNPCs()
+	if RefCollectionToPromoteQuestGiverFromOnSpawn
+		if Alias_QuestGiver.GetActorRef() == NONE
+			; If we don't have a quest giver, force the Quest Giver to initially be an Actor in the Actors Collection, so one of the actors will attempt to ForceGreet the player on approach
+			ObjectReference initialQuestGiverRef = RefCollectionToPromoteQuestGiverFromOnSpawn.GetAt(0) ;these are spawned randomly, so first one is as random as any other
+
+			Trace(self, "InitializeNPCs() initialQuestGiverRef: " + initialQuestGiverRef)
+			Alias_QuestGiver.ForceRefTo(initialQuestGiverRef) 
+		endif
+	endif
+EndFunction
+
+function OnQuestGiverSet(ObjectReference akQuestGiver)
+	; Override
+endFunction
+
+Event RefCollectionAlias.OnAliasChanged(RefCollectionAlias akSender, ObjectReference akObject, bool abRemove)
+	Trace(self, "OnAliasChanged() akSender: " + akSender + ", akObject: " + akObject + ", abRemove: " + abRemove)
+	if abRemove == false
+		SetDialogueAV_EnemyGroup() ;we do this in the OnAliasChanged event in case another script spawns the actor and forces it into the alias. We need to do this after that happens.
+	endif
+
+	SetDialogueAV_InitialHello()
 EndEvent
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  If akSender == Game.GetPlayer()
-    Self.CheckForShutdown(akNewLoc)
-  EndIf
+	Trace(self, "OnLocationChange() akSender: " + akSender + ", akOldLoc: " + akOldLoc + ", akNewLoc: " + akNewLoc)
+	if akSender == Game.GetPlayer()
+		CheckForShutdown(akNewLoc)
+	endif
 EndEvent
 
 Function CheckForShutdown(Location akNewLoc)
-  If Self.GetStageDone(ShutdownAllowed_Stage) && Self.ShutDownCheckAliases()
-    Self.Shutdown()
-  ElseIf (ShutdownStageRequired_Stage > -1 && Self.GetStageDone(ShutdownStageRequired_Stage) == False && questPlanet as Bool) && akNewLoc as Bool
-    If Game.GetPlayer().GetCurrentPlanet() != questPlanet
-      Self.Shutdown()
-    EndIf
-  EndIf
+	Trace(self, "CheckForShutdown() akNewLoc=" + akNewLoc + " questPlanet=" + questPlanet)
+	if GetStageDone(ShutdownAllowed_Stage) && ShutDownCheckAliases()
+		ShutDown()
+	elseif ShutdownStageRequired_Stage > -1 && GetStageDone(ShutdownStageRequired_Stage) == false && questPlanet && akNewLoc
+		; if ShutdownStageRequired_Stage not set, can shutdown when player leaves planet
+		if Game.GetPlayer().GetCurrentPlanet() != questPlanet
+			Trace(self, " player is on different planet, prior to ShutdownStageRequired_Stage=" + ShutdownStageRequired_Stage + " being set. Shutdown quest.")
+			ShutDown()
+		endif
+	endif
 EndFunction
 
 Function LockObjectsAndPlaceKeys()
-  ObjectReference[] refsToLock = commonarrayfunctions.GetReferencesFromAliasArray(ObjectsToLock)
-  ObjectReference[] refsToPutKeysIn = commonarrayfunctions.GetReferencesFromAliasArray(ObjectsToPutKeysIn)
-  Int I = 0
-  While I < refsToLock.Length
-    ObjectReference currentRefToLock = refsToLock[I]
-    Key keyToPlace = currentRefToLock.GetKey()
-    If keyToPlace
-      Int iRandom = Utility.RandomInt(0, refsToPutKeysIn.Length - 1)
-      ObjectReference randomRef = refsToPutKeysIn[iRandom]
-      ObjectReference keyRef = randomRef.PlaceAtMe(keyToPlace as Form, 1, False, True, True, None, None, True)
-      randomRef.AddItem(keyRef as Form, 1, False)
-      PlacedKeys.addREf(keyRef)
-      keyRef.Enable(False)
-    EndIf
-    I += 1
-  EndWhile
+	Trace(self, "LockObjectsAndPlaceKeys() ")
+
+	Trace(self, "LockObjectsAndPlaceKeys() ObjectsToLock: " + ObjectsToLock)
+	Trace(self, "LockObjectsAndPlaceKeys() ObjectsToPutKeysIn: " + ObjectsToPutKeysIn)
+
+	ObjectReference[] refsToLock = CommonArrayFunctions.GetReferencesFromAliasArray(ObjectsToLock)
+	ObjectReference[] refsToPutKeysIn = CommonArrayFunctions.GetReferencesFromAliasArray(ObjectsToPutKeysIn)
+
+	Trace(self, "LockObjectsAndPlaceKeys() refsToLock: " + refsToLock)
+	Trace(self, "LockObjectsAndPlaceKeys() refsToPutKeysIn: " + refsToPutKeysIn)
+	
+	int i = 0
+	While (i < refsToLock.length)
+		ObjectReference currentRefToLock = refsToLock[i]
+
+		;TO DO:
+		;Replace use of GetKey() with PlaceLockedRefKeyAtMe() which should work better with instanced locks.
+		;GEN-369223
+		Key keyToPlace = currentRefToLock.GetKey()
+
+		Trace(self, "LockObjectsAndPlaceKeys() currentRefToLock: " + currentRefToLock)
+		Trace(self, "LockObjectsAndPlaceKeys() keyToPlace: " + keyToPlace)
+
+		;only lock it if it has a key
+		if keyToPlace
+			;(could improve this if it was "deck of cards" rather than totally random, if that seems justified later)
+			int iRandom = Utility.RandomInt(0, refsToPutKeysIn.Length - 1)
+			ObjectReference randomRef = refsToPutKeysIn[iRandom]
+
+			ObjectReference keyRef = randomRef.PlaceAtMe(keyToPlace, abInitiallyDisabled = true)
+			randomRef.AddItem(keyRef)
+			PlacedKeys.addREf(keyRef)
+			keyRef.Enable()
+		else
+			Warning(self, "LockObjectsAndPlaceKeys() did not find a key for currentRefToLock: " + currentRefToLock)
+		endif
+
+		i += 1
+	EndWhile
 EndFunction
 
-Function DebugMoveToKey(Int KeysIndex)
-  Game.GetPlayer().MoveTo(PlacedKeys.GetAt(KeysIndex), 0.0, 0.0, 0.0, True, False)
+Function DebugMoveToKey(int KeysIndex = 0)
+	Trace(self, "DebugMoveToKey() KeysIndex: " + KeysIndex)
+
+	Game.GetPlayer().MoveTo(PlacedKeys.GetAt(KeysIndex))
 EndFunction
 
-Function SetDialogueAV(ActorValue AV, Int value)
-  Int I = 0
-  While I < DialogueAliases.Length
-    ReferenceAlias refAlias = DialogueAliases[I] as ReferenceAlias
-    RefCollectionAlias refColAlias = DialogueAliases[I] as RefCollectionAlias
-    If refAlias
-      refAlias.TryToSetValue(AV, value as Float)
-    ElseIf refColAlias
-      refColAlias.SetValue(AV, value as Float)
-    EndIf
-    I += 1
-  EndWhile
+Function SetDialogueAV(ActorValue AV, int Value = 1)
+	Trace(self, "SetDialogueAV() AV: " + AV + ", Value: " + Value)
+	int i = 0
+	While (i < DialogueAliases.length)
+		ReferenceAlias refAlias = DialogueAliases[i] as ReferenceAlias
+		RefCollectionAlias refColAlias = DialogueAliases[i] as RefCollectionAlias
+		
+		if refAlias
+			Trace(self, "SetDialogueAV on refAlias: " +  refAlias)
+			refAlias.TryToSetValue(AV, Value)
+			Trace(self, "AV is now: " +  refAlias.GetReference().GetValue(AV))
+		elseif refColAlias
+			Trace(self, "SetDialogueAV on  refColAlias: " +  refColAlias)
+			refColAlias.SetValue(AV, Value)
+			Trace(self, "AV on first ref in collection is now: " +  refColAlias.GetAt(0).GetValue(AV))
+		endif
+
+		i += 1
+	EndWhile
 EndFunction
 
-Function SetDialogueAV_Hello(Int value)
-  DialogueAV_LastHello = value
-  Self.SetDialogueAV(RQ_AV_Hello, value)
+Function SetDialogueAV_Hello(int value)
+	Trace(self, "SetDialogueAV_Hello() value: " + value)
+	DialogueAV_LastHello = value
+	SetDialogueAV(RQ_AV_Hello, value)
 EndFunction
+
 
 Function SetDialogueAV_PrimaryObjectiveKnown()
-  Self.SetDialogueAV(RQ_AV_PrimaryObjectiveKnown, 1)
+	SetDialogueAV(RQ_AV_PrimaryObjectiveKnown)
 EndFunction
 
 Function SetDialogueAV_PrimaryObjectiveFail()
-  Self.SetDialogueAV(RQ_AV_PrimaryObjectiveFail, 1)
+	SetDialogueAV(RQ_AV_PrimaryObjectiveFail)
 EndFunction
 
 Function SetDialogueAV_PrimaryObjectiveSuccess()
-  Self.SetDialogueAV(RQ_AV_PrimaryObjectiveSuccess, 1)
+	SetDialogueAV(RQ_AV_PrimaryObjectiveSuccess)
 EndFunction
 
 Function SetDialogueAV_SecondaryObjectiveKnown()
-  Self.SetDialogueAV(RQ_AV_SecondaryObjectiveKnown, 1)
+	SetDialogueAV(RQ_AV_SecondaryObjectiveKnown)
 EndFunction
 
 Function SetDialogueAV_SecondaryObjectiveFail()
-  Self.SetDialogueAV(RQ_AV_SecondaryObjectiveFail, 1)
+	SetDialogueAV(RQ_AV_SecondaryObjectiveFail)
 EndFunction
 
 Function SetDialogueAV_SecondaryObjectiveSuccess()
-  Self.SetDialogueAV(RQ_AV_SecondaryObjectiveSuccess, 1)
+	SetDialogueAV(RQ_AV_SecondaryObjectiveSuccess)
 EndFunction
 
 Function SetDialogueAV_InitialHello()
-  If DialogueAV_LastHello == -1
-    Self.SetDialogueAV_Hello(DialogueAV_Initial_Hello.GetValueInt())
-  Else
-    Self.SetDialogueAV_Hello(DialogueAV_LastHello)
-  EndIf
+	if DialogueAV_LastHello == -1
+		SetDialogueAV_Hello(DialogueAV_Initial_Hello.GetValueInt())
+	else
+		SetDialogueAV_Hello(DialogueAV_LastHello)
+	endif
 EndFunction
 
-Function SetDialogueAV_Hello_None()
-  Self.SetDialogueAV_Hello(RQ_Hello_NoneValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_None()
+	SetDialogueAV_Hello(RQ_Hello_NoneValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Calm_PreAccept()
-  Self.SetDialogueAV_Hello(RQ_Hello_Calm_PreAcceptValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Calm_PreAccept()
+	SetDialogueAV_Hello(RQ_Hello_Calm_PreAcceptValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Calm_PostAccept()
-  Self.SetDialogueAV_Hello(RQ_Hello_Calm_PostAcceptValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Calm_PostAccept()
+	SetDialogueAV_Hello(RQ_Hello_Calm_PostAcceptValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Calm_Success()
-  Self.SetDialogueAV_Hello(RQ_Hello_Calm_SuccessValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Calm_Success()
+	SetDialogueAV_Hello(RQ_Hello_Calm_SuccessValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Calm_Failure()
-  Self.SetDialogueAV_Hello(RQ_Hello_Calm_FailureValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Calm_Failure()
+	SetDialogueAV_Hello(RQ_Hello_Calm_FailureValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Stressed_PreAccept()
-  Self.SetDialogueAV_Hello(RQ_Hello_Stressed_PreAcceptValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Stressed_PreAccept()
+	SetDialogueAV_Hello(RQ_Hello_Stressed_PreAcceptValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Stressed_PostAccept()
-  Self.SetDialogueAV_Hello(RQ_Hello_Stressed_PostAcceptValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Stressed_PostAccept()
+	SetDialogueAV_Hello(RQ_Hello_Stressed_PostAcceptValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Stressed_Success()
-  Self.SetDialogueAV_Hello(RQ_Hello_Stressed_SuccessValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Stressed_Success()
+	SetDialogueAV_Hello(RQ_Hello_Stressed_SuccessValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_Stressed_Failure()
-  Self.SetDialogueAV_Hello(RQ_Hello_Stressed_FailureValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_Stressed_Failure()
+	SetDialogueAV_Hello(RQ_Hello_Stressed_FailureValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_AboardShip()
-  Self.SetDialogueAV_Hello(RQ_Hello_AboardShipValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_AboardShip()
+	SetDialogueAV_Hello(RQ_Hello_AboardShipValue.GetValueInt())
+endFunction
 
-Function SetDialogueAV_Hello_DepartingShip()
-  Self.SetDialogueAV_Hello(RQ_Hello_DepartingShipValue.GetValueInt())
-EndFunction
+function SetDialogueAV_Hello_DepartingShip()
+	SetDialogueAV_Hello(RQ_Hello_DepartingShipValue.GetValueInt())
+endFunction
 
 Function SetDialogueAV_EnemyGroup()
-  If RepresentativeEnemyAlias
-    Actor enemyActor = RepresentativeEnemyAlias.GetActorReference()
-    If enemyActor
-      Self.SetDialogueAV(RQ_AV_EnemyGroup, SQ_Groups.GetGroupFactionIDValueByActor(enemyActor, False))
-    EndIf
-  EndIf
+	if RepresentativeEnemyAlias
+		Actor enemyActor = RepresentativeEnemyAlias.GetActorReference()
+		Trace(self, "SetDialogueAV_EnemyGroup() EnemyActor: " + EnemyActor)
+		
+		if enemyActor
+			SetDialogueAV(RQ_AV_EnemyGroup, SQ_Groups.GetGroupFactionIDValueByActor(EnemyActor, ValidateActor = false)) ;we aren't needing to validate the actor because we might not need to check for voicetypes, etc.
+		endif
+	endif
 EndFunction
 
-Bool Function ShutDownCheckAliases()
-  Bool returnVal = True
-  If ShutdownAllowed_UnloadedOrDeadAlisaes
-    ReferenceAlias[] refAliasArray = commonarrayfunctions.GetReferenceAliasesFromAliasArray(ShutdownAliases)
-    RefCollectionAlias[] refColAliasArray = commonarrayfunctions.GetRefCollectionAliasesFromAliasArray(ShutdownAliases)
-    Int count = commonarrayfunctions.GetCountLoadedAndAliveStateFromAliasArray(refAliasArray, True, True)
-    If count == 0
-      Int I = 0
-      While count == 0 && I < refColAliasArray.Length
-        count += refColAliasArray[I].GetCountAliveAnd3DLoaded()
-        I += 1
-      EndWhile
-    EndIf
-    If count > 0
-      returnVal = False
-    EndIf
-  EndIf
-  Return returnVal
+bool Function ShutDownCheckAliases()
+	Trace(self, "ShutDownCheckAliases()")
+	bool returnVal = true
+
+	if ShutdownAllowed_UnloadedOrDeadAlisaes
+		ReferenceAlias[] refAliasArray = CommonArrayFunctions.GetReferenceAliasesFromAliasArray(ShutdownAliases)
+		RefCollectionAlias[] refColAliasArray = CommonArrayFunctions.GetRefCollectionAliasesFromAliasArray(ShutdownAliases)
+
+		int count = CommonArrayFunctions.GetCountLoadedAndAliveStateFromAliasArray(refAliasArray, Check3DLoaded = true, CheckAlive = true )
+
+		if count == 0
+			int i = 0
+			While (count == 0 && i < refColAliasArray.length)
+				count += refColAliasArray[i].GetCountAliveAnd3DLoaded()
+				i += 1
+			EndWhile
+		endif
+
+		Trace(self, "ShutDownCheckAliases() found this many Refs that were Alive and Loaded, count: " + count)
+
+		if count > 0
+			returnVal = false
+		endif
+	endif
+
+	Trace(self, "ShutDownCheckAliases() returnVal: " + returnVal)
+
+	return returnVal
 EndFunction
 
 Function Shutdown()
-  If AlsoCallShutDownOnREScript && REScriptIns as Bool
-    REScriptIns.Shutdown()
-  EndIf
-  Self.Stop()
+	if AlsoCallShutDownOnREScript && REScriptIns
+		Trace(self, "Shutdown() calling Shutdown() on REScript attached to quest as well. ")
+		REScriptIns.Shutdown()
+	endif
+	Trace(self, "Shutdown() calling Stop()")
+	Stop()
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "RQ",  string SubLogName = "RQScript", bool bShowNormalTrace = true, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "RQ",  string SubLogName = "RQScript", bool bShowNormalTrace = true, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

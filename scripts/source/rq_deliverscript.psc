@@ -1,86 +1,105 @@
-ScriptName RQ_DeliverScript Extends RQScript
+Scriptname RQ_DeliverScript extends RQScript
 
-;-- Variables ---------------------------------------
-Bool Created
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard modifyItemGuard
-
-;-- Properties --------------------------------------
 Group Scan_Deliver
-  ReferenceAlias Property ItemSpawnAt Auto Const mandatory
-  { the alias that will the item will be spawned at/in }
-  Bool Property SpawnIn = True Auto Const
-  { if true (Default) ItemToCreate will be spawned IN the inventory of ItemSpawnAt. If false, will be spawned AT it. }
-  ReferenceAlias Property Item Auto Const mandatory
-  { the alias that will hold the item to deliver (Reference of ItemToCreate will be forced into this.) It will be initially disabled }
-  Form Property ItemToCreate Auto Const mandatory
-  { the item to deliver, will be created at StageToCreateItem }
-  Int Property EnableItemStage = -1 Auto Const
-  { When this stage is set, the item will be enabled }
-  Int Property SpawnStage = 10 Auto Const
-  { stage to set to trigger spawning - use a stage so we have a chance to register for spawn event }
-  Int Property TurnOffQuestStage = -1 Auto Const
-  { stage to set TurnOffQuestGlobal }
-  GlobalVariable Property TurnOffQuestGlobal Auto Const
-  { OPTIONAL - if included, this will be set to 1 when the player picks up the item (so it can be used as a condition to not run the quest again) }
+
+    ;we are creating the item in script at run time because the alias we would need to create it at/in is may also be created at run time using DefaultGroupSpawnQuestScript
+
+    ReferenceAlias Property ItemSpawnAt Mandatory Const Auto
+    {the alias that will the item will be spawned at/in}
+
+    bool Property SpawnIn = true Const Auto
+    {if true (Default) ItemToCreate will be spawned IN the inventory of ItemSpawnAt. If false, will be spawned AT it.}
+
+     ReferenceAlias Property Item Mandatory Const Auto
+    {the alias that will hold the item to deliver (Reference of ItemToCreate will be forced into this.) It will be initially disabled}
+
+     form Property ItemToCreate Mandatory Const Auto
+    {the item to deliver, will be created at StageToCreateItem}
+
+    int Property EnableItemStage = -1 Const Auto 
+    {When this stage is set, the item will be enabled}
+
+    int Property SpawnStage = 10 const auto
+    { stage to set to trigger spawning - use a stage so we have a chance to register for spawn event }
+
+    int property TurnOffQuestStage = -1 const auto
+    { stage to set TurnOffQuestGlobal }
+
+    GlobalVariable property TurnOffQuestGlobal auto Const
+    { OPTIONAL - if included, this will be set to 1 when the player picks up the item (so it can be used as a condition to not run the quest again) }
 EndGroup
 
-
-;-- Functions ---------------------------------------
+bool Created
 
 Function QuestStartedSpecific()
-  defaultgroupspawnquestscript DefaultGroupSpawnQuestScriptIns = (Self as Quest) as defaultgroupspawnquestscript
-  Self.RegisterForCustomEvent(DefaultGroupSpawnQuestScriptIns as ScriptObject, "defaultgroupspawnquestscript_SpawnGroupDoneEvent")
-  Self.SetStage(SpawnStage)
+	;register for spawn event
+	DefaultGroupSpawnQuestScript DefaultGroupSpawnQuestScriptIns = (self as quest) as DefaultGroupSpawnQuestScript
+	RegisterForCustomEvent(DefaultGroupSpawnQuestScriptIns, "SpawnGroupDoneEvent")
+
+    ; trigger spawning from DefaultGroupSpawnQuestScript
+    Trace(self, " QuestStartedSpecific: trigger spawning")
+    SetStage(SpawnStage)
 EndFunction
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  If auiStageID == EnableItemStage
-    Self.EnableItemIfAppropriate()
-  ElseIf auiStageID == TurnOffQuestStage
-    If TurnOffQuestGlobal
-      TurnOffQuestGlobal.SetValueInt(1)
-    EndIf
-  EndIf
+Event OnStageSet(int auiStageID, int auiItemID)
+    if auiStageID == EnableItemStage
+        EnableItemIfAppropriate()
+    elseif auiStageID == TurnOffQuestStage
+        if TurnOffQuestGlobal
+            TurnOffQuestGlobal.SetValueInt(1)
+        endif
+    endif
 EndEvent
 
-Event DefaultGroupSpawnQuestScript.SpawnGroupDoneEvent(defaultgroupspawnquestscript akSender, Var[] akArgs)
-  Self.CreateItem()
+Event DefaultGroupSpawnQuestScript.SpawnGroupDoneEvent(DefaultGroupSpawnQuestScript akSender, var[] akArgs)
+	Trace(self, "SpawnGroupDoneEvent() args: " + akArgs as DefaultGroupSpawnQuestScript:SpawnEventArgs[])
+    ; spawning is finished - now we have corpse to create item in
+    CreateItem()
 EndEvent
+
+Guard modifyItemGuard ProtectsFunctionLogic
 
 Function CreateItem()
-  Guard modifyItemGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    ObjectReference spawnAtRef = ItemSpawnAt.GetReference()
-    If Created == False && spawnAtRef as Bool
-      Self.UnregisterForRemoteEvent(ItemSpawnAt as ScriptObject, "OnAliasChanged")
-      Created = True
-      ObjectReference itemRef = ItemSpawnAt.GetReference().PlaceAtMe(ItemToCreate, 1, False, True, True, None, Item as Alias, True)
-      If SpawnIn
-        spawnAtRef.AddItem(itemRef as Form, 1, False)
-      Else
-        Self.EnableItemIfAppropriate()
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+    Trace(self, "CreateItem() START")
+    LockGuard modifyItemGuard
+        ObjectReference spawnAtRef = ItemSpawnAt.GetReference()
+
+        if Created == false && spawnAtRef
+            UnregisterForRemoteEvent(ItemSpawnAt, "OnAliasChanged")
+
+            Created = true
+
+            ObjectReference itemRef = ItemSpawnAt.GetReference().PlaceAtMe(ItemToCreate, abInitiallyDisabled = true, akAliasToFill = Item)
+            
+            Trace(self, "CreateItem() created itemRef: " + itemRef)
+
+            if SpawnIn
+                spawnAtRef.AddItem(itemRef)
+            else
+                ; can't enable things created in containers
+                EnableItemIfAppropriate()
+            endif
+        endif
+    EndLockGuard
 EndFunction
 
 Function EnableItemIfAppropriate()
-  If SpawnIn == False && (EnableItemStage == -1 || Self.GetStageDone(EnableItemStage))
-    Item.TryToEnable()
-  EndIf
+    if SpawnIn == false && (EnableItemStage == -1 || GetStageDone(EnableItemStage))
+        Trace(self, "EnableItemIfAppropriate() enabling item")
+        Item.TryToEnable()
+    endif
 EndFunction
 
-Function CleanUpItem()
-  Guard modifyItemGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If Created
-      If SpawnIn
-        ObjectReference spawnAtRef = ItemSpawnAt.GetReference()
-        spawnAtRef.RemoveItem(ItemToCreate, 1, False, None)
-      Else
-        Item.TryToDisable()
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+function CleanUpItem()
+    LockGuard modifyItemGuard
+        if Created
+            if SpawnIn
+                ObjectReference spawnAtRef = ItemSpawnAt.GetReference()
+                spawnAtRef.RemoveItem(ItemToCreate)
+            else
+                Item.TryToDisable()
+            endif
+
+        endif
+    EndLockGuard
+endFunction

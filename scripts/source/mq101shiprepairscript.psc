@@ -1,21 +1,16 @@
-ScriptName MQ101ShipRepairScript Extends ActiveMagicEffect
+Scriptname MQ101ShipRepairScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Quest Property MQ101 Auto Const
 
-;-- State -------------------------------------------
 Auto State WaitingForTrigger
-
-  Event OnEffectStart(ObjectReference akShipTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-    If MQ101.GetStageDone(525)
-      Self.gotoState("hasbeentriggered")
-      MQ101.SetStage(530)
-    EndIf
-  EndEvent
+	Event OnEffectStart(ObjectReference akShipTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+		If MQ101.GetStageDone(525)
+			gotoState("hasbeentriggered")
+			MQ101.SetStage(530)
+		EndIf
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-State hasbeentriggered
+State HasBeenTriggered
+	;empty state
 EndState

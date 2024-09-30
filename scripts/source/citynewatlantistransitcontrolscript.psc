@@ -1,21 +1,16 @@
-ScriptName CityNewAtlantisTransitControlScript Extends Quest
+Scriptname CityNewAtlantisTransitControlScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill
-  ActorValue Property FastTravelOverEncumbered Auto Const mandatory
-  { 0 = don't allow fast travel when Over Encumbered, any other value = allow it }
+    ActorValue Property FastTravelOverEncumbered Mandatory Const Auto
+    {0 = don't allow fast travel when Over Encumbered, any other value = allow it}
 EndGroup
 
-Scene Property CityNewAtlantisTransitScene Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
 Function Travel(ObjectReference DestinationRef)
-  Actor playerRef = Game.GetPlayer()
-  playerRef.SetValue(FastTravelOverEncumbered, 1.0)
-  CityNewAtlantisTransitScene.Stop()
-  Game.FastTravel(DestinationRef)
-  playerRef.SetValue(FastTravelOverEncumbered, 0.0)
+    Actor playerRef = Game.GetPlayer()
+
+    playerRef.SetValue(FastTravelOverEncumbered, 1)
+CityNewAtlantisTransitScene.Stop()
+    Game.FastTravel(DestinationRef)
+    playerRef.SetValue(FastTravelOverEncumbered, 0)
 EndFunction
+Scene Property CityNewAtlantisTransitScene Auto Const Mandatory

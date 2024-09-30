@@ -1,19 +1,14 @@
-ScriptName FXScripts:FXMagicEffectShaderScript Extends ActiveMagicEffect
-{ This Script applies a Visual Effect. }
+Scriptname FXScripts:FXMagicEffectShaderScript extends ActiveMagicEffect
+{This Script applies a Visual Effect.}
 
-;-- Variables ---------------------------------------
+EffectShader Property EffectShaderToApply Auto Const Mandatory
+{This is the visue effect that will be used.}
+Float Property ShaderDuration = -1.0 Const Auto 
 
-;-- Properties --------------------------------------
-EffectShader Property EffectShaderToApply Auto Const mandatory
-{ This is the visue effect that will be used. }
-Float Property ShaderDuration = -1.0 Auto Const
+ Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+     EffectShaderToApply.play(akTarget, ShaderDuration)
+ EndEvent
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  EffectShaderToApply.play(akTarget, ShaderDuration)
-EndEvent
-
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  EffectShaderToApply.Stop(akTarget)
-EndEvent
+ Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+   	 EffectShaderToApply.Stop(akTarget)
+ EndEvent

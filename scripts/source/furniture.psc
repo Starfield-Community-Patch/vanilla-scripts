@@ -1,5 +1,4 @@
-ScriptName Furniture Extends Activator Native hidden
+Scriptname Furniture extends Activator Native Hidden
 
-;-- Functions ---------------------------------------
-
-Form Function GetAssociatedForm() Native
+; Get the associated form for this furniture
+Form Function GetAssociatedForm() native

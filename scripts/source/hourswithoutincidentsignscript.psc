@@ -1,61 +1,77 @@
-ScriptName HoursWithoutIncidentSignScript Extends ObjectReference Const
+Scriptname HoursWithoutIncidentSignScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-Int iOneHourTimerID = 1 Const
+ActorValue property Variable09 auto const mandatory
+{ use this AV to track last time we rolled for an incident}
 
-;-- Properties --------------------------------------
-ActorValue Property Variable09 Auto Const mandatory
-{ use this AV to track last time we rolled for an incident }
-ActorValue Property Variable10 Auto Const mandatory
-{ use this AV to track elapsed time since "last incident" }
-Int Property incidentChancePerInterval = 10 Auto Const
+ActorValue property Variable10 auto const mandatory
+{ use this AV to track elapsed time since "last incident"}
+
+int property incidentChancePerInterval = 10 auto Const
 { for each elapsed day, this is the chance for an incident }
-Float Property incidentRollInterval = 0.5 Auto Const
-{ interval in days per roll }
-Float Property maxTimeSinceIncident = 999.0 Auto Const
-Float Property minTimeSinceIncident = 0.0 Auto Const
 
-;-- Functions ---------------------------------------
+float property incidentRollInterval = 0.5 auto Const
+{ interval in days per roll }
+
+float property maxTimeSinceIncident = 999.0 auto Const
+float property minTimeSinceIncident = 0.0 auto Const
+
+int iOneHourTimerID = 1 Const
 
 Event OnLoad()
-  Self.ResetSign()
-  Self.StartTimerGameTime(1.0, iOneHourTimerID)
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerAssaultActor")
+    ResetSign()
+    StartTimerGameTime(1.0, iOneHourTimerID)
+    RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerAssaultActor")
 EndEvent
 
 Event OnUnload()
-  Self.CancelTimerGameTime(iOneHourTimerID)
-  Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerAssaultActor")
+    CancelTimerGameTime(iOneHourTimerID)
+    UnregisterForRemoteEvent(Game.GetPlayer(), "OnPlayerAssaultActor")
 EndEvent
 
-Event OnTimerGameTime(Int aiTimerID)
-  Self.ResetSign()
-  Self.StartTimerGameTime(1.0, iOneHourTimerID)
+Event OnTimerGameTime(int aiTimerID)
+    ResetSign()
+    StartTimerGameTime(1.0, iOneHourTimerID)
 EndEvent
 
-Event Actor.OnPlayerAssaultActor(Actor akSource, ObjectReference akVictim, Location akLocation, Bool aeCrime)
-  If aeCrime
-    Self.SetValue(Variable10, Utility.GetCurrentGameTime())
-    Self.ResetSign()
-  EndIf
+Event Actor.OnPlayerAssaultActor(Actor akSource, ObjectReference akVictim, Location akLocation, bool aeCrime )
+    debug.trace(self + " OnPlayerAssaultActor aeCrime=" + aeCrime)
+    if aeCrime
+        ; flag an incident
+        SetValue(Variable10, Utility.GetCurrentGameTime())
+        ResetSign()
+    endif
 EndEvent
 
-Function ResetSign()
-  Float currentTime = Utility.GetCurrentGameTime()
-  Float elapsedTimeSinceRoll = currentTime - Self.GetValue(Variable09)
-  Bool incidentHappened = False
-  While elapsedTimeSinceRoll > 0.0 && incidentHappened == False
-    incidentHappened = Game.GetDieRollSuccess(incidentChancePerInterval, 1, 100, -1, -1)
-    elapsedTimeSinceRoll -= incidentRollInterval
-  EndWhile
-  If incidentHappened
-    Float lastIncident = currentTime - elapsedTimeSinceRoll - incidentRollInterval
-    Self.SetValue(Variable10, lastIncident)
-  EndIf
-  Float timeSinceIncident = currentTime - Self.GetValue(Variable10)
-  timeSinceIncident = Math.Min(timeSinceIncident * 24.0, maxTimeSinceIncident)
-  timeSinceIncident = Math.Max(timeSinceIncident, minTimeSinceIncident)
-  Float currentPosition = timeSinceIncident / maxTimeSinceIncident
-  Self.SetAnimationVariableFloat("currentPosition", currentPosition)
-  Self.SetValue(Variable09, currentTime)
+function ResetSign()
+    ; check if should reset to 0
+    float currentTime = Utility.GetCurrentGameTime()
+    float elapsedTimeSinceRoll = currentTime - GetValue(Variable09)
+    debug.trace(self + " ResetSign: currentTime=" + currentTime)
+    bool incidentHappened = false
+    while elapsedTimeSinceRoll > 0.0 && incidentHappened == false
+        incidentHappened = Game.GetDieRollSuccess(incidentChancePerInterval)
+        elapsedTimeSinceRoll -= incidentRollInterval
+        debug.trace(self + "elapsedTimeSinceRoll=" + elapsedTimeSinceRoll + ": roll for incident: " + incidentHappened)
+    endWhile
+    if incidentHappened
+        ; update date when incident happened
+        float lastIncident = currentTime - elapsedTimeSinceRoll - incidentRollInterval
+        debug.trace(self + "update Variable10 to (currentTime - elapsedTimeSinceRoll - incidentRollInterval)=" + lastIncident)
+        SetValue(Variable10, lastIncident)
+    EndIf
+    ; get current elapsed time
+    float timeSinceIncident = currentTime - GetValue(Variable10)
+    debug.trace(self + " base timeSinceIncident=" + timeSinceIncident + " currentTime=" + currentTime)
+
+    ; show elapsed time on the board in hours
+    timeSinceIncident = Math.Min(timeSinceIncident*24.0, maxTimeSinceIncident)
+    timeSinceIncident = Math.Max(timeSinceIncident, minTimeSinceIncident)
+
+    float currentPosition = timeSinceIncident/maxTimeSinceIncident
+    debug.trace(self + " modified elapsedTime=" + timeSinceIncident + " currentPosition=" + currentPosition)
+
+    SetAnimationVariableFloat("CurrentPosition", currentPosition)
+
+    ; set last check
+    SetValue(Variable09, currentTime)
 EndFunction

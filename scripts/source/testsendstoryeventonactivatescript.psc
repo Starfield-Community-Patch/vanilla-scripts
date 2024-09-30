@@ -1,17 +1,14 @@
-ScriptName TestSendStoryEventOnActivateScript Extends ObjectReference Const
+Scriptname TestSendStoryEventOnActivateScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+Keyword Property StoryEventKeyword Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property StoryEventKeyword Auto Const mandatory
-GlobalVariable Property GlobalToSet Auto Const
-
-;-- Functions ---------------------------------------
+GlobalVariable property GlobalToSet Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    GlobalToSet.SetValue(1.0)
-    StoryEventKeyword.SendStoryEventAndWait(Self.GetCurrentLocation(), Self as ObjectReference, None, 0, 0)
-    GlobalToSet.SetValue(0.0)
-  EndIf
+    if akActionRef == Game.GetPlayer()
+        ; TEMP - set global so PCM can try to fill fossil target alias
+        GlobalToSet.SetValue(1)
+        StoryEventKeyword.SendStoryEventAndWait(GetCurrentLocation(), self)
+        GlobalToSet.SetValue(0)
+    endif
 EndEvent

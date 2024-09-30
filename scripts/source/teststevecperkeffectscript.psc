@@ -1,16 +1,13 @@
-ScriptName TestSteveCPerkEffectScript Extends ActiveMagicEffect
+Scriptname TestSteveCPerkEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Perk property TestSteveCDamagePerk_Immune Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Perk Property TestSteveCDamagePerk_Immune Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  (akTarget as spaceshipreference).AddPerk(TestSteveCDamagePerk_Immune, False)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+  Debug.Trace("Perk added.")
+  (akTarget as SpaceshipReference).AddPerk(TestSteveCDamagePerk_Immune)
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  (akTarget as spaceshipreference).RemovePerk(TestSteveCDamagePerk_Immune)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+  Debug.Trace("Perk removed.")
+  (akTarget as SpaceshipReference).RemovePerk(TestSteveCDamagePerk_Immune)
 EndEvent

@@ -1,44 +1,46 @@
-ScriptName defaultAliasRespawnScriptB Extends ReferenceAlias default
-{ Script for respawning this alias.  For use along with a quest that has the DefaultQuestRespawnScript attached to it. }
+Scriptname defaultAliasRespawnScriptB extends ReferenceAlias Default
+{Script for respawning this alias.  For use along with a quest that has the DefaultQuestRespawnScript attached to it.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Optional_Properties
-  Bool Property RespawningOn = True Auto
-  { Set to false to stop this alias from auto-respawning when it dies
-	defaults to TRUE }
+	bool Property RespawningOn = true Auto  
+	{Set to false to stop this alias from auto-respawning when it dies
+	defaults to TRUE}
 EndGroup
 
+function RespawnIfDead()
+ 	debug.trace(self + " RespawnIfDead")
+	if GetActorRef().IsDead()
+		defaultQuestRespawnScript myQuest = GetOwningQuest() as defaultQuestRespawnScriptB
+		gotoState("respawning")
+		myQuest.Respawn(self)
+		gotoState("normal")
+	else
+ 		;debug.trace(self + "RespawnIfDead: I'm not dead - " + GetActorRef() + ".IsDead()=" + GetActorRef().IsDead())
+	endif
+endFunction
 
-;-- Functions ---------------------------------------
 
-Function RespawnIfDead()
-  If Self.GetActorRef().IsDead()
-    defaultquestrespawnscript myQuest = (Self.GetOwningQuest() as defaultquestrespawnscriptb) as defaultquestrespawnscript
-    Self.gotoState("respawning")
-    myQuest.Respawn(Self as ReferenceAlias)
-    Self.gotoState("normal")
-  EndIf
-EndFunction
+auto state normal
 
-;-- State -------------------------------------------
-Auto State normal
+Event OnDeath(ObjectReference akKiller)
+	Debug.Trace("Respawning actor OnDeath")
+	if RespawningOn
+		defaultQuestRespawnScript myQuest = GetOwningQuest() as defaultQuestRespawnScriptB
+		;Debug.Trace("Respawning On and Quest = " + myQuest)
+		gotoState("respawning")
+		;Debug.Trace("Making call : " + myQuest + ", " + self)
+		myQuest.TryToRespawn(self)
+		;Debug.Trace("Finished call : " + myQuest + ", " + self)
+		gotoState("normal")
+	endif
+endEvent
 
-  Event OnDeath(ObjectReference akKiller)
-    If RespawningOn
-      defaultquestrespawnscript myQuest = (Self.GetOwningQuest() as defaultquestrespawnscriptb) as defaultquestrespawnscript
-      Self.gotoState("respawning")
-      myQuest.TryToRespawn(Self as ReferenceAlias)
-      Self.gotoState("normal")
-    EndIf
-  EndEvent
-EndState
+endState
 
-;-- State -------------------------------------------
-State respawning
+state respawning
 
-  Event OnDeath(ObjectReference akKiller)
-    ; Empty function
-  EndEvent
-EndState
+Event OnDeath(ObjectReference akKiller)
+	;Debug.Trace("Ignoring OnDeath for " + Self)
+endEvent
+
+endState

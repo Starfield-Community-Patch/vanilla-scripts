@@ -1,155 +1,329 @@
-ScriptName Fragments:Quests:QF_LC043_002BF370 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_LC043_002BF370 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_SY01_ActorsAll Auto Const mandatory
-RefCollectionAlias Property Alias_SY02_ActorsAll Auto Const mandatory
-RefCollectionAlias Property Alias_SY03_ActorsAll Auto Const mandatory
-RefCollectionAlias Property Alias_SY02_ActorsInitiallyEnabled Auto Const mandatory
-RefCollectionAlias Property Alias_SY03_ActorsInitiallyEnabled Auto Const mandatory
-RefCollectionAlias Property Alias_SY_Ships_Quest_All Auto Const
-RefCollectionAlias Property Alias_SY_Ships_Prequest_All Auto Const mandatory
-RefCollectionAlias Property Alias_SY_Ships_Postquest_All Auto Const mandatory
-RefCollectionAlias Property Alias_SY_Ships_Guards Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-RefCollectionAlias Property Alias_SY01_NavmeshPlatformDisableSpecial Auto Const mandatory
-ReferenceAlias Property Alias_SY01_CargoBayBarracksGuard Auto Const mandatory
-RefCollectionAlias Property Alias_SY02_CommandBayLobbySoliders Auto Const mandatory
-ReferenceAlias Property Alias_SY02_Natara Auto Const mandatory
-RefCollectionAlias Property Alias_SY02_CommandBayCombatResponders Auto Const mandatory
-ReferenceAlias Property Alias_SY02_CommandBaySecurityDoor Auto Const mandatory
-Scene Property LC043_50_GuardAttack Auto Const mandatory
-Faction Property LC043SYQuestShipFaction Auto Const mandatory
-Faction Property LC043SYNonquestShipFaction Auto Const mandatory
-Faction Property PlayerFaction Auto Const mandatory
-Faction Property LC043SY01FriendFaction Auto Const mandatory
-Faction Property LC043SY01Faction Auto Const mandatory
-Faction Property LC043SY02Faction Auto Const mandatory
-Faction Property LC043SY03Faction Auto Const mandatory
-Quest Property CF05_Alarm Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-Quest Property CF05 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  ; Empty function
+;BEGIN CODE
+;Set by: Startup
+;END CODE
 EndFunction
+;END FRAGMENT
 
-Function Fragment_Stage_0100_Item_00()
-  ; Empty function
-EndFunction
-
-Function Fragment_Stage_0320_Item_00()
-  ; Empty function
-EndFunction
-
-Function Fragment_Stage_0460_Item_00()
-  ; Empty function
-EndFunction
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  LC043_50_GuardAttack.Start()
-  LC043SYNonquestShipFaction.SetEnemy(PlayerFaction, False, False)
-  Alias_SY_Ships_Guards.EvaluateAll()
-EndFunction
+;BEGIN CODE
+;Set by: When not on quest, player attacks any guard (Stage 51)
+;or enters the trigger around the station.
 
+;Play the attack scene.
+LC043_50_GuardAttack.Start()
+
+;Start combat with the player.
+LC043SYNonquestShipFaction.SetEnemy(PlayerFaction)
+Alias_SY_Ships_Guards.EvaluateAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0051_Item_00
 Function Fragment_Stage_0051_Item_00()
-  Self.SetStage(50)
-EndFunction
+;BEGIN CODE
+;Set by: Alias OnHit script, all nonquest ships.
 
+;Set the ships hostile.
+SetStage(50)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0099_Item_00
 Function Fragment_Stage_0099_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  Alias_SY_Ships_Prequest_All.DisableAll(False)
-  Alias_SY_Ships_Quest_All.EnableAll(False)
-  kmyQuest.CleanupPrequestAliases()
-  kmyQuest.FillInteriorAliases()
-  Alias_SY01_NavmeshPlatformDisableSpecial.DisableAll(False)
-EndFunction
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: CF05 stage 721.
 
+;Swap to the quest ships.
+Alias_SY_Ships_Prequest_All.DisableAll()
+Alias_SY_Ships_Quest_All.EnableAll()
+
+;Update aliases.
+kMyQuest.CleanupPrequestAliases()
+kMyQuest.FillInteriorAliases()
+
+;Disable the moving platform navmesh refs.
+Alias_SY01_NavmeshPlatformDisableSpecial.DisableAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
+Function Fragment_Stage_0100_Item_00()
+;BEGIN CODE
+;Set by: Quest Script, HandleLocationChange.
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0120_Item_00
 Function Fragment_Stage_0120_Item_00()
-  Game.GetPlayer().AddToFaction(LC043SY01FriendFaction)
-EndFunction
+;BEGIN CODE
+;Set by: CF05 stage 1005
 
+;Add the player to a Friend faction, so NPCs in LC043SY01
+;will no longer be hostile.
+Game.GetPlayer().AddToFaction(LC043SY01FriendFaction)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0130_Item_00
 Function Fragment_Stage_0130_Item_00()
-  Alias_SY01_CargoBayBarracksGuard.TryToEnable()
-EndFunction
+;BEGIN CODE
+;Set by: Triggers, Barracks.
 
+;Enable the Barracks guard.
+Alias_SY01_CargoBayBarracksGuard.TryToEnable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  Game.GetPlayer().RemoveFromFaction(LC043SY01FriendFaction)
-  Self.SetStage(130)
-  kmyQuest.TriggerSecurityAlarm(Alias_SY01_ActorsAll, LC043SY01Faction)
-  CF05_Alarm.SetStage(60)
-  CF05.SetStage(61)
-EndFunction
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: Default Collection Script when any actor in SY01
+;enters combat with the player, or CF05 quest events.
 
+;Remove the player from the friend faction, if they were in it.
+Game.GetPlayer().RemoveFromFaction(LC043SY01FriendFaction)
+
+;Enable the Barracks Guard, if not already enabled.
+SetStage(130)
+
+;Trigger the security alarm.
+kMyQuest.TriggerSecurityAlarm(Alias_SY01_ActorsAll, LC043SY01Faction)
+
+;Handle faction removal for disguise based on cell
+CF05_Alarm.SetStage(60)
+CF05.SetStage(61)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Alias_SY02_ActorsInitiallyEnabled.EnableAll(False)
-EndFunction
+;BEGIN CODE
+;Set by: Quest Script, HandleLocationChange.
 
+;Enable the actors in LC043SY02.
+Alias_SY02_ActorsInitiallyEnabled.EnableAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0220_Item_00
 Function Fragment_Stage_0220_Item_00()
-  If !Self.GetStageDone(250)
-    Alias_SY02_CommandBayLobbySoliders.DisableAll(False)
-  EndIf
-EndFunction
+;BEGIN CODE
+;Set by: CF05 stage 1205
 
+;Check whether the SY02 Security Alarm has been tripped.
+;If not, disable the lobby soldiers to make sneaking out easier.
+if (!GetStageDone(250))
+     Alias_SY02_CommandBayLobbySoliders.DisableAll()
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  kmyQuest.TriggerSecurityAlarm(Alias_SY02_ActorsAll, LC043SY02Faction)
-  CF05_Alarm.SetStage(60)
-  CF05.SetStage(62)
-EndFunction
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: Default Collection Script when any actor in SY02
+;enters combat with the player, or CF05 quest events.
 
+;Trigger the security alarm.
+kMyQuest.TriggerSecurityAlarm(Alias_SY02_ActorsAll, LC043SY02Faction)
+
+;Handle faction removal for disguise based on cell
+CF05_Alarm.SetStage(60)
+CF05.SetStage(62)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0270_Item_00
 Function Fragment_Stage_0270_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  If Self.GetStageDone(250)
-    Alias_SY02_CommandBaySecurityDoor.GetRef().SetOpen(True)
-    Alias_SY02_CommandBayCombatResponders.EnableAll(False)
-    Alias_SY02_CommandBayCombatResponders.SetValue(Aggression, 2.0)
-    Alias_SY02_CommandBayCombatResponders.EvaluateAll()
-    Utility.Wait(2.0)
-    Alias_SY02_CommandBayCombatResponders.EvaluateAll()
-    Utility.Wait(2.0)
-    Alias_SY02_CommandBayCombatResponders.EvaluateAll()
-  EndIf
-EndFunction
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: Trigger, leaving the Records Area.
 
+;Check whether the SY02 Security Alarm has been tripped.
+;If so, enable some additional enemies and repeatedly EVP them to
+;make sure they run into the Operations Center.
+if (GetStageDone(250))
+     Alias_SY02_CommandBaySecurityDoor.GetRef().SetOpen(True)
+     Alias_SY02_CommandBayCombatResponders.EnableAll()
+     Alias_SY02_CommandBayCombatResponders.SetValue(Aggression, 2)
+     Alias_SY02_CommandBayCombatResponders.EvaluateAll()
+     Utility.Wait(2)
+     Alias_SY02_CommandBayCombatResponders.EvaluateAll()
+     Utility.Wait(2)
+     Alias_SY02_CommandBayCombatResponders.EvaluateAll()
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Alias_SY03_ActorsInitiallyEnabled.EnableAll(False)
-EndFunction
+;BEGIN CODE
+;Set by: Quest Script, HandleLocationChange.
 
+;Enable the actors in LC043SY03.
+Alias_SY03_ActorsInitiallyEnabled.EnableAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0320_Item_00
+Function Fragment_Stage_0320_Item_00()
+;BEGIN CODE
+;Set by: CF05 stage 19
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0350_Item_00
 Function Fragment_Stage_0350_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  kmyQuest.TriggerSecurityAlarm(Alias_SY03_ActorsAll, LC043SY03Faction)
-  CF05_Alarm.SetStage(60)
-  CF05.SetStage(63)
-EndFunction
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: Default Collection Script when any actor in SY03
+;enters combat with the player, or CF05 quest events.
 
+;Trigger the security alarm.
+kMyQuest.TriggerSecurityAlarm(Alias_SY03_ActorsAll, LC043SY03Faction)
+
+;Handle faction removal for disguise based on cell
+CF05_Alarm.SetStage(60)
+CF05.SetStage(63)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0450_Item_00
 Function Fragment_Stage_0450_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  kmyQuest.BlockSpaceTravelForEscape(True)
-  LC043SYQuestShipFaction.SetEnemy(PlayerFaction, False, False)
-  Alias_SY_Ships_Quest_All.EvaluateAll()
-EndFunction
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: CF05 stage 1900 (undocking the Prototype without clearance),
+;or attacking any of the guard ships (451).
 
+;Block space travel to our orbit location to keep the player from
+;trivially cheesing the prototype ship escape.
+kMyQuest.BlockSpaceTravelForEscape(True)
+
+;Start combat with the player.
+LC043SYQuestShipFaction.SetEnemy(PlayerFaction)
+Alias_SY_Ships_Quest_All.EvaluateAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0451_Item_00
 Function Fragment_Stage_0451_Item_00()
-  Self.SetStage(450)
-EndFunction
+;BEGIN CODE
+;Set by: Alias OnHit script, all quest ships.
 
-Function Fragment_Stage_1000_Item_00()
-  Quest __temp = Self as Quest
-  lc043questscript kmyQuest = __temp as lc043questscript
-  kmyQuest.BlockSpaceTravelForEscape(False)
-  Alias_SY_Ships_Prequest_All.DisableAll(False)
-  Alias_SY_Ships_Quest_All.DisableAll(False)
-  Alias_SY_Ships_Postquest_All.EnableAll(False)
-  kmyQuest.CleanupQuestAliases()
+;Set the ships hostile.
+SetStage(450)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0460_Item_00
+Function Fragment_Stage_0460_Item_00()
+;BEGIN CODE
+;Set by: CF05 stage 1900.
+;Stage 1000 will then be set on next Change Location away from SY-920.
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
+Function Fragment_Stage_1000_Item_00()
+;BEGIN AUTOCAST TYPE LC043QuestScript
+Quest __temp = self as Quest
+LC043QuestScript kmyQuest = __temp as LC043QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Set by: Quest script, Change Location away from SY-920
+;after stage 460 has been set during the escape.
+
+;Re-enable space travel to SY-920's orbit location.
+kMyQuest.BlockSpaceTravelForEscape(False)
+
+;Swap to the postquest ships.
+Alias_SY_Ships_Prequest_All.DisableAll()
+Alias_SY_Ships_Quest_All.DisableAll()
+Alias_SY_Ships_Postquest_All.EnableAll()
+
+;Update aliases.
+kMyQuest.CleanupQuestAliases()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_SY01_ActorsAll Auto Const Mandatory
+RefCollectionAlias Property Alias_SY02_ActorsAll Auto Const Mandatory
+RefCollectionAlias Property Alias_SY03_ActorsAll Auto Const Mandatory
+RefCollectionAlias Property Alias_SY02_ActorsInitiallyEnabled Auto Const Mandatory
+RefCollectionAlias Property Alias_SY03_ActorsInitiallyEnabled Auto Const Mandatory
+
+RefCollectionAlias Property Alias_SY_Ships_Quest_All Auto Const
+RefCollectionAlias Property Alias_SY_Ships_Prequest_All Auto Const Mandatory
+RefCollectionAlias Property Alias_SY_Ships_Postquest_All Auto Const Mandatory
+RefCollectionAlias Property Alias_SY_Ships_Guards Auto Const Mandatory
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+RefCollectionAlias Property Alias_SY01_NavmeshPlatformDisableSpecial Auto Const Mandatory
+ReferenceAlias Property Alias_SY01_CargoBayBarracksGuard Auto Const Mandatory
+RefCollectionAlias Property Alias_SY02_CommandBayLobbySoliders Auto Const Mandatory
+ReferenceAlias Property Alias_SY02_Natara Auto Const Mandatory
+RefCollectionAlias Property Alias_SY02_CommandBayCombatResponders Auto Const Mandatory
+ReferenceAlias Property Alias_SY02_CommandBaySecurityDoor Auto Const Mandatory
+
+Scene Property LC043_50_GuardAttack Auto Const Mandatory
+
+Faction Property LC043SYQuestShipFaction Auto Const Mandatory
+Faction Property LC043SYNonquestShipFaction Auto Const Mandatory
+Faction Property PlayerFaction Auto Const Mandatory
+Faction Property LC043SY01FriendFaction Auto Const Mandatory
+Faction Property LC043SY01Faction Auto Const Mandatory
+Faction Property LC043SY02Faction Auto Const Mandatory
+Faction Property LC043SY03Faction Auto Const Mandatory
+
+Quest Property CF05_Alarm Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+Quest Property CF05 Auto Const Mandatory

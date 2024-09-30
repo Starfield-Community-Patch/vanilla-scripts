@@ -1,66 +1,76 @@
-ScriptName GenericMotorScript Extends ObjectReference
-{ script for objects with powered rotating motors }
+Scriptname GenericMotorScript extends ObjectReference
+{script for objects with powered rotating motors}
 
-;-- Variables ---------------------------------------
-Bool init = False
+String property  MotorName const auto
+float property  MotorVelocity const auto
+int property  MotorRotationAxis const auto
+{ 0 = x, 1 = y, 2 = z}
+float property  MotorForce const auto
 
-;-- Properties --------------------------------------
-String Property MotorName Auto Const
-Float Property MotorVelocity Auto Const
-Int Property MotorRotationAxis Auto Const
-{ 0 = x, 1 = y, 2 = z }
-Float Property MotorForce Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnInit()
-  ; Empty function
-EndEvent
+bool init = false
 
 Event OnLoad()
-  If init == False
-    init = True
-    Float aAxisX = 0.0
-    Float aAxisY = 0.0
-    Float aAxisZ = 0.0
-    If MotorRotationAxis == 0
-      aAxisX = MotorVelocity
-    ElseIf MotorRotationAxis == 1
-      aAxisY = MotorVelocity
-    ElseIf MotorRotationAxis == 2
-      aAxisZ = MotorVelocity
-    EndIf
-    Self.ApplyFanMotor(MotorName, aAxisX, aAxisY, aAxisZ, MotorForce, False)
-  EndIf
+	debug.trace(self + " OnLoad")
+    if init == false
+    	init = true
+		float aAxisX = 0.0
+		float aAxisY = 0.0
+		float aAxisZ = 0.0
+		if MotorRotationAxis == 0
+			aAxisX = MotorVelocity
+		elseif MotorRotationAxis == 1
+			aAxisY = MotorVelocity
+		elseif MotorRotationAxis == 2
+			aAxisZ = MotorVelocity
+		endif
+
+	    ApplyFanMotor( MotorName, aAxisX, aAxisY, aAxisZ, MotorForce, false )
+
+    endif
+EndEvent
+
+Event OnInit()
+	debug.trace(self + " OnInit")
+
 EndEvent
 
 Event OnPowerOff()
-  Self.FanMotorOn(False)
+	debug.trace(self + " onpoweroff")
+    FanMotorOn(false)
 EndEvent
 
 Event OnPowerOn(ObjectReference akPowerGenerator)
-  If Self.IsDestroyed() == False
-    Self.FanMotorOn(True)
-  EndIf
+	debug.trace(self + " onpoweron")
+	if IsDestroyed() == false
+    	FanMotorOn(true)
+    endif
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  Self.StartTimer(2.0, 0)
+	; run timer to turn motor on/off
+	StartTimer(2.0)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  Int openState = Self.GetOpenState()
-  If openState >= 3 && Self.IsPowered() == True
-    Self.FanMotorOn(True)
-  Else
-    Self.FanMotorOn(False)
-  EndIf
+Event OnTimer(int aiTimerID)
+	; check open state, to see if motor should turn on or off
+	int openState = GetOpenState()
+	debug.trace(self + "OnTimer openState=" + openState)
+	; if "closed" (meaning ON), and powered, start motor
+	if openState >= 3 && IsPowered() == true
+    	FanMotorOn(true)
+    else
+    ; otherwise, stop motor
+    	FanMotorOn(false)
+    endif
 EndEvent
 
-Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-  If Self.IsDestroyed()
-    Self.FanMotorOn(False)
-  ElseIf aiCurrentStage == 0
-    Self.StartTimer(2.0, 0)
-  EndIf
+; Patch 1.4: handle destruction state change
+Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+	if IsDestroyed()
+		FanMotorOn(false)
+	elseif aiCurrentStage == 0
+		; I've been repaired
+		; run timer to turn motor on/off
+		StartTimer(2.0)
+	endif
 EndEvent

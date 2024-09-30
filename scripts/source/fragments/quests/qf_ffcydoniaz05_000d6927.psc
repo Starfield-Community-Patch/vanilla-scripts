@@ -1,124 +1,209 @@
-ScriptName Fragments:Quests:QF_FFCydoniaZ05_000D6927 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFCydoniaZ05_000D6927 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Sivan Auto Const mandatory
-ReferenceAlias Property Alias_RailLeanMarker Auto Const mandatory
-Scene Property FFCydoniaZ05_Scene01_Space Auto Const mandatory
-Scene Property FFCydoniaZ05_SceneIntro Auto Const mandatory
-ActorBase Property SivanActorBase Auto Const mandatory
-ReferenceAlias Property Alias_passengerMarker Auto Const mandatory
-sq_followersscript Property SQ_Followers Auto Const mandatory
-Quest Property City_NewAtlantis_Z_PartingGift Auto Const mandatory
-Scene Property SQ_GuardShipsScene Auto Const mandatory
-ReferenceAlias Property Alias_CaptainMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Self.SetStage(10)
-  Game.GetPlayer().MoveTo(Alias_RailLeanMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+SetStage(10)
+Game.GetPlayer().MoveTo(Alias_RailLeanMarker.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  City_NewAtlantis_Z_PartingGift.Start()
+;BEGIN CODE
+City_NewAtlantis_Z_PartingGift.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Actor SivanRef = Alias_Sivan.GetActorRef()
-  ObjectReference RailRef = Alias_RailLeanMarker.GetRef()
-  RailRef.SetActorOwner(SivanActorBase, False)
-  SivanRef.EnableNoWait(False)
-  SivanRef.MoveTo(RailRef, 0.0, 0.0, 0.0, True, False)
-  SivanRef.SnapIntoInteraction(RailRef)
-EndFunction
+;BEGIN CODE
+Actor SivanRef = Alias_Sivan.GetActorRef()
+ObjectReference RailRef = Alias_RailLeanMarker.GetRef()
 
+RailRef.SetActorOwner(SivanActorBase)
+SivanRef.EnableNoWait()
+SivanRef.MoveTo(RailRef)
+SivanRef.SnapIntoInteraction(RailRef)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0015_Item_00
 Function Fragment_Stage_0015_Item_00()
-  Self.SetStage(40)
+;BEGIN CODE
+SetStage(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Alias_RailLeanMarker.GetRef().SetActorOwner(None, False)
+;BEGIN CODE
+Alias_RailLeanMarker.GetRef().SetActorOwner(NONE)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0025_Item_00
 Function Fragment_Stage_0025_Item_00()
-  Actor SivanRef = Alias_Sivan.GetActorRef()
-  SQ_Followers.SetRoleInactive(SivanRef, True, False, True)
-  SivanRef.MoveTo(Alias_passengerMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  SivanRef.EvaluatePackage(False)
+;BEGIN CODE
+Actor SivanRef = Alias_Sivan.GetActorRef()
+SQ_Followers.SetRoleInactive(SivanRef)
+SivanRef.MoveTo(Alias_passengerMarker.GetRef())
+SivanRef.EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0025_Item_01
 Function Fragment_Stage_0025_Item_01()
-  Self.SetStage(15)
+;BEGIN CODE
+SetStage(15)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  FFCydoniaZ05_SceneIntro.Stop()
-  Actor SivanRef = Alias_Sivan.GetActorRef()
-  SQ_Followers.SetRoleActive(SivanRef, True, True, 0.0, 0.0)
-  SivanRef.EvaluatePackage(False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+FFCydoniaZ05_SceneIntro.Stop()
+Actor SivanRef = Alias_Sivan.GetActorRef()
+SQ_Followers.SetRoleActive(SivanRef)
+SivanRef.EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0035_Item_00
 Function Fragment_Stage_0035_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  SQ_GuardShipsScene.Stop()
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SQ_GuardShipsScene.Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Alias_CaptainMarker.RefillAlias()
-  ObjectReference ShipRef = Alias_CaptainMarker.GetRef()
-  ObjectReference PassengerRef = Alias_passengerMarker.GetRef()
-  ObjectReference SivanRef = Alias_Sivan.GetRef()
-  If SivanRef.GetDistance(ShipRef) > 10.0 && ShipRef != None
-    SivanRef.MoveTo(ShipRef, 0.0, 0.0, 0.0, True, False)
-  ElseIf SivanRef.GetDistance(PassengerRef) > 10.0 && PassengerRef != None
-    SivanRef.MoveTo(PassengerRef, 0.0, 0.0, 0.0, True, False)
-  EndIf
-  SQ_GuardShipsScene.Stop()
-  FFCydoniaZ05_Scene01_Space.Start()
-EndFunction
+;BEGIN CODE
+Alias_CaptainMarker.RefillAlias()
 
+ObjectReference ShipRef = Alias_CaptainMarker.GetRef()
+ObjectReference PassengerRef = Alias_PassengerMarker.GetRef()
+
+ObjectReference SivanRef = Alias_Sivan.GetRef()
+
+if SivanRef.GetDistance(ShipRef) > 10 && ShipRef != None
+    SivanRef.MoveTo(ShipRef)
+elseif SivanRef.GetDistance(PassengerRef) > 10 && (PassengerRef) != None
+    SivanRef.MoveTo(PassengerRef)
+endif
+
+SQ_GuardShipsScene.Stop()
+FFCydoniaZ05_Scene01_Space.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  FFCydoniaZ05_Scene01_Space.Stop()
-  Self.SetObjectiveDisplayed(50, True, False)
-  Self.SetStage(40)
+;BEGIN CODE
+FFCydoniaZ05_Scene01_Space.Stop()
+SetObjectiveDisplayed(50)
+SetStage(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveDisplayed(60, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(50)
+SetObjectiveDisplayed(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0066_Item_00
 Function Fragment_Stage_0066_Item_00()
-  Self.FailAllObjectives()
+;BEGIN CODE
+FailAllObjectives()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  Actor SivanRef = Alias_Sivan.GetActorRef()
-  SQ_Followers.SetRoleInactive(SivanRef, True, False, True)
-  Self.SetObjectiveCompleted(60, True)
-  Self.SetObjectiveDisplayed(70, True, False)
-EndFunction
+;BEGIN CODE
+Actor SivanRef = Alias_Sivan.GetActorRef()
+SQ_Followers.SetRoleInactive(SivanRef)
 
+SetObjectiveCompleted(60)
+SetObjectiveDisplayed(70)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_01
 Function Fragment_Stage_0070_Item_01()
-  Actor SivanRef = Alias_Sivan.GetActorRef()
-  SivanRef.EvaluatePackage(False)
+;BEGIN CODE
+Actor SivanRef = Alias_Sivan.GetActorRef()
+SivanRef.EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_02
 Function Fragment_Stage_0070_Item_02()
-  Actor SivanRef = Alias_Sivan.GetActorRef()
-  SivanRef.MoveTo(Game.GetPlayer() as ObjectReference, 0.0, 0.0, 0.0, True, False)
-  SivanRef.EvaluatePackage(False)
+;BEGIN CODE
+Actor SivanRef = Alias_Sivan.GetActorRef()
+SivanRef.MoveTo(Game.GetPlayer())
+SivanRef.EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Alias_Sivan.GetActorRef().EvaluatePackage(False)
-  Self.CompleteAllObjectives()
+;BEGIN CODE
+Alias_Sivan.GetActorRef().EvaluatePackage()
+CompleteAllObjectives()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Alias_Sivan.GetActorRef().DisableNoWait(False)
-  Self.Stop()
+;BEGIN CODE
+Alias_Sivan.GetActorRef().DisableNoWait()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Sivan Auto Const Mandatory
+
+ReferenceAlias Property Alias_RailLeanMarker Auto Const Mandatory
+
+Scene Property FFCydoniaZ05_Scene01_Space Auto Const Mandatory
+
+Scene Property FFCydoniaZ05_SceneIntro Auto Const Mandatory
+
+ActorBase Property SivanActorBase Auto Const Mandatory
+
+ReferenceAlias Property Alias_passengerMarker Auto Const Mandatory
+
+sq_followersscript Property SQ_Followers Auto Const Mandatory
+
+Quest Property City_NewAtlantis_Z_PartingGift Auto Const Mandatory
+
+Scene Property SQ_GuardShipsScene Auto Const Mandatory
+
+ReferenceAlias Property Alias_CaptainMarker Auto Const Mandatory

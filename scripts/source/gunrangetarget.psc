@@ -1,30 +1,41 @@
-ScriptName GunRangeTarget Extends ObjectReference
-{ Detects projectiles on hit and sends back score }
+Scriptname GunRangeTarget extends ObjectReference
+{Detects projectiles on hit and sends back score}
 
-;-- Variables ---------------------------------------
-ObjectReference Counter
+;******************************************************
 
-;-- Properties --------------------------------------
 Group Optional_Properties
-  Int Property ScorePerHit = 1 Auto Const
-  { Score earned per hit }
+	Int Property ScorePerHit = 1 Auto Const
+		{Score earned per hit}
 EndGroup
 
+;******************************************************
 
-;-- Functions ---------------------------------------
+ObjectReference Counter
+
+;******************************************************
 
 Event OnLoad()
-  Self.RegisterForHitEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, None, None, -1, -1, -1, -1, True)
-  Counter = Self.GetLinkedRef(None)
+    RegisterForHitEvent(Self, Game.GetPlayer())
+	Counter = GetLinkedRef()
 EndEvent
+
+;******************************************************
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+    UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If (Counter as gunrangecounter).QuestToSet.GetCurrentStageID() == (Counter as gunrangecounter).StageToStartCompetition
-    (Counter as gunrangecounter).GunRangeCompetition(ScorePerHit)
-    Self.RegisterForHitEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, None, None, -1, -1, -1, -1, True)
-  EndIf
+;******************************************************
+
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+
+	Debug.Trace("Hit target")
+	If ((Counter As GunRangeCounter).QuestToSet.GetCurrentStageID() == (Counter As GunRangeCounter).StageToStartCompetition)
+
+		Debug.Trace("Hit registered")
+		(Counter As GunRangeCounter).GunRangeCompetition(ScorePerHit)
+	 	RegisterForHitEvent(Self, Game.GetPlayer())
+
+	EndIf
+
 EndEvent

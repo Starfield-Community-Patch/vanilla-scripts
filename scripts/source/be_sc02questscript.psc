@@ -1,29 +1,26 @@
-ScriptName BE_SC02QuestScript Extends Quest
-{ Script for BE_SC02, Mutiny. }
+Scriptname BE_SC02QuestScript extends Quest
+{Script for BE_SC02, Mutiny.}
+;
+;In BE_SC02, some of the mutineers have killed their captain, and some haven't; their dialogue reflects that.
+;Since that's tied to dialogue anyway, just check which voicetype we got and kill the captain if we need to.
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group QuestProperties
-  VoiceType[] Property MutineersWhoKillCaptain Auto Const mandatory
+    VoiceType[] property MutineersWhoKillCaptain Auto Const Mandatory
 EndGroup
 
-Group AutofillProperties collapsedonbase
-  reparentscript Property RE_Parent Auto Const mandatory
-  ActorValue Property Health Auto Const mandatory
-  ReferenceAlias Property Captain Auto Const mandatory
-  ReferenceAlias Property Mutineer Auto Const mandatory
+Group AutofillProperties CollapsedOnBase
+    REParentScript property RE_Parent Auto Const Mandatory
+    ActorValue property Health Auto Const Mandatory
+    ReferenceAlias property Captain Auto Const Mandatory
+    ReferenceAlias property Mutineer Auto Const Mandatory
 EndGroup
-
-
-;-- Functions ---------------------------------------
 
 Function SetupCaptain()
-  Actor captainRef = Captain.GetActorRef()
-  If MutineersWhoKillCaptain.find(Mutineer.GetActorRef().GetVoicetype(), 0) >= 0
-    RE_Parent.KillWithForce(captainRef, None, True)
-  Else
-    captainRef.DamageValue(Health, captainRef.GetValue(Health) - 1.0)
-    captainRef.SetRestrained(True)
-  EndIf
+    Actor captainRef = Captain.GetActorRef()
+    if (MutineersWhoKillCaptain.Find(Mutineer.GetActorRef().GetVoicetype()) >= 0)
+        RE_Parent.KillWithForce(captainRef)
+    Else
+        captainRef.DamageValue(Health, captainRef.GetValue(Health) - 1)
+        captainRef.SetRestrained()
+    EndIf
 EndFunction

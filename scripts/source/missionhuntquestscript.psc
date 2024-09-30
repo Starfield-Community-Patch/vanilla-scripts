@@ -1,22 +1,21 @@
-ScriptName MissionHuntQuestScript Extends MissionQuestScript
+Scriptname MissionHuntQuestScript extends MissionQuestScript
 
-;-- Variables ---------------------------------------
+group MissionTypeData
+	ReferenceAlias Property MapMarker Auto Const Mandatory
+	{ map marker of target location }
+endGroup
 
-;-- Properties --------------------------------------
-Group MissionTypeData
-  ReferenceAlias Property MapMarker Auto Const mandatory
-  { map marker of target location }
-EndGroup
-
-
-;-- Functions ---------------------------------------
-
-Function MissionAccepted(Bool bAccepted)
-  If bAccepted
-    ObjectReference mapMarkerRef = MapMarker.GetRef()
-    If mapMarkerRef
-      mapMarkerRef.AddToMapScanned(False)
-    EndIf
-  EndIf
-  Parent.MissionAccepted(bAccepted)
+; override parent function
+Function MissionAccepted(bool bAccepted)
+    if bAccepted
+		; add map marker to map
+        ObjectReference mapMarkerRef = MapMarker.GetRef()
+        if mapMarkerRef
+            mapMarkerRef.AddToMapScanned()
+        endif
+    endif
+    Parent.MissionAccepted(bAccepted)
 EndFunction
+
+
+

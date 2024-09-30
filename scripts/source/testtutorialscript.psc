@@ -1,12 +1,7 @@
-ScriptName TestTutorialScript Extends ObjectReference Const
+Scriptname TestTutorialScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property TestTutorialMessage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message Property TestTutorialMessage Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  TestTutorialMessage.ShowAsHelpMessage("Jump", 30.0, 30.0, 1, "", 0, None)
+	TestTutorialMessage.ShowAsHelpMessage("Jump", 30, 30, 1)
 EndEvent

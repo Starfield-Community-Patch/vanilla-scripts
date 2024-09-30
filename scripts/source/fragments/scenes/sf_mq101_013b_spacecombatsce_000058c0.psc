@@ -1,13 +1,26 @@
-ScriptName Fragments:Scenes:SF_MQ101_013B_SpaceCombatSce_000058C0 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ101_013B_SpaceCombatSce_000058C0 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_05_End
 Function Fragment_Phase_05_End()
-  defaulttutorialquestscript kmyQuest = Self.GetOwningQuest() as defaulttutorialquestscript
-  kmyQuest.ShowHelpMessage("WeaponGroup1")
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+defaulttutorialquestscript kmyQuest = GetOwningQuest() as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.ShowHelpMessage("WeaponGroup1")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_07_End
 Function Fragment_Phase_07_End()
-  defaulttutorialquestscript kmyQuest = Self.GetOwningQuest() as defaulttutorialquestscript
-  kmyQuest.ShowHelpMessage("WeaponGroup3")
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+defaulttutorialquestscript kmyQuest = GetOwningQuest() as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.ShowHelpMessage("WeaponGroup3")
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

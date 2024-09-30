@@ -1,19 +1,26 @@
-ScriptName FormList Extends Form Native hidden
+Scriptname FormList extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Adds the given form to this form list
+Function AddForm(Form apForm) native
 
-Function AddForm(Form apForm) Native
+; Finds the specified form in the form list and returns its index.
+; If not found, returns a negative number
+int Function Find(Form apForm) native
 
-Int Function Find(Form apForm) Native
+; Returns the number of forms in the list
+int Function GetSize() native
 
-Form[] Function GetArray(Bool abRecurse) Native
+; Returns an array of all forms in the list, with a parameter to specify whether to recurse one level
+Form[] Function GetArray(bool abRecurse = false) native
 
-Form Function GetAt(Int aiIndex) Native
+; Returns the form at index 'aiIndex' in the list
+Form Function GetAt(int aiIndex) native
 
-Int Function GetSize() Native
+; Queries the form list to see if it contains the passed in form
+bool Function HasForm(Form akForm) native
 
-Bool Function HasForm(Form akForm) Native
+; Removes the given added form from this form list
+Function RemoveAddedForm(Form apForm) native
 
-Function RemoveAddedForm(Form apForm) Native
-
-Function Revert() Native
+; Removes all script added forms from this form list
+Function Revert() native

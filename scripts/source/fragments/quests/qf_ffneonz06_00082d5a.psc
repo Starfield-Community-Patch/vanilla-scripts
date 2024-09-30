@@ -1,79 +1,141 @@
-ScriptName Fragments:Quests:QF_FFNeonZ06_00082D5A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNeonZ06_00082D5A Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property Credits Auto Const
-GlobalVariable Property FFNeonZ06_TevinPayment Auto Const
-ReferenceAlias Property Alias_Rusty Auto Const mandatory
-Quest Property DialogueQuest Auto Const
-GlobalVariable Property Timer Auto Const
-GlobalVariable Property DaysPassed Auto Const
-Quest Property FFNeonGuardPointer_Z06 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Self.SetObjectiveDisplayed(0, True, False)
-  FFNeonGuardPointer_Z06.SetStage(200)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(0)
 
+; Close the pointer
+FFNeonGuardPointer_Z06.SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, FFNeonZ06_TevinPayment.GetValue() as Int, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Credits, (FFNeonZ06_TevinPayment.GetValue() as int))
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0011_Item_00
 Function Fragment_Stage_0011_Item_00()
-  Self.SetObjectiveDisplayed(13, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(13)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  If Self.IsObjectiveDisplayed(13)
-    Self.SetObjectiveCompleted(13, True)
-  EndIf
-  If Self.GetStageDone(9)
-    Self.SetObjectiveDisplayed(13, False, False)
-  EndIf
-EndFunction
+;BEGIN CODE
+if IsObjectiveDisplayed(13)
+SetObjectiveCompleted(13)
+endif
 
+if GetStageDone(9)
+SetObjectiveDisplayed(13,0)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(0, True)
-  Self.SetObjectiveDisplayed(30, True, False)
-  Alias_Rusty.GetActorRef().Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(0)
+SetObjectiveDisplayed(30)
 
+Alias_Rusty.GetActorRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0032_Item_00
 Function Fragment_Stage_0032_Item_00()
-  Alias_Rusty.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_Rusty.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Self.SetStage(70)
+;BEGIN CODE
+Self.SetStage(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetStage(70)
+;BEGIN CODE
+Self.SetStage(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Game.GetPlayer().AddItem(Credits as Form, 200, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(Credits, 200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveDisplayed(70, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(30)
+SetObjectiveDisplayed(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Alias_Rusty.GetActorRef().Disable(False)
-  Self.CompleteAllObjectives()
-  DialogueQuest.SetStage(300)
-  Timer.SetValue(DaysPassed.GetValue() + 1.0)
-  Self.Stop()
-EndFunction
+;BEGIN CODE
+Alias_Rusty.GetActorRef().Disable()
+CompleteAllObjectives()
+DialogueQuest.SetStage(300)
 
-Function Fragment_Stage_2000_Item_00()
-  Alias_Rusty.GetActorRef().Disable(False)
-  Self.CompleteAllObjectives()
-  DialogueQuest.SetStage(300)
-  Timer.SetValue(DaysPassed.GetValue() + 1.0)
-  Self.Stop()
+;set timer for post-quest top level
+Timer.SetValue(DaysPassed.GetValue() + 1)
+
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_2000_Item_00
+Function Fragment_Stage_2000_Item_00()
+;BEGIN CODE
+Alias_Rusty.GetActorRef().Disable()
+CompleteAllObjectives()
+DialogueQuest.SetStage(300)
+
+;set timer for post-quest top level
+Timer.SetValue(DaysPassed.GetValue() + 1)
+
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property Credits Auto Const
+
+GlobalVariable Property FFNeonZ06_TevinPayment Auto Const
+
+ReferenceAlias Property Alias_Rusty Auto Const Mandatory
+
+Quest Property DialogueQuest Auto Const
+
+GlobalVariable Property Timer Auto Const
+
+GlobalVariable Property DaysPassed Auto Const
+
+Quest Property FFNeonGuardPointer_Z06 Auto Const Mandatory

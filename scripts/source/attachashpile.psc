@@ -1,68 +1,95 @@
-ScriptName AttachAshPile Extends ActiveMagicEffect
-{ Scripted effect for on death ash pile }
+Scriptname AttachAshPile extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-Actor Victim
+{Scripted effect for on death ash pile}
 
-;-- Properties --------------------------------------
-Float Property fDelay = 0.75 Auto Const
-{ time to wait before Spawning Ash Pile }
-Float Property fDelayEnd = 1.649999976 Auto Const
-{ time to wait before Removing Base Actor }
-Float Property ShaderDuration = 0.0 Auto Const
-{ Duration of Effect Shader. }
-Activator Property AshPileObject Auto Const
-{ The object we use as a pile. }
-EffectShader Property MagicEffectShader Auto Const
-{ The Effect Shader we want. }
-Bool Property bSetAlphaZero = True Auto Const
-{ When done, set the Actor Alpha to zero. }
-Bool Property bSetAlphaToZeroEarly = False Auto Const
-{ Use this if we want to set the actor to invisible somewhere before the effect shader is done. }
-Bool Property onEffectStartOveride = False Auto Const
+import debug
+import FormList
 
-;-- Functions ---------------------------------------
+;======================================================================================;
+;  PROPERTIES  /
+;=============/
+
+float property fDelay = 0.75 auto const
+									{time to wait before Spawning Ash Pile}
+; float property fDelayAlpha = 1.65 auto
+; 									{time to wait before Setting alpha to zero.}
+float property fDelayEnd = 1.65 auto const
+									{time to wait before Removing Base Actor}
+float property ShaderDuration = 0.00 auto const
+									{Duration of Effect Shader.}
+Activator property AshPileObject auto const
+									{The object we use as a pile.}
+EffectShader property MagicEffectShader auto const
+									{The Effect Shader we want.}
+Bool property bSetAlphaZero = True auto const
+									{When done, set the Actor Alpha to zero.}
+
+Bool property bSetAlphaToZeroEarly = False Auto const
+									{Use this if we want to set the actor to invisible somewhere before the effect shader is done.}
+bool  property onEffectStartOveride = FALSE auto const
+
+;======================================================================================;
+;  VARIABLES   /
+;=============/
+
+actor Victim
+
+
+;======================================================================================;
+;   EVENTS     /
+;=============/
+
+
 
 Event OnInit()
-  Victim = Self.GetTargetActor()
+	Victim = GetTargetActor()
 EndEvent
 
-Event OnEffectStart(ObjectReference Target, Actor Caster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  If Victim as Bool && Victim.IsEssential() == False
-    If onEffectStartOveride == True
-      Victim.SetCriticalStage(Victim.CritStage_DisintegrateStart)
-      If MagicEffectShader != None
-        MagicEffectShader.play(Victim as ObjectReference, ShaderDuration)
-      EndIf
-      Self.StartTimer(fDelay, 1)
-    EndIf
-  EndIf
+
+Event OnEffectStart(ObjectReference Target, Actor Caster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	if victim && victim.IsEssential() == False
+		if onEffectStartOveride == TRUE
+			victim.SetCriticalStage(victim.CritStage_DisintegrateStart)
+			if	MagicEffectShader != none
+				MagicEffectShader.play(victim, ShaderDuration)
+			endif
+			StartTimer(fDelay, 1)
+		endif
+	EndIf
 EndEvent
 
 Event OnDying(ObjectReference Killer)
-  If Victim as Bool && Victim.IsEssential() == False
-    If onEffectStartOveride == False
-      Victim.SetCriticalStage(Victim.CritStage_DisintegrateStart)
-      If MagicEffectShader != None
-        MagicEffectShader.play(Victim as ObjectReference, ShaderDuration)
-      EndIf
-      Self.StartTimer(fDelay, 1)
-    EndIf
+	if victim && victim.IsEssential() == False
+		if onEffectStartOveride == FALSE
+
+			victim.SetCriticalStage(victim.CritStage_DisintegrateStart)
+			if	MagicEffectShader != none
+				MagicEffectShader.play(victim, ShaderDuration)
+			endif
+			StartTimer(fDelay, 1)
+		EndIf
+	EndIf
+EndEvent
+
+Event OnTimer(int aiTimerID)		
+  If aiTimerID == 1
+		Victim.AttachAshPile(AshPileObject)
+		StartTimer(fDelayEnd, 2)
+  EndIf
+
+   If aiTimerID == 2
+		if	MagicEffectShader != none
+			MagicEffectShader.stop(Victim)
+		endif
+		if bSetAlphaZero == True
+			victim.SetAlpha (0.0,True)
+		endif
+		victim.SetCriticalStage(Victim.CritStage_DisintegrateEnd)
+		;trace("ASHPILE:::: We did actually finish this stuff")
   EndIf
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == 1
-    Victim.AttachAshPile(AshPileObject as Form)
-    Self.StartTimer(fDelayEnd, 2)
-  EndIf
-  If aiTimerID == 2
-    If MagicEffectShader != None
-      MagicEffectShader.stop(Victim as ObjectReference)
-    EndIf
-    If bSetAlphaZero == True
-      Victim.SetAlpha(0.0, True)
-    EndIf
-    Victim.SetCriticalStage(Victim.CritStage_DisintegrateEnd)
-  EndIf
-EndEvent
+; Event OnEffectFinish(ObjectReference Target, Actor Caster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	
+; 	trace("ASHPILE:::: The effect was removed, I'm betting early")
+; EndEvent

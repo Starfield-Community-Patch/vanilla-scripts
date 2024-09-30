@@ -1,33 +1,54 @@
-ScriptName Fragments:Quests:QF_DialogueRedMile_002B2C2B Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueRedMile_002B2C2B Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property DialogueRedMile_OpeningScene Auto Const mandatory
-Potion Property Food_RS_Tavern_RunnersRush Auto Const mandatory
-ReferenceAlias Property Alias_Jade Auto Const mandatory
-ReferenceAlias Property Alias_Mei Auto Const mandatory
-ReferenceAlias Property Alias_Stocker Auto Const mandatory
-Quest Property FFRedMileR01Misc Auto Const mandatory
-Quest Property FFRedMileR01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0099_Item_00
 Function Fragment_Stage_0099_Item_00()
-  DialogueRedMile_OpeningScene.Start()
+;BEGIN CODE
+DialogueRedMile_OpeningScene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Alias_Mei.GetActorRef().EvaluatePackage(False)
-  Alias_Stocker.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_Mei.GetActorRef().EvaluatePackage()
+Alias_Stocker.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0350_Item_00
 Function Fragment_Stage_0350_Item_00()
-  If !FFRedMileR01.IsRunning() && !FFRedMileR01Misc.IsRunning()
-    FFRedMileR01Misc.Start()
-  EndIf
+;BEGIN CODE
+If !FFRedMileR01.IsRunning() && !FFRedMileR01Misc.IsRunning()
+	FFRedMileR01Misc.Start()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0420_Item_00
 Function Fragment_Stage_0420_Item_00()
-  Game.GetPlayer().RemoveItem(Food_RS_Tavern_RunnersRush as Form, 1, False, None)
+;BEGIN CODE
+;Checked via condition immediately prior to this stage getting set.
+Game.GetPlayer().RemoveItem(Food_RS_Tavern_RunnersRush, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property DialogueRedMile_OpeningScene Auto Const Mandatory
+
+Potion Property Food_RS_Tavern_RunnersRush Auto Const Mandatory
+
+ReferenceAlias Property Alias_Jade Auto Const Mandatory
+
+ReferenceAlias Property Alias_Mei Auto Const Mandatory
+
+ReferenceAlias Property Alias_Stocker Auto Const Mandatory
+
+Quest Property FFRedMileR01Misc Auto Const Mandatory
+
+Quest Property FFRedMileR01 Auto Const Mandatory

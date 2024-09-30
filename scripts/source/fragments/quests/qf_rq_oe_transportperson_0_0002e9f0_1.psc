@@ -1,51 +1,85 @@
-ScriptName Fragments:Quests:QF_RQ_OE_TransportPerson_0_0002E9F0_1 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_RQ_OE_TransportPerson_0_0002E9F0_1 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_QuestGiver Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Quest __temp = Self as Quest
-  rq_transportperson_01_script kmyQuest = __temp as rq_transportperson_01_script
-  kmyQuest.SetDialogueAV_Hello_None()
+;BEGIN AUTOCAST TYPE RQ_TransportPerson_01_Script
+Quest __temp = self as Quest
+RQ_TransportPerson_01_Script kmyQuest = __temp as RQ_TransportPerson_01_Script
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.SetDialogueAV_Hello_None()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  defaultpassengerquestscript kmyQuest = __temp as defaultpassengerquestscript
-  Self.SetObjectiveDisplayed(100, True, False)
-  kmyQuest.AddPassenger(Alias_QuestGiver)
+;BEGIN AUTOCAST TYPE defaultpassengerquestscript
+Quest __temp = self as Quest
+defaultpassengerquestscript kmyQuest = __temp as defaultpassengerquestscript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+kmyquest.AddPassenger(Alias_QuestGiver)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_01
 Function Fragment_Stage_0100_Item_01()
-  Quest __temp = Self as Quest
-  rq_transportperson_01_script kmyQuest = __temp as rq_transportperson_01_script
-  kmyQuest.AgreeToTransportPassenger()
+;BEGIN AUTOCAST TYPE RQ_TransportPerson_01_Script
+Quest __temp = self as Quest
+RQ_TransportPerson_01_Script kmyQuest = __temp as RQ_TransportPerson_01_Script
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.AgreeToTransportPassenger()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0285_Item_00
 Function Fragment_Stage_0285_Item_00()
-  Quest __temp = Self as Quest
-  rq_transportperson_01_script kmyQuest = __temp as rq_transportperson_01_script
-  If Self.IsObjectiveDisplayed(100) && !Self.IsObjectiveCompleted(100)
-    Self.SetObjectiveFailed(100, True)
-  EndIf
-  kmyQuest.SetDialogueAV_PrimaryObjectiveFail()
-  Self.SetStage(990)
+;BEGIN AUTOCAST TYPE RQ_TransportPerson_01_Script
+Quest __temp = self as Quest
+RQ_TransportPerson_01_Script kmyQuest = __temp as RQ_TransportPerson_01_Script
+;END AUTOCAST
+;BEGIN CODE
+if IsObjectiveDisplayed(100) && !IsObjectiveCompleted(100)
+    SetObjectiveFailed(100)
+endif
+kmyquest.SetDialogueAV_PrimaryObjectiveFail()
+SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0390_Item_00
 Function Fragment_Stage_0390_Item_00()
-  Quest __temp = Self as Quest
-  rq_transportperson_01_script kmyQuest = __temp as rq_transportperson_01_script
-  Self.SetObjectiveCompleted(100, True)
-  kmyQuest.SetDialogueAV_PrimaryObjectiveSuccess()
-  kmyQuest.SetDialogueAV_Hello_DepartingShip()
+;BEGIN AUTOCAST TYPE RQ_TransportPerson_01_Script
+Quest __temp = self as Quest
+RQ_TransportPerson_01_Script kmyQuest = __temp as RQ_TransportPerson_01_Script
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveCompleted(100)
+kmyquest.SetDialogueAV_PrimaryObjectiveSuccess()
+kmyquest.SetDialogueAV_Hello_DepartingShip()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0920_Item_00
 Function Fragment_Stage_0920_Item_00()
-  Quest __temp = Self as Quest
-  rq_transportperson_01_script kmyQuest = __temp as rq_transportperson_01_script
-  Self.SetStage(990)
+;BEGIN AUTOCAST TYPE RQ_TransportPerson_01_Script
+Quest __temp = self as Quest
+RQ_TransportPerson_01_Script kmyQuest = __temp as RQ_TransportPerson_01_Script
+;END AUTOCAST
+;BEGIN CODE
+SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_QuestGiver Auto Const

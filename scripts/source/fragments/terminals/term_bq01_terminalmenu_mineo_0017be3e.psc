@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_BQ01_TerminalMenu_MineO_0017BE3E Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_BQ01_TerminalMenu_MineO_0017BE3E Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property BarrettQuest Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_01
 Function Fragment_TerminalMenu_01(ObjectReference akTerminalRef)
-  BarrettQuest.SetStage(5105)
+;BEGIN CODE
+BarrettQuest.SetStage(5105)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property BarrettQuest Auto Const Mandatory

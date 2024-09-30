@@ -1,11 +1,11 @@
-ScriptName SQ_ShipVendorsScript Extends Quest
-{ script for SQ_ShipVendors quest which handles system for creating and managing ships for sale }
+Scriptname SQ_ShipVendorsScript extends Quest
+{script for SQ_ShipVendors quest which handles system for creating and managing ships for sale}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkShipVendorLandingMarker Auto Const mandatory
+Keyword Property LinkShipVendorLandingMarker auto const mandatory
 { keyword to get landing marker a vendor is linked to }
+
 GlobalVariable Property GameDaysPassed Auto Const mandatory
-ActorValue Property SQ_ShipVendorsLastRefreshTimestamp Auto Const mandatory
+
+ActorValue property SQ_ShipVendorsLastRefreshTimestamp auto const mandatory
 { used to stamp the vendor with the last player's visit - used to determine when to refresh ship list }
+

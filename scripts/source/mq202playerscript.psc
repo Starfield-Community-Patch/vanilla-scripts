@@ -1,44 +1,47 @@
-ScriptName MQ202PlayerScript Extends ReferenceAlias
+Scriptname MQ202PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Faction Property MQ202PetrovFaction Mandatory Const Auto
+Faction Property MQ202PetrovGuardsFaction Auto Const Mandatory
+Faction Property MQ202PetrovTerminalsFaction Auto Const Mandatory
+Faction Property MQ202PetrovBoardingFaction Auto Const Mandatory
+Faction Property MQ202PetrovGuardsFriendsFaction Auto Const Mandatory
+Faction Property PlayerFaction Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Faction Property MQ202PetrovFaction Auto Const mandatory
-Faction Property MQ202PetrovGuardsFaction Auto Const mandatory
-Faction Property MQ202PetrovTerminalsFaction Auto Const mandatory
-Faction Property MQ202PetrovBoardingFaction Auto Const mandatory
-Faction Property MQ202PetrovGuardsFriendsFaction Auto Const mandatory
-Faction Property PlayerFaction Auto Const mandatory
-Int Property PlayerKillPrereqStage = 410 Auto Const
-Int Property PlayerKillSetStage = 420 Auto Const
-ReferenceAlias Property ArmoryTerminal Auto Const mandatory
-ReferenceAlias Property ZooTerminal Auto Const mandatory
-ReferenceAlias Property ZooAreaGuard01 Auto Const mandatory
-ReferenceAlias Property ZooAreaGuard02 Auto Const mandatory
-ReferenceAlias Property ZooAreaGuard03 Auto Const mandatory
-ReferenceAlias Property CaptainPetrov Auto Const mandatory
+Int Property PlayerKillPrereqStage=410 Const Auto
+Int Property PlayerKillSetStage=420 Const Auto
 
-;-- Functions ---------------------------------------
+ReferenceAlias Property ArmoryTerminal Auto Const Mandatory
+ReferenceAlias Property ZooTerminal Auto Const Mandatory
+ReferenceAlias Property ZooAreaGuard01 Auto Const Mandatory
+ReferenceAlias Property ZooAreaGuard02 Auto Const Mandatory
+ReferenceAlias Property ZooAreaGuard03 Auto Const Mandatory
+ReferenceAlias Property CaptainPetrov Auto Const Mandatory
 
 Event OnKill(ObjectReference akVictim)
-  Quest MyQuest = Self.GetOwningQuest()
-  If (akVictim as Actor).IsInFaction(MQ202PetrovFaction)
-    If MyQuest.GetStageDone(PlayerKillPrereqStage)
-      MyQuest.SetStage(PlayerKillSetStage)
+    Quest MyQuest = GetOwningQuest()
+
+    ;if the player kills someone after being given free reign of the ship, set stage to start combat again
+    If (akVictim as Actor).IsInFaction(MQ202PetrovFaction)
+        If MyQuest.GetStageDone(PlayerKillPrereqStage)
+            MyQuest.SetStage(PlayerKillSetStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
-Event OnPickLock(ObjectReference akLockedRef, Bool abCrime, Bool abSucceeded, terminalmenu akLockedTerminalMenu, Int aiTerminalMenuItem)
-  If (akLockedRef == ZooTerminal.GetRef() || akLockedRef == ArmoryTerminal.GetRef()) && abCrime == True
-    Actor PlayerRef = Game.GetPlayer()
-    If ZooAreaGuard01.GetActorRef().HasDetectionLOS(PlayerRef as ObjectReference) || ZooAreaGuard02.GetActorRef().HasDetectionLOS(PlayerRef as ObjectReference) || ZooAreaGuard03.GetActorRef().HasDetectionLOS(PlayerRef as ObjectReference) || CaptainPetrov.GetActorRef().HasDetectionLOS(PlayerRef as ObjectReference)
-      PlayerRef.RemoveFromFaction(MQ202PetrovFaction)
-      PlayerRef.RemoveFromFaction(MQ202PetrovGuardsFriendsFaction)
-      PlayerRef.RemoveFromFaction(MQ202PetrovBoardingFaction)
-      MQ202PetrovTerminalsFaction.SetEnemy(PlayerFaction, False, False)
-      MQ202PetrovGuardsFaction.SetEnemy(PlayerFaction, False, False)
-      MQ202PetrovFaction.SetEnemy(PlayerFaction, False, False)
+Event OnPickLock(ObjectReference akLockedRef, bool abCrime, bool abSucceeded, TerminalMenu akLockedTerminalMenu, int aiTerminalMenuItem)
+Debug.Trace(Self + "MQ202 OnPickLock event fired")
+    If (akLockedRef == ZooTerminal.GetRef() || akLockedRef == ArmoryTerminal.GetRef()) && abCrime == 1 
+    Debug.Trace(Self + "MQ202 ZooTerminal confirmed")
+        Actor PlayerRef = Game.GetPlayer()
+        If ZooAreaGuard01.GetActorRef().HasDetectionLOS(PlayerRef) || ZooAreaGuard02.GetActorRef().HasDetectionLOS(PlayerRef) || ZooAreaGuard03.GetActorRef().HasDetectionLOS(PlayerRef) || CaptainPetrov.GetActorRef().HasDetectionLOS(PlayerRef)
+        Debug.Trace(Self + "MQ202 Passed LOS Checks: Guard 1:" + ZooAreaGuard01.GetActorRef().HasDetectionLOS(PlayerRef) + " Guard 2: " + ZooAreaGuard02.GetActorRef().HasDetectionLOS(PlayerRef) + " Guard 3: " + ZooAreaGuard03.GetActorRef().HasDetectionLOS(PlayerRef) + " Petrov: " + CaptainPetrov.GetActorRef().HasDetectionLOS(PlayerRef))    
+            PlayerRef.RemoveFromFaction(MQ202PetrovFaction)
+            PlayerRef.RemoveFromFaction(MQ202PetrovGuardsFriendsFaction)
+            PlayerRef.RemoveFromFaction(MQ202PetrovBoardingFaction)
+            MQ202PetrovTerminalsFaction.SetEnemy(PlayerFaction)
+            MQ202PetrovGuardsFaction.SetEnemy(PlayerFaction)
+            MQ202PetrovFaction.SetEnemy(PlayerFaction)
+        EndIf
     EndIf
-  EndIf
 EndEvent
+

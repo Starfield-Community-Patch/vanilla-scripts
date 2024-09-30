@@ -1,7 +1,5 @@
-ScriptName TestDialogueSystem2Script Extends Quest
+Scriptname TestDialogueSystem2Script extends Quest
 
-;-- Functions ---------------------------------------
-
-Event OnAffinityEventSent(affinityevent akAffinityEvent, ObjectReference akTarget)
-  ; Empty function
+Event OnAffinityEventSent(AffinityEvent akAffinityEvent, ObjectReference akTarget)
+	debug.trace("Receiving Affinity Event on Quest Script: " + akAffinityEvent)
 EndEvent

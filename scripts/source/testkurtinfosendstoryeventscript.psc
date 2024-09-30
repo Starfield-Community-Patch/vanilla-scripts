@@ -1,12 +1,8 @@
-ScriptName TestKurtInfoSendStoryEventScript Extends TopicInfo
+Scriptname TestKurtInfoSendStoryEventScript extends TopicInfo
 
-;-- Variables ---------------------------------------
+keyword property StoryEventKeyword auto const mandatory
 
-;-- Properties --------------------------------------
-Keyword Property StoryEventKeyword Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  StoryEventKeyword.SendStoryEvent(None, akSpeakerRef, None, 0, 0)
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    debug.trace(self + " sending story event " + StoryEventKeyword)
+    StoryEventKeyword.SendStoryEvent(akref1=akSpeakerRef)
 EndEvent

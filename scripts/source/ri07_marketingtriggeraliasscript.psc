@@ -1,19 +1,14 @@
-ScriptName RI07_MarketingTriggerAliasScript Extends ReferenceAlias
+Scriptname RI07_MarketingTriggerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Armor Property RI07_ResearchUniform Auto Const mandatory
-Int Property iStageToSet Auto Const mandatory
-Int Property iGetStageDone Auto Const mandatory
-Int Property iPreReqStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Armor Property RI07_ResearchUniform Auto Const Mandatory
+Int Property iStageToSet Auto Const Mandatory
+Int Property iGetStageDone Auto Const Mandatory
+Int Property iPreReqStage Auto Const Mandatory
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Actor PlayerRef = Game.GetPlayer()
-  Quest OwningQuest = Self.GetOwningQuest()
-  If (akActionRef == PlayerRef as ObjectReference) && PlayerRef.IsEquipped(RI07_ResearchUniform as Form) == False && !OwningQuest.GetStageDone(iGetStageDone) && OwningQuest.GetStageDone(iPreReqStage)
-    OwningQuest.SetStage(iStageToSet)
-  EndIf
+    Actor PlayerRef = Game.GetPlayer()
+    Quest OwningQuest = GetOwningQuest()
+    If akActionRef == PlayerRef && PlayerRef.IsEquipped(RI07_ResearchUniform) == 0 && !OwningQuest.GetStageDone(iGetStageDone) && OwningQuest.GetStageDone(iPreReqStage)
+        OwningQuest.SetStage(iStageToSet)
+    EndIf
 EndEvent

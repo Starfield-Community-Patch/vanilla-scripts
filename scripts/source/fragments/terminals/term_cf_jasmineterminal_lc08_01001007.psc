@@ -1,29 +1,38 @@
-ScriptName Fragments:Terminals:TERM_CF_JasmineTerminal_LC08_01001007 Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_CF_JasmineTerminal_LC08_01001007 Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkTerminalRobot Auto Const mandatory
-Faction Property PlayerAllyFaction Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_01
 Function Fragment_TerminalMenu_01(ObjectReference akTerminalRef)
-  Actor[] linkedRobots = akTerminalRef.GetLinkedRefChain(LinkTerminalRobot, 100) as Actor[]
-  Int I = 0
-  While I < linkedRobots.Length
-    linkedRobots[I].SetUnconscious(True)
-    I += 1
-  EndWhile
+;BEGIN CODE
+;TEMP - To be replaced by native terminal functionality once available.
+Actor[] linkedRobots = akTerminalRef.GetLinkedRefChain(LinkTerminalRobot) as Actor[]
+int i = 0
+While (i < linkedRobots.Length)
+     linkedRobots[i].SetUnconscious(True)
+     i = i + 1
+EndWhile
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_TerminalMenu_02
 Function Fragment_TerminalMenu_02(ObjectReference akTerminalRef)
-  Actor[] linkedRobots = akTerminalRef.GetLinkedRefChain(LinkTerminalRobot, 100) as Actor[]
-  Int I = 0
-  While I < linkedRobots.Length
-    linkedRobots[I].RemoveFromAllFactions()
-    linkedRobots[I].AddToFaction(PlayerAllyFaction)
-    linkedRobots[I].SetUnconscious(False)
-    I += 1
-  EndWhile
+;BEGIN CODE
+;TEMP - To be replaced by native terminal functionality once available.
+Actor[] linkedRobots = akTerminalRef.GetLinkedRefChain(LinkTerminalRobot) as Actor[]
+int i = 0
+While (i < linkedRobots.Length)
+     linkedRobots[i].RemoveFromAllFactions()
+     linkedRobots[i].AddToFaction(PlayerAllyFaction)
+     linkedRobots[i].SetUnconscious(False)
+     i = i + 1
+EndWhile
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Keyword Property LinkTerminalRobot Auto Const Mandatory
+
+Faction Property PlayerAllyFaction Auto Const Mandatory

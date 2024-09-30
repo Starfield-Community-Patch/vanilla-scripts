@@ -1,24 +1,22 @@
-ScriptName TestKurtEventsScript Extends ReferenceAlias
-{ trace events }
-
-;-- Functions ---------------------------------------
-
-Event OnCombatStateChanged(ObjectReference akTarget, Int aeCombatState)
-  ; Empty function
-EndEvent
+Scriptname TestKurtEventsScript extends ReferenceAlias
+{trace events}
 
 Event OnDeath(ObjectReference akKiller)
-  ; Empty function
-EndEvent
-
-Event OnDestroyed(ObjectReference akDestroyer)
-  ; Empty function
-EndEvent
-
-Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  ; Empty function
+    debug.trace(self + " OnDeath akKiller=" + akKiller)
 EndEvent
 
 Event OnUnload()
-  ; Empty function
+    debug.trace(self + " OnUnload")
+EndEvent
+
+Event OnDestroyed(ObjectReference akDestroyer)
+    debug.trace(self + " OnDestroyed akDestroyer=" + akDestroyer)
+EndEvent
+
+Event OnCombatStateChanged(ObjectReference akTarget, int aeCombatState)
+    debug.trace(self + " OnCombatStateChanged akTarget=" + akTarget + " aeCombatState=" + aeCombatState)
+EndEvent
+
+Event OnLocationChange(Location akOldLoc, Location akNewLoc)
+    debug.trace(self + " OnLocationChange akOldLoc=" + akOldLoc + " akNewLoc=" + akNewLoc)
 EndEvent

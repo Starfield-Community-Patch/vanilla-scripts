@@ -1,30 +1,27 @@
-ScriptName CityCYRedTape03QuestScript Extends Quest
+Scriptname CityCYRedTape03QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Int Property PlayerInJailTriggerStage = 885 Const Auto
+Int Property JailCellDoorClosedStage = 887 Const Auto
+ReferenceAlias Property JailDoor Mandatory Const Auto
+ReferenceAlias Property JailTrigger Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Int Property PlayerInJailTriggerStage = 885 Auto Const
-Int Property JailCellDoorClosedStage = 887 Auto Const
-ReferenceAlias Property JailDoor Auto Const mandatory
-ReferenceAlias Property JailTrigger Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;Try to close the jail cell door if the player is not inside. Otherwise, close it when the player leaves the volume (via DefaultaliasOnTriggerLeave on the JailTrigger alias).
+;If the player is still somehow in the trigger when it tries to close, then start a timer and keep trying until the player is no longer in the trigger.
 Function CloseJailCell()
-  If Self.GetStageDone(JailCellDoorClosedStage) == False
-    If JailTrigger.GetRef().IsInTrigger(Game.GetPlayer() as ObjectReference) == False
-      ObjectReference myDoor = JailDoor.GetRef()
-      myDoor.SetOpen(False)
-      myDoor.SetDoorInaccessible(True)
-      Self.SetStage(JailCellDoorClosedStage)
-    ElseIf Self.GetStageDone(PlayerInJailTriggerStage) == False
-      Self.SetStage(PlayerInJailTriggerStage)
-    Else
-      Self.StartTimer(3.0, 0)
+    If GetStageDone(JailCellDoorClosedStage) == False
+        If JailTrigger.GetRef().IsInTrigger(Game.GetPlayer()) == False
+            ObjectReference myDoor = JailDoor.GetRef()
+            myDoor.SetOpen(False)
+            myDoor.SetDoorInaccessible(True)
+            SetStage(JailCellDoorClosedStage)
+        ElseIf GetStageDone(PlayerInJailTriggerStage) == False
+            SetStage(PlayerInJailTriggerStage)
+        Else
+            StartTimer(3)
+        EndIf
     EndIf
-  EndIf
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  Self.CloseJailCell()
+Event OnTimer(int aiTimerID)
+    CloseJailCell()
 EndEvent

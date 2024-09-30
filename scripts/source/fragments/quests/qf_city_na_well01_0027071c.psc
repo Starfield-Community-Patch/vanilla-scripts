@@ -1,147 +1,258 @@
-ScriptName Fragments:Quests:QF_City_NA_Well01_0027071C Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_NA_Well01_0027071C Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_StartMarker Auto Const mandatory
-Scene Property City_NA_Well01_003_Stage50Scene Auto Const mandatory
-Scene Property City_NA_Well01_005_Stage100Scene Auto Const mandatory
-Scene Property City_NA_Well01_007_Stage150Scene Auto Const mandatory
-Scene Property City_NA_Well01_009_Stage190Scene Auto Const mandatory
-Quest Property City_NA_Well02 Auto Const mandatory
-Scene Property JunctionBox01Scene Auto Const
-Scene Property JunctionBox02Scene Auto Const
-Scene Property JunctionBox03Scene Auto Const
-Scene Property JunctionBox04Scene Auto Const
-ReferenceAlias Property Alias_LouisaReyez Auto Const mandatory
-Quest Property City_NA_GuardPointer_Well Auto Const mandatory
-ReferenceAlias Property Alias_BoxDoor01 Auto Const mandatory
-ReferenceAlias Property Alias_BoxDoor02 Auto Const mandatory
-ReferenceAlias Property Alias_BoxDoor03 Auto Const mandatory
-ReferenceAlias Property Alias_BoxDoor04 Auto Const mandatory
-ReferenceAlias Property Alias_Puzzle_BoxDoor01 Auto Const mandatory
-ReferenceAlias Property Alias_Puzzle_BoxDoor02 Auto Const mandatory
-ReferenceAlias Property Alias_Puzzle_BoxDoor03 Auto Const mandatory
-ReferenceAlias Property Alias_Puzzle_BoxDoor04 Auto Const mandatory
-ReferenceAlias Property Alias_Puzzle_BlockingDoor Auto Const mandatory
-GlobalVariable Property StoryManager_NewAtlantisLoad Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Game.GetPlayer().Moveto(Alias_StartMarker.GetReference(), 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(1)
+;BEGIN CODE
+Game.GetPlayer().Moveto(Alias_StartMarker.GetReference())
+SetStage(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  StoryManager_NewAtlantisLoad.SetValue(1.0)
+;BEGIN CODE
+;set global value for Story Manager startup node
+StoryManager_NewAtlantisLoad.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  City_NA_GuardPointer_Well.SetStage(200)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+; Complete pointer
+City_NA_GuardPointer_Well.SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  If Self.IsObjectiveDisplayed(10)
-    Self.SetObjectiveCompleted(10, True)
-  EndIf
-  Self.SetObjectiveDisplayed(20, True, False)
-  Alias_LouisaReyez.GetActorRef().EvaluatePackage(False)
-  City_NA_GuardPointer_Well.SetStage(200)
-  Alias_BoxDoor01.GetReference().Lock(False, False, True)
-EndFunction
+;BEGIN CODE
+if IsObjectiveDisplayed(10)
+SetObjectiveCompleted(10)
+endif
+SetObjectiveDisplayed(20)
+Alias_LouisaReyez.GetActorRef().EvaluatePackage()
 
+; Complete pointer
+City_NA_GuardPointer_Well.SetStage(200)
+
+;unlock the first junction box
+Alias_BoxDoor01.GetReference().Lock(False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  JunctionBox01Scene.Start()
+;BEGIN CODE
+JunctionBox01Scene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0035_Item_00
 Function Fragment_Stage_0035_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(40, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  If JunctionBox01Scene.IsPlaying()
-    JunctionBox01Scene.Stop()
-    Self.SetObjectiveCompleted(20, True)
-  EndIf
-  City_NA_Well01_003_Stage50Scene.Start()
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveDisplayed(50, True, False)
-  Alias_BoxDoor02.GetReference().Lock(False, False, True)
-EndFunction
+;BEGIN CODE
+if JunctionBox01Scene.IsPlaying()
+JunctionBox01Scene.Stop()
+SetObjectiveCompleted(20)
+endif
 
+City_NA_Well01_003_Stage50Scene.Start()
+SetObjectiveCompleted(40)
+SetObjectiveDisplayed(50)
+
+;unlock the next junction box
+Alias_BoxDoor02.GetReference().Lock(False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0080_Item_00
 Function Fragment_Stage_0080_Item_00()
-  JunctionBox02Scene.Start()
+;BEGIN CODE
+JunctionBox02Scene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0085_Item_00
 Function Fragment_Stage_0085_Item_00()
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveDisplayed(90, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(50)
+SetObjectiveDisplayed(90)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  If JunctionBox02Scene.IsPlaying()
-    JunctionBox02Scene.Stop()
-    Self.SetObjectiveCompleted(50, True)
-  EndIf
-  City_NA_Well01_005_Stage100Scene.Start()
-  Self.SetObjectiveCompleted(90, True)
-  Self.SetObjectiveDisplayed(100, True, False)
-  Alias_BoxDoor03.GetReference().Lock(False, False, True)
-EndFunction
+;BEGIN CODE
+if JunctionBox02Scene.IsPlaying()
+JunctionBox02Scene.Stop()
+SetObjectiveCompleted(50)
+endif
 
+
+City_NA_Well01_005_Stage100Scene.Start()
+SetObjectiveCompleted(90)
+SetObjectiveDisplayed(100)
+
+;unlock the next junction box
+Alias_BoxDoor03.GetReference().Lock(False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0130_Item_00
 Function Fragment_Stage_0130_Item_00()
-  JunctionBox03Scene.Start()
+;BEGIN CODE
+JunctionBox03Scene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0135_Item_00
 Function Fragment_Stage_0135_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(140, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(140)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  If JunctionBox03Scene.IsPlaying()
-    JunctionBox03Scene.Stop()
-    Self.SetObjectiveCompleted(100, True)
-  EndIf
-  City_NA_Well01_007_Stage150Scene.Start()
-  Self.SetObjectiveCompleted(140, True)
-  Self.SetObjectiveDisplayed(150, True, False)
-  Alias_BoxDoor04.GetReference().Lock(False, False, True)
-  Alias_Puzzle_BoxDoor01.GetReference().Lock(False, False, True)
-  Alias_Puzzle_BoxDoor02.GetReference().Lock(False, False, True)
-  Alias_Puzzle_BoxDoor03.GetReference().Lock(False, False, True)
-  Alias_Puzzle_BoxDoor04.GetReference().Lock(False, False, True)
-EndFunction
+;BEGIN CODE
+if JunctionBox03Scene.IsPlaying()
+JunctionBox03Scene.Stop()
+SetObjectiveCompleted(100)
+endif
 
+
+City_NA_Well01_007_Stage150Scene.Start()
+SetObjectiveCompleted(140)
+SetObjectiveDisplayed(150)
+
+;unlock the remaining junction box
+Alias_BoxDoor04.GetReference().Lock(False)
+Alias_Puzzle_BoxDoor01.GetReference().Lock(False)
+Alias_Puzzle_BoxDoor02.GetReference().Lock(False)
+Alias_Puzzle_BoxDoor03.GetReference().Lock(False)
+Alias_Puzzle_BoxDoor04.GetReference().Lock(False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0170_Item_00
 Function Fragment_Stage_0170_Item_00()
-  JunctionBox04Scene.Start()
+;BEGIN CODE
+JunctionBox04Scene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0175_Item_00
 Function Fragment_Stage_0175_Item_00()
-  Self.SetObjectiveCompleted(150, True)
-  Self.SetObjectiveDisplayed(180, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(150)
+SetObjectiveDisplayed(180)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0185_Item_00
 Function Fragment_Stage_0185_Item_00()
-  Alias_Puzzle_BlockingDoor.GetReference().Lock(False, False, True)
-  Alias_Puzzle_BlockingDoor.GetReference().SetOpen(True)
+;BEGIN CODE
+Alias_Puzzle_BlockingDoor.GetReference().Lock(False)
+Alias_Puzzle_BlockingDoor.GetReference().SetOpen()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0190_Item_00
 Function Fragment_Stage_0190_Item_00()
-  If JunctionBox04Scene.IsPlaying()
-    JunctionBox04Scene.Stop()
-    Self.SetObjectiveCompleted(150, True)
-  EndIf
-  City_NA_Well01_009_Stage190Scene.Start()
-  Self.SetObjectiveCompleted(180, True)
-  Self.SetObjectiveDisplayed(190, True, False)
-EndFunction
+;BEGIN CODE
+if JunctionBox04Scene.IsPlaying()
+JunctionBox04Scene.Stop()
+SetObjectiveCompleted(150)
+endif
 
-Function Fragment_Stage_0200_Item_00()
-  Self.CompleteAllObjectives()
-  City_NA_Well02.Start()
-  Self.Stop()
+
+City_NA_Well01_009_Stage190Scene.Start()
+SetObjectiveCompleted(180)
+SetObjectiveDisplayed(190)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
+Function Fragment_Stage_0200_Item_00()
+;BEGIN CODE
+CompleteAllObjectives()
+City_NA_Well02.Start()
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_StartMarker Auto Const Mandatory
+
+Scene Property City_NA_Well01_003_Stage50Scene Auto Const Mandatory
+
+Scene Property City_NA_Well01_005_Stage100Scene Auto Const Mandatory
+
+Scene Property City_NA_Well01_007_Stage150Scene Auto Const Mandatory
+
+Scene Property City_NA_Well01_009_Stage190Scene Auto Const Mandatory
+
+Quest Property City_NA_Well02 Auto Const Mandatory
+
+Scene Property JunctionBox01Scene Auto Const
+
+Scene Property JunctionBox02Scene Auto Const
+
+Scene Property JunctionBox03Scene Auto Const
+
+Scene Property JunctionBox04Scene Auto Const
+
+ReferenceAlias Property Alias_LouisaReyez Auto Const Mandatory
+
+Quest Property City_NA_GuardPointer_Well Auto Const Mandatory
+
+ReferenceAlias Property Alias_BoxDoor01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_BoxDoor02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_BoxDoor03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_BoxDoor04 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Puzzle_BoxDoor01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Puzzle_BoxDoor02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Puzzle_BoxDoor03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Puzzle_BoxDoor04 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Puzzle_BlockingDoor Auto Const Mandatory
+
+GlobalVariable Property StoryManager_NewAtlantisLoad Auto Const Mandatory

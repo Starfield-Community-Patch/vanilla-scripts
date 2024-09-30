@@ -1,233 +1,302 @@
-ScriptName ShipVendorScript Extends Actor conditional
+Scriptname ShipVendorScript extends Actor conditional
 
-;-- Variables ---------------------------------------
-shipvendorlistscript:shiptosell[] ShipsToSellAlways
-shipvendorlistscript:shiptosell[] ShipsToSellRandom
-shipvendorlistscript:shiptosell[] ShipsToSellUnique
-Bool initialized = False
-Float lastInventoryRefreshTimestamp
-spaceshipreference[] shipsForSale
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard shipsForSaleGuard
-
-;-- Properties --------------------------------------
-Keyword Property LinkShipLandingMarker01 Auto Const mandatory
+Keyword property LinkShipLandingMarker01 auto const mandatory
 { link vendor to landing marker }
-Keyword Property SpaceshipStoredLink Auto Const mandatory
+
+Keyword property SpaceshipStoredLink auto const mandatory
 { link ships to landing marker }
-sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
+
+SQ_PlayerShipScript property SQ_PlayerShip Auto Const Mandatory
 { The main Player Ship system quest }
-Location Property ShipVendorLocation Auto Const
+
+Location property ShipVendorLocation auto const
 { OPTIONAL - The location used to spawn vendor ships at for leveling purposes.
     If not filled in, script will use vendor's current location }
-shipvendorlistscript Property ShipsToSellListRandomDataset Auto Const
+
+ShipVendorListScript property ShipsToSellListRandomDataset auto const
 { The data set for random ships to sell. }
-shipvendorlistscript Property ShipsToSellListAlwaysDataset Auto Const
+
+ShipVendorListScript property ShipsToSellListAlwaysDataset auto const
 { The data set for ships that should always be available for sale. }
-shipvendorlistscript Property ShipsToSellListUniqueDataset Auto Const
+
+ShipVendorListScript property ShipsToSellListUniqueDataset auto const
 { The data set for unique ships to make available for sale. (Never respawns) }
-Int Property ShipsForSaleMin = 4 Auto Const
+
+int property ShipsForSaleMin = 4 auto const
 { NOTE: if these are 0, the only ships for sale will be from ShipsToSellListAlwaysDataset }
-Int Property ShipsForSaleMax = 8 Auto Const
-ObjectReference Property myLandingMarker Auto hidden
+
+int property ShipsForSaleMax = 8 auto const
+
+ObjectReference property myLandingMarker auto hidden
 { landing marker, set by OnInit }
-RefCollectionAlias Property PlayerShips Auto Const mandatory
+
+RefCollectionAlias property PlayerShips auto const Mandatory
 { from SQ_Playership - need to know when player sells ships }
-Float Property DaysUntilInventoryRefresh = 7.0 Auto Const
+
+float property DaysUntilInventoryRefresh = 7.0 auto const
 { how many days until next inventory refresh? }
-Bool Property BuysShips = True Auto conditional
-Bool Property SellsShips = True Auto conditional
-Bool Property InitializeOnLoad = True Auto Const
+
+bool property BuysShips = true auto conditional
+bool property SellsShips = true auto conditional
+
+bool property InitializeOnLoad = true auto Const
 { if false, Initialize() needs to be called manually (e.g. for outpost ship vendor) }
 
-;-- Functions ---------------------------------------
+ShipVendorListScript:ShipToSell[] ShipsToSellRandom
+ShipVendorListScript:ShipToSell[] ShipsToSellAlways
+ShipVendorListScript:ShipToSell[] ShipsToSellUnique
+float lastInventoryRefreshTimestamp ; timestamp when last refresh happened
 
-Function TestLinkedRefChildren(ObjectReference refToCheck, Keyword theKeyword)
-  ; Empty function
-EndFunction
+SpaceshipReference[] shipsForSale RequiresGuard(shipsForSaleGuard)
+
+
+Guard shipsForSaleGuard
+
+bool initialized = false
 
 Event OnLoad()
-  Self.HandleOnLoad()
+    debug.trace(self + " OnLoad")
+    HandleOnLoad()
 EndEvent
 
 Function Initialize(ObjectReference landingMarkerRef)
-  If initialized == False
-    ShipsToSellRandom = Self.CopyShipToSellArray(ShipsToSellListRandomDataset.ShipList)
-    ShipsToSellAlways = Self.CopyShipToSellArray(ShipsToSellListAlwaysDataset.ShipList)
-    ShipsToSellUnique = Self.CopyShipToSellArray(ShipsToSellListUniqueDataset.ShipList)
-    Guard shipsForSaleGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      myLandingMarker = landingMarkerRef
-      shipsForSale = new spaceshipreference[0]
-      initialized = True
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-    Self.CheckForInventoryRefresh(False)
-  EndIf
+    debug.trace(self + " Initialize " + landingMarkerRef)
+    if initialized == false
+        ; Initialize arrays using datasets.
+        ShipsToSellRandom = CopyShipToSellArray(ShipsToSellListRandomDataset.ShipList)
+        ShipsToSellAlways = CopyShipToSellArray(ShipsToSellListAlwaysDataset.ShipList)
+        ShipsToSellUnique = CopyShipToSellArray(ShipsToSellListUniqueDataset.ShipList)
+
+        LockGuard shipsForSaleGuard
+            myLandingMarker = landingMarkerRef
+            debug.trace(self + " setting myLandingMarker=" + myLandingMarker)
+            shipsForSale = new SpaceshipReference[0]
+            initialized = true
+        endLockGuard
+        CheckForInventoryRefresh()
+    endif
 EndFunction
 
-shipvendorlistscript:shiptosell[] Function CopyShipToSellArray(shipvendorlistscript:shiptosell[] arrayToCopy)
-  shipvendorlistscript:shiptosell[] myShipsToSell = new shipvendorlistscript:shiptosell[arrayToCopy.Length]
-  Int I = 0
-  While I < arrayToCopy.Length
-    myShipsToSell[I] = arrayToCopy[I]
-    I += 1
-  EndWhile
-  Return myShipsToSell
-EndFunction
+ ShipVendorListScript:ShipToSell[] function CopyShipToSellArray(ShipVendorListScript:ShipToSell[] arrayToCopy)
+    ShipVendorListScript:ShipToSell[] myShipsToSell = new ShipVendorListScript:ShipToSell[arrayToCopy.Length]
+    int i = 0
+    while (i < arrayToCopy.Length)
+        myShipsToSell[i] = arrayToCopy[i]
+        i += 1
+    endWhile
+    return myShipsToSell
+ endFunction
 
 Function HandleOnLoad()
-  Self.RegisterForRemoteEvent(PlayerShips as ScriptObject, "OnShipSold")
-  If initialized == False && InitializeOnLoad
-    myLandingMarker = Self.GetLinkedRef(LinkShipLandingMarker01)
-    Self.Initialize(myLandingMarker)
-  EndIf
-  If initialized
-    Self.CheckForInventoryRefresh(False)
-  EndIf
+    ; register for ship sell events
+    RegisterForRemoteEvent(PlayerShips, "OnShipSold")
+    if initialized == false && InitializeOnLoad
+        myLandingMarker = GetLinkedRef(LinkShipLandingMarker01)
+        Initialize(myLandingMarker)
+    endif
+    if initialized
+        CheckForInventoryRefresh()
+    endif
+endFunction
+
+Function TestLinkedRefChildren(ObjectReference refToCheck, Keyword theKeyword)
+    debug.trace(self + " GetRefsLinkedToMe=" + refToCheck.GetRefsLinkedToMe(theKeyword))
 EndFunction
 
 Event RefCollectionAlias.OnShipSold(RefCollectionAlias akSender, ObjectReference akSenderRef)
-  spaceshipreference soldShip = akSenderRef as spaceshipreference
-  If soldShip as Bool && soldShip.GetLinkedRef(SpaceshipStoredLink) == myLandingMarker
-    Guard shipsForSaleGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      shipsForSale.add(soldShip, 1)
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  EndIf
+    debug.trace(self + " OnShipSold " + akSenderRef)
+    ; if this ship is linked to this landing marker, add it to vendor's list
+    SpaceshipReference soldShip = akSenderRef as SpaceshipReference
+    if soldShip && soldShip.GetLinkedRef(SpaceshipStoredLink) == myLandingMarker
+        LockGuard shipsForSaleGuard
+            shipsForSale.Add(soldShip)
+        endLockGuard
+    endif
 EndEvent
 
-Event SpaceshipReference.OnShipBought(spaceshipreference akSenderRef)
-  Guard shipsForSaleGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int shipsForSaleIndex = shipsForSale.find(akSenderRef, 0)
-    If shipsForSaleIndex > -1
-      shipsForSale.remove(shipsForSaleIndex, 1)
-      If ShipsToSellUnique.Length > 0
-        leveledspaceshipbase soldLeveledSpaceshipBase = akSenderRef.GetBaseObject() as leveledspaceshipbase
-        Int uniqueIndex = ShipsToSellUnique.findstruct("leveledShip", soldLeveledSpaceshipBase, 0)
-        If uniqueIndex > -1
-          ShipsToSellUnique.remove(uniqueIndex, 1)
+Event SpaceshipReference.OnShipBought(SpaceshipReference akSenderRef)
+    debug.trace(self + " OnShipBought " + akSenderRef)
+        LockGuard shipsForSaleGuard
+            int shipsForSaleIndex = shipsForSale.Find(akSenderRef)
+            if shipsForSaleIndex > -1
+                shipsForSale.Remove(shipsForSaleIndex)
+                ; remove from unique list if it exists
+                if ShipsToSellUnique.Length > 0
+                    LeveledSpaceshipBase soldLeveledSpaceshipBase = akSenderRef.GetBaseObject() as LeveledSpaceshipBase
+                    debug.trace(self + " soldLeveledSpaceshipBase=" + soldLeveledSpaceshipBase)
+                    int uniqueIndex = ShipsToSellUnique.FindStruct("leveledShip", soldLeveledSpaceshipBase)
+                    if uniqueIndex > -1
+                        debug.trace(self + " unique ship was bought - remove it from unique list")
+                        ShipsToSellUnique.Remove(uniqueIndex)
+                    endif
+                endif
+            endif
+        endLockGuard
+EndEvent
+
+Function CheckForInventoryRefresh(bool bForceRefresh = false)
+    if SellsShips
+        float currentGameTime = Utility.GetCurrentGameTime()
+        float nextRefreshTime = lastInventoryRefreshTimestamp + DaysUntilInventoryRefresh
+        debug.trace(self + " CheckForInventoryRefresh currentGameTime=" + currentGameTime + " nextRefreshTime=" + nextRefreshTime)
+        if bForceRefresh || lastInventoryRefreshTimestamp == 0 || (currentGameTime >= nextRefreshTime)
+            debug.trace(self + " time to refresh inventory")
+
+            LockGuard shipsForSaleGuard
+                RefreshInventoryList(myLandingMarker, shipsForSale)
+                debug.trace(self + " RefreshInventory: shipsForSale=" + shipsForSale)
+            EndLockGuard
         EndIf
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndEvent
-
-Function CheckForInventoryRefresh(Bool bForceRefresh)
-  If SellsShips
-    Float currentGameTime = Utility.GetCurrentGameTime()
-    Float nextRefreshTime = lastInventoryRefreshTimestamp + DaysUntilInventoryRefresh
-    If bForceRefresh || lastInventoryRefreshTimestamp == 0.0 || currentGameTime >= nextRefreshTime
-      Guard shipsForSaleGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-        Self.RefreshInventoryList(myLandingMarker, shipsForSale)
-      EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-    EndIf
-  EndIf
+    endif
 EndFunction
 
-Function RefreshInventoryList(ObjectReference createMarker, spaceshipreference[] ShipList)
-  If createMarker
-    Actor playerRef = Game.GetPlayer()
-    Int playerLevel = playerRef.GetLevel()
-    Int i = ShipList.Length - 1
-    While i > -1
-      spaceshipreference theShip = ShipList[i]
-      theShip.Delete()
-      i += -1
-    EndWhile
-    ShipList.clear()
-    Int totalShipsToCreateCount = Utility.RandomInt(ShipsForSaleMin, ShipsForSaleMax)
-    Int nonRandomShipsToCreateCount = ShipsToSellAlways.Length + ShipsToSellUnique.Length
-    If totalShipsToCreateCount < nonRandomShipsToCreateCount
-      totalShipsToCreateCount = nonRandomShipsToCreateCount
-    EndIf
-    Int randomShipsToCreateCount = totalShipsToCreateCount - nonRandomShipsToCreateCount
-    Self.CreateShipsForSale(ShipsToSellAlways, playerLevel, createMarker, ShipList)
-    If randomShipsToCreateCount > 0
-      shipvendorlistscript:shiptosell[] currentShipsRandom = new shipvendorlistscript:shiptosell[0]
-      Int currentShipsRandomIndex = 0
-      While currentShipsRandomIndex < ShipsToSellRandom.Length
-        shipvendorlistscript:shiptosell theShipToSell = ShipsToSellRandom[currentShipsRandomIndex]
-        If theShipToSell.minLevel <= playerLevel && ShipsToSellAlways.findstruct("leveledShip", theShipToSell.leveledShip, 0) == -1 && ShipsToSellUnique.findstruct("leveledShip", theShipToSell.leveledShip, 0) == -1
-          currentShipsRandom.add(ShipsToSellRandom[currentShipsRandomIndex], 1)
+Function RefreshInventoryList(ObjectReference createMarker, SpaceshipReference[] shipList)
+    debug.trace(self + " RefreshInventoryList: createMarker=" + createMarker + " ShipsToSellAlways=" + ShipsToSellAlways + " shipList=" + shipList)
+    if createMarker
+        Actor playerRef = Game.GetPlayer()
+        int playerLevel = playerRef.GetLevel()
+
+        ; clear existing list
+        int i = shipList.Length - 1
+        while i > -1
+            SpaceshipReference theShip = shipList[i]
+            theShip.Delete()
+            i += -1
+        endWhile
+        shipList.Clear()
+
+        ; how many ships do I want in my list?
+        int totalShipsToCreateCount = Utility.RandomInt(ShipsForSaleMin, ShipsForSaleMax)
+        int nonRandomShipsToCreateCount = (ShipsToSellAlways.Length + ShipsToSellUnique.Length)
+        if totalShipsToCreateCount < nonRandomShipsToCreateCount
+            totalShipsToCreateCount = nonRandomShipsToCreateCount
         EndIf
-        currentShipsRandomIndex += 1
-      EndWhile
-      i = 0
-      While i < randomShipsToCreateCount && currentShipsRandom.Length > 0
-        Int randomIndex = Utility.RandomInt(0, currentShipsRandom.Length - 1)
-        Self.CreateShipForSale(currentShipsRandom[randomIndex].leveledShip, createMarker, ShipList)
-        currentShipsRandom.remove(randomIndex, 1)
+        int randomShipsToCreateCount = totalShipsToCreateCount - nonRandomShipsToCreateCount
+        debug.trace(self + " RefreshInventoryList: creating " + totalShipsToCreateCount + " ships at landing marker " + createMarker)
+
+        ; create priority ships
+        debug.trace(self + " RefreshInventoryList: creating " + ShipsToSellAlways.Length + " priority ships (max)")
+        CreateShipsForSale(ShipsToSellAlways, playerLevel, createMarker, shipList)        
+            
+        debug.trace(self + " RefreshInventoryList: creating " + randomShipsToCreateCount + " random ships")
+        if randomShipsToCreateCount > 0
+            ; Build a list of ships from the Random list that the player qualifies for that were not already included.
+            ShipVendorListScript:ShipToSell[] currentShipsRandom = new ShipVendorListScript:ShipToSell[0]
+            int currentShipsRandomIndex = 0
+            while (currentShipsRandomIndex < ShipsToSellRandom.Length)
+                ShipVendorListScript:ShipToSell theShipToSell = ShipsToSellRandom[currentShipsRandomIndex]
+                if theShipToSell.minLevel <= playerLevel && ShipsToSellAlways.FindStruct("leveledShip", theShipToSell.leveledShip) == -1 && ShipsToSellUnique.FindStruct("leveledShip", theShipToSell.leveledShip) == -1
+                    currentShipsRandom.Add(ShipsToSellRandom[currentShipsRandomIndex])
+                endif
+                currentShipsRandomIndex += 1
+            endWhile
+
+            ; Select random ships from the Random list.
+            i = 0
+            while i < randomShipsToCreateCount && currentShipsRandom.Length > 0
+                int randomIndex = Utility.RandomInt(0, currentShipsRandom.Length-1)
+                CreateShipForSale(currentShipsRandom[randomIndex].leveledShip, createMarker, shipList)
+
+                ; Remove the entry we just selected to prevent it from being selected in this refresh again.
+                currentShipsRandom.Remove(randomIndex)
+                i += 1
+            EndWhile
+        endif
+
+        ; Lastly, create unique ships that appear at the end of the list
+        debug.trace(self + " RefreshInventoryList: creating " + ShipsToSellUnique.Length + " unique ships (max)")
+        CreateShipsForSale(ShipsToSellUnique, playerLevel, createMarker, shipList)
+
+        lastInventoryRefreshTimestamp = Utility.GetCurrentGameTime()
+    endif
+    
+    debug.trace(self + " RefreshInventoryList: DONE: shipList=" + shipList)
+    debug.trace(self + " RefreshInventoryList: Leveled Base Ships in shipList:")
+    int i = 0
+    while i < shipList.Length
+        debug.trace(self + " RefreshInventoryList:    " + shipList[i].GetBaseObject())
         i += 1
-      EndWhile
-    EndIf
-    Self.CreateShipsForSale(ShipsToSellUnique, playerLevel, createMarker, ShipList)
-    lastInventoryRefreshTimestamp = Utility.GetCurrentGameTime()
-  EndIf
-  Int I = 0
-  While I < ShipList.Length
-    I += 1
-  EndWhile
+    endWhile
+endFunction
+
+function CreateShipsForSale(ShipVendorListScript:ShipToSell[] shipToSellList, int playerLevel, ObjectReference createMarker, SpaceshipReference[] shipList)
+    int i = 0
+    if shipToSellList.Length > 0
+        while i < shipToSellList.Length
+            ShipVendorListScript:ShipToSell theShipToSell = shipToSellList[i]
+            if playerLevel >= theShipToSell.minLevel
+                CreateShipForSale(theShipToSell.leveledShip, createMarker, shipList)
+                debug.trace(self + " CreateShipsForSale: shipList=" + shipList)
+            Else
+                debug.trace(self + " player level not high enough for " + theShipToSell)
+            endif
+            i += 1
+        endWhile
+    endif
 EndFunction
 
-Function CreateShipsForSale(shipvendorlistscript:shiptosell[] shipToSellList, Int playerLevel, ObjectReference createMarker, spaceshipreference[] ShipList)
-  Int I = 0
-  If shipToSellList.Length > 0
-    While I < shipToSellList.Length
-      shipvendorlistscript:shiptosell theShipToSell = shipToSellList[I]
-      If playerLevel >= theShipToSell.minLevel
-        Self.CreateShipForSale(theShipToSell.leveledShip, createMarker, ShipList)
-      EndIf
-      I += 1
-    EndWhile
-  EndIf
-EndFunction
+function CreateShipForSale(LeveledSpaceshipBase leveledShipToCreate, ObjectReference landingMarker, SpaceshipReference[] shipList)
+    debug.trace(self + " CreateShipForSale: landingMarker=" + landingMarker)
+    ObjectReference createMarker = landingMarker
+    
+    SpaceshipReference landingMarkerShipRef = landingMarker.GetCurrentShipRef()
+    if landingMarkerShipRef
+        ; create new ship at my ship rather than the landing marker to avoid issues with creating a ship inside a ship
+        createMarker = landingMarkerShipRef
+        debug.trace(self + " landingMarker is in a ship; create new ship at the shipRef=" + landingMarkerShipRef)
+    endif
 
-Function CreateShipForSale(leveledspaceshipbase leveledShipToCreate, ObjectReference landingMarker, spaceshipreference[] ShipList)
-  ObjectReference createMarker = landingMarker
-  spaceshipreference landingMarkerShipRef = landingMarker.GetCurrentShipRef()
-  If landingMarkerShipRef
-    createMarker = landingMarkerShipRef as ObjectReference
-  EndIf
-  Location encounterLocation = ShipVendorLocation
-  If encounterLocation == None
-    encounterLocation = Self.GetCurrentLocation()
-  EndIf
-  spaceshipreference newShip = createMarker.PlaceShipAtMe(leveledShipToCreate as Form, 2, True, False, True, True, None, None, encounterLocation, True)
-  If newShip
-    ShipList.add(newShip, 1)
-    newShip.SetLinkedRef(landingMarker, SpaceshipStoredLink, True)
-    newShip.SetActorRefOwner(Self as Actor, False)
-    Self.RegisterForRemoteEvent(newShip as ScriptObject, "OnShipBought")
-    newShip.RemoveAllItems(None, False, False)
-  EndIf
-EndFunction
+    Location encounterLocation = ShipVendorLocation
+    if encounterLocation == None
+        encounterLocation = GetCurrentLocation()
+    endif
+    SpaceshipReference newShip = createMarker.PlaceShipAtMe(leveledShipToCreate, aiLevelMod = 2, abInitiallyDisabled = true, akEncLoc = encounterLocation)
+    if newShip
+        shipList.Add(newShip)
+        ; link to landing pad
+        newShip.SetLinkedRef(landingMarker, SpaceshipStoredLink)
+        ; assign vendor ownership
+        newShip.SetActorRefOwner(self)
+        ; register for player buying event
+        RegisterForRemoteEvent(newShip, "OnShipBought")
+        ; clear inventory
+        newShip.RemoveAllItems()
 
-spaceshipreference Function GetShipForSale(Int index)
-  spaceshipreference shipforSale = None
-  Guard shipsForSaleGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If shipsForSale.Length > 0
-      If index > -1 && index < shipsForSale.Length
-        shipforSale = shipsForSale[index]
-      ElseIf index >= shipsForSale.Length
-        shipforSale = shipsForSale[shipsForSale.Length - 1]
-      Else
-        shipforSale = shipsForSale[0]
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  Return shipforSale
-EndFunction
+        debug.trace(self + "   created " + newShip + " array is now: " + shipList)
+    Else
+        debug.trace(self + "   PlaceShipAtMe failed to create a ship at " + landingMarker)
+    endif
+endFunction
 
-Function TestShowHangarMenu()
-  myLandingMarker.ShowHangarMenu(0, Self as Actor, None, False)
-EndFunction
+SpaceshipReference function GetShipForSale(int index = 0)
+    SpaceshipReference shipforSale = NONE
+    LockGuard shipsForSaleGuard
+        if shipsForSale.Length > 0
+            if index > -1 && index < shipsForSale.Length
+                shipforSale = shipsForSale[index]
+            elseif index >= shipsForSale.Length
+                shipforSale = shipsForSale[shipsForSale.Length-1]
+            else
+                shipforSale = shipsForSale[0]
+            endif
+        endif
+    endLockGuard
+    debug.trace(self + " GetShipForSale " + index + " " + shipforSale)
+    return shipforSale
+endFunction
 
-Function TestOutputShipsForSale()
-  Guard shipsForSaleGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int I = 0
-    While I < shipsForSale.Length
-      spaceshipreference theShip = shipsForSale[I]
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+function TestShowHangarMenu()
+    myLandingMarker.ShowHangarMenu(0, self, NONE)
+endFunction
+
+function TestOutputShipsForSale()
+    LockGuard shipsForSaleGuard
+
+    int i = 0
+    while i < shipsForSale.Length
+        SpaceshipReference theShip = shipsForSale[i]
+        debug.trace(self + " i=" + i + ": " + theShip)
+        i += 1
+    endWhile
+    EndLockGuard
 EndFunction

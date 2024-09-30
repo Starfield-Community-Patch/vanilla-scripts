@@ -1,52 +1,68 @@
-ScriptName RI_CrimeTrackingPlayerAliasScript Extends ReferenceAlias
+Scriptname RI_CrimeTrackingPlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property RadiantLocation Auto Const mandatory
-Int Property iStartTrackingStage Auto Const mandatory
-Int Property iStopTrackingStage Auto Const mandatory
-Int Property iPreReqTrackingStage Auto Const mandatory
-Keyword Property ActorTypeHuman Auto Const mandatory
-Perk Property RI_BountyTrackingPerk Auto Const mandatory
-
-;-- Functions ---------------------------------------
+LocationAlias Property RadiantLocation Auto Const Mandatory
+Int Property iStartTrackingStage Auto Const Mandatory
+Int Property iStopTrackingStage Auto Const Mandatory
+Int Property iPreReqTrackingStage Auto Const Mandatory
+Keyword Property ActorTypeHuman Auto Const Mandatory
+Perk Property RI_BountyTrackingPerk Auto Const Mandatory
 
 Event OnKill(ObjectReference akVictim)
-  Quest MyQuest = Self.GetOwningQuest()
-  If MyQuest.GetStageDone(iStartTrackingStage)
-    If akVictim.GetCurrentLocation() == RadiantLocation.GetLocation() && akVictim.HasKeyword(ActorTypeHuman)
-      (MyQuest as ri_crimetrackingquestscript).iBodyCount = (MyQuest as ri_crimetrackingquestscript).iBodyCount + 1
+Debug.Trace(Self + "RI_CRIME: OnKill Event fired. akVictime = " + akVictim)
+    Quest MyQuest = GetOwningQuest()
+
+    If MyQuest.GetStageDone(iStartTrackingStage)
+    Debug.Trace(Self + "RI_CRIME: Tracking stage is DONE.")
+        If akVictim.GetCurrentLocation() == RadiantLocation.GetLocation() && akVictim.HasKeyword(ActorTypeHuman)
+            Debug.Trace(Self + "RI_CRIME: Player passed OnKill event in location. Increment iBodyCount + 1")
+            (MyQuest as RI_CrimeTrackingQuestScript).iBodyCount += 1
+        EndIf
     EndIf
-  EndIf
+
 EndEvent
 
-Event OnPlayerArrested(ObjectReference akGuard, Location akLocation, Int aeCrimeType)
-  Quest MyQuest = Self.GetOwningQuest()
-  If MyQuest.GetStageDone(iStartTrackingStage)
-    If akLocation == RadiantLocation.GetLocation()
-      (MyQuest as ri_crimetrackingquestscript).iTimesArrested = (MyQuest as ri_crimetrackingquestscript).iTimesArrested + 1
-      If aeCrimeType <= 1
-        (MyQuest as ri_crimetrackingquestscript).iTheftArrest = (MyQuest as ri_crimetrackingquestscript).iTheftArrest + 1
-      ElseIf aeCrimeType == 3
-        (MyQuest as ri_crimetrackingquestscript).iAttemptedMurderArrest = (MyQuest as ri_crimetrackingquestscript).iAttemptedMurderArrest + 1
-      ElseIf aeCrimeType == 4
-        (MyQuest as ri_crimetrackingquestscript).iMurderArrest = (MyQuest as ri_crimetrackingquestscript).iMurderArrest + 1
-      EndIf
+Event OnPlayerArrested(ObjectReference akGuard, Location akLocation, int aeCrimeType)
+    
+    Quest MyQuest = GetOwningQuest()
+
+    If MyQuest.GetStageDone(iStartTrackingStage)
+        If akLocation == RadiantLocation.GetLocation()
+            (MyQuest as RI_CrimeTrackingQuestScript).iTimesArrested += 1
+
+            If aeCrimeType <= 1
+                Debug.Trace(Self + "RI_CRIME: Player passed OnPlayerArrested event in location. Increment iTheftArrest + 1")
+                (MyQuest as RI_CrimeTrackingQuestScript).iTheftArrest += 1
+            ElseIf aeCrimeType == 3
+                Debug.Trace(Self + "RI_CRIME: Player passed OnPlayerArrested event in location. Increment iAttemptedMurderArrest + 1")
+                (MyQuest as RI_CrimeTrackingQuestScript).iAttemptedMurderArrest += 1
+            ElseIf aeCrimeType == 4
+                Debug.Trace(Self + "RI_CRIME: Player passed OnPlayerArrested event in location. Increment iMurderArrest + 1")
+                (MyQuest as RI_CrimeTrackingQuestScript).iMurderArrest += 1
+            EndIf
+
+        EndIf
     EndIf
-  EndIf
+
 EndEvent
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  Location LocationToCheck = RadiantLocation.GetLocation()
-  Actor PlayerRef = Game.GetPlayer()
-  Quest MyQuest = Self.GetOwningQuest()
-  If MyQuest.GetStageDone(iPreReqTrackingStage)
-    If akNewLoc == LocationToCheck
-      Game.GetPlayer().AddPerk(RI_BountyTrackingPerk, False)
+Debug.Trace(Self + "RI_CRIME: OnLocationChanged Event fired. Old Location: " + akOldLoc + " New Location: " + akNewLoc)
+
+    Location LocationToCheck = RadiantLocation.GetLocation()
+    Actor PlayerRef = Game.GetPlayer()
+    Quest MyQuest = GetOwningQuest()
+
+    If MyQuest.GetStageDone(iPreReqTrackingStage)
+    Debug.Trace(Self + "RI_CRIME: Passed GetStageDone Check for stage " + iStartTrackingStage)
+        If akNewLoc == LocationToCheck
+        Debug.Trace(Self + "RI_CRIME: Passed NEW LocationToCheck which is " + LocationToCheck + " so add perk.")
+            Game.GetPlayer().AddPerk(RI_BountyTrackingPerk)
+        EndIf
+        If akOldLoc == LocationToCheck
+        Debug.Trace(Self + "RI_CRIME: Passed OLD LocationToCheck which is " + LocationToCheck + " so remove perk.")
+            PlayerRef.RemovePerk(RI_BountyTrackingPerk)
+        EndIf
+
     EndIf
-    If akOldLoc == LocationToCheck
-      PlayerRef.RemovePerk(RI_BountyTrackingPerk)
-    EndIf
-  EndIf
+
 EndEvent

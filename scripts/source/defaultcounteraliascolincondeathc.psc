@@ -1,20 +1,18 @@
-ScriptName DefaultCounterAliasColIncOnDeathC Extends DefaultCounterQuestRefColIncOnDeath default
-{ Once this ALIAS dies it increments the counter on its Quest's DefaultCounterQuestC script. }
-
-;-- Functions ---------------------------------------
+ScriptName DefaultCounterAliasColIncOnDeathC extends DefaultCounterQuestRefColIncOnDeath Default
+{Once this ALIAS dies it increments the counter on its Quest's DefaultCounterQuestC script.}
 
 Function Increment(ObjectReference akSenderRef)
-  If MaintainTargetValue
-    (Self.GetOwningQuest() as defaultcounterquestc).TargetValue = Self.GetCount()
-  EndIf
-  (Self.GetOwningQuest() as defaultcounterquestc).Increment()
-  If RemoveWhenDead
-    Self.RemoveRef(akSenderRef)
-    If MaintainTargetValue
-      (Self.GetOwningQuest() as defaultcounterquestc).Decrement()
-    EndIf
-  EndIf
-  If Self.GetCount() <= TargetRemainingCount && RemainingStage > -1
-    Self.GetOwningQuest().SetStage(RemainingStage)
-  EndIf
+	if (MaintainTargetValue)
+		(GetOwningQuest() as DefaultCounterQuestC).TargetValue = GetCount()
+	EndIf
+	(GetOwningQuest() as DefaultCounterQuestC).Increment()
+	if (RemoveWhenDead)
+		Self.RemoveRef(akSenderRef)
+		if (MaintainTargetValue)
+			(GetOwningQuest() as DefaultCounterQuestC).Decrement()
+		EndIf
+	EndIf
+	if ((GetCount() <= TargetRemainingCount) && (RemainingStage > -1))
+		GetOwningQuest().SetStage(RemainingStage)
+	EndIf
 EndFunction

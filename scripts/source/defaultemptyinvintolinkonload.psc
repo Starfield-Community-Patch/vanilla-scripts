@@ -1,15 +1,13 @@
-ScriptName DefaultEmptyInvIntoLinkOnLoad Extends ObjectReference default
-{ Removes items from self and puts them into Linked Ref OnLoad() }
+Scriptname DefaultEmptyInvIntoLinkOnLoad extends ObjectReference default
+{Removes items from self and puts them into Linked Ref OnLoad()}
 
-;-- State -------------------------------------------
-State Done
-EndState
+auto STATE WaitForLoad
+	Event OnLoad()
+		GoToState("Done")
+    	self.RemoveAllItems(GetLinkedRef())
+	EndEvent
+EndSTATE
 
-;-- State -------------------------------------------
-Auto State WaitForLoad
-
-  Event OnLoad()
-    Self.GoToState("Done")
-    Self.RemoveAllItems(Self.GetLinkedRef(None), False, False)
-  EndEvent
-EndState
+STATE Done
+	;Do Nothing
+EndSTATE

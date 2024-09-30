@@ -1,124 +1,159 @@
-ScriptName MissionSurveyQuestScript Extends MissionQuestScript conditional
+Scriptname MissionSurveyQuestScript extends MissionQuestScript conditional
 
-;-- Variables ---------------------------------------
-Float fCheckSurveyPollingTimeSeconds = 15.0 Const
-Float fScanObjectTimeSeconds = 1.0 Const
-Int iCheckSurveyProgressTimerID = 1 Const
-Float lastSurveyPercentage = 0.0
-planet targetPlanet
+group MissionTypeData
+	SQ_ParentScript property SQ_Parent auto const Mandatory
 
-;-- Properties --------------------------------------
-Group MissionTypeData
-  sq_parentscript Property SQ_Parent Auto Const mandatory
-  ReferenceAlias Property PlanetTarget Auto Const mandatory
-  { target ref in planet orbit - used to get target Planet }
-  Float Property RewardPlanetTraitMult = 1000.0 Auto Const
-  { multiplier based on total trait value on planet for total reward }
-  Float Property RewardPlanetAbundanceMult = 1000.0 Auto Const
-  { multiplier based on total abundance value on planet for total reward }
-  Int Property SurveyObjective = 10 Auto Const
-  { objective for surveying }
-  Int Property MissionAcceptTutorialID = 0 Auto Const
-  { tutorial ID when accepting this mission - see SQ_Parent.TutorialMessages }
-  Int Property MissionLandTutorialID = 1 Auto Const
-  { tutorial ID when landing on the target planet - see SQ_Parent.TutorialMessages }
-  GlobalVariable Property RewardXPAmountGlobalActual Auto Const mandatory
-  { The actual amount of XP we're going to reward the player with - possibly adjusted by specific mission factors }
+	ReferenceAlias property PlanetTarget auto const mandatory
+	{ target ref in planet orbit - used to get target Planet }
+
+	float property RewardPlanetTraitMult = 1000.0 auto const
+	{ multiplier based on total trait value on planet for total reward }
+
+	float property RewardPlanetAbundanceMult = 1000.0 auto const
+	{ multiplier based on total abundance value on planet for total reward }
+
+    int property SurveyObjective = 10 auto const
+    { objective for surveying }
+
+	int property MissionAcceptTutorialID = 0 auto const
+	{ tutorial ID when accepting this mission - see SQ_Parent.TutorialMessages }
+
+	int property MissionLandTutorialID = 1 auto const
+	{ tutorial ID when landing on the target planet - see SQ_Parent.TutorialMessages }
+
+	GlobalVariable Property RewardXPAmountGlobalActual Auto Const Mandatory
+	{The actual amount of XP we're going to reward the player with - possibly adjusted by specific mission factors }
 EndGroup
 
+float lastSurveyPercentage = 0.0 ; used to know when to update the global for the objective
+int iCheckSurveyProgressTimerID = 1 Const
+float fScanObjectTimeSeconds = 1.0 Const
+float fCheckSurveyPollingTimeSeconds = 15.0 const
 
-;-- Functions ---------------------------------------
+Planet targetPlanet ; set on quest init
 
 Event OnQuestStarted()
-  targetPlanet = PlanetTarget.GetRef().GetCurrentPlanet()
-  MissionIntValue01.SetValue(0.0)
-  Self.UpdateCurrentInstanceGlobal(MissionIntValue01)
-  Parent.OnQuestStarted()
-EndEvent
+	debug.trace(self + " OnQuestStarted")
+	targetPlanet = PlanetTarget.GetRef().GetCurrentPlanet()
+	; reset survey progress global
+	MissionIntValue01.SetValue(0.0)
+	UpdateCurrentInstanceGlobal(MissionIntValue01)
+	Parent.OnQuestStarted()
+endEvent
 
 Event Actor.OnPlayerScannedObject(Actor akSource, ObjectReference akScannedRef)
-  Self.StartTimer(fScanObjectTimeSeconds, iCheckSurveyProgressTimerID)
+	debug.trace(self + " OnPlayerScannedObject - run timer")
+	StartTimer(fScanObjectTimeSeconds, iCheckSurveyProgressTimerID)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iCheckSurveyProgressTimerID
-    Self.CheckSurveyProgress(True)
-  EndIf
+Event OnTimer(int aiTimerID)
+	if aiTimerID == iCheckSurveyProgressTimerID
+		CheckSurveyProgress()
+	endif
 EndEvent
 
-Function CheckSurveyProgress(Bool restartTimer)
-  planet currentPlayerPlanet = Game.GetPlayer().GetCurrentPlanet()
-  spaceshipreference playershipRef = PlayerShip.GetShipRef()
-  planet currentShipPlanet = playershipRef.GetCurrentPlanet()
-  If currentShipPlanet == targetPlanet || currentPlayerPlanet == targetPlanet
-    Self.UpdateSurveyPercent()
-    If restartTimer && PlayerCompletedQuest == False
-      Self.StartTimer(fCheckSurveyPollingTimeSeconds, iCheckSurveyProgressTimerID)
-    EndIf
-  EndIf
+function CheckSurveyProgress(bool restartTimer = true)
+	Planet currentPlayerPlanet = Game.GetPlayer().GetCurrentPlanet()
+
+	SpaceshipReference playershipRef = PlayerShip.GetShipRef()
+	Planet currentShipPlanet = playershipRef.GetCurrentPlanet()
+
+	debug.trace(self + " CheckSurveyProgress currentPlayerPlanet=" + currentPlayerPlanet + " currentShipPlanet=" + currentShipPlanet)
+
+    if currentShipPlanet == targetPlanet || currentPlayerPlanet == targetPlanet
+		UpdateSurveyPercent()
+		if restartTimer && PlayerCompletedQuest == false
+			StartTimer(fCheckSurveyPollingTimeSeconds, iCheckSurveyProgressTimerID)
+		endif
+	endif
 EndFunction
 
-Event Actor.OnPlayerPlanetSurveyComplete(Actor akSource, planet akPlanet)
-  spaceshipreference playershipRef = PlayerShip.GetShipRef()
-  planet currentShipPlanet = playershipRef.GetCurrentPlanet()
-  If currentShipPlanet == targetPlanet
-    Self.MissionComplete()
-  EndIf
+Event Actor.OnPlayerPlanetSurveyComplete(Actor akSource, Planet akPlanet)
+	; get player ship current planet
+	SpaceshipReference playershipRef = PlayerShip.GetShipRef()
+	Planet currentShipPlanet = playershipRef.GetCurrentPlanet()
+
+	debug.trace(self + " OnPlayerPlanetSurveyComplete akPlanet=" + akPlanet + " currentShipPlanet=" + currentShipPlanet)
+
+    if currentShipPlanet == targetPlanet
+		MissionComplete()
+	endif
 EndEvent
 
-Int Function GetActualReward()
-  Float reward = RewardAmountGlobal.GetValue()
-  Int planetTraitValue = SQ_Parent.GetPlanetTraitValue(targetPlanet)
-  Float planetAbundanceValue = SQ_Parent.GetPlanetAbundanceValue(targetPlanet)
-  Int planetRewardValue = planetTraitValue + planetAbundanceValue as Int
-  sq_parentscript:planetsurveyslatedata theData = SQ_Parent.GetSurveySlateData(planetRewardValue, 1.0)
-  Int XPReward = MissionParent.MissionBoardSurveyXPRewardBase.GetValueInt()
-  If theData
-    XPReward += theData.RewardXP.GetValueInt()
-  EndIf
-  RewardXPAmountGlobalActual.SetValueInt(XPReward)
-  reward = reward + (planetTraitValue as Float * RewardPlanetTraitMult) + planetAbundanceValue * RewardPlanetAbundanceMult
-  Return reward as Int
-EndFunction
+; override parent function
+int Function GetActualReward()
+	float reward = RewardAmountGlobal.GetValue()
+	; increase reward for number of traits on target planet
+	int planetTraitValue = SQ_Parent.GetPlanetTraitValue(targetPlanet)
+	float planetAbundanceValue = SQ_Parent.GetPlanetAbundanceValue(targetPlanet)
 
-Function MissionAccepted(Bool bAccepted)
-  Parent.MissionAccepted(bAccepted)
-  If bAccepted
-    SQ_Parent.ShowTutorialMessage(MissionAcceptTutorialID)
-    Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerPlanetSurveyComplete")
-    Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnShipScan")
-    Self.UpdateSurveyPercent()
-  EndIf
-EndFunction
+	int planetRewardValue = planetTraitValue + (planetAbundanceValue as int)
+	; get XP for normal survey award
+	SQ_ParentScript:PlanetSurveySlateData theData = SQ_Parent.GetSurveySlateData(planetRewardValue)
+	int XPReward = MissionParent.MissionBoardSurveyXPRewardBase.GetValueInt()
+	if theData
+		XPReward += theData.RewardXP.GetValueInt()
+	endif
+	RewardXPAmountGlobalActual.SetValueInt(XPReward)
 
+	reward = reward + planetTraitValue*RewardPlanetTraitMult + planetAbundanceValue*RewardPlanetAbundanceMult
+	debug.trace(self + "GetActualReward=" + reward + " RewardXPAmountGlobalActual=" + XPReward)
+	return reward as int
+endFunction
+
+; override parent function
+Function MissionAccepted(bool bAccepted)
+	Parent.MissionAccepted(bAccepted)
+	if bAccepted
+		SQ_Parent.ShowTutorialMessage(MissionAcceptTutorialID)
+		; register for survey events
+		RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerPlanetSurveyComplete")
+		RegisterForRemoteEvent(PlayerShip, "OnShipScan")
+		; initialize survey %
+		UpdateSurveyPercent()
+	endif
+endFunction
+
+; override parent function
 Function HandlePlayerShipLanding()
-  If PlayerAcceptedQuest
-    planet currentShipPlanet = PlayerShip.GetShipRef().GetCurrentPlanet()
-    If currentShipPlanet == targetPlanet
-      SQ_Parent.ShowTutorialMessage(MissionLandTutorialID)
-      Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerScannedObject")
-      Self.StartTimer(fCheckSurveyPollingTimeSeconds, iCheckSurveyProgressTimerID)
-    EndIf
-  EndIf
-EndFunction
+	if PlayerAcceptedQuest
+		; get current ship planet
+		Planet currentShipPlanet = PlayerShip.GetShipRef().GetCurrentPlanet()
+		debug.trace(self + " HandlePlayerShipLanding currentShipPlanet=" + currentShipPlanet + " targetPlanet=" + targetPlanet)
+		; if you land in the target location, pop tutorial message
+		if currentShipPlanet == targetPlanet
+			SQ_Parent.ShowTutorialMessage(MissionLandTutorialID)
+			RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerScannedObject")
+			; start timer polling for change in survey progress (since there's not always an event for everything that changes it)
+			StartTimer(fCheckSurveyPollingTimeSeconds, iCheckSurveyProgressTimerID)
+		endif
+	endif
+endFunction
 
+; override parent function
 Function HandlePlayerShipTakeOff()
-  Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerScannedObject")
-  Self.CancelTimer(iCheckSurveyProgressTimerID)
-EndFunction
+	; no need for this when not on a planet
+	UnregisterForRemoteEvent(Game.GetPlayer(), "OnPlayerScannedObject")
+	CancelTimer(iCheckSurveyProgressTimerID)
+endFunction
 
 Event ReferenceAlias.OnShipScan(ReferenceAlias akSource, Location aPlanet, ObjectReference[] aMarkersArray)
-  planet currentShipPlanet = PlayerShip.GetShipRef().GetCurrentPlanet()
-  If currentShipPlanet == targetPlanet
-    Self.CheckSurveyProgress(False)
-  EndIf
-EndEvent
+	Planet currentShipPlanet = PlayerShip.GetShipRef().GetCurrentPlanet()
 
-Function UpdateSurveyPercent()
-  Float currentSurveyPercentage = targetPlanet.GetSurveyPercent()
-  If currentSurveyPercentage > lastSurveyPercentage
-    Float modValue = (currentSurveyPercentage - lastSurveyPercentage) * 100.0
-    lastSurveyPercentage = currentSurveyPercentage
-    Self.ModObjectiveGlobal(modValue, MissionIntValue01, SurveyObjective, 100.0, True, True, True, False)
-  EndIf
-EndFunction
+	debug.trace(self + " OnShipScan aPlanet=" + aPlanet + " currentShipPlanet=" + currentShipPlanet)
+
+    if currentShipPlanet == targetPlanet
+		CheckSurveyProgress(false)
+	endif
+endEvent
+
+function UpdateSurveyPercent()
+	float currentSurveyPercentage = targetPlanet.GetSurveyPercent()
+	debug.trace(self + " UpdateSurveyPercent currentSurveyPercentage=" + currentSurveyPercentage + " lastSurveyPercentage=" + lastSurveyPercentage)
+	if currentSurveyPercentage > lastSurveyPercentage
+		float modValue = ((currentSurveyPercentage - lastSurveyPercentage) * 100)
+		lastSurveyPercentage = currentSurveyPercentage
+		; update global for survey percentage
+		ModObjectiveGlobal(modValue, MissionIntValue01, SurveyObjective, 100)
+	endif
+endFunction

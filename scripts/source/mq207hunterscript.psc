@@ -1,33 +1,26 @@
-ScriptName MQ207HunterScript Extends ReferenceAlias
+Scriptname MQ207HunterScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property KeeperAquilus Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ReferenceAlias Property KeeperAquilus Auto Const mandatory
-
-;-- State -------------------------------------------
 Auto State WaitingForPlayer
+    Event OnLoad()
+        gotostate("hasbeentriggered")
+        Actor HunterREF = Self.GetActorRef()
+        HunterREF.WaitFor3dLoad() ;wait for 3d to fully load
+        HunterREF.CopyAppearance(KeeperAquilus.GetActorRef())
+    EndEvent
 
-  Event OnUnload()
-    ; Empty function
-  EndEvent
-
-  Event OnLoad()
-    Self.gotostate("hasbeentriggered")
-    Actor HunterREF = Self.GetActorRef()
-    HunterREF.WaitFor3dLoad()
-    HunterREF.CopyAppearance(KeeperAquilus.GetActorRef())
-  EndEvent
+    Event OnUnload()
+        ;do nothing
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
 State hasbeentriggered
+    Event OnLoad()
+        ;empty
+    EndEvent
 
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-
-  Event OnUnload()
-    Self.gotostate("WaitingForPlayer")
-  EndEvent
+    Event OnUnload()
+        gotostate("WaitingForPlayer") ;Copy Appearrance needs to be called once per Load since it can reset
+    EndEvent
 EndState

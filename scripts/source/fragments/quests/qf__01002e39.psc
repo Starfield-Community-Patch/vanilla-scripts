@@ -1,65 +1,117 @@
-ScriptName Fragments:Quests:QF__01002E39 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF__01002E39 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_AnomalyMapMarker Auto Const mandatory
-Message Property MQ_TempleTutorialMSG Auto Const mandatory
-Quest Property MQ104A Auto Const mandatory
-LocationAlias Property Alias_PlanetExploredTrait Auto Const mandatory
-ReferenceAlias Property Alias_TempleMapMarker Auto Const mandatory
-GlobalVariable Property MQTempleQuest_HaveTempleObj Auto Const mandatory
-GlobalVariable Property MQ_TurnOnTemples Auto Const mandatory
-ReferenceAlias Property Alias_EyeScanner Auto Const mandatory
-ReferenceAlias Property Alias_VladimirSall Auto Const mandatory
-Message Property MQ401EyeScanMSG Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0007_Item_00
 Function Fragment_Stage_0007_Item_00()
-  MQ401EyeScanMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Utility.Wait(0.100000001)
-  Self.SetObjectiveCompleted(5, True)
-  Self.SetObjectiveDisplayed(10, True, False)
-  MQ_TurnOnTemples.SetValueInt(1)
-  Alias_EyeScanner.GetRef().Disable(False)
+;BEGIN CODE
+MQ401EyeScanMSG.Show()
+Utility.Wait(0.1)
+SetObjectiveCompleted(5)
+SetObjectiveDisplayed(10)
+MQ_TurnOnTemples.SetValueInt(1)
+Alias_EyeScanner.GetRef().Disable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  MQ_TurnOnTemples.SetValueInt(1)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+MQ_TurnOnTemples.SetValueInt(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_01
 Function Fragment_Stage_0010_Item_01()
-  Alias_EyeScanner.GetRef().Enable(False)
-  Self.SetObjectiveDisplayed(5, True, False)
+;BEGIN CODE
+;if Vladimir is disabled, point to the Eye trigger
+Alias_EyeScanner.GetRef().Enable()
+SetObjectiveDisplayed(5)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+;kmyquest.ShowHelpMessage("OutpostTutorial")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Quest __temp = Self as Quest
-  mq_temple_subscript kmyQuest = __temp as mq_temple_subscript
-  kmyQuest.TempleDiscovered()
+;BEGIN AUTOCAST TYPE MQ_Temple_SubScript
+Quest __temp = self as Quest
+MQ_Temple_SubScript kmyQuest = __temp as MQ_Temple_SubScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.TempleDiscovered()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetStage(40)
+;BEGIN CODE
+SetStage(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
-EndFunction
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
 
-Function Fragment_Stage_0060_Item_01()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_01
+Function Fragment_Stage_0060_Item_01()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_AnomalyMapMarker Auto Const Mandatory
+
+Message Property MQ_TempleTutorialMSG Auto Const Mandatory
+
+Quest Property MQ104A Auto Const Mandatory
+
+LocationAlias Property Alias_PlanetExploredTrait Auto Const Mandatory
+
+ReferenceAlias Property Alias_TempleMapMarker Auto Const Mandatory
+
+GlobalVariable Property MQTempleQuest_HaveTempleObj Auto Const Mandatory
+
+GlobalVariable Property MQ_TurnOnTemples Auto Const Mandatory
+
+ReferenceAlias Property Alias_EyeScanner Auto Const Mandatory
+
+ReferenceAlias Property Alias_VladimirSall Auto Const Mandatory
+
+Message Property MQ401EyeScanMSG Auto Const Mandatory

@@ -1,40 +1,31 @@
-ScriptName MissionCargoLinkActivatorScript Extends ObjectReference
-{ blocks activation unless allowed by quest }
+Scriptname MissionCargoLinkActivatorScript extends ObjectReference
+{blocks activation unless allowed by quest}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property MissionCargoLinkActivatorBlockedMessage Auto Const
+Message property MissionCargoLinkActivatorBlockedMessage auto Const
 { message to show if activated when inactive }
 
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  Self.BlockActivation(True, False)
+    BlockActivation(true, false)
 EndEvent
 
-Function AllowActivation(Bool bActivationAllowed)
-  If bActivationAllowed
-    Self.gotoState("active")
-  Else
-    Self.gotoState("inactive")
-  EndIf
+Function AllowActivation(bool bActivationAllowed)
+    if bActivationAllowed
+        gotoState("active")
+    Else
+        gotoState("inactive")
+    endif
 EndFunction
 
-;-- State -------------------------------------------
-State active
+auto state inactive
+    Event OnActivate(ObjectReference akActionRef)
+        if akActionRef == Game.GetPlayer()
+            MissionCargoLinkActivatorBlockedMessage.Show()
+        endif
+    EndEvent
+endState
 
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State inactive
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      MissionCargoLinkActivatorBlockedMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    EndIf
-  EndEvent
-EndState
+state active
+    Event OnActivate(ObjectReference akActionRef)
+        ; do nothing
+    EndEvent
+endState

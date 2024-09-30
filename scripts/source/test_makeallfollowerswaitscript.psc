@@ -1,12 +1,7 @@
-ScriptName Test_MakeAllFollowersWaitScript Extends ObjectReference Const
+Scriptname Test_MakeAllFollowersWaitScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-sq_followersscript Property SQ_Followers Auto Const mandatory
-
-;-- Functions ---------------------------------------
+SQ_FollowersScript Property SQ_Followers Mandatory Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  SQ_Followers.AllFollowersWait(Self.GetLinkedRef(None), True, False)
+	SQ_Followers.AllFollowersWait(GetLinkedRef())
 EndEvent

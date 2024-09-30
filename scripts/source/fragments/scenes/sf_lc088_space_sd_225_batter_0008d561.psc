@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_LC088_Space_SD_225_Batter_0008D561 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_LC088_Space_SD_225_Batter_0008D561 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  lc088_spacequestscript kmyQuest = Self.GetOwningQuest() as lc088_spacequestscript
-  kmyQuest.SD_PlayBatteryPhaseCompleteScene(-1)
+;BEGIN AUTOCAST TYPE lc088_spacequestscript
+lc088_spacequestscript kmyQuest = GetOwningQuest() as lc088_spacequestscript
+;END AUTOCAST
+;BEGIN CODE
+kMyQuest.SD_PlayBatteryPhaseCompleteScene()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

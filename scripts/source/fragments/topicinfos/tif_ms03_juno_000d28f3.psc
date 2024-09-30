@@ -1,17 +1,22 @@
-ScriptName Fragments:TopicInfos:TIF_MS03_Juno_000D28F3 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_MS03_Juno_000D28F3 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-wwiseevent Property JunoShutdownEvent Auto Const
-ObjectReference Property SoundMarkerDisabler Auto Const
-ObjectReference Property JunoEventMarker Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  JunoShutdownEvent.Play(JunoEventMarker, None, None)
-  Utility.Wait(2.0)
-  SoundMarkerDisabler.Disable(False)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+;play the shutdown audio
+JunoShutdownEvent.Play(JunoEventMarker)
+Utility.Wait(2)
+SoundMarkerDisabler.Disable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+WwiseEvent Property JunoShutdownEvent Auto Const
+
+ObjectReference Property SoundMarkerDisabler Auto Const
+
+ObjectReference Property JunoEventMarker Auto Const

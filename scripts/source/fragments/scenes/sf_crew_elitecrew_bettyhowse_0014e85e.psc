@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_CREW_EliteCrew_BettyHowse_0014E85E Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_CREW_EliteCrew_BettyHowse_0014E85E Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  crew_elitecrewquestscript kmyQuest = Self.GetOwningQuest() as crew_elitecrewquestscript
-  kmyQuest.Recruited()
+;BEGIN AUTOCAST TYPE Crew_EliteCrewQuestScript
+Crew_EliteCrewQuestScript kmyQuest = GetOwningQuest() as Crew_EliteCrewQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.Recruited()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

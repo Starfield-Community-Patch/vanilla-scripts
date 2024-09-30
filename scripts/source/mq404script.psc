@@ -1,22 +1,17 @@
-ScriptName MQ404Script Extends Quest
+Scriptname MQ404Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property HunterAppearsStage = 130 Auto Const
-Int Property HunterAppearsPrereqStage = 120 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property HunterAppearsStage=130 Const Auto
+Int Property HunterAppearsPrereqStage=120 Const Auto
 
 Function WaitForWorkshopMenuClose()
-  Self.RegisterForMenuOpenCloseEvent("WorkshopMenu")
+    RegisterForMenuOpenCloseEvent("WorkshopMenu")
 EndFunction
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If asMenuName == "WorkshopMenu"
-    If abOpening == False && Self.GetStageDone(HunterAppearsPrereqStage)
-      Self.SetStage(HunterAppearsStage)
-      Self.UnRegisterForMenuOpenCloseEvent("WorkshopMenu")
-    EndIf
-  EndIf
-EndEvent
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    if (asMenuName== "WorkshopMenu")
+        if (abOpening == False) && GetStageDone(HunterAppearsPrereqStage)
+            SetStage(HunterAppearsStage)
+            UnRegisterForMenuOpenCloseEvent("WorkshopMenu")
+        endif
+    endif
+endEvent

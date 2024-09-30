@@ -1,39 +1,45 @@
-ScriptName DefaultSceneStartOnEnterTrigger Extends DefaultRefOnTriggerEnter
-{ Starts a scene when THIS reference's trigger is entered.
+Scriptname DefaultSceneStartOnEnterTrigger extends DefaultRefOnTriggerEnter
+{Starts a scene when THIS reference's trigger is entered.
 <RefToCheck> is the reference triggering THIS Object.
-<LocationToCheck> is the current location of THIS object. }
+<LocationToCheck> is the current location of THIS object.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Group Quest_Properties collapsedonbase collapsedonref
-{ Double-Click to EXPAND }
-  Bool Property xxxPlaceHolderForEmptyGroup2xxx Auto Const hidden
-  { `TTP-27034: Papyrus: Need a way to manage groups across parents and children` }
+Group Quest_Properties collapsed
+{Double-Click to EXPAND}
+	bool Property xxxPlaceHolderForEmptyGroup2xxx Const Auto HIDDEN
+	{`TTP-27034: Papyrus: Need a way to manage groups across parents and children`}
 EndGroup
 
 Group Script_Specific_Properties
-  Scene Property SceneToStart Auto Const mandatory
-  { Scene that we want to start }
-  Bool Property DisableAfterStartingScene = True Auto Const
-  { If true (default), disable THIS object after the scene starts }
+	Scene Property SceneToStart Auto Const Mandatory
+	{Scene that we want to start}
+
+	bool Property DisableAfterStartingScene = true Auto Const
+	{If true (default), disable THIS object after the scene starts}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnInit()
-  SkipBusyState = True
+	SkipBusyState = true ;we need to process all trigger events
 EndEvent
 
-Function DoSpecificThing(defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams, ObjectReference RefToDoThingWith, Bool LastRefToDoThingWith)
-  If SceneToStart.IsPlaying() == False
-    If SceneToStart.GetOwningQuest().IsRunning()
-      SceneToStart.Start()
-      If DisableAfterStartingScene
-        Self.Disable(False)
-      EndIf
-      Parent.DoSpecificThing(ParentScriptFunctionParams, RefToDoThingWith, LastRefToDoThingWith)
-    EndIf
-  EndIf
+;Reimplementing Parent's empty function
+Function DoSpecificThing(DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams, ObjectReference RefToDoThingWith = None, bool LastRefToDoThingWith = true)
+	DefaultScriptFunctions.Trace(self, "DoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	if SceneToStart.IsPlaying() == false
+		if SceneToStart.GetOwningQuest().IsRunning()
+			DefaultScriptFunctions.Trace(self, "DoSpecificThing() SceneToStart's starting scene. SceneToStart: " + SceneToStart, ShowTraces)
+			SceneToStart.Start()
+
+			if DisableAfterStartingScene
+				DefaultScriptFunctions.Trace(self, "DoSpecificThing() Disabling self because DisableAfterStartingScene " + DisableAfterStartingScene, ShowTraces)
+				Disable()
+			endif
+
+			parent.DoSpecificThing(ParentScriptFunctionParams = ParentScriptFunctionParams, RefToDoThingWith = RefToDoThingWith, LastRefToDoThingWith = LastRefToDoThingWith)
+		else
+			DefaultScriptFunctions.Trace(self, "DoSpecificThing() SceneToStart's owning quest is NOT running. NOT starting scene. SceneToStart.GetOwningQuest(): " + SceneToStart.GetOwningQuest() + ", ", ShowTraces)
+		endif
+	endif
+
+	
 EndFunction
+

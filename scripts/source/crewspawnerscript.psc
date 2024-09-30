@@ -1,101 +1,118 @@
-ScriptName CrewSpawnerScript Extends ObjectReference
-{ Used to set spawn limits for the location by setting this data on the reference found by SQ_Crew_SpawnManager to spawn at }
+Scriptname CrewSpawnerScript extends ObjectReference
+{Used to set spawn limits for the location by setting this data on the reference found by SQ_Crew_SpawnManager to spawn at}
 
-;-- Variables ---------------------------------------
-Bool canSpawnCrew = True
-Int respawnIntervalTimerID = 1 Const
-Actor[] spawnedCrew
-
-;-- Properties --------------------------------------
 Group SpawnLimits
-  Int Property MaxNumberToSpawn = 6 Auto Const
-  { the max number to spawn }
-  Int Property RespawnIntervalLocalDays = 3 Auto Const
-  { the interval to respawn these actors in local days }
+	int Property MaxNumberToSpawn = 6 Const Auto
+	{the max number to spawn}
+
+	int Property RespawnIntervalLocalDays = 3 Const Auto
+	{the interval to respawn these actors in local days}
 EndGroup
 
 Group ActorData
-  Faction Property CrewCrimeFaction Auto Const
-  { the crime faction to assign }
+	Faction Property CrewCrimeFaction Const Auto
+	{the crime faction to assign}
 EndGroup
 
 Group Autofill
-  Keyword Property LinkGenericCrewSpawnMarker Auto Const mandatory
-  { the keyword that links generic crew members to this spawn marker }
-EndGroup
+	Keyword property LinkGenericCrewSpawnMarker auto const mandatory
+	{the keyword that links generic crew members to this spawn marker}
+endGroup
 
+int respawnIntervalTimerID = 1 const
+Actor[] spawnedCrew
+bool canSpawnCrew = true
 
-;-- Functions ---------------------------------------
+bool function GetCanSpawnCrew()
+	return canSpawnCrew
+endFunction
 
-Bool Function GetCanSpawnCrew()
-  Return canSpawnCrew
-EndFunction
+function StartRespawnTimer()
+	canSpawnCrew = false
+	GoToState("RespawnTimer")
+endFunction
 
-Function StartRespawnTimer()
-  canSpawnCrew = False
-  Self.GoToState("RespawnTimer")
-EndFunction
-
-Function ClearSpawnedCrewArray()
-  spawnedCrew.clear()
-EndFunction
-
-Function AddToSpawnedCrewArray(Actor crewMember)
-  If !spawnedCrew
-    spawnedCrew = new Actor[0]
-  EndIf
-  spawnedCrew.add(crewMember, 1)
-  crewMember.SetLinkedRef(Self as ObjectReference, LinkGenericCrewSpawnMarker, True)
-EndFunction
-
-Function RemoveFromSpawnedCrewArray(Actor crewMember)
-  Int foundIndex = spawnedCrew.find(crewMember, 0)
-  If foundIndex > -1
-    spawnedCrew.remove(foundIndex, 1)
-    crewMember.SetLinkedRef(None, LinkGenericCrewSpawnMarker, True)
-  EndIf
-EndFunction
-
-Function PrepareForRespawn()
-  Int I = 0
-  While I < spawnedCrew.Length
-    Actor theCrew = spawnedCrew[I]
-    If theCrew.GetCrewAssignment() == None
-      theCrew.DisableNoWait(False)
-      theCrew.Delete()
-    EndIf
-    I += 1
-  EndWhile
-  Self.ClearSpawnedCrewArray()
-  canSpawnCrew = True
-EndFunction
-
-;-- State -------------------------------------------
-State LoadedAfterTimerComplete
-
-  Event OnBeginState(String asOldState)
-    ; Empty function
-  EndEvent
-
-  Event OnUnload()
-    Self.PrepareForRespawn()
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
 State RespawnTimer
+	Event OnBeginState(string asOldState)
+		debug.trace(self + " entering state RespawnTimer, preventing spawning from this marker for " + RespawnIntervalLocalDays + " local days.")
+		StartTimerGameTime(RespawnIntervalLocalDays * GetDayLength(), respawnIntervalTimerID)
+	endEvent
 
-  Event OnTimerGameTime(Int aiTimerID)
-    If aiTimerID == respawnIntervalTimerID
-      If Self.Is3DLoaded()
-        Self.GoToState("LoadedAfterTimerComplete")
-      Else
-        Self.PrepareForRespawn()
-      EndIf
-    EndIf
-  EndEvent
+	Event OnTimerGameTime(int aiTimerID)
+		if aiTimerID == respawnIntervalTimerID
+			if Is3DLoaded()
+				GoToState("LoadedAfterTimerComplete")
+			else
+				PrepareForRespawn()
+			endif
+		EndIf
+	EndEvent
+endState
 
-  Event OnBeginState(String asOldState)
-    Self.StartTimerGameTime(RespawnIntervalLocalDays as Float * Self.GetDayLength(), respawnIntervalTimerID)
-  EndEvent
-EndState
+State LoadedAfterTimerComplete
+	Event OnBeginState(string asOldState)
+		debug.trace(self + " entering state LoadedAfterTimerComplete")
+	EndEvent
+
+	Event OnUnload()
+		PrepareForRespawn()
+	EndEvent
+endState
+
+function ClearSpawnedCrewArray()
+	debug.trace(self + " ClearSpawnedCrewArray")
+	spawnedCrew.Clear()
+endFunction
+
+function AddToSpawnedCrewArray(Actor crewMember)
+	debug.trace(self + " AddToSpawnedCrewArray crewMember:" + crewMember)
+
+	; Make sure we're initialized.
+	if !spawnedCrew
+		spawnedCrew = new Actor[0]
+	endif
+
+	spawnedCrew.Add(crewMember)
+
+	; Link them to the spawn marker, so we can remove them from the spawned crew array when hired.
+	crewMember.SetLinkedRef(self, LinkGenericCrewSpawnMarker)
+
+	debug.trace(self + " AddToSpawnedCrewArray, array is now: " + spawnedCrew)
+endFunction
+
+function RemoveFromSpawnedCrewArray(Actor crewMember)
+	debug.trace(self + " RemoveFromSpawnedCrewArray crewMember:" + crewMember)
+
+	int foundIndex = spawnedCrew.Find(crewMember)
+	if foundIndex > -1
+		spawnedCrew.Remove(foundIndex)
+
+		; Break the link to me, as keeping it can also keep this generic crew persistent.
+		; SQ_CrewScript will handle cleaning up this actor from here.
+		crewMember.SetLinkedRef(None, LinkGenericCrewSpawnMarker)
+	endif
+endFunction
+
+function PrepareForRespawn()
+	debug.trace(self + " PrepareForRespawn")
+	; First, we need to clean up any previously spawned generic crew spawned from this marker that were unhired.
+	; SQ_CrewScript will handle cleaning up any generic crew that have already been hired and then unassigned.
+	int i = 0
+	while i < spawnedCrew.Length
+		Actor theCrew = spawnedCrew[i]
+		if theCrew.GetCrewAssignment() == None
+			theCrew.DisableNoWait()
+			theCrew.Delete()
+		endif
+		i += 1
+	endWhile
+
+	debug.trace(self + " PrepareForRespawn: After deleting unassigned crew, array is now: " + spawnedCrew)
+
+	; Clear the spawned crew array data to avoid holding onto references to these actors; after this, all actors
+	; in the array previously marked for delete should be successfully deleted.
+	ClearSpawnedCrewArray()
+
+	; Allow SQ_Crew_SpawnManager spawn actors from this marker again.
+	canSpawnCrew = true
+endFunction

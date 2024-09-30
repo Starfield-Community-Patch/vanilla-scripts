@@ -1,79 +1,100 @@
-ScriptName SQ_HotelierTriggerScript Extends ObjectReference Const
+Scriptname SQ_HotelierTriggerScript extends ObjectReference Const
+SQ_HoteliersQuestScript Property SQ_Hoteliers Mandatory Const Auto
+{autofill}
 
-;-- Variables ---------------------------------------
-Float TimerDur = 3.0 Const
+Keyword Property SQ_Hoteliers_Bed_Link Mandatory Const Auto
+{autofill; linkref type that links this room trigger volume to the bed.}
 
-;-- Properties --------------------------------------
-sq_hoteliersquestscript Property SQ_Hoteliers Auto Const mandatory
-{ autofill }
-Keyword Property SQ_Hoteliers_Bed_Link Auto Const mandatory
-{ autofill; linkref type that links this room trigger volume to the bed. }
-Keyword Property SQ_Hoteliers_Door_Link Auto Const mandatory
-{ autofill; linkref type that links this room trigger volume to the door. }
-Keyword Property SQ_Hoteliers_Trigger_Link Auto Const mandatory
-{ autofill; keyword that links Hotelier NPC to the room trigger. }
+Keyword Property SQ_Hoteliers_Door_Link Mandatory Const Auto
+{autofill; linkref type that links this room trigger volume to the door.}
 
-;-- Functions ---------------------------------------
+Keyword Property SQ_Hoteliers_Trigger_Link Mandatory Const Auto
+{autofill; keyword that links Hotelier NPC to the room trigger.}
 
-Event OnTimer(Int aiTimerID)
-  Self._SetDoorState()
+float TimerDur = 3.0 const
+
+Event OnTimer(int aiTimerID)
+    Trace(self, "OnTimer() calling _SetDoorState() ")
+    _SetDoorState()
 EndEvent
 
 Event OnLoad()
-  Self.Update()
+    Trace(self, "OnLoad()")
+    Update()
 EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Self.Update()
+    Trace(self, "OnTriggerEnter()")
+    Update()
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  Self.Update()
+    Trace(self, "OnTriggerLeave()")
+    Update()
 EndEvent
 
 Function Update()
-  Self.StartTimer(TimerDur, 0)
+    Trace(self, "Update() calling StartTimer() ")
+    StartTimer(TimerDur)
 EndFunction
 
-sq_hoteliersactorscript Function GetHotelierNPC()
-  Return Self.GetRefsLinkedToMe(SQ_Hoteliers_Trigger_Link, None)[0] as sq_hoteliersactorscript
+SQ_HoteliersActorScript Function GetHotelierNPC()
+       return GetRefsLinkedToMe(SQ_Hoteliers_Trigger_Link)[0] as SQ_HoteliersActorScript ;there should only ever be one.
 EndFunction
 
-Function _SetDoorState()
-  sq_hoteliersactorscript hotelierRef = Self.GetHotelierNPC()
-  ObjectReference[] doorRefs = Self.GetLinkedRefChain(SQ_Hoteliers_Door_Link, 100)
-  If hotelierRef == None
-    Return 
-  EndIf
-  If doorRefs == None
-    Return 
-  EndIf
-  Bool isRoomRented = hotelierRef.isRoomRented()
-  Int countInTrigger = Self.GetTriggerObjectCount()
-  Int I = 0
-  Int iLength = doorRefs.Length
-  If isRoomRented == True || countInTrigger > 0
-    While I < iLength
-      doorRefs[I].Unlock(False)
-      I += 1
-    EndWhile
-  Else
-    While I < iLength
-      doorRefs[I].SetOpen(False)
-      doorRefs[I].SetLockLevel(255)
-      doorRefs[I].Lock(True, False, True)
-      I += 1
-    EndWhile
-  EndIf
-  ObjectReference bedRef = Self.GetLinkedRef(SQ_Hoteliers_Bed_Link)
-  SQ_Hoteliers.UpdateBedsAliasAndObjective(bedRef, hotelierRef)
+Function _SetDoorState() private
+    SQ_HoteliersActorScript hotelierRef = GetHotelierNPC()
+    
+    ObjectReference[] doorRefs = GetLinkedRefChain(SQ_Hoteliers_Door_Link)
+
+    if hotelierRef == None
+        Warning(self, "_SetDoorState() hotelierRef is none! BAILING!")
+        return
+    endif
+
+    if doorRefs == None
+        Warning(self, "_SetDoorState() doorRef is none! BAILING!")
+        return
+    endif
+
+    bool isRoomRented = hotelierRef.IsRoomRented()
+
+    int countInTrigger = GetTriggerObjectCount()
+
+    int i = 0
+    int iLength = doorRefs.length
+    if isRoomRented == true || countInTrigger > 0 ;we don't want to lock any actors in here accidentally
+        Trace(self, "_SetDoorState() unlocking door. isRoomRented: " + isRoomRented + ", countInTrigger: " + countInTrigger)
+        While i < iLength
+            doorRefs[i].Unlock()
+            i += 1
+        EndWhile
+    else
+        Trace(self, "_SetDoorState() locking door. isRoomRented: " + isRoomRented + ", countInTrigger: " + countInTrigger)
+        
+
+        While i < iLength
+            DoorRefs[i].SetOpen(False)
+            DoorRefs[i].SetLockLevel(255)
+            DoorRefs[i].Lock()
+            i += 1
+        EndWhile
+    endif
+
+    ObjectReference bedRef = GetLinkedRef(SQ_Hoteliers_Bed_Link)
+    SQ_Hoteliers.UpdateBedsAliasAndObjective(BedRef, HotelierRef)
+
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Hoteliers",  string SubLogName = "SQ_HotelierTriggerScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Hoteliers",  string SubLogName = "SQ_HotelierTriggerScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

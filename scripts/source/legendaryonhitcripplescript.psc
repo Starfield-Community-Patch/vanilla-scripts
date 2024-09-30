@@ -1,23 +1,25 @@
-ScriptName LegendaryOnHitCrippleScript Extends ActiveMagicEffect Const
+Scriptname LegendaryOnHitCrippleScript extends ActiveMagicEffect Const
 
-;-- Variables ---------------------------------------
+int Property CrippleChance = 20 const auto
+{% Chance to cripple a leg on hit}
 
-;-- Properties --------------------------------------
-Int Property CrippleChance = 20 Auto Const
-{ % Chance to cripple a leg on hit }
-ActorValue Property LeftMobilityCondition Auto Const
-ActorValue Property RightMobilityCondition Auto Const
+ActorValue Property LeftMobilityCondition const auto
+ActorValue Property RightMobilityCondition const auto
 
-;-- Functions ---------------------------------------
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	debug.trace(self + "OnEffectStart() akTarget:" + akTarget + ", akCaster:" + akCaster)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Int roll = Utility.RandomInt(1, 100)
-  Int coinFlip = Utility.RandomInt(0, 1)
-  If roll <= CrippleChance
-    If coinFlip == 1
-      akTarget.DamageValue(LeftMobilityCondition, 99999.0)
-    Else
-      akTarget.DamageValue(RightMobilityCondition, 99999.0)
-    EndIf
-  EndIf
+	int roll = Utility.RandomInt(1, 100) 
+	int coinFlip = Utility.RandomInt(0, 1)
+
+	debug.trace(self + "Roll: " + roll + ", coinFlip: " + coinFlip)
+
+	if roll <= CrippleChance
+		if coinFlip == 1
+			akTarget.DamageValue(LeftMobilityCondition, 99999)
+		else
+			akTarget.DamageValue(RightMobilityCondition, 99999)
+		endif
+
+	endif
 EndEvent

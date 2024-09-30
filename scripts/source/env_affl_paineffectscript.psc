@@ -1,69 +1,75 @@
-ScriptName ENV_AFFL_PainEffectScript Extends ActiveMagicEffect
+Scriptname ENV_AFFL_PainEffectScript extends ActiveMagicEffect
+;note: this is only ever on the player, and only ever running singly
 
-;-- Variables ---------------------------------------
-Int CooldownTimerID = 1 Const
-ActorValue HealthAV
-Float HealthCached
-Bool coolingDown = False
-
-;-- Properties --------------------------------------
 Group Properties
-  ActorValue Property Oxygen Auto Const mandatory
-  { autofill }
-  GlobalVariable Property ENV_AFFL_Symp_Pain_MaxOxygenDamage Auto Const mandatory
-  { autofill; multiply damage by this amount to derive how much to damage O2 }
-  GlobalVariable Property ENV_AFFL_Symp_Pain_MinOxygenDamage Auto Const mandatory
-  { autofill; min amount of O2 damage allowed }
-  GlobalVariable Property ENV_AFFL_Symp_Pain_HealthToOxygenMult Auto Const mandatory
-  { autofill; max amount of O2 damage allowed }
-  GlobalVariable Property ENV_AFFL_Symp_Pain_TimerDuration Auto Const mandatory
-  { autofill; duration of timer in seconds for cooldown of damage from pain }
-  Spell Property SpellToCast Auto Const mandatory
-  { spell to cast when damaging O2 - this is for the watch warning "reminder" spell }
+    ActorValue Property Oxygen Mandatory Const Auto
+    {autofill}
+
+    GlobalVariable Property ENV_AFFL_Symp_Pain_MaxOxygenDamage Mandatory Const Auto
+    {autofill; multiply damage by this amount to derive how much to damage O2}
+
+    GlobalVariable Property ENV_AFFL_Symp_Pain_MinOxygenDamage Mandatory Const Auto
+    {autofill; min amount of O2 damage allowed}
+
+    GlobalVariable Property ENV_AFFL_Symp_Pain_HealthToOxygenMult Mandatory Const Auto
+    {autofill; max amount of O2 damage allowed}
+
+    GlobalVariable Property ENV_AFFL_Symp_Pain_TimerDuration Mandatory Const Auto
+    {autofill; duration of timer in seconds for cooldown of damage from pain}
+
+    Spell Property SpellToCast Mandatory Const Auto
+    {spell to cast when damaging O2 - this is for the watch warning "reminder" spell}
 EndGroup
 
+float HealthCached
+ActorValue HealthAV
+bool coolingDown = false
+int CooldownTimerID = 1 Const
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  HealthAV = Game.GetHealthAV()
-  HealthCached = akTarget.GetValue(HealthAV)
-  Self.RegisterForDamage(akTarget)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    HealthAV = Game.GetHealthAV()
+    healthCached = akTarget.GetValue(healthAV)
+    RegisterForDamage(akTarget)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == CooldownTimerID
-    coolingDown = False
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == CooldownTimerID
+        coolingDown = false
+    endif
 EndEvent
 
 Function RegisterForDamage(ObjectReference TargetRef)
-  If Self.IsBoundGameObjectAvailable() && TargetRef as Bool
-    Self.RegisterForActorValueChangedEvent(TargetRef, HealthAV)
-  EndIf
+    if IsBoundGameObjectAvailable() && TargetRef
+        RegisterForActorValueChangedEvent(TargetRef, healthAV) ;registering for change because I need to update the cached value if increased/restored
+    endif
 EndFunction
 
 Event OnActorValueChanged(ObjectReference akObjRef, ActorValue akActorValue)
-  If akObjRef
-    Float currentHealth = akObjRef.GetValue(HealthAV)
-    Float change = HealthCached - currentHealth
-    HealthCached = currentHealth
-    If change > 0.0 && coolingDown == False
-      Float O2Dmg = Math.Clamp(change * ENV_AFFL_Symp_Pain_HealthToOxygenMult.GetValue(), ENV_AFFL_Symp_Pain_MinOxygenDamage.GetValue(), ENV_AFFL_Symp_Pain_MaxOxygenDamage.GetValue())
-      akObjRef.DamageValue(Oxygen, O2Dmg)
-      SpellToCast.Cast(akObjRef, akObjRef)
-      coolingDown = True
-      Self.StartTimer(ENV_AFFL_Symp_Pain_TimerDuration.GetValue(), CooldownTimerID)
-    EndIf
-    Self.RegisterForDamage(akObjRef)
-  EndIf
+    if akObjRef
+       
+        float currentHealth = akObjRef.GetValue(healthAV)
+        float change = healthCached - currentHealth
+        healthCached = currentHealth
+
+        if change > 0 && coolingDown == false
+            float O2Dmg = Math.Clamp(change * ENV_AFFL_Symp_Pain_HealthToOxygenMult.GetValue(), ENV_AFFL_Symp_Pain_MinOxygenDamage.GetValue(), ENV_AFFL_Symp_Pain_MaxOxygenDamage.GetValue())
+            Trace(self, "OnActorValueChanged() change: " + change + ", O2Dmg: " + O2Dmg)
+            akObjRef.DamageValue(Oxygen, O2Dmg)
+            SpellToCast.Cast(akObjRef, akObjRef)
+            coolingDown = true
+            StartTimer(ENV_AFFL_Symp_Pain_TimerDuration.GetValue(), CooldownTimerID)
+        endif
+        RegisterForDamage(akObjRef)
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "ENV_AFFL_PainEffectScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "ENV_AFFL_PainEffectScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

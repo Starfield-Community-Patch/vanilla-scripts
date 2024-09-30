@@ -1,28 +1,26 @@
-ScriptName TargetingEffectScript Extends ActiveMagicEffect
+Scriptname TargetingEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-Bool modifySuccess
+GlobalVariable property MaxEnemiesThatCanBeAffected Mandatory Const Auto
+TargetingSkillPlayerAliasScript Property TargetingSkillPlayer Mandatory Const Auto
+bool modifySuccess
+EffectShader Property EffectShaderToApply Auto Const Mandatory
 
-;-- Properties --------------------------------------
-GlobalVariable Property MaxEnemiesThatCanBeAffected Auto Const mandatory
-targetingskillplayeraliasscript Property TargetingSkillPlayer Auto Const mandatory
-EffectShader Property EffectShaderToApply Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  modifySuccess = TargetingSkillPlayer.TryToModifyTargetCount(1, MaxEnemiesThatCanBeAffected.GetValueInt())
-  If !modifySuccess
-    Self.Dispel()
-    EffectShaderToApply.Stop(akTarget)
-  Else
-    EffectShaderToApply.Play(akTarget, -1.0)
-  EndIf
+;*****************************************************
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    modifySuccess = TargetingSkillPlayer.TryToModifyTargetCount(1, MaxEnemiesThatCanBeAffected.GetValueInt())
+    if !modifySuccess
+        Dispel()
+        EffectShaderToApply.Stop(akTarget)
+    else
+        EffectShaderToApply.Play(akTarget)
+    EndIf
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  If modifySuccess
-    TargetingSkillPlayer.TryToModifyTargetCount(-1, 0)
-    EffectShaderToApply.Stop(akTarget)
-  EndIf
+;*****************************************************
+
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    if modifySuccess
+        TargetingSkillPlayer.TryToModifyTargetCount(-1)
+        EffectShaderToApply.Stop(akTarget)
+    EndIf
 EndEvent

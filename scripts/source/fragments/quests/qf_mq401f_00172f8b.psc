@@ -1,71 +1,144 @@
-ScriptName Fragments:Quests:QF_MQ401f_00172F8B Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MQ401f_00172F8B Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property ConstellationFaction Auto Const mandatory
-Key Property LodgeKey Auto Const mandatory
-Quest Property MQ402 Auto Const mandatory
-Quest Property MQ401 Auto Const mandatory
-Scene Property MQ401c_001_IntroScene Auto Const mandatory
-GlobalVariable Property MQ401_SkipMQ Auto Const mandatory
-ReferenceAlias Property Alias_Andreja Auto Const mandatory
-ReferenceAlias Property Alias_LodgeArtifact01 Auto Const mandatory
-ReferenceAlias Property Alias_LodgeArtifact02 Auto Const mandatory
-ReferenceAlias Property Alias_ArtifaceDataSlate Auto Const mandatory
-ReferenceAlias Property Alias_Zealot02 Auto Const mandatory
-ReferenceAlias Property Alias_LodgeArtifact03 Auto Const mandatory
-ReferenceAlias Property Alias_LodgeArtifact04 Auto Const mandatory
-ReferenceAlias Property Alias_LodgeArtifact05 Auto Const mandatory
-ReferenceAlias Property Alias_LodgeArtifact06 Auto Const mandatory
-Faction Property PlayerEnemyFaction Auto Const mandatory
-ReferenceAlias Property Alias_Zealot01 Auto Const mandatory
-ReferenceAlias Property Alias_Zealot03 Auto Const mandatory
-ReferenceAlias Property Alias_Zealot04 Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-Explosion Property LC165_ScriptedTeleportSourceExplosion Auto Const mandatory
-ObjectReference Property MQHoldingCellCenterMarker Auto Const mandatory
-Faction Property EyeBoardingFaction Auto Const mandatory
-Spell Property ffStarbornTeleport Auto Const mandatory
-Spell Property MQ204HunterInvisibility Auto Const mandatory
-ReferenceAlias Property Alias_Armillary Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Quest __temp = Self as Quest
-  mq401variantquestscript kmyQuest = __temp as mq401variantquestscript
-  Actor AndrejaREF = Alias_Andreja.GetActorRef()
-  Self.SetObjectiveDisplayed(10, True, False)
-  MQ401_SkipMQ.SetValueInt(1)
-  (MQ401 as mq401questscript).CleanUpNormalMainQuest()
-  kmyQuest.EnableQuestActors()
-  Alias_Andreja.GetActorRef().AddSpell(MQ204HunterInvisibility, True)
-  Alias_Armillary.GetRef().DisableNoWait(False)
-  Self.SetActive(True)
-EndFunction
+;BEGIN AUTOCAST TYPE MQ401VariantQuestScript
+Quest __temp = self as Quest
+MQ401VariantQuestScript kmyQuest = __temp as MQ401VariantQuestScript
+;END AUTOCAST
+;BEGIN CODE
+Actor AndrejaREF = Alias_Andreja.GetActorRef()
 
+SetObjectiveDisplayed(10)
+
+MQ401_SkipMQ.SetValueInt(1)
+
+(MQ401 as MQ401QuestScript).CleanUpNormalMainQuest()
+
+kmyquest.EnableQuestActors()
+
+Alias_Andreja.GetActorRef().AddSpell(MQ204HunterInvisibility)
+
+Alias_Armillary.GetRef().DisableNoWait()
+
+SetActive()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Actor HunterREF = Alias_Andreja.GetActorRef()
-  HunterREF.RemoveSpell(MQ204HunterInvisibility)
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(100, True, False)
-  MQ401c_001_IntroScene.Start()
-EndFunction
+;BEGIN CODE
+Actor HunterREF = Alias_Andreja.GetActorRef()
 
-Function Fragment_Stage_1000_Item_00()
-  Game.StopDialogueCamera(False, False)
-  MQ401c_001_IntroScene.Stop()
-  Actor PlayerREF = Game.GetPlayer()
-  Actor HunterREF = Alias_Andreja.GetActorRef()
-  HunterREF.PlaceAtMe(LC165_ScriptedTeleportSourceExplosion as Form, 1, False, False, True, None, None, True)
-  HunterREF.Moveto(MQHoldingCellCenterMarker, 0.0, 0.0, 0.0, True, False)
-  HunterREF.DisableNoWait(False)
-  PlayerREF.AddtoFaction(ConstellationFaction)
-  PlayerREF.additem(LodgeKey as Form, 1, False)
-  PlayerREF.AddtoFaction(EyeBoardingFaction)
-  Self.CompleteAllObjectives()
-  MQ402.SetStage(100)
-  MQ402.SetStage(510)
+HunterREF.RemoveSpell(MQ204HunterInvisibility)
+
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(100)
+
+MQ401c_001_IntroScene.Start()
+
+Actor PlayerRef = Game.GetPlayer()
+if PlayerRef.HasPerk(Trait_KidStuff)
+  TraitKidStuff.SetStageNoWait(25)
+endif
+
+; If the player has the Starter Home trait, queue up the quest
+If PlayerRef.HasPerk(Trait_StarterHome)
+  TraitStarterHome.SetStageNoWait(100)
+Else
+  TraitStarterHome.Stop()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
+Function Fragment_Stage_1000_Item_00()
+;BEGIN CODE
+Game.StopDialogueCamera()
+MQ401c_001_IntroScene.Stop()
+
+Actor PlayerREF = Game.GetPlayer()
+Actor HunterREF = Alias_Andreja.GetActorRef()
+HunterREF.PlaceAtMe(LC165_ScriptedTeleportSourceExplosion)
+
+;move to holding cell
+HunterREF.Moveto(MQHoldingCellCenterMarker)
+HunterREF.DisableNoWait()
+
+PlayerREF.AddtoFaction(ConstellationFaction)
+PlayerREF.additem(LodgeKey)
+PlayerREF.AddtoFaction(EyeBoardingFaction)
+
+CompleteAllObjectives()
+MQ402.SetStage(100)
+MQ402.SetStage(510) ;hand over Lodge Artifacts
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Faction Property ConstellationFaction Auto Const Mandatory
+
+Key Property LodgeKey Auto Const Mandatory
+
+Quest Property MQ402 Auto Const Mandatory
+
+Quest Property MQ401 Auto Const Mandatory
+
+Scene Property MQ401c_001_IntroScene Auto Const Mandatory
+
+GlobalVariable Property MQ401_SkipMQ Auto Const Mandatory
+
+ReferenceAlias Property Alias_Andreja Auto Const Mandatory
+
+ReferenceAlias Property Alias_LodgeArtifact01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_LodgeArtifact02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_ArtifaceDataSlate Auto Const Mandatory
+
+ReferenceAlias Property Alias_Zealot02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_LodgeArtifact03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_LodgeArtifact04 Auto Const Mandatory
+
+ReferenceAlias Property Alias_LodgeArtifact05 Auto Const Mandatory
+
+ReferenceAlias Property Alias_LodgeArtifact06 Auto Const Mandatory
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+ReferenceAlias Property Alias_Zealot01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Zealot03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Zealot04 Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+Explosion Property LC165_ScriptedTeleportSourceExplosion Auto Const Mandatory
+
+ObjectReference Property MQHoldingCellCenterMarker Auto Const Mandatory
+
+Faction Property EyeBoardingFaction Auto Const Mandatory
+
+Spell Property ffStarbornTeleport Auto Const Mandatory
+
+Spell Property MQ204HunterInvisibility Auto Const Mandatory
+
+ReferenceAlias Property Alias_Armillary Auto Const Mandatory
+
+Perk Property Trait_KidStuff Auto Const Mandatory
+
+Perk Property Trait_StarterHome Auto Const Mandatory
+
+Quest Property TraitKidStuff Auto Const Mandatory
+
+Quest Property TraitStarterHome Auto Const Mandatory

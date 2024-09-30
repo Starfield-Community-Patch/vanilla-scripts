@@ -1,44 +1,46 @@
-ScriptName SetStageOnPowered Extends ObjectReference Const
-{ Set a quest stage when all linked elements are powered. }
+Scriptname SetStageOnPowered extends ObjectReference Const
+{Set a quest stage when all linked elements are powered.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property myQuest Auto Const mandatory
-Int Property questStage Auto Const mandatory
-Int Property prereqQuestStage = -1 Auto Const
-Keyword Property LinkToPoweredReferences Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property myQuest Mandatory Const Auto
+int Property questStage Mandatory Const Auto
+Int Property prereqQuestStage = -1 Const Auto
+keyword Property LinkToPoweredReferences Mandatory Const Auto
 
 Event OnCellLoad()
-  ObjectReference[] refsLinkedToMe = Self.GetRefsLinkedToMe(LinkToPoweredReferences, None)
-  Int I = 0
-  While I < refsLinkedToMe.Length
-    Self.RegisterForRemoteEvent(refsLinkedToMe[I] as ScriptObject, "OnPowerOn")
-    I += 1
-  EndWhile
+    ObjectReference[] refsLinkedToMe = GetRefsLinkedToMe(LinkToPoweredReferences)
+    int i = 0
+    While (i < refsLinkedToMe.Length)
+        RegisterForRemoteEvent(refsLinkedToMe[i], "OnPowerOn")
+        i = i + 1
+    EndWhile
+    Debug.Trace(self + " There are " + refsLinkedToMe.Length + " references linked to me.")
 EndEvent
 
 Event ObjectReference.OnPowerOn(ObjectReference akSender, ObjectReference akPowerGenerator)
-  Bool allPowered = True
-  Int I = 0
-  ObjectReference[] refsLinkedToMe = Self.GetRefsLinkedToMe(LinkToPoweredReferences, None)
-  While I < refsLinkedToMe.Length
-    If refsLinkedToMe[I]
-      If refsLinkedToMe[I].IsPowered() == False
-        allPowered = False
-      EndIf
+    bool allPowered = true
+    int i = 0
+    ObjectReference[] refsLinkedToMe = GetRefsLinkedToMe(LinkToPoweredReferences)
+    While (i < refsLinkedToMe.Length)
+        if(refsLinkedToMe[i])
+            if(refsLinkedToMe[i].IsPowered() == false)
+                Debug.Trace(refsLinkedToMe[i] + " does not have power.")
+                allPowered = false
+            EndIf
+        Else
+            Debug.Trace(refsLinkedToMe[i] + " does not exist.")
+        EndIf
+        i = i + 1
+    EndWhile
+    if(allPowered == true)
+        If (PreReqQuestStage == -1) || (myQuest.GetStageDone(PrereqQuestStage))
+            myQuest.SetStage(questStage)
+        EndIf
+        Debug.Trace("All Powered is True")
     EndIf
-    I += 1
-  EndWhile
-  If allPowered == True
-    If prereqQuestStage == -1 || myQuest.GetStageDone(prereqQuestStage)
-      myQuest.SetStage(questStage)
-    EndIf
-  EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllEvents()
+    UnregisterForAllEvents()
 EndEvent
+
+

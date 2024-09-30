@@ -1,22 +1,21 @@
-ScriptName CF05_FadeTeleportScript Extends TopicInfo
+Scriptname CF05_FadeTeleportScript extends TopicInfo
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property Alias_PlayerTeleportGuard Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_PlayerTeleportGuard Auto Const mandatory
-Float Property SecondsBeforeFade = 0.0 Auto Const
-Float Property FadeDuration = 0.5 Auto Const
-Float Property WaitTime = 0.5 Auto Const
+float Property SecondsBeforeFade = 0.0 Auto Const
 
-;-- Functions ---------------------------------------
+float Property FadeDuration = 0.5 Auto Const
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  Game.FadeOutGame(True, True, SecondsBeforeFade, FadeDuration, True)
-  inputenablelayer myLayer = inputenablelayer.Create()
-  myLayer.DisablePlayerControls(True, False, False, False, False, False, False, False, False, False, False)
-  Utility.Wait(WaitTime)
-  Game.GetPlayer().MoveTo(Alias_PlayerTeleportGuard.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Utility.Wait(WaitTime)
-  myLayer.Delete()
-  Game.FadeOutGame(False, True, SecondsBeforeFade, FadeDuration, False)
-EndEvent
+float Property WaitTime = 0.5 Auto Const
+
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+	Game.FadeOutGame(true, true, SecondsBeforeFade, FadeDuration, true)
+	InputEnableLayer myLayer = InputEnableLayer.Create()
+	myLayer.DisablePlayerControls(abMovement = true, abFighting = false, abCamSwitch = false, abLooking = false, abSneaking = false, abMenu = false, abActivate = false, abJournalTabs = false, abVATS = false, abFavorites = false, abRunning = false)
+	Utility.Wait(WaitTime)
+	Game.GetPlayer().MoveTo(Alias_PlayerTeleportGuard.GetRef())
+	Utility.Wait(WaitTime)
+	myLayer.Delete()
+	Game.FadeOutGame(false, true, SecondsBeforeFade, FadeDuration)
+endEvent
+

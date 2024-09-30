@@ -1,44 +1,53 @@
-ScriptName SE_AttackDefendScript Extends Quest
-{ Handles spawning ships for SE_Attack encounters.  Deadcounts must be defined in SEScript and RECollectionAlias scripts for each group }
+Scriptname SE_AttackDefendScript extends Quest
+{Handles spawning ships for SE_Attack encounters.  Deadcounts must be defined in SEScript and RECollectionAlias scripts for each group}
 
-;-- Variables ---------------------------------------
-Int AttackersDeadGroup = 0
-Int DefendersDeadGroup = 1
-sescript SEQuestScript
-Float percentMaxDamage = 0.699999988
-Float percentMaxSpeed = 1.0
-Float percentMinDamage = 0.100000001
+RefCollectionAlias property Alias_AttackersRC Auto Const Mandatory
+{RefcollectionAlias that holds all of the enemy ships}
 
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_AttackersRC Auto Const mandatory
-{ RefcollectionAlias that holds all of the enemy ships }
-RefCollectionAlias Property Alias_DefendersRC Auto Const mandatory
-{ RefcollectionAlias that holds all of the enemy ships }
-ActorValue Property Health Auto Const mandatory
+RefCollectionAlias property Alias_DefendersRC Auto Const Mandatory
+{RefcollectionAlias that holds all of the enemy ships}
 
-;-- Functions ---------------------------------------
+
+ActorValue property Health Auto Const Mandatory
+
+float percentMaxSpeed = 1.0
+
+float percentMaxDamage = 0.7
+float percentMinDamage = 0.1
+
+int AttackersDeadGroup = 0
+int DefendersDeadGroup = 1
+
+SEScript SEQuestScript
 
 Event OnQuestStarted()
-  SEQuestScript = (Self as Quest) as sescript
-  Self.SetupShips(Alias_AttackersRC, AttackersDeadGroup)
-  Self.SetupShips(Alias_DefendersRC, DefendersDeadGroup)
+        SEQuestScript = ((self as Quest) as SEScript)
+        SetupShips(Alias_AttackersRC, AttackersDeadGroup)
+        SetupShips(Alias_DefendersRC, DefendersDeadGroup)
 EndEvent
 
-Function SetupShips(RefCollectionAlias akCurrentRefCol, Int DeadGroup)
-  Int I = 0
-  Int GroupSize = akCurrentRefCol.GetCount()
-  Int DeadCount = 0
-  While I < GroupSize
-    spaceshipreference currentShip = akCurrentRefCol.GetAt(I) as spaceshipreference
-    If currentShip.IsAIEnabled()
-      currentShip.SetForwardVelocity(percentMaxSpeed)
-      Float DamagePercent = Utility.RandomFloat(percentMinDamage, percentMaxDamage)
-      currentShip.DamageValue(Health, currentShip.GetValue(Health) * DamagePercent)
-      DeadCount += 1
-    EndIf
-    I += 1
-  EndWhile
-  If SEQuestScript
-    SEQuestScript.UpdateDeadCountGroupSize(DeadGroup, DeadCount)
-  EndIf
+Function SetupShips(RefCollectionAlias akCurrentRefCol, int DeadGroup)
+        debug.trace(self + " SetupShips " + akCurrentRefCol + " group " + DeadGroup)
+        int i=0
+        int GroupSize = akCurrentRefCol.GetCount()
+        int DeadCount = 0
+        
+        while i<GroupSize
+
+
+                SpaceshipReference currentShip = akCurrentRefCol.GetAt(i) as SpaceshipReference
+                        if (currentShip.IsAIEnabled())
+                                currentShip.SetForwardVelocity(percentMaxSpeed)
+                                float DamagePercent = Utility.RandomFloat(percentMinDamage,percentMaxDamage)
+                                currentShip.DamageValue(Health, currentShip.GetValue(Health) * DamagePercent)
+                                DeadCount += 1
+                        EndIf
+                i=i+1
+        EndWhile
+
+        if (SEQuestScript)
+                debug.trace(self + "    updating group size to " + DeadCount)
+                SEQuestScript.UpdateDeadCountGroupSize(DeadGroup, DeadCount)
+        EndIf
+
 EndFunction

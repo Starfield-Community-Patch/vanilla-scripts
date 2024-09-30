@@ -1,19 +1,20 @@
-ScriptName CityNewAtlantisSalinasTriggerScript Extends ObjectReference Const
+Scriptname CityNewAtlantisSalinasTriggerScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
-GlobalVariable Property UC_NA_SalinasVendorActive Auto Const
-GlobalVariable Property UC_NA_SalinasVendorTimer Auto Const
-GlobalVariable Property GameDaysPassed Auto Const
 
-;-- Functions ---------------------------------------
+GlobalVariable Property UC_NA_SalinasVendorActive const auto
+
+GlobalVariable Property UC_NA_SalinasVendorTimer const auto
+
+GlobalVariable Property GameDaysPassed const auto
+
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If UC_NA_SalinasVendorActive.GetValue() == 1.0
-      UC_NA_SalinasVendorActive.SetValue(0.0)
-      UC_NA_SalinasVendorTimer.SetValue(GameDaysPassed.GetValue() + 0.200000003)
-    EndIf
-  EndIf
+    if akActionRef == Game.GetPlayer()
+    	if UC_NA_SalinasVendorActive.GetValue() == 1
+		UC_NA_SalinasVendorActive.SetValue(0)
+		UC_NA_SalinasVendorTimer.SetValue(GameDaysPassed.GetValue() + 0.2)
+    		;debug.Trace(UC_SalinasVendorTimer + " set to " + UC_NA_SalinasVendorTimer.GetValue())
+	endif
+    endif
 EndEvent

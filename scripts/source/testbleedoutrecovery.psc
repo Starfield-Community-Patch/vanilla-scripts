@@ -1,19 +1,15 @@
-ScriptName TestBleedoutRecovery Extends Actor
+Scriptname TestBleedoutRecovery extends Actor
+ActorValue Property Health Mandatory Const Auto
 
-;-- Variables ---------------------------------------
-Bool bDownNPC
-
-;-- Properties --------------------------------------
-ActorValue Property Health Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+bool bDownNPC
 Event OnLoad()
-  If !bDownNPC
-    Self.SetNoBleedoutRecovery(False)
-    Self.DamageValue(Health, 10000.0)
-    bDownNPC = True
-  Else
-    bDownNPC = False
-  EndIf
+
+    ;Switch behaviors each time we load into this joint
+    if !bDownNPC
+        SetNoBleedoutRecovery(false)
+        DamageValue(Health, 10000)
+        bDownNPC = true
+    else
+        bDownNPC = false
+    endif    
 EndEvent

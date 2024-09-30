@@ -1,7 +1,10 @@
-ScriptName SPower_EHarvest_Bloom Extends ActiveMagicEffect
+Scriptname SPower_EHarvest_Bloom extends ActiveMagicEffect
 
-;-- Functions ---------------------------------------
+; should be a simple script, intent is to grab targets within spell's effect radius and pass a refresh to their harvestable state.
+; not applying any conditions to the target group for this as it should only impact things that can already be harvested.
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akTarget.SetHarvested(False)
-EndEvent
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+
+    akTarget.SetHarvested(false)
+
+ENDEVENT

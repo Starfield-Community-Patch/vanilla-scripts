@@ -1,41 +1,64 @@
-ScriptName Fragments:Quests:QF_FFCydoniaR02_00224FE8 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFCydoniaR02_00224FE8 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property FFCydoniaR02_EquipmentCount Auto Const mandatory
-Weapon Property Eon Auto Const mandatory
-GlobalVariable Property FFCydoniaR02_NumTimesCompleted Auto Const mandatory
-Quest Property AspirationalItems Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.SetObjectiveDisplayed(150, True, False)
-  Self.SetStage(300)
+;BEGIN CODE
+SetObjectiveDisplayed(150)
+SetStage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  If Self.GetStageDone(100)
-    Self.SetObjectiveCompleted(100, True)
-    Self.SetObjectiveDisplayed(200, True, False)
-  EndIf
+;BEGIN CODE
+If GetStageDone(100)
+	SetObjectiveCompleted(100)
+	SetObjectiveDisplayed(200)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(300, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  If FFCydoniaR02_NumTimesCompleted.GetValue() < 1.0
-    AspirationalItems.SetStage(100)
-  EndIf
-  FFCydoniaR02_NumTimesCompleted.Mod(1.0)
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+If FFCydoniaR02_NumTimesCompleted.GetValue() < 1
+	AspirationalItems.SetStage(100)
+EndIf
+
+FFCydoniaR02_NumTimesCompleted.Mod(1)
+
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property FFCydoniaR02_EquipmentCount Auto Const Mandatory
+
+Weapon Property Eon Auto Const Mandatory
+
+GlobalVariable Property FFCydoniaR02_NumTimesCompleted Auto Const Mandatory
+
+Quest Property AspirationalItems Auto Const Mandatory

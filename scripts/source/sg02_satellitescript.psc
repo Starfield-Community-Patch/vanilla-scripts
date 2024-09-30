@@ -1,23 +1,21 @@
-ScriptName SG02_SatelliteScript Extends ReferenceAlias
+Scriptname SG02_SatelliteScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+int Property ShutdownStage Const Auto
+{If this stage is set, stop trying to destroy this object}
 
-;-- Properties --------------------------------------
-Int Property ShutdownStage Auto Const
-{ If this stage is set, stop trying to destroy this object }
-Bool Property DamageOnce = False Auto
-{ Make sure we're only damaging this object the first time it loads in }
-
-;-- Functions ---------------------------------------
+bool Property DamageOnce = false Auto
+{Make sure we're only damaging this object the first time it loads in}
 
 Event OnLoad()
-  If !DamageOnce && !Self.GetOwningQuest().GetStageDone(ShutdownStage)
-    DamageOnce = True
-    Self.GetRef().TryToSetEssential(True)
-    Self.GetRef().DamageObject(1.799999952)
-  EndIf
+    ; As soon as the satellite is loaded - damage it
+
+    if !DamageOnce && !GetOwningQuest().GetStageDone(ShutdownStage)
+        DamageOnce = true
+        SELF.GetRef().TryToSetEssential()
+        SELF.GetRef().DamageObject(1.8)
+    endif
 EndEvent
 
 Function Fix()
-  Self.GetRef().Repair()
+    SELF.GetRef().Repair()
 EndFunction

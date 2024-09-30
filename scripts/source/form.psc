@@ -1,21 +1,30 @@
-ScriptName Form Extends ScriptObject Native hidden
+Scriptname Form extends ScriptObject Native Hidden
 
-;-- Functions ---------------------------------------
+; Returns the formID for this object
+Int Function GetFormID() native
 
-String Function GetFormEditorID() Native
+; Returns the editor formID string for this object
+string Function GetFormEditorID() native DebugOnly
 
-Int Function GetFormID() Native
+; Obtains this form's value in gold. Will return -1 if the form doesn't have any value (like a quest)
+int Function GetGoldValue() native
 
-Int Function GetGoldValue() Native
+; Get this object's weight
+float Function GetWeight() native
 
-Float Function GetWeight() Native
+; Returns if this form has the specified keyword attached
+bool Function HasKeyword(Keyword akKeyword) native
 
-Bool Function HasKeyword(Keyword akKeyword) Native
+; Returns if this form has any of the keywords in the list attached
+bool Function HasKeywordInFormList(FormList akKeywordList) native
 
-Bool Function HasKeywordInFormList(FormList akKeywordList) Native
+; Is the "Known" flag set for this form?
+bool Function PlayerKnows() native
 
-Bool Function PlayerKnows() Native
+; Turns on profiling for this specific object and all scripts attached to it - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StartObjectProfiling() native debugOnly
 
-Function StartObjectProfiling() Native
-
-Function StopObjectProfiling() Native
+; Turns off profiling for this specific object and all scripts attached to it - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StopObjectProfiling() native debugOnly

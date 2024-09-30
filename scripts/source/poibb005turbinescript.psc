@@ -1,14 +1,9 @@
-ScriptName POIBB005TurbineScript Extends ObjectReference Const
+Scriptname POIBB005TurbineScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property Blades Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ObjectReference Property Blades Mandatory Const Auto
 
 Event OnLoad()
-  Utility.Wait(0.200000003)
-  Blades.SetAnimationVariableFloat("Speed", 0.25)
-  Blades.PlayAnimation("RotateCW_Loop")
+    Utility.Wait(0.2)
+    Blades.SetAnimationVariableFloat("Speed", 0.25)
+    Blades.PlayAnimation("RotateCW_Loop")
 EndEvent

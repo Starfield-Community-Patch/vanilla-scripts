@@ -1,61 +1,80 @@
-ScriptName UC02_PowerBoxScript Extends RefCollectionAlias
+Scriptname UC02_PowerBoxScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
+RefCollectionAlias Property LinkedDefenses Mandatory Const Auto
+{The defenses you want to turn on when the power is thrown}
 
-;-- Properties --------------------------------------
-RefCollectionAlias Property LinkedDefenses Auto Const mandatory
-{ The defenses you want to turn on when the power is thrown }
-Keyword Property TopicToPlay Auto Const mandatory
-{ Topic to play when all the power boxes are activated }
-Keyword Property AdditionalBreakerTopic Auto Const mandatory
-{ Topic to play if there are additional breakers to throw still }
-Keyword Property UC02_SystemOffline_Keyword Auto Const mandatory
-{ Keyword to trigger topic if the player gets here early }
-Quest Property UC02 Auto Const mandatory
-{ UC02 quest }
-Int Property PreReqStage = 601 Auto Const
-{ If the player attempts to activate these objects before this stage is set, they'll fail }
-ReferenceAlias Property DefenseSystem Auto Const mandatory
-{ Actor alias for the defense system }
-ReferenceAlias Property LightAlias Auto Const mandatory
-{ Alias for the enable marker that manages each group of lights }
-wwiseevent Property QST_UC02_Turret_Power_Half Auto Const mandatory
-{ Sound to play if the player's partially restored power to the system }
-wwiseevent Property QST_UC02_Turret_Power_Full Auto Const mandatory
-{ Sound to play if the player's fully restored power to the system }
+Keyword Property TopicToPlay Mandatory Const Auto
+{Topic to play when all the power boxes are activated}
 
-;-- Functions ---------------------------------------
+Keyword Property AdditionalBreakerTopic Mandatory Const Auto
+{Topic to play if there are additional breakers to throw still}
+
+Keyword Property UC02_SystemOffline_Keyword Mandatory Const Auto
+{Keyword to trigger topic if the player gets here early}
+
+Quest Property UC02 Mandatory Const Auto
+{UC02 quest}
+
+int Property PreReqStage = 601 Const Auto
+{If the player attempts to activate these objects before this stage is set, they'll fail}
+
+ReferenceAlias Property DefenseSystem Mandatory Const Auto
+{Actor alias for the defense system}
+
+ReferenceAlias Property LightAlias Mandatory Const Auto
+{Alias for the enable marker that manages each group of lights}
+
+WwiseEvent Property QST_UC02_Turret_Power_Half Mandatory Const Auto
+{Sound to play if the player's partially restored power to the system}
+
+WwiseEvent Property QST_UC02_Turret_Power_Full Mandatory Const Auto
+{Sound to play if the player's fully restored power to the system}
 
 Event OnActivate(ObjectReference akSenderRef, ObjectReference akActionRef)
-  If UC02.GetStageDone(PreReqStage)
-    Self.RemoveRef(akSenderRef)
-    If Self.GetCount() <= 0
-      Int I = 0
-      Int iCount = LinkedDefenses.GetCount()
-      Bool bAnyAlive = False
-      While I < iCount
-        Actor currAct = LinkedDefenses.GetAt(I) as Actor
-        If currAct.IsUnconscious() && !currAct.IsDead()
-          bAnyAlive = True
-          LightAlias.GetRef().Enable(False)
-          currAct.SetUnconscious(False)
-          currAct.IgnoreFriendlyHits(True)
-        EndIf
-        I += 1
-      EndWhile
-      If bAnyAlive
-        QST_UC02_Turret_Power_Full.Play(Game.GetPlayer() as ObjectReference, None, None)
-        akSenderRef.SayCustom(TopicToPlay, DefenseSystem.GetActorRef(), False, None)
-      EndIf
-    Else
-      QST_UC02_Turret_Power_Half.Play(Game.GetPlayer() as ObjectReference, None, None)
-      akSenderRef.SayCustom(AdditionalBreakerTopic, DefenseSystem.GetActorRef(), False, None)
-    EndIf
-  Else
-    akSenderRef.SayCustom(UC02_SystemOffline_Keyword, DefenseSystem.GetActorRef(), False, None)
-  EndIf
+    trace(self, "Activation event: Sender: " + akSenderRef + ". Activator: " + akActionRef + ". Linked defenses: " + LinkedDefenses)
+    if UC02.GetStageDone(PreReqStage)
+        RemoveRef(akSenderRef)
+
+        trace(self, "How many items still in coll: " + GetCount())
+        if GetCount() <= 0
+            int i = 0
+            int iCount = LinkedDefenses.GetCount()
+            bool bAnyAlive
+
+            while i < iCount
+                Actor currAct = LinkedDefenses.GetAt(i) as Actor
+                trace(self, "Waking up actor: " + currAct)
+
+                if currAct.IsUnconscious() && !currAct.IsDead()
+                    bAnyAlive = true
+                    LightAlias.GetRef().Enable()
+                    currAct.SetUnconscious(false)
+                    currAct.IgnoreFriendlyHits()
+                    trace(self, "Actor is now conscious: " + !currAct.IsUnconscious())
+                endif
+
+                i += 1
+            endwhile
+
+            if bAnyAlive
+                trace(self, "All breakers activated. If there are turrets left, say a line:" + TopicToPlay + " from source: " + akSenderRef + " as actor: " + DefenseSystem.GetActorRef())
+                QST_UC02_Turret_Power_Full.Play(Game.GetPlayer())
+                akSenderRef.SayCustom(TopicToPlay, DefenseSystem.GetActorRef())
+            endif
+        else
+            trace(self, "Still breakers lef to activate. Say a line with keyword: " + AdditionalBreakerTopic)
+            QST_UC02_Turret_Power_Half.Play(Game.GetPlayer())
+            akSenderRef.SayCustom(AdditionalBreakerTopic, DefenseSystem.GetActorRef())
+        endif
+    else
+        trace(self, "Player got here early. Tell 'em to take a hike with keyword: " + UC02_SystemOffline_Keyword)
+        akSenderRef.SayCustom(UC02_SystemOffline_Keyword, DefenseSystem.GetActorRef())
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC02", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

@@ -1,16 +1,22 @@
-ScriptName Fragments:Packages:PF_MQ204_RescuedAtEye_PkgSar_000E0497 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_MQ204_RescuedAtEye_PkgSar_000E0497 Extends Package Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property AnimFlavorWounded Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Change
 Function Fragment_Change(Actor akActor)
-  akActor.ChangeAnimFlavor(None)
+;BEGIN CODE
+akActor.ChangeAnimFlavor(None)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  akActor.ChangeAnimFlavor(AnimFlavorWounded)
+;BEGIN CODE
+akActor.ChangeAnimFlavor(AnimFlavorWounded)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Keyword Property AnimFlavorWounded Auto Const Mandatory

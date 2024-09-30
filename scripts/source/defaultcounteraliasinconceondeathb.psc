@@ -1,8 +1,6 @@
-ScriptName DefaultCounterAliasIncOnceOnDeathB Extends DefaultCounterQuestIncOnDeath default
-{ Once this ALIAS dies it increments the counter on its Quest's DefaultCounterQuestB script. }
-
-;-- Functions ---------------------------------------
+ScriptName DefaultCounterAliasIncOnceOnDeathB extends DefaultCounterQuestIncOnDeath Default
+{Once this ALIAS dies it increments the counter on its Quest's DefaultCounterQuestB script.}
 
 Function Increment()
-  (Self.GetOwningQuest() as defaultcounterquestb).Increment()
+	(GetOwningQuest() as DefaultCounterQuestB).Increment()
 EndFunction

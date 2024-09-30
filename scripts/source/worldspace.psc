@@ -1,1 +1,1 @@
-ScriptName WorldSpace Extends Form Native hidden
+Scriptname WorldSpace extends Form Native Hidden

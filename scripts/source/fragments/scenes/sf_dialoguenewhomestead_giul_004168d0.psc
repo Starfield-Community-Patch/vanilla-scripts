@@ -1,16 +1,20 @@
-ScriptName Fragments:Scenes:SF_DialogueNewHomestead_Giul_004168D0 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_DialogueNewHomestead_Giul_004168D0 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property FFNewHomesteadR02QuestStartKeyword Auto Const mandatory
-Keyword Property FFNewHomesteadR02MiscQuestStartKeyword Auto Const mandatory
-Quest Property FFNewHomesteadR02Misc Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  If !FFNewHomesteadR02Misc.IsRunning()
-    FFNewHomesteadR02MiscQuestStartKeyword.SendStoryEvent(None, None, None, 0, 0)
-  EndIf
+;BEGIN CODE
+If !FFNewHomesteadR02Misc.IsRunning()
+	FFNewHomesteadR02MiscQuestStartKeyword.SendStoryEvent()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Keyword Property FFNewHomesteadR02QuestStartKeyword Auto Const Mandatory
+
+Keyword Property FFNewHomesteadR02MiscQuestStartKeyword Auto Const Mandatory
+
+Quest Property FFNewHomesteadR02Misc Auto Const Mandatory

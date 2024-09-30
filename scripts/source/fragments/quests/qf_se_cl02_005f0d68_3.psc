@@ -1,6 +1,6 @@
-ScriptName Fragments:Quests:QF_SE_CL02_005F0D68_3 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_CL02_005F0D68_3 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-spaceshipreference Property bagMan Auto Const
+SpaceshipReference Property bagMan Auto Const

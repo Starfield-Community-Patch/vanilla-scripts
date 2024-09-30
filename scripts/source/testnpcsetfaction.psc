@@ -1,15 +1,12 @@
-ScriptName TestNPCSetFaction Extends ObjectReference Const
+Scriptname TestNPCSetFaction extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property SpawnController auto const Mandatory
 
-;-- Properties --------------------------------------
-ObjectReference Property SpawnController Auto Const mandatory
-FormList Property FactionClassesFormList Auto Const mandatory
-Int Property TeamNumber Auto Const mandatory
-{ 1. Red Team, 2. Blue Team }
+FormList Property FactionClassesFormList auto const Mandatory
 
-;-- Functions ---------------------------------------
+int Property TeamNumber auto const Mandatory
+{1. Red Team, 2. Blue Team}
 
 Event OnActivate(ObjectReference akActionRef)
-  (SpawnController as testnpcarenascript).SetFactionToSpawn(FactionClassesFormList, TeamNumber)
+	(SpawnController as TestNPCArenaScript).SetFactionToSpawn(FactionClassesFormList, TeamNumber)
 EndEvent

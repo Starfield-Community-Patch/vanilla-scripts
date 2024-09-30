@@ -1,18 +1,18 @@
-ScriptName TestGym_AddExplosionLoop Extends ObjectReference Const
-{ Test gym script to add explosion repeatedly }
+Scriptname TestGym_AddExplosionLoop extends ObjectReference Const
+{Test gym script to add explosion repeatedly}
 
-;-- Variables ---------------------------------------
+Explosion Property P_TestGym_PhysicparticleExplosion Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Explosion Property P_TestGym_PhysicparticleExplosion Auto Const mandatory
-ObjectReference Property P_testGyn_PE_Ref Auto Const mandatory
-Int Property P_loopTime = 6 Auto Const
+ObjectReference Property P_testGyn_PE_Ref Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+Int Property P_loopTime = 6 Auto Const 
 
 Event OnLoad()
-  While 1 > 0
-    P_testGyn_PE_Ref.PlaceAtNode("BasePoint2m", P_TestGym_PhysicparticleExplosion as Form, 1, False, False, True, False)
-    Utility.Wait(P_loopTime as Float)
-  EndWhile
-EndEvent
+
+    while 1 > 0
+  	Debug.Trace("My loop for explosion debug")
+	P_testGyn_PE_Ref.PlaceAtNode("BasePoint2m", P_TestGym_PhysicparticleExplosion)
+	Utility.Wait(P_loopTime) 
+   endwhile
+endEvent
+

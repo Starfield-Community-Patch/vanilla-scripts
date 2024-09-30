@@ -1,14 +1,16 @@
-ScriptName Fragments:TopicInfos:TIF_TestSteveCQuest_00160C25 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_TestSteveCQuest_00160C25 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property Variable01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  akSpeaker.SetValue(Variable01, 0.0)
-  akSpeaker.EvaluatePackage(False)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+akSpeaker.SetValue(Variable01, 0)
+akSpeaker.EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ActorValue Property Variable01 Auto Const Mandatory

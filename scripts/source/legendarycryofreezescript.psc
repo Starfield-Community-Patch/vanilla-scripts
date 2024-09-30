@@ -1,13 +1,11 @@
-ScriptName LegendaryCryoFreezeScript Extends ActiveMagicEffect
+Scriptname LegendaryCryoFreezeScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+SPELL PROPERTY pCryoFreezeSpell AUTO
+{The Cryo freeze spell}
 
-;-- Properties --------------------------------------
-Spell Property pCryoFreezeSpell Auto
-{ The Cryo freeze spell }
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    debug.trace("OnEffectStart() akTarget" + akTarget)
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  pCryoFreezeSpell.Cast(Game.getPlayer() as ObjectReference, akTarget)
-EndEvent
+    ;freeze him!
+    pCryoFreezeSpell.cast(game.getPlayer(), akTarget)
+ENDEVENT

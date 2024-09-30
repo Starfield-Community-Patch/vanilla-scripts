@@ -1,40 +1,32 @@
-ScriptName DefaultActivateSelfOnHit Extends Actor default
-{ The ref activates itself on hit, typically to trigger an ambush from an ActivateParented actor. }
+Scriptname DefaultActivateSelfOnHit extends Actor Default
+{The ref activates itself on hit, typically to trigger an ambush from an ActivateParented actor.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property DoOnce = True Auto Const
-
-;-- Functions ---------------------------------------
+bool property DoOnce = True auto const
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-;-- State -------------------------------------------
-State Done
+Auto State Initial
+	Event OnLoad()
+		if Is3DLoaded()
+			RegisterForHitEvent(self) ; listen for a single hit event, any source
+		EndIf
+	EndEvent
 
-  Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-    ; Empty function
-  EndEvent
+	Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+		Debug.Trace("DN070: OnHit event on " + akTarget + " from " + akAggressor)
+		Self.Activate(Self)
+		if (doOnce)
+			GoToState("Done")
+		else
+			RegisterForHitEvent(self) ; listen for another hit event now
+		EndIf
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Initial
-
-  Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-    Self.Activate(Self as ObjectReference, False)
-    If DoOnce
-      Self.GoToState("Done")
-    Else
-      Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-    EndIf
-  EndEvent
-
-  Event OnLoad()
-    If Self.Is3DLoaded()
-      Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-    EndIf
-  EndEvent
+State Done
+	Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+		;Do nothing.
+	EndEvent
 EndState

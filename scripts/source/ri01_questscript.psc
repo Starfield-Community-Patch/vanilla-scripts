@@ -1,57 +1,86 @@
-ScriptName RI01_QuestScript Extends Quest
+Scriptname RI01_QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-inputenablelayer InterviewLayer
+ReferenceAlias Property NeonTerraBrewEmployee Auto Const Mandatory
+ReferenceAlias Property NeonTerraBrewEmployeeFurniture Auto Const Mandatory
+ReferenceAlias Property TerraBrewCoffeeOrder Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ReferenceAlias Property NeonTerraBrewEmployee Auto Const mandatory
-ReferenceAlias Property NeonTerraBrewEmployeeFurniture Auto Const mandatory
-ReferenceAlias Property TerraBrewCoffeeOrder Auto Const mandatory
-MiscObject Property RI01_TerraBrewOrder Auto Const mandatory
-Faction Property CrimeFactionNeon Auto Const mandatory
-ActorBase Property FC_Neon_TerraBrewEmployee Auto Const mandatory
-GlobalVariable Property TrueGlobal Auto Const mandatory
+MiscObject Property RI01_TerraBrewOrder Auto Const Mandatory
+
+Faction Property CrimeFactionNeon Auto Const Mandatory
+
+ActorBase Property FC_Neon_TerraBrewEmployee Auto Const Mandatory
+
+; For testing purposes
+GlobalVariable Property TrueGlobal Auto Const Mandatory
+
 Int Property iPickUpCoffeeStage = 500 Auto Const
 Int Property iStartInterviewStage = 400 Auto Const
 Int Property iTimer = 1 Auto Const
 
-;-- Functions ---------------------------------------
+Event OnStageSet(int auiStageID, int auiItemID)
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  If TrueGlobal.GetValue() == 0.0
-    If auiStageID == iPickUpCoffeeStage
-      Actor EmployeeRef = NeonTerraBrewEmployee.GetActorRef()
-      If EmployeeRef.IsDead()
-        EmployeeRef.Resurrect()
-        EmployeeRef.MoveTo(NeonTerraBrewEmployeeFurniture.GetRef(), 0.0, 0.0, 0.0, True, False)
-      EndIf
+    If TrueGlobal.GetValue() == 0
+    ; For testing GEN-311525
+    
+        If auiStageID == iPickUpCoffeeStage
+
+            Actor EmployeeRef = NeonTerraBrewEmployee.GetActorRef()
+
+            If EmployeeRef.IsDead()
+                EmployeeRef.Resurrect()
+                EmployeeRef.MoveTo(NeonTerraBrewEmployeeFurniture.GetRef())
+            EndIf
+
+        EndIf
+
+    Else
+    ; For current implementation. Will need to be revisted once 
+    ; GEN-306663 is fixed.
+        If auiStageID == iPickUpCoffeeStage
+
+            Actor EmployeeRef = NeonTerraBrewEmployee.GetActorRef()
+
+            If EmployeeRef.IsDead()
+                EmployeeRef.Disable()
+                NeonTerraBrewEmployee.Clear()
+                NeonTerraBrewEmployeeFurniture.GetRef().PlaceAtMe(FC_Neon_TerraBrewEmployee, akAliasToFill = NeonTerraBrewEmployee)
+                NeonTerraBrewEmployee.GetRef().SetLinkedRef(NeonTerraBrewEmployeeFurniture.GetRef())
+            EndIf
+
+        EndIf
+
     EndIf
-  ElseIf auiStageID == iPickUpCoffeeStage
-    Actor employeeref = NeonTerraBrewEmployee.GetActorRef()
-    If employeeref.IsDead()
-      employeeref.Disable(False)
-      NeonTerraBrewEmployee.Clear()
-      NeonTerraBrewEmployeeFurniture.GetRef().PlaceAtMe(FC_Neon_TerraBrewEmployee as Form, 1, False, False, True, None, NeonTerraBrewEmployee as Alias, True)
-      NeonTerraBrewEmployee.GetRef().SetLinkedRef(NeonTerraBrewEmployeeFurniture.GetRef(), None, True)
-    EndIf
-  EndIf
+
 EndEvent
 
+InputEnableLayer InterviewLayer
+
 Function FreezeControls()
-  Game.GetPlayer().StopCombatAlarm()
-  InterviewLayer = inputenablelayer.Create()
-  InterviewLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
-  Self.StartTimer(5.0, iTimer)
+
+    Game.GetPlayer().StopCombatAlarm()
+    InterviewLayer = InputEnableLayer.Create()
+    InterviewLayer.DisablePlayerControls(abMovement = True)
+
+    ; Start a timer if for any reason the player has activated the chair and managed to NOT sit down in it. 
+    ; Timer will be used to see if the interview stage needs to be set.
+    StartTimer(5, iTimer)
+
 EndFunction
 
 Function UnfreezeControls()
-  InterviewLayer = None
+
+    InterviewLayer = None
+
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iTimer
-    If !Self.GetStageDone(iStartInterviewStage)
-      Self.SetStage(iStartInterviewStage)
+Event OnTimer(int aiTimerID)
+
+    If aiTimerID == iTimer
+    ; On timer expired, check to see if Stage 400 has been set to start the interview. 
+    ; If it hasn't, set stage 400 to start it.
+        If !GetStageDone(iStartInterviewStage)
+            SetStage(iStartInterviewStage)
+        EndIf
     EndIf
-  EndIf
+
 EndEvent

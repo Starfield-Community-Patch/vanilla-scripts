@@ -1,17 +1,16 @@
-ScriptName MQ101BarrettShipScript Extends ReferenceAlias
+Scriptname MQ101BarrettShipScript extends ReferenceAlias
 
-;-- Functions ---------------------------------------
+Event OnShipTakeOff(bool abComplete)
+	Quest myQuest = GetOwningQuest()
+	if (abComplete==false) && myQuest.GetStageDone(320)
+    		myQuest.SetStage(345)
+	endIf
+endEvent
 
-Event OnShipTakeOff(Bool abComplete)
-  Quest myQuest = Self.GetOwningQuest()
-  If abComplete == False && myQuest.GetStageDone(320)
-    myQuest.SetStage(345)
-  EndIf
-EndEvent
-
-Event OnShipLanding(Bool abComplete)
-  Quest myQuest = Self.GetOwningQuest()
-  If abComplete && myQuest.GetStageDone(170)
-    myQuest.SetStage(180)
-  EndIf
+Event OnShipLanding(bool abComplete)
+	Quest myQuest = GetOwningQuest()
+	;Stage 170 is where we enable Barrett's ship. Make sure we're at that point
+	If abComplete && myQuest.GetStageDone(170)
+		MyQuest.SetStage(180) ;enable the trigger volume that will progress the quest
+	EndIf
 EndEvent

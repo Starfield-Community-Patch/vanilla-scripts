@@ -1,24 +1,34 @@
-ScriptName Fragments:Scenes:SF_MQ101_005_FaceGenScene_00005743_2 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ101_005_FaceGenScene_00005743_2 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property MedBench Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_04_End
 Function Fragment_Phase_04_End()
-  mq101script kmyQuest = Self.GetOwningQuest() as mq101script
-  Actor PlayerREF = Game.GetPlayer()
-  ObjectReference MedBenchREF = MedBench.GetRef()
-  PlayerREF.Waitfor3dLoad()
-  MedBenchREF.Waitfor3dLoad()
-  PlayerREF.SnapIntoInteraction(MedBenchREF)
-  kmyQuest.StartCharGen()
+;BEGIN AUTOCAST TYPE mq101script
+mq101script kmyQuest = GetOwningQuest() as mq101script
+;END AUTOCAST
+;BEGIN CODE
+Actor PlayerREF = Game.GetPlayer()
+ObjectReference MedBenchREF = MedBench.GetRef()
+PlayerREF.Waitfor3dLoad()
+MedBenchREF.Waitfor3dLoad()
+;MedBenchREF.Activate(PlayerREF)
+PlayerREF.SnapIntoInteraction(MedBenchREF)
+kmyquest.StartCharGen()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_05_End
 Function Fragment_Phase_05_End()
-  Game.SetInCharGen(False, False, False)
-  Game.RequestSave()
-  Game.SetInCharGen(True, True, False)
+;BEGIN CODE
+;save before chargen scene
+Game.SetInCharGen(False, false, false)
+Game.RequestSave()
+Game.SetInCharGen(True, True, False)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property MedBench Auto Const

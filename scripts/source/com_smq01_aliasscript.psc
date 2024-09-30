@@ -1,69 +1,76 @@
-ScriptName COM_SMQ01_AliasScript Extends ReferenceAlias
+Scriptname COM_SMQ01_AliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group StagesAndIndices
-  Int Property GenetagSearchStage = 120 Auto Const
-  { Once this stage is set, start tracking the player's collection of Genetags }
-  Int Property GenetagObjectiveStartStage = 160 Auto Const
-  { Once this stage is set, start displaying the Objective with the count of Genetags }
-  Int Property GenetagObjIndex = 160 Auto Const
-  { Objective index we need to update each time the player collects Genetags }
-  Int Property SpawnBoss = 165 Auto Const
-  { Stage to set once the player's got enough Genetags to spawn the final boss }
-  Int Property CompletionStage = 170 Auto Const
-  { Stage to set once the player's got enough Genetags to finish this portion of the quest }
+    int Property GenetagSearchStage = 120 Const Auto
+    {Once this stage is set, start tracking the player's collection of Genetags}
+
+    int Property GenetagObjectiveStartStage = 160 Const Auto
+    {Once this stage is set, start displaying the Objective with the count of Genetags}  
+
+    int Property GenetagObjIndex =  160 Const Auto
+    {Objective index we need to update each time the player collects Genetags}
+
+    int Property SpawnBoss =  165 Const Auto
+    {Stage to set once the player's got enough Genetags to spawn the final boss}
+
+    int Property CompletionStage = 170 Const Auto
+    {Stage to set once the player's got enough Genetags to finish this portion of the quest}
 EndGroup
 
+
 Group Globals
-  GlobalVariable Property COM_SMQ01_GenetagsCollected Auto Const mandatory
-  { Global var used to track how many Genetags the player has collected }
-  GlobalVariable Property COM_SMQ01_GenetagsTotal Auto Const mandatory
-  { Global var used to know how many Genetags we want the player to collect }
-  GlobalVariable Property COM_SMQ01_GenetagsSpawnTotal Auto Const mandatory
-  { Global var used to know how many Genetags we want the player to collect before spawning the boss }
+    GlobalVariable Property COM_SMQ01_GenetagsCollected Mandatory Const Auto
+    {Global var used to track how many Genetags the player has collected}
+
+    GlobalVariable Property COM_SMQ01_GenetagsTotal Mandatory Const Auto
+    {Global var used to know how many Genetags we want the player to collect}
+
+    GlobalVariable Property COM_SMQ01_GenetagsSpawnTotal Mandatory Const Auto
+    {Global var used to know how many Genetags we want the player to collect before spawning the boss}
 EndGroup
 
 Group Objects
-  MiscObject Property COM_SMQ01_Genetag Auto Const mandatory
-  { Genetag misc object }
+    MiscObject Property COM_SMQ01_Genetag Mandatory Const Auto
+    {Genetag misc object}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnAliasInit()
-  Self.RegisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
+    debug.trace("Player alias init'ed.")
+    RegisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
 EndEvent
 
-Event Quest.OnStageSet(Quest akSender, Int auiStageID, Int auiItemID)
-  If auiStageID == GenetagSearchStage
-    Self.UnregisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
-    Self.RegisterPlayerForGentagPickup()
-  EndIf
+Event Quest.OnStageSet(Quest akSender, int auiStageID, int auiItemID)
+   if auiStageID == GenetagSearchStage
+       debug.trace("Proper stage set. Register player for inventory events.")
+       UnregisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
+       RegisterPlayerForGentagPickup()
+   endif
 EndEvent
 
 Function RegisterPlayerForGentagPickup()
-  Self.AddInventoryEventFilter(COM_SMQ01_Genetag as Form)
+    ;Do a check for pre-existing genetags here in the future
+    AddInventoryEventFilter(COM_SMQ01_Genetag)
+    debug.trace("Player registered for inventory events.")
 EndFunction
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  Quest myQuest = Self.GetOwningQuest()
-  If myQuest.GetStageDone(GenetagObjectiveStartStage)
-    myQuest.ModObjectiveGlobal(aiItemCount as Float, COM_SMQ01_GenetagsCollected, GenetagObjIndex, -1.0, True, True, True, False)
-    Self.SpawnBossOrEnd()
-  Else
-    COM_SMQ01_GenetagsCollected.Mod(1.0)
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    debug.trace("Player grabbed genetag.")
+    Quest myQuest = GetOwningQuest()
+    if myQuest.GetStageDone(GenetagObjectiveStartStage)
+	    myQuest.ModObjectiveGlobal(aiItemCount, COM_SMQ01_GenetagsCollected, GenetagObjIndex)
+        SpawnBossOrEnd()
+    Else
+        COM_SMQ01_GenetagsCollected.Mod(1)
+    EndIf
+    debug.trace("COM_SMQ01_GenetagsCollected: " + COM_SMQ01_GenetagsCollected)
 EndEvent
 
 Function SpawnBossOrEnd()
-  Quest myQuest = Self.GetOwningQuest()
-  Int collected = COM_SMQ01_GenetagsCollected.GetValueInt()
-  If collected as Float == COM_SMQ01_GenetagsSpawnTotal.GetValue()
-    myQuest.SetStage(SpawnBoss)
-  ElseIf collected as Float >= COM_SMQ01_GenetagsTotal.GetValue()
-    myQuest.SetStage(CompletionStage)
-  EndIf
+    Quest myQuest = GetOwningQuest()
+    int collected = COM_SMQ01_GenetagsCollected.GetValueInt()
+	if collected == COM_SMQ01_GenetagsSpawnTotal.GetValue()
+         myQuest.SetStage(SpawnBoss)
+	elseif collected >= COM_SMQ01_GenetagsTotal.GetValue()
+		 myQuest.SetStage(CompletionStage)
+	endif
 EndFunction

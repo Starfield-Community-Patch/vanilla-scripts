@@ -1,90 +1,150 @@
-ScriptName Fragments:Quests:QF_City_CY_RedTape01_00237490 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_CY_RedTape01_00237490 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueCydonia Auto Const mandatory
-Quest Property City_CY_RedTape02 Auto Const mandatory
-MiscObject Property InorgCommonIron Auto Const mandatory
-GlobalVariable Property City_CY_RedTape01Resource01Total Auto Const mandatory
-Key Property City_CY_RedTape01_HRKey Auto Const mandatory
-RefCollectionAlias Property Alias_IronDeposits Auto Const mandatory
-ActorValue Property City_CY_RedTape01_ForeknowledgeAV Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  Game.GetPlayer().AddItem(InorgCommonIron as Form, City_CY_RedTape01Resource01Total.GetValue() as Int, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(InorgCommonIron, City_CY_RedTape01Resource01Total.GetValue() as Int)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  If DialogueCydonia.GetStageDone(1105)
-    Self.SetStage(200)
-  Else
-    Self.SetObjectiveDisplayed(100, True, False)
-  EndIf
+;BEGIN CODE
+If DialogueCydonia.GetStageDone(1105)
+	SetStage(200)
+Else
+	SetObjectiveDisplayed(100)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(250, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(250)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(250, True)
-  Self.SetObjectiveDisplayed(300, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(250)
+SetObjectiveDisplayed(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0350_Item_00
 Function Fragment_Stage_0350_Item_00()
-  Self.SetObjectiveCompleted(300, True)
-  Self.SetObjectiveDisplayed(350, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(300)
+SetObjectiveDisplayed(350)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0352_Item_00
 Function Fragment_Stage_0352_Item_00()
-  Actor myPlayer = Game.GetPlayer()
-  myPlayer.AddItem(City_CY_RedTape01_HRKey as Form, 1, False)
-  myPlayer.SetValue(City_CY_RedTape01_ForeknowledgeAV, 1.0)
+;BEGIN CODE
+Actor myPlayer = Game.GetPlayer()
+myPlayer.AddItem(City_CY_RedTape01_HRKey)
+myPlayer.SetValue(City_CY_RedTape01_ForeknowledgeAV, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Self.SetObjectiveCompleted(350, True)
-  Self.SetObjectiveDisplayed(400, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(350)
+SetObjectiveDisplayed(400)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0410_Item_00
 Function Fragment_Stage_0410_Item_00()
-  If Self.GetStageDone(420) && Self.GetStageDone(430) && Self.GetStageDone(440)
-    Self.SetStage(500)
-  EndIf
+;BEGIN CODE
+If GetStageDone(420) && GetStageDone(430) && GetStageDone(440)
+	SetStage(500)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0420_Item_00
 Function Fragment_Stage_0420_Item_00()
-  If Self.GetStageDone(410) && Self.GetStageDone(430) && Self.GetStageDone(440)
-    Self.SetStage(500)
-  EndIf
+;BEGIN CODE
+If GetStageDone(410) && GetStageDone(430) && GetStageDone(440)
+	SetStage(500)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0430_Item_00
 Function Fragment_Stage_0430_Item_00()
-  If Self.GetStageDone(410) && Self.GetStageDone(420) && Self.GetStageDone(440)
-    Self.SetStage(500)
-  EndIf
+;BEGIN CODE
+If GetStageDone(410) && GetStageDone(420) && GetStageDone(440)
+	SetStage(500)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0440_Item_00
 Function Fragment_Stage_0440_Item_00()
-  If Self.GetStageDone(410) && Self.GetStageDone(420) && Self.GetStageDone(430)
-    Self.SetStage(500)
-  EndIf
+;BEGIN CODE
+If GetStageDone(410) && GetStageDone(420) && GetStageDone(430)
+	SetStage(500)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetObjectiveCompleted(400, True)
-  Self.SetObjectiveDisplayed(500, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(400)
+SetObjectiveDisplayed(500)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_10000_Item_00
 Function Fragment_Stage_10000_Item_00()
-  City_CY_RedTape02.Start()
+;BEGIN CODE
+City_CY_RedTape02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueCydonia Auto Const Mandatory
+
+Quest Property City_CY_RedTape02 Auto Const Mandatory
+
+MiscObject Property InorgCommonIron Auto Const Mandatory
+
+GlobalVariable Property City_CY_RedTape01Resource01Total Auto Const Mandatory
+
+Key Property City_CY_RedTape01_HRKey Auto Const Mandatory
+
+RefCollectionAlias Property Alias_IronDeposits Auto Const Mandatory
+
+ActorValue Property City_CY_RedTape01_ForeknowledgeAV Auto Const Mandatory

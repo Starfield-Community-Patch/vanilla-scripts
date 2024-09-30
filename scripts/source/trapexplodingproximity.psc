@@ -1,59 +1,61 @@
-ScriptName TrapExplodingProximity Extends TrapExplodingBase
-{ Adds the ability to trigger an explosion based on proximity }
+Scriptname TrapExplodingProximity extends TrapExplodingBase
+{Adds the ability to trigger an explosion based on proximity}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Group TrapExplodingProximityData
-  Keyword Property LinkCustom01 Auto Const mandatory
-  { Link Keyword from pivot to living or dead actor trigger }
-  Keyword Property LinkCustom02 Auto Const mandatory
-  { Link Keyword from pivot to projectile trigger }
-  Float Property TimeToExplode = 0.0 Auto Const
-  { Number of seconds until explosion }
-  Bool Property ProjectileProximityTrigger = True Auto Const
+group TrapExplodingProximityData
+    Keyword Property LinkCustom01 Mandatory Const Auto
+    {Link Keyword from pivot to living or dead actor trigger}
+    Keyword Property LinkCustom02 Mandatory Const Auto
+    {Link Keyword from pivot to projectile trigger}
+    Float Property TimeToExplode = 0.0 Const Auto
+    {Number of seconds until explosion}
+    bool Property ProjectileProximityTrigger = true Const Auto
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Function HandleOnLoad()
-  Self.RegisterForRemoteEvent(Self.GetLinkedRef(None) as ScriptObject, "OnActivate")
-  If Self.GetLinkedRef(LinkCustom01)
-    Self.RegisterForRemoteEvent(Self.GetLinkedRef(LinkCustom01) as ScriptObject, "OnTriggerEnter")
-  EndIf
-  If Self.GetLinkedRef(LinkCustom02)
-    Self.RegisterForRemoteEvent(Self.GetLinkedRef(LinkCustom02) as ScriptObject, "OnTriggerEnter")
-  EndIf
-  Parent.HandleOnLoad()
+    RegisterForRemoteEvent(GetLinkedRef(), "OnActivate")
+    if(GetLinkedRef(LinkCustom01))
+        RegisterForRemoteEvent(GetLinkedRef(LinkCustom01), "OnTriggerEnter")
+    EndIf
+    if(GetLinkedRef(LinkCustom02))
+        RegisterForRemoteEvent(GetLinkedRef(LinkCustom02), "OnTriggerEnter")
+    EndIf
+    ;Catch when the flora is harvested
+    parent.HandleOnLoad()
 EndFunction
 
 Function HandleOnUnload()
-  Self.UnregisterForRemoteEvent(Self.GetLinkedRef(None) as ScriptObject, "OnActivate")
-  Self.UnregisterForRemoteEvent(Self.GetLinkedRef(LinkCustom01) as ScriptObject, "OnTriggerEnter")
-  Self.UnregisterForRemoteEvent(Self.GetLinkedRef(LinkCustom02) as ScriptObject, "OnTriggerEnter")
-  Parent.HandleOnUnload()
+    UnregisterForRemoteEvent(GetLinkedRef(), "OnActivate")
+    UnregisterForRemoteEvent(GetLinkedRef(LinkCustom01), "OnTriggerEnter")
+    UnregisterForRemoteEvent(GetLinkedRef(LinkCustom02), "OnTriggerEnter")
+    parent.HandleOnUnload()
 EndFunction
 
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  Self.UnregisterForRemoteEvent(Self.GetLinkedRef(LinkCustom01) as ScriptObject, "OnTriggerEnter")
-  Self.UnregisterForRemoteEvent(Self.GetLinkedRef(LinkCustom02) as ScriptObject, "OnTriggerEnter")
-  Self.UnregisterForRemoteEvent(Self.GetLinkedRef(None) as ScriptObject, "OnActivate")
-  Self.Disarm()
+    ;Plant is harvested, make trap inactive
+    ;TODO End Danger State (SFX, FX)
+    UnregisterForRemoteEvent(GetLinkedRef(LinkCustom01), "OnTriggerEnter")
+    UnregisterForRemoteEvent(GetLinkedRef(LinkCustom02), "OnTriggerEnter")
+    UnregisterForRemoteEvent(GetLinkedRef(), "OnActivate")
+    Disarm() ; parent function
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If bDisarmed == False
-    Self.Explode()
-  EndIf
+Event OnTimer(int aiTimerID)
+    if (bDisarmed == false)
+    ;TODO End Danger State (SFX, FX)
+        Explode()
+    EndIf
 EndEvent
 
 Event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
-  If TimeToExplode > 0.0
-    Self.StartTimer(TimeToExplode, 0)
-    Self.UnregisterForRemoteEvent(Self.GetLinkedRef(LinkCustom01) as ScriptObject, "OnTriggerEnter")
-    Self.UnregisterForRemoteEvent(Self.GetLinkedRef(LinkCustom02) as ScriptObject, "OnTriggerEnter")
-  Else
-    Self.Explode()
-  EndIf
+    debug.trace(self + " Exploding Flora Proximity Event" + akSender + "   " + akActionRef)
+    if(TimeToExplode > 0)
+        StartTimer(TimeToExplode)
+        UnregisterForRemoteEvent(GetLinkedRef(LinkCustom01), "OnTriggerEnter")
+        UnregisterForRemoteEvent(GetLinkedRef(LinkCustom02), "OnTriggerEnter")
+        ;TODO Start Danger State (SFX, FX)
+    Else
+        Explode()
+    EndIf
 EndEvent
+
+

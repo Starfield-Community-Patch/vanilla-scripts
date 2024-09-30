@@ -1,39 +1,41 @@
-ScriptName MissionGetAllPlanetsScript Extends Quest
+Scriptname MissionGetAllPlanetsScript extends Quest
 
-;-- Variables ---------------------------------------
+SQ_ParentScript property SQ_Parent auto const mandatory
 
-;-- Properties --------------------------------------
-sq_parentscript Property SQ_Parent Auto Const mandatory
-LocationAlias[] Property AllPlanets Auto Const mandatory
+LocationAlias[] property AllPlanets auto const mandatory
 { array of all planet location aliases }
 
-;-- Functions ---------------------------------------
+int function DebugGetPlanetCount() DebugOnly
+    ; count how many planets
+    int planetCount = 0
 
-Int Function DebugGetPlanetCount()
-  Int planetCount = 0
-  Int I = 0
-  While I < AllPlanets.Length
-    Location thePlanet = AllPlanets[I].GetLocation()
-    If thePlanet
-      planetCount += 1
-    EndIf
-    I += 1
-  EndWhile
-  Debug.trace((Self as String + " DebugGetPlanetCount: ") + planetCount as String, 0)
-  Return planetCount
+    int i = 0
+    while i < AllPlanets.Length
+        Location thePlanet = AllPlanets[i].GetLocation()
+        if thePlanet
+            planetCount += 1
+        endif
+        i += 1
+    endwhile
+    debug.trace(self + " DebugGetPlanetCount: " + planetCount)
+    return planetCount
 EndFunction
 
-Int Function GetSystemTraitValue()
-  Int totalTraitValue = 0
-  Int I = 0
-  While I < AllPlanets.Length
-    Location thePlanetLocation = AllPlanets[I].GetLocation()
-    If thePlanetLocation
-      planet thePlanet = thePlanetLocation.GetCurrentPlanet()
-      Int planetTraitValue = SQ_Parent.GetPlanetTraitValue(thePlanet)
-      totalTraitValue += planetTraitValue
-    EndIf
-    I += 1
-  EndWhile
-  Return totalTraitValue
+int function GetSystemTraitValue()
+    ; get total trait value for system
+    int totalTraitValue = 0
+
+    int i = 0
+    while i < AllPlanets.Length
+        Location thePlanetLocation = AllPlanets[i].GetLocation()
+        if thePlanetLocation
+            Planet thePlanet = thePlanetLocation.GetCurrentPlanet()
+            int planetTraitValue = SQ_Parent.GetPlanetTraitValue(thePlanet)
+            totalTraitValue += planetTraitValue
+            debug.trace(self + " " + thePlanet + ": " + planetTraitValue)
+        endif
+        i += 1
+    endwhile
+    debug.trace(self + " GetSystemTraitValue: " + totalTraitValue)
+    return totalTraitValue
 EndFunction

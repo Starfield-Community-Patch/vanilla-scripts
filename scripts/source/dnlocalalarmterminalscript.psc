@@ -1,31 +1,31 @@
-ScriptName DNLocalAlarmTerminalScript Extends TerminalMenu
-{ Native terminal script for terminals that control DNLocalAlarmScript alarm systems. }
+Scriptname DNLocalAlarmTerminalScript extends TerminalMenu
+{Native terminal script for terminals that control DNLocalAlarmScript alarm systems.}
 
-;-- Variables ---------------------------------------
-Int menuItemID_Disarm = 1 Const
+Keyword property DNLocalAlarmTerminalLinkKeyword Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Keyword Property DNLocalAlarmTerminalLinkKeyword Auto Const mandatory
+;Local variables.
+int menuItemID_Disarm = 1 Const
 
-;-- Functions ---------------------------------------
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  ObjectReference[] linkedRefChain = akTerminalRef.GetLinkedRefChain(DNLocalAlarmTerminalLinkKeyword, 100)
-  ObjectReference[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(DNLocalAlarmTerminalLinkKeyword, None)
-  If linkedRefChain.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, akTerminalBase, linkedRefChain as dnlocalalarmscript[])
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, akTerminalBase, linkedRefChildren as dnlocalalarmscript[])
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    ObjectReference[] linkedRefChain = akTerminalRef.GetLinkedRefChain(DNLocalAlarmTerminalLinkKeyword)
+    ObjectReference[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(DNLocalAlarmTerminalLinkKeyword)
+    if (linkedRefChain.Length > 0)
+        HandleMenuItem(auiMenuItemID, akTerminalBase, linkedRefChain as DNLocalAlarmScript[])
+    EndIf
+    if (linkedRefChildren.Length > 0)
+        HandleMenuItem(auiMenuItemID, akTerminalBase, linkedRefChildren as DNLocalAlarmScript[])
+    EndIf
 EndEvent
 
-Function HandleMenuItem(Int auiMenuItemID, TerminalMenu akTerminalBase, dnlocalalarmscript[] alarmArray)
-  If auiMenuItemID == menuItemID_Disarm
-    Int I = 0
-    While I < alarmArray.Length
-      alarmArray[I].Disarm()
-      I += 1
-    EndWhile
-  EndIf
+Function HandleMenuItem(int auiMenuItemID, TerminalMenu akTerminalBase, DNLocalAlarmScript[] alarmArray)
+    if (auiMenuItemID == menuItemID_Disarm)
+        int i = 0
+        Debug.Trace(self + " disarming alarms")
+        While (i < alarmArray.Length)
+            Debug.Trace(self + " disarming " + alarmArray[i])
+            alarmArray[i].Disarm()
+            i = i + 1
+        EndWhile
+    EndIf
 EndFunction

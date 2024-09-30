@@ -1,20 +1,16 @@
-ScriptName MQCheckGravCrewAssignScript Extends ReferenceAlias
+Scriptname MQCheckGravCrewAssignScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property PreReqStageGravJumpRange = 12 Auto Const
-Int Property StageToSetGravJumpRange = 13 Auto Const
-Int Property GravJumpRangeToCheck = 28 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property PreReqStageGravJumpRange=12 Const Auto
+Int Property StageToSetGravJumpRange=13 Const Auto
+Int Property GravJumpRangeToCheck=28 Const Auto
 
 Event OnCrewAssigned(Actor akCrew, ObjectReference akAssignmentRef, ObjectReference akPreviousAssignmentRef)
-  spaceshipreference MyShip = Self.GetShipRef()
-  If MyShip.GetGravJumpRange() >= GravJumpRangeToCheck as Float
-    Quest myQuest = Self.GetOwningQuest()
-    If myQuest.GetStageDone(PreReqStageGravJumpRange)
-      myQuest.SetStage(StageToSetGravJumpRange)
+    ;if the player changes crew on their current ship, check the grav range again
+    SpaceshipReference MyShip = Self.GetShipRef()
+    If MyShip.GetGravJumpRange() >= GravJumpRangeToCheck
+        quest myQuest = GetOwningQuest()
+        If myQuest.GetStageDone(PreReqStageGravJumpRange)
+            myQuest.SetStage(StageToSetGravJumpRange)
+        EndIf
     EndIf
-  EndIf
-EndEvent
+endEvent

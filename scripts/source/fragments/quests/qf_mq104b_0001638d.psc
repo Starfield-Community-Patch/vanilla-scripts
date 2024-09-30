@@ -1,466 +1,806 @@
-ScriptName Fragments:Quests:QF_MQ104B_0001638D Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MQ104B_0001638D Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property FFLodge01_001_OutsideScene Auto Const mandatory
-Scene Property FFLodge01_003_LodgeScene Auto Const mandatory
-ObjectReference Property MQ104BStart001 Auto Const mandatory
-ReferenceAlias Property Alias_Barrett Auto Const mandatory
-ReferenceAlias Property Alias_Heller Auto Const mandatory
-Scene Property FFLodge01_002_BarrettScene Auto Const mandatory
-Message Property FFLodge01LodgeMSG Auto Const mandatory
-Quest Property MQ103 Auto Const mandatory
-Quest Property MQ104 Auto Const mandatory
-Quest Property MQ105 Auto Const mandatory
-ObjectReference Property VecteraExteriorNPCEnableMarker Auto Const mandatory
-ObjectReference Property VecteraInteriorNPCEnableMarker Auto Const mandatory
-ReferenceAlias Property Alias_Lin Auto Const mandatory
-ReferenceAlias Property Alias_DoorToSensorArray Auto Const mandatory
-ObjectReference Property MQ104B_BarrettMovetoMarker Auto Const mandatory
-Message Property MQ104BVectera_MedBenchMSG02 Auto Const mandatory
-ReferenceAlias Property Alias_MedBenchTrigger Auto Const mandatory
-ReferenceAlias Property Alias_BotTrigger Auto Const mandatory
-ReferenceAlias Property Alias_CommsComputer Auto Const mandatory
-Message Property MQ104BVectera_RobotMSG02 Auto Const mandatory
-Book Property MQ104BHellerBarrettSlate Auto Const mandatory
-Book Property MQ104BPirateBarrettSlate Auto Const mandatory
-Scene Property MQ104B_005_OutsideScene Auto Const mandatory
-ReferenceAlias Property Alias_Matsura Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-Faction Property PlayerEnemyFaction Auto Const mandatory
-Scene Property MQ104B_015_LodgeScene Auto Const mandatory
-Quest Property MQ104A Auto Const mandatory
-Quest Property MQ104B_LinHeller_BaseDialogue Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-RefCollectionAlias Property Alias_MatsuraBodyguards Auto Const mandatory
-ReferenceAlias Property Alias_HellerWoundedMarker Auto Const mandatory
-ObjectReference Property MQ104B_BarrettDungeonStart Auto Const mandatory
-ReferenceAlias Property Alias_HellerCrashStartMarker Auto Const mandatory
-ReferenceAlias Property Alias_BarrettDungeonDoor Auto Const mandatory
-ObjectReference Property MQ104B_EnableExteriorPiratesMarker Auto Const mandatory
-Perk Property OutpostEngineering Auto Const mandatory
-Perk Property InformationSystems Auto Const mandatory
-Perk Property TraitEmpath Auto Const mandatory
-ReferenceAlias Property Alias_BrokenComputerTrigger Auto Const mandatory
-ReferenceAlias Property Alias_FirstBarrettSlateQuestObject Auto Const mandatory
-MiscObject Property Mfg_Power_Circuit Auto Const mandatory
-Scene Property MQ104B_001_LinScene Auto Const mandatory
-GlobalVariable Property NPCDemandMoney_Large Auto Const mandatory
-Scene Property MQ104B_014_LodgeScene Auto Const mandatory
-Quest Property SQ_PlayerShip Auto Const mandatory
-ObjectReference Property MQ104B_Lodge_MarkerBarrett01 Auto Const mandatory
-ObjectReference Property MQ104BLinTravelMarker Auto Const mandatory
-ObjectReference Property VecteraExteriorNPCEnableMarker001 Auto Const mandatory
-Scene Property MQ104B_006_BarrettScene Auto Const mandatory
-Quest Property SQ_Followers Auto Const mandatory
-Perk Property FactionCrimsonFleetPerk Auto Const mandatory
-Perk Property Medicine Auto Const mandatory
-GlobalVariable Property MQ101Debug Auto Const mandatory
-Quest Property MQ101 Auto Const mandatory
-Quest Property MQ102 Auto Const mandatory
-Scene Property MQ104B_006d_MatsuraDeadScene Auto Const mandatory
-ReferenceAlias Property Alias_VecteraMapMarker Auto Const mandatory
-Quest Property LinEliteCrewQuest Auto Const
-Quest Property HellerEliteCrewQuest Auto Const
-ReferenceAlias Property Alias_SecondBarrettSlateQuestObject Auto Const mandatory
-Quest Property SQ_Companions Auto Const mandatory
-wwiseevent Property OBJ_MQ104B_Computer_Repair Auto Const mandatory
-wwiseevent Property OBJ_MQ104B_Power_Circuit Auto Const mandatory
-ObjectReference Property MQ104B_BarrettCell_EnableMaker Auto Const mandatory
-MiscObject Property Power_Cell Auto Const mandatory
-ObjectReference Property MQ104BBarrettDungeonLandingMarker Auto Const mandatory
-ObjectReference Property Frontier_ModularREF Auto Const mandatory
-Keyword Property SpaceshipEnabledLandingLink Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShipPassengerMarker Auto Const mandatory
-GlobalVariable Property COM_PQ_LockedInCompanion Auto Const mandatory
-RefCollectionAlias Property Passengers Auto Const
-RefCollectionAlias Property DisembarkingCrew Auto Const
-ReferenceAlias Property Alias_ArtifactCollection Auto Const mandatory
-Faction Property CaptiveFaction Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  MQ101Debug.SetValueInt(2)
-  MQ101.SetStage(1800)
-  MQ102.SetStage(1150)
-  MQ101.SetStage(1810)
-  Game.GetPlayer().moveto(MQ104BStart001, 0.0, 0.0, 0.0, True, False)
-  Game.GetPlayer().additem(Credits as Form, 1000, False)
-  Game.GetPlayer().AddPerk(OutpostEngineering, False)
-  Game.GetPlayer().AddPerk(InformationSystems, False)
-  Game.GetPlayer().AddPerk(TraitEmpath, False)
-  Game.GetPlayer().AddPerk(Medicine, False)
-  Game.GetPlayer().AddPerk(FactionCrimsonFleetPerk, False)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(0)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(18)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(3)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(4)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(6)
-  Alias_Lin.GetActorRef().moveto(MQ104BLinTravelMarker, 0.0, 0.0, 0.0, True, False)
-  Alias_DoorToSensorArray.GetRef().Disable(False)
-  Self.SetStage(10)
-EndFunction
+;BEGIN CODE
+MQ101Debug.SetValueInt(2)
+MQ101.SetStage(1800)
+MQ102.SetStage(1150)
+MQ101.SetStage(1810)
+Game.GetPlayer().moveto(MQ104BStart001)
+Game.GetPlayer().additem(Credits, 1000)
+Game.GetPlayer().AddPerk(OutpostEngineering)
+Game.GetPlayer().AddPerk(InformationSystems)
+Game.GetPlayer().AddPerk(TraitEmpath)
+Game.GetPlayer().AddPerk(Medicine)
+Game.GetPlayer().AddPerk(FactionCrimsonFleetPerk)
 
+;setup armillary
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(0)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(18)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(3)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(4)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(6)
+
+Alias_Lin.GetActorRef().moveto(MQ104BLinTravelMarker)
+Alias_DoorToSensorArray.GetRef().Disable()
+SetStage(10)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  MQ101Debug.SetValueInt(2)
-  MQ101.SetStage(1800)
-  MQ101.SetStage(1810)
-  MQ102.CompleteQuest()
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(0)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(18)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(3)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(4)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(6)
-  Game.GetPlayer().moveto(Alias_HellerCrashStartMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Game.GetPlayer().additem(Credits as Form, 1000, False)
-  Self.SetStage(5)
-  Self.SetStage(110)
-  Self.SetStage(115)
-EndFunction
+;BEGIN CODE
+MQ101Debug.SetValueInt(2)
+MQ101.SetStage(1800)
+MQ101.SetStage(1810)
+MQ102.CompleteQuest()
 
+;setup armillary
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(0)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(18)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(3)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(4)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(6)
+
+Game.GetPlayer().moveto(Alias_HellerCrashStartMarker.GetRef())
+Game.GetPlayer().additem(Credits, 1000)
+SetStage(5)
+SetStage(110)
+SetStage(115)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  MQ101Debug.SetValueInt(2)
-  MQ101.SetStage(1800)
-  MQ101.SetStage(1810)
-  MQ102.CompleteQuest()
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(0)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(18)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(3)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(4)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(6)
-  Game.GetPlayer().moveto(MQ104B_BarrettDungeonStart, 0.0, 0.0, 0.0, True, False)
-  Game.GetPlayer().additem(Credits as Form, 10000, False)
-  Game.GetPlayer().AddPerk(Medicine, False)
-  Game.GetPlayer().AddPerk(FactionCrimsonFleetPerk, False)
-  Frontier_ModularREF.moveto(MQ104BBarrettDungeonLandingMarker, 0.0, 0.0, 0.0, True, False)
-  Frontier_ModularREF.setlinkedref(MQ104BBarrettDungeonLandingMarker, SpaceshipEnabledLandingLink, True)
-  Frontier_ModularREF.Enable(False)
-  (SQ_PlayerShip as sq_playershipscript).ResetHomeShip(Frontier_ModularREF as spaceshipreference)
-  Self.SetStage(5)
-  Self.SetStage(130)
-  Self.SetStage(132)
-  MQ104B_BarrettCell_EnableMaker.Disable(False)
-EndFunction
+;BEGIN CODE
+MQ101Debug.SetValueInt(2)
+MQ101.SetStage(1800)
+MQ101.SetStage(1810)
+MQ102.CompleteQuest()
 
+;setup armillary
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(0)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(18)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(3)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(4)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(6)
+
+Game.GetPlayer().moveto(MQ104B_BarrettDungeonStart)
+Game.GetPlayer().additem(Credits, 10000)
+Game.GetPlayer().AddPerk(Medicine)
+Game.GetPlayer().AddPerk(FactionCrimsonFleetPerk)
+
+;give player a ship
+Frontier_ModularREF.moveto(MQ104BBarrettDungeonLandingMarker)
+Frontier_ModularREF.setlinkedref(MQ104BBarrettDungeonLandingMarker, SpaceshipEnabledLandingLink)
+Frontier_ModularREF.Enable()
+(SQ_PlayerShip as SQ_PlayerShipScript).ResetHomeShip(Frontier_ModularREF as SpaceshipReference)
+
+
+SetStage(5)
+SetStage(130)
+SetStage(132)
+
+MQ104B_BarrettCell_EnableMaker.Disable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Actor HellerREF = Alias_Heller.GetActorRef()
-  Alias_VecteraMapMarker.GetRef().Enable(False)
-  VecteraExteriorNPCEnableMarker001.Disable(False)
-  VecteraInteriorNPCEnableMarker.Disable(False)
-  HellerREF.moveto(Alias_HellerWoundedMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  HellerREF.SetGhost(True)
-  HellerREF.AddtoFaction(CaptiveFaction)
-  Alias_Barrett.GetActorRef().moveto(MQ104B_BarrettMovetoMarker, 0.0, 0.0, 0.0, True, False)
-  Alias_BarrettDungeonDoor.GetRef().Lock(False, False, True)
-  Alias_CommsComputer.GetRef().Enable(False)
-  Alias_CommsComputer.GetRef().BlockActivation(True, True)
-  Alias_Lin.GetActorRef().moveto(MQ104BLinTravelMarker, 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+Actor HellerREF = Alias_Heller.GetActorRef()
 
+;allow landing at Vectera again
+Alias_VecteraMapMarker.GetRef().Enable()
+
+;set up the state change on Vectera
+VecteraExteriorNPCEnableMarker001.Disable()
+VecteraInteriorNPCEnableMarker.Disable()
+HellerREF.moveto(Alias_HellerWoundedMArker.GetRef())
+HellerREF.SetGhost()
+HellerREF.AddtoFaction(CaptiveFaction)
+Alias_Barrett.GetActorRef().moveto(MQ104B_BarrettMovetoMarker)
+
+;make sure door to Barret dungeon is open
+Alias_BarrettDungeonDoor.GetRef().Lock(False)
+
+Alias_CommsComputer.GetRef().Enable()
+Alias_CommsComputer.GetRef().BlockActivation(True, True)
+
+Alias_Lin.GetActorRef().moveto(MQ104BLinTravelMarker)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Self.SetStage(5)
-  MQ104B_LinHeller_BaseDialogue.Start()
-  MQ104B_BarrettCell_EnableMaker.Disable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+;make sure we set up the Vectera state change
+SetStage(5)
+
+;start Heller and Lin's base dialogue quest for dialogue needed when this quest isn't running
+MQ104B_LinHeller_BaseDialogue.Start()
+
+MQ104B_BarrettCell_EnableMaker.Disable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0015_Item_00
 Function Fragment_Stage_0015_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
-  MQ104B_001_LinScene.Start()
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
 
+MQ104B_001_LinScene.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
-  Self.SetObjectiveDisplayedAtTop(30)
-  Alias_BrokenComputerTrigger.GetRef().Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(30)
+SetObjectiveDisplayedAtTop(30)
 
+;enable trigger volume to repair computer
+Alias_BrokenComputerTrigger.GetRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Actor PlayerREF = Game.GetPlayer()
-  PlayerREF.RemoveItem(Power_Cell as Form, 3, False, None)
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(35, True)
-  Self.SetObjectiveDisplayed(40, True, False)
-  ObjectReference CommsComputerREF = Alias_CommsComputer.GetRef()
-  Alias_BrokenComputerTrigger.GetRef().Disable(False)
-  CommsComputerREF.BlockActivation(False, False)
-  CommsComputerREF.PlayAnimation("Play01")
-  OBJ_MQ104B_Computer_Repair.Play(Game.GetPlayer() as ObjectReference, None, None)
-EndFunction
+;BEGIN CODE
+Actor PlayerREF = Game.GetPlayer()
 
+PlayerREF.RemoveItem(Power_Cell, 3)
+
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(35)
+SetObjectiveDisplayed(40)
+
+ObjectReference CommsComputerREF = Alias_CommsComputer.GetRef()
+
+Alias_BrokenComputerTrigger.GetRef().Disable()
+CommsComputerREF.BlockActivation(False, False)
+CommsComputerREF.PlayAnimation("Play01")
+
+;play sound
+OBJ_MQ104B_Computer_Repair.Play(Game.GetPlayer())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0045_Item_00
 Function Fragment_Stage_0045_Item_00()
-  Self.SetObjectiveDisplayed(35, True, False)
-  Alias_MedBenchTrigger.GetRef().Enable(False)
-  Alias_BotTrigger.GetRef().Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(35)
 
+Alias_MedBenchTrigger.GetRef().Enable()
+Alias_BotTrigger.GetRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(35, True)
-  Self.SetObjectiveDisplayed(40, True, False)
-  ObjectReference CommsComputerREF = Alias_CommsComputer.GetRef()
-  Alias_BrokenComputerTrigger.GetRef().Disable(False)
-  CommsComputerREF.BlockActivation(False, False)
-  CommsComputerREF.PlayAnimation("Play01")
-  OBJ_MQ104B_Computer_Repair.Play(Game.GetPlayer() as ObjectReference, None, None)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(35)
+SetObjectiveDisplayed(40)
 
+ObjectReference CommsComputerREF = Alias_CommsComputer.GetRef()
+
+Alias_BrokenComputerTrigger.GetRef().Disable()
+CommsComputerREF.BlockActivation(False, False)
+CommsComputerREF.PlayAnimation("Play01")
+
+;play sound
+OBJ_MQ104B_Computer_Repair.Play(Game.GetPlayer())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0055_Item_00
 Function Fragment_Stage_0055_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(35, True)
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveDisplayed(50, True, False)
-  Alias_BrokenComputerTrigger.GetRef().Disable(False)
-  Game.GetPlayer().addaliaseditem(MQ104BHellerBarrettSlate as Form, Alias_FirstBarrettSlateQuestObject as Alias, 1, True)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(35)
+SetObjectiveCompleted(40)
+SetObjectiveDisplayed(50)
 
+Alias_BrokenComputerTrigger.GetRef().Disable()
+
+;give player the slate directly
+Game.GetPlayer().addaliaseditem(MQ104BHellerBarrettSlate, Alias_FirstBarrettSlateQuestObject)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Game.GetPlayer().additem(Power_Cell as Form, 1, False)
-  If Self.GetStageDone(80) && Self.GetStageDone(70)
-    Self.SetStage(90)
-  EndIf
-EndFunction
+;BEGIN CODE
+Game.GetPlayer().AddItem(Power_Cell, 1)
 
+If GetStageDone(80) && GetStageDone(70)
+  SetStage(90)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  MQ104BVectera_MedBenchMSG02.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Game.GetPlayer().additem(Power_Cell as Form, 1, False)
-  If Self.GetStageDone(60) && Self.GetStageDone(80)
-    Self.SetStage(90)
-  EndIf
-  Alias_MedBenchTrigger.GetRef().Disable(False)
-  OBJ_MQ104B_Power_Circuit.Play(Game.GetPlayer() as ObjectReference, None, None)
-EndFunction
+;BEGIN CODE
+MQ104BVectera_MedBenchMSG02.Show()
+Game.GetPlayer().AddItem(Power_Cell, 1)
 
+If GetStageDone(60) && GetStageDone(80)
+  SetStage(90)
+EndIf
+
+Alias_MedBenchTrigger.GetRef().Disable()
+
+;play sound
+OBJ_MQ104B_Power_Circuit.Play(Game.GetPlayer())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0080_Item_00
 Function Fragment_Stage_0080_Item_00()
-  MQ104BVectera_RobotMSG02.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Game.GetPlayer().additem(Power_Cell as Form, 1, False)
-  If Self.GetStageDone(60) && Self.GetStageDone(70)
-    Self.SetStage(90)
-  EndIf
-  Alias_BotTrigger.GetRef().Disable(False)
-  OBJ_MQ104B_Power_Circuit.Play(Game.GetPlayer() as ObjectReference, None, None)
-EndFunction
+;BEGIN CODE
+MQ104BVectera_RobotMSG02.Show()
+Game.GetPlayer().AddItem(Power_Cell, 1)
 
+If GetStageDone(60) && GetStageDone(70)
+  SetStage(90)
+EndIf
+
+Alias_BotTrigger.GetRef().Disable()
+
+;play sound
+OBJ_MQ104B_Power_Circuit.Play(Game.GetPlayer())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0090_Item_00
 Function Fragment_Stage_0090_Item_00()
-  Self.SetObjectiveCompleted(35, True)
+;BEGIN CODE
+SetObjectiveCompleted(35)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0095_Item_00
 Function Fragment_Stage_0095_Item_00()
-  Actor PlayerREF = Game.GetPlayer()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(35, True)
-  Self.SetObjectiveDisplayed(40, True, False)
-  ObjectReference CommsComputerREF = Alias_CommsComputer.GetRef()
-  Alias_BrokenComputerTrigger.GetRef().Disable(False)
-  CommsComputerREF.BlockActivation(False, False)
-  CommsComputerREF.PlayAnimation("Play01")
-  OBJ_MQ104B_Computer_Repair.Play(Game.GetPlayer() as ObjectReference, None, None)
-EndFunction
+;BEGIN CODE
+Actor PlayerREF = Game.GetPlayer()
 
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(35)
+SetObjectiveDisplayed(40)
+
+ObjectReference CommsComputerREF = Alias_CommsComputer.GetRef()
+
+Alias_BrokenComputerTrigger.GetRef().Disable()
+CommsComputerREF.BlockActivation(False, False)
+CommsComputerREF.PlayAnimation("Play01")
+
+;play sound
+OBJ_MQ104B_Computer_Repair.Play(Game.GetPlayer())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetStage(30)
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveDisplayed(60, True, False)
-  Actor PlayerREF = Game.GetPlayer()
-  If PlayerREF.GetItemCount(MQ104BHellerBarrettSlate as Form) == 0
-    PlayerREF.additem(MQ104BHellerBarrettSlate as Form, 1, False)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetStage(30)
 
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(40)
+SetObjectiveCompleted(50)
+SetObjectiveDisplayed(60)
+
+Actor PlayerREF = Game.GetPlayer()
+If PlayerREF.GetItemCount(MQ104BHellerBarrettSlate) == 0
+  PlayerREF.AddItem(MQ104BHellerBarrettSlate)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  Self.SetObjectiveCompleted(60, True)
-  Self.SetObjectiveDisplayed(65, True, False)
-  Self.SetObjectiveDisplayed(67, True, False)
-  Self.SetObjectiveDisplayedAtTop(65)
-  LinEliteCrewQuest.SetStage(1)
+;BEGIN CODE
+SetObjectiveCompleted(60)
+SetObjectiveDisplayed(65)
+SetObjectiveDisplayed(67)
+SetObjectiveDisplayedAtTop(65)
+LinEliteCrewQuest.SetStage(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0112_Item_00
 Function Fragment_Stage_0112_Item_00()
-  Self.SetObjectiveCompleted(67, True)
+;BEGIN CODE
+SetObjectiveCompleted(67)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0115_Item_00
 Function Fragment_Stage_0115_Item_00()
-  Self.SetObjectiveCompleted(65, True)
-  Self.SetObjectiveDisplayed(70, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(65)
+SetObjectiveDisplayed(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0120_Item_00
 Function Fragment_Stage_0120_Item_00()
-  Self.SetObjectiveCompleted(70, True)
-  Self.SetObjectiveDisplayed(80, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(70)
+SetObjectiveDisplayed(80)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0125_Item_00
 Function Fragment_Stage_0125_Item_00()
-  Self.SetObjectiveCompleted(92, True)
+;BEGIN CODE
+SetObjectiveCompleted(92)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0130_Item_00
 Function Fragment_Stage_0130_Item_00()
-  Actor HellerREF = Alias_Heller.GetActorRef()
-  Game.GetPlayer().addaliaseditem(MQ104BPirateBarrettSlate as Form, Alias_SecondBarrettSlateQuestObject as Alias, 1, True)
-  HellerEliteCrewQuest.SetStage(1)
-  HellerREF.EvaluatePackage(False)
-  HellerREF.SetGhost(False)
-  HellerREF.RemoveFromFaction(CaptiveFaction)
-  Self.SetStage(100)
-  Self.SetStage(110)
-  Self.SetStage(115)
-  Self.SetStage(120)
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(35, True)
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveCompleted(60, True)
-  Self.SetObjectiveCompleted(80, True)
-  Self.SetObjectiveDisplayed(85, True, False)
-  Self.SetObjectiveDisplayed(92, True, False)
-  Self.SetObjectiveDisplayedAtTop(85)
-EndFunction
+;BEGIN CODE
+Actor HellerREF = Alias_Heller.GetActorRef()
 
+Game.GetPlayer().addaliaseditem(MQ104BPirateBarrettSlate, Alias_SecondBarrettSlateQuestObject)
+
+HellerEliteCrewQuest.SetStage(1)
+HellerREF.EvaluatePackage()
+HellerREF.SetGhost(False)
+HellerREF.RemoveFromFaction(CaptiveFaction)
+
+;make sure quest advances if we skipped ahead
+SetStage(100)
+SetStage(110)
+SetStage(115)
+SetStage(120)
+
+SetObjectiveCompleted(10)
+SetObjectiveCompleted(20)
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(35)
+SetObjectiveCompleted(50)
+SetObjectiveCompleted(60)
+SetObjectiveCompleted(80)
+SetObjectiveDisplayed(85)
+SetObjectiveDisplayed(92)
+SetObjectiveDisplayedAtTop(85)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0131_Item_00
 Function Fragment_Stage_0131_Item_00()
-  Self.SetObjectiveCompleted(85, True)
-  Self.SetObjectiveDisplayed(90, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(85)
+SetObjectiveDisplayed(90)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0132_Item_00
 Function Fragment_Stage_0132_Item_00()
-  Self.SetObjectiveCompleted(85, True)
-  Self.SetObjectiveCompleted(90, True)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(85)
+SetObjectiveCompleted(90)
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0140_Item_00
 Function Fragment_Stage_0140_Item_00()
-  MQ104B_005_OutsideScene.Start()
+;BEGIN CODE
+MQ104B_005_OutsideScene.start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  MQ104B_005_OutsideScene.Stop()
-  MQ104B_006_BarrettScene.Start()
+;BEGIN CODE
+MQ104B_005_OutsideScene.Stop()
+MQ104B_006_BarrettScene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0240_Item_00
 Function Fragment_Stage_0240_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, NPCDemandMoney_Large.GetValueInt(), False, None)
-  Self.SetStage(300)
-EndFunction
+;BEGIN CODE
+Game.GetPlayer().removeitem(credits, NPCDemandMoney_Large.GetValueInt())
 
+SetStage(300)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Self.SetStage(300)
+;BEGIN CODE
+SetStage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0260_Item_00
 Function Fragment_Stage_0260_Item_00()
-  Actor MatsuraREF = Alias_Matsura.GetActorRef()
-  MatsuraREF.AddtoFaction(PlayerEnemyFaction)
-  Alias_MatsuraBodyguards.AddtoFaction(PlayerEnemyFaction)
-  MatsuraREF.StartCombat(Game.GetPlayer() as ObjectReference, False)
-  Self.SetObjectiveDisplayed(105, True, False)
-EndFunction
+;BEGIN CODE
+Actor MatsuraREF = Alias_Matsura.GetActorRef()
+MatsuraREF.AddtoFaction(PlayerEnemyFaction)
+Alias_MatsuraBodyguards.AddtoFaction(PlayerEnemyFaction)
+MatsuraREF.StartCombat(Game.GetPlayer())
 
+SetObjectiveDisplayed(105)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0270_Item_00
 Function Fragment_Stage_0270_Item_00()
-  Self.SetObjectiveCompleted(105, True)
-  Self.SetStage(300)
+;BEGIN CODE
+SetObjectiveCompleted(105)
+SetStage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(110, True, False)
-  If Self.GetStageDone(260) == False
-    MQ104B_EnableExteriorPiratesMarker.Disable(False)
-  EndIf
-  Actor BarrettREF = Alias_Barrett.GetActorRef()
-  BarrettREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(110)
 
+;if we did this non-violently, disable the exterior hostiles
+If GetStageDone(260) == 0
+  MQ104B_EnableExteriorPiratesMarker.Disable()
+EndIf
+
+Actor BarrettREF = Alias_Barrett.GetActorRef()
+BarrettREF.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0305_Item_00
 Function Fragment_Stage_0305_Item_00()
-  Actor BarrettREF = Alias_Barrett.GetActorRef()
-  (SQ_PlayerShip as sq_playershipscript).AddPassenger(BarrettREF)
-  BarrettREF.moveto(Alias_PlayerShipPassengerMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  BarrettREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+Actor BarrettREF = Alias_Barrett.GetActorRef()
 
+;Barrett is now a temp passenger
+(SQ_PlayerShip as SQ_PlayerShipScript).AddPassenger(BarrettREF)
+BarrettREF.moveto(Alias_PlayerShipPassengerMarker.GetRef())
+BarrettREF.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0310_Item_00
 Function Fragment_Stage_0310_Item_00()
-  Actor BarrettREF = Alias_Barrett.GetActorRef()
-  (SQ_PlayerShip as sq_playershipscript).RemovePassenger(BarrettREF)
-  Passengers.RemoveRef(BarrettREF as ObjectReference)
-  DisembarkingCrew.RemoveRef(BarrettREF as ObjectReference)
-  BarrettREF.moveto(MQ104B_Lodge_MarkerBarrett01, 0.0, 0.0, 0.0, True, False)
-  BarrettREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+Actor BarrettREF = Alias_Barrett.GetActorRef()
 
+;Barrett is no longer a passenger
+(SQ_PlayerShip as SQ_PlayerShipScript).RemovePassenger(BarrettREF)
+Passengers.RemoveRef(BarrettREF)
+DisembarkingCrew.RemoveRef(BarrettREF)
+
+BarrettREF.moveto(MQ104B_Lodge_MarkerBarrett01)
+
+BarrettREF.evaluatepackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0390_Item_00
 Function Fragment_Stage_0390_Item_00()
-  Self.SetObjectiveCompleted(110, True)
-  Self.SetObjectiveDisplayed(115, True, False)
-  Actor BarrettREF = Alias_Barrett.GetActorRef()
-  (SQ_PlayerShip as sq_playershipscript).RemovePassenger(BarrettREF)
-  Passengers.RemoveRef(BarrettREF as ObjectReference)
-  DisembarkingCrew.RemoveRef(BarrettREF as ObjectReference)
-  BarrettREF.moveto(MQ104B_Lodge_MarkerBarrett01, 0.0, 0.0, 0.0, True, False)
-  BarrettREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(110)
+SetObjectiveDisplayed(115)
 
+Actor BarrettREF = Alias_Barrett.GetActorRef()
+
+;Barrett is no longer a passenger
+(SQ_PlayerShip as SQ_PlayerShipScript).RemovePassenger(BarrettREF)
+Passengers.RemoveRef(BarrettREF)
+DisembarkingCrew.RemoveRef(BarrettREF)
+
+BarrettREF.moveto(MQ104B_Lodge_MarkerBarrett01)
+BarrettREF.evaluatepackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  MQ104B_014_LodgeScene.Start()
-  Self.SetObjectiveCompleted(115, True)
-  Self.SetObjectiveDisplayed(120, True, False)
-EndFunction
+;BEGIN CODE
+MQ104B_014_LodgeScene.Start()
 
+SetObjectiveCompleted(115)
+SetObjectiveDisplayed(120)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0405_Item_00
 Function Fragment_Stage_0405_Item_00()
-  Self.SetObjectiveCompleted(120, True)
-  Self.SetObjectiveDisplayed(130, True, False)
-  Alias_Barrett.GetActorRef().EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(120)
+SetObjectiveDisplayed(130)
 
+Alias_Barrett.GetActorRef().EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0407_Item_00
 Function Fragment_Stage_0407_Item_00()
-  Alias_Barrett.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_Barrett.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0410_Item_00
 Function Fragment_Stage_0410_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  Actor BarrettREF = Alias_Barrett.GetActorRef()
-  (SQ_Companions as sq_companionsscript).SetRoleAvailable(BarrettREF, True)
-  If COM_PQ_LockedInCompanion.GetValueInt() > -1
-    kmyQuest.ShowHelpMessage("CompanionBlocked")
-  Else
-    (SQ_Companions as sq_companionsscript).SetRoleActive(BarrettREF, True, True, 0.0, 0.0)
-    BarrettREF.EvaluatePackage(False)
-  EndIf
-  Self.SetStage(1000)
-EndFunction
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+Actor BarrettREF = Alias_Barrett.GetActorRef()
+(SQ_Companions as SQ_CompanionsScript).SetRoleAvailable(BarrettREF)
 
+;only make Barrett active if there is no locked in companion
+If COM_PQ_LockedInCompanion.GetValueInt() > -1
+  kmyquest.ShowHelpMessage("CompanionBlocked")
+Else 
+  (SQ_Companions as SQ_CompanionsScript).SetRoleActive(BarrettREF)
+  BarrettREF.EvaluatePackage()
+EndIf
+
+SetStage(1000)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0420_Item_00
 Function Fragment_Stage_0420_Item_00()
-  Actor BarrettREF = Alias_Barrett.GetActorRef()
-  (SQ_Companions as sq_companionsscript).SetRoleAvailable(BarrettREF, True)
-  Self.SetStage(1000)
-EndFunction
+;BEGIN CODE
+Actor BarrettREF = Alias_Barrett.GetActorRef()
+(SQ_Companions as SQ_CompanionsScript).SetRoleAvailable(BarrettREF)
 
+SetStage(1000)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  If MQ103.GetStageDone(2000) && MQ104A.GetStageDone(1000)
-    MQ105.SetStage(10)
-  EndIf
-  Self.Stop()
-EndFunction
+;BEGIN CODE
+CompleteAllObjectives()
 
-Function Fragment_Stage_2000_Item_00()
-  Actor MatsuraREF = Alias_Matsura.GetActorRef()
-  MatsuraREF.AddtoFaction(PlayerEnemyFaction)
-  Alias_MatsuraBodyguards.AddtoFaction(PlayerEnemyFaction)
-  Alias_Heller.GetActorRef().SetGhost(False)
-  LinEliteCrewQuest.SetStage(1)
-  HellerEliteCrewQuest.SetStage(1)
+;check if MQ105 should start
+If MQ103.GetStageDone(2000) && MQ104A.GetStageDone(1000)
+  MQ105.SetStage(10)
+EndIf
+
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_2000_Item_00
+Function Fragment_Stage_2000_Item_00()
+;BEGIN CODE
+;make sure Matsura is hostile
+Actor MatsuraREF = Alias_Matsura.GetActorRef()
+MatsuraREF.AddtoFaction(PlayerEnemyFaction)
+Alias_MatsuraBodyguards.AddtoFaction(PlayerEnemyFaction)
+
+;make sure Heller isn't ghosted
+Alias_Heller.GetActorRef().SetGhost(false)
+
+;run crew quests
+LinEliteCrewQuest.SetStage(1)
+HellerEliteCrewQuest.SetStage(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property FFLodge01_001_OutsideScene Auto Const Mandatory
+
+Scene Property FFLodge01_003_LodgeScene Auto Const Mandatory
+
+ObjectReference Property MQ104BStart001 Mandatory Const Auto
+
+ReferenceAlias Property Alias_Barrett Auto Const Mandatory
+
+ReferenceAlias Property Alias_Heller Auto Const Mandatory
+
+Scene Property FFLodge01_002_BarrettScene Auto Const Mandatory
+
+Message Property FFLodge01LodgeMSG Auto Const Mandatory
+
+Quest Property MQ103 Auto Const Mandatory
+
+Quest Property MQ104 Auto Const Mandatory
+
+Quest Property MQ105 Auto Const Mandatory
+
+ObjectReference Property VecteraExteriorNPCEnableMarker Auto Const Mandatory
+
+ObjectReference Property VecteraInteriorNPCEnableMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_Lin Auto Const Mandatory
+
+ReferenceAlias Property Alias_DoorToSensorArray Auto Const Mandatory
+
+ObjectReference Property MQ104B_BarrettMovetoMarker Auto Const Mandatory
+
+Message Property MQ104BVectera_MedBenchMSG02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_MedBenchTrigger Auto Const Mandatory
+
+ReferenceAlias Property Alias_BotTrigger Auto Const Mandatory
+
+ReferenceAlias Property Alias_CommsComputer Auto Const Mandatory
+
+Message Property MQ104BVectera_RobotMSG02 Auto Const Mandatory
+
+Book Property MQ104BHellerBarrettSlate Auto Const Mandatory
+
+Book Property MQ104BPirateBarrettSlate Auto Const Mandatory
+
+Scene Property MQ104B_005_OutsideScene Auto Const Mandatory
+
+ReferenceAlias Property Alias_Matsura Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+Scene Property MQ104B_015_LodgeScene Auto Const Mandatory
+
+Quest Property MQ104A Auto Const Mandatory
+
+Quest Property MQ104B_LinHeller_BaseDialogue Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+RefCollectionAlias Property Alias_MatsuraBodyguards Auto Const Mandatory
+
+ReferenceAlias Property Alias_HellerWoundedMarker Auto Const Mandatory
+
+ObjectReference Property MQ104B_BarrettDungeonStart Auto Const Mandatory
+
+ReferenceAlias Property Alias_HellerCrashStartMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_BarrettDungeonDoor Auto Const Mandatory
+
+ObjectReference Property MQ104B_EnableExteriorPiratesMarker Auto Const Mandatory
+
+Perk Property OutpostEngineering Auto Const Mandatory
+
+Perk Property InformationSystems Auto Const Mandatory
+
+Perk Property TraitEmpath Auto Const Mandatory
+
+ReferenceAlias Property Alias_BrokenComputerTrigger Auto Const Mandatory
+
+ReferenceAlias Property Alias_FirstBarrettSlateQuestObject Auto Const Mandatory
+
+MiscObject Property Mfg_Power_Circuit Auto Const Mandatory
+
+Scene Property MQ104B_001_LinScene Auto Const Mandatory
+
+GlobalVariable Property NPCDemandMoney_Large Auto Const Mandatory
+
+Scene Property MQ104B_014_LodgeScene Auto Const Mandatory
+
+Quest Property SQ_PlayerShip Auto Const Mandatory
+
+ObjectReference Property MQ104B_Lodge_MarkerBarrett01 Auto Const Mandatory
+
+ObjectReference Property MQ104BLinTravelMarker Auto Const Mandatory
+
+ObjectReference Property VecteraExteriorNPCEnableMarker001 Auto Const Mandatory
+
+Scene Property MQ104B_006_BarrettScene Auto Const Mandatory
+
+Quest Property SQ_Followers Auto Const Mandatory
+
+Perk Property FactionCrimsonFleetPerk Auto Const Mandatory
+
+Perk Property Medicine Auto Const Mandatory
+
+GlobalVariable Property MQ101Debug Auto Const Mandatory
+
+Quest Property MQ101 Auto Const Mandatory
+
+Quest Property MQ102 Auto Const Mandatory
+
+Scene Property MQ104B_006d_MatsuraDeadScene Auto Const Mandatory
+
+ReferenceAlias Property Alias_VecteraMapMarker Auto Const Mandatory
+
+Quest Property LinEliteCrewQuest Auto Const
+
+Quest Property HellerEliteCrewQuest Auto Const
+
+ReferenceAlias Property Alias_SecondBarrettSlateQuestObject Auto Const Mandatory
+
+Quest Property SQ_Companions Auto Const Mandatory
+
+WwiseEvent Property OBJ_MQ104B_Computer_Repair Auto Const Mandatory
+
+WwiseEvent Property OBJ_MQ104B_Power_Circuit Auto Const Mandatory
+
+ObjectReference Property MQ104B_BarrettCell_EnableMaker Auto Const Mandatory
+
+MiscObject Property Power_Cell Auto Const Mandatory
+
+ObjectReference Property MQ104BBarrettDungeonLandingMarker Auto Const Mandatory
+
+ObjectReference Property Frontier_ModularREF Auto Const Mandatory
+
+Keyword Property SpaceshipEnabledLandingLink Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShipPassengerMarker Auto Const Mandatory
+
+GlobalVariable Property COM_PQ_LockedInCompanion Auto Const Mandatory
+
+RefCollectionAlias Property Passengers Auto Const
+
+RefCollectionAlias Property DisembarkingCrew Auto Const
+
+ReferenceAlias Property Alias_ArtifactCollection Auto Const Mandatory
+
+Faction Property CaptiveFaction Auto Const Mandatory

@@ -1,16 +1,11 @@
-ScriptName FXScripts:FXPlaceExplosionOnLoad Extends ActiveMagicEffect Const
-{ Places a activator on death. }
+Scriptname FXScripts:FXPlaceExplosionOnLoad extends ActiveMagicEffect Const
+{Places a activator on death.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Explosion Property PlacedExplosion Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Explosion Property PlacedExplosion Auto Const Mandatory
 
 Event OnLoad()
-  Actor targetActor = Self.GetTargetActor()
-  If targetActor
-    targetActor.PlaceAtMe(PlacedExplosion as Form, 1, False, False, True, None, None, True)
-  EndIf
+	Actor targetActor = GetTargetActor()
+	If targetActor
+		targetActor.PlaceAtMe(PlacedExplosion)
+	EndIf
 EndEvent

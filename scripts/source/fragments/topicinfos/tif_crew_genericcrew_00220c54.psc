@@ -1,9 +1,16 @@
-ScriptName Fragments:TopicInfos:TIF_CREW_GenericCrew_00220C54 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_CREW_GenericCrew_00220C54 Extends TopicInfo Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  crew_genericcrewquestscript kmyQuest = Self.GetOwningQuest() as crew_genericcrewquestscript
-  kmyQuest.Recruited()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN AUTOCAST TYPE crew_genericcrewquestscript
+crew_genericcrewquestscript kmyQuest = GetOwningQuest() as crew_genericcrewquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.Recruited()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

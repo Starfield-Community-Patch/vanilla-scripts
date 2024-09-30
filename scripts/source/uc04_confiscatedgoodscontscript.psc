@@ -1,1 +1,1 @@
-ScriptName UC04_ConfiscatedGoodsContScript Extends ReferenceAlias
+Scriptname UC04_ConfiscatedGoodsContScript extends ReferenceAlias

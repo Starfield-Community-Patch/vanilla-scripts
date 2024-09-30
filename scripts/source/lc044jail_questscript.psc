@@ -1,19 +1,14 @@
-ScriptName LC044Jail_QuestScript Extends Quest
+Scriptname LC044Jail_QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property iStageToSet Auto Const mandatory
-Int Property iTurnOffStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property iStageToSet Auto Const Mandatory
+Int Property iTurnOffStage Auto Const Mandatory
 
 Function StartJailTimer()
-  Self.StartTimer(60.0, 1)
+    StartTimer(60, 1)
 EndFunction
 
 Event OnTimer(Int aiTimerID)
-  If aiTimerID == 1 && !Self.GetStageDone(iTurnOffStage)
-    Self.SetStage(iStageToSet)
-  EndIf
+    if aiTimerID == 1 && !GetStageDone(iTurnOffStage)
+        SetStage(iStageToSet)
+    EndIf
 EndEvent

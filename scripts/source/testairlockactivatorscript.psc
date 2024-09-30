@@ -1,12 +1,12 @@
-ScriptName TestAirlockActivatorScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestAirlockActivatorScript extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  testairlockscript01 LinkedScript = Self.GetLinkedRef(None) as testairlockscript01
-  If LinkedScript.bPowerered == True
-    LinkedScript.PowerOff()
-  Else
-    LinkedScript.PowerOn()
-  EndIf
+	TestAirlockScript01 LinkedScript = (self.GetLinkedRef() as TestAirlockScript01)
+
+	If LinkedScript.bPowerered==True
+		LinkedScript.PowerOff()
+	Else
+		LinkedScript.PowerOn()
+	EndIf
+
 EndEvent

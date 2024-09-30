@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_CREW_EliteCrew_AndromedaK_0016B3CC Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_CREW_EliteCrew_AndromedaK_0016B3CC Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  crew_elitecrewquestscript kmyQuest = Self.GetOwningQuest() as crew_elitecrewquestscript
-  kmyQuest.FollowSceneEnded()
+;BEGIN AUTOCAST TYPE Crew_EliteCrewQuestScript
+Crew_EliteCrewQuestScript kmyQuest = GetOwningQuest() as Crew_EliteCrewQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.FollowSceneEnded()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

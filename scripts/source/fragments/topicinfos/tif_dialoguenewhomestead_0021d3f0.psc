@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueNewHomestead_0021D3F0 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueNewHomestead_0021D3F0 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFNewHomesteadR05Misc Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  FFNewHomesteadR05Misc.Start()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+FFNewHomesteadR05Misc.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFNewHomesteadR05Misc Auto Const Mandatory

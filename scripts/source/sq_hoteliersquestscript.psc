@@ -1,51 +1,61 @@
-ScriptName SQ_HoteliersQuestScript Extends Quest
+Scriptname SQ_HoteliersQuestScript extends Quest
+ReferenceAlias Property PrimaryAliasHotelier Mandatory Const Auto
+RefCollectionAlias Property RentedBeds Mandatory Const Auto
+int Property VisitRoomObjective = 1  Const Auto
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property PrimaryAliasHotelier Auto Const mandatory
-RefCollectionAlias Property RentedBeds Auto Const mandatory
-Int Property VisitRoomObjective = 1 Auto Const
-
-;-- Functions ---------------------------------------
-
+;Scene Phase Functions:
 Function SetRoomPrices()
-  sq_hoteliersactorscript hotelierActor = PrimaryAliasHotelier.GetActorReference() as sq_hoteliersactorscript
-  hotelierActor.SetPrices()
+    Trace(self, "SetRoomPrices() PrimaryAliasHotelier.GetActorReference(): " + PrimaryAliasHotelier.GetActorReference())
+    SQ_HoteliersActorScript hotelierActor = PrimaryAliasHotelier.GetActorReference() as SQ_HoteliersActorScript
+    Trace(self, "SetRoomPrices() hotelierActor: " + hotelierActor)
+    hotelierActor.SetPrices()
 EndFunction
 
 Function RentedRoomDaily()
-  sq_hoteliersactorscript hotelierActor = PrimaryAliasHotelier.GetActorReference() as sq_hoteliersactorscript
-  hotelierActor.RentRoomDaily()
+    Trace(self, "RentedRoomDaily() ")
+    SQ_HoteliersActorScript hotelierActor = PrimaryAliasHotelier.GetActorReference() as SQ_HoteliersActorScript
+    Trace(self, "RentedRoomDaily() hotelierActor: " + hotelierActor)
+    hotelierActor.RentRoomDaily()
 EndFunction
 
 Function RentedRoomWeekly()
-  sq_hoteliersactorscript hotelierActor = PrimaryAliasHotelier.GetActorReference() as sq_hoteliersactorscript
-  hotelierActor.RentRoomWeekly()
+    Trace(self, "RentedRoomWeekly()")
+    SQ_HoteliersActorScript hotelierActor = PrimaryAliasHotelier.GetActorReference() as SQ_HoteliersActorScript
+    Trace(self, "RentedRoomDaily() hotelierActor: " + hotelierActor)
+    hotelierActor.RentRoomWeekly()
 EndFunction
 
-Function UpdateBedsAliasAndObjective(ObjectReference BedRef, sq_hoteliersactorscript HotelierRef)
-  If BedRef == None
-    Return 
-  EndIf
-  If HotelierRef.IsRoomRented()
-    RentedBeds.AddRef(BedRef)
-    BedRef.SetActorOwner(Game.GetPlayer().GetBaseObject() as ActorBase, False)
-    Self.SetObjectiveDisplayed(VisitRoomObjective, True, False)
-  Else
-    BedRef.SetActorOwner(HotelierRef.GetBaseObject() as ActorBase, False)
-    RentedBeds.RemoveRef(BedRef)
-    If RentedBeds.GetCount() == 0
-      Self.SetObjectiveDisplayed(VisitRoomObjective, False, False)
-    EndIf
-  EndIf
+;called by SQ_HotelierTriggerScript extends ObjectReference Const
+Function UpdateBedsAliasAndObjective(ObjectReference BedRef, SQ_HoteliersActorScript HotelierRef)
+    if BedRef == None
+        Warning(self, "UpdateBedsAliasAndObjective() BedRef is none! BAILING!")
+        return
+    endif
+
+    if HotelierRef.IsRoomRented()
+      Trace(self, "UpdateBedsAliasAndObjective() room is rented! BedRef: " + BedRef)
+        RentedBeds.AddRef(BedRef)
+        BedRef.SetActorOwner(Game.GetPlayer().GetBaseObject() as ActorBase)
+        SetObjectiveDisplayed(VisitRoomObjective)
+    else 
+        Trace(self, "UpdateBedsAliasAndObjective() room NOT rented. BedRef: " + BedRef)
+        BedRef.SetActorOwner(HotelierRef.GetBaseObject() as ActorBase)
+        RentedBeds.RemoveRef(BedRef)
+        if RentedBeds.GetCount() == 0 
+            SetObjectiveDisplayed(VisitRoomObjective, false)
+            Trace(self, "UpdateBedsAliasAndObjective() turning off objective")
+        endif
+    endif
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Hoteliers",  string SubLogName = "SQ_HotelierQuestScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Hoteliers",  string SubLogName = "SQ_HotelierQuestScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

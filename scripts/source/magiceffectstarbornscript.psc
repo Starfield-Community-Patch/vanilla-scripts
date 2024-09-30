@@ -1,60 +1,55 @@
-ScriptName MagicEffectStarbornScript Extends ActiveMagicEffect
+Scriptname MagicEffectStarbornScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Spell Property ffStarbornTeleport Mandatory Const Auto
+Spell Property ffStarbornDeath Mandatory Const Auto
+ActorValue Property QuantumEssence Mandatory Const Auto
+Message Property QuantumEssenceAddMSG Mandatory Const Auto
+Spell Property FortifyQuantumEssenceSpell Mandatory Const Auto
+EffectShader Property Starborn_DeathShader Mandatory Const Auto
+Keyword Property NoLoot Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Spell Property ffStarbornTeleport Auto Const mandatory
-Spell Property ffStarbornDeath Auto Const mandatory
-ActorValue Property QuantumEssence Auto Const mandatory
-Message Property QuantumEssenceAddMSG Auto Const mandatory
-Spell Property FortifyQuantumEssenceSpell Auto Const mandatory
-EffectShader Property Starborn_DeathShader Auto Const mandatory
-Keyword Property NoLoot Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event ObjectReference.OnLoad(ObjectReference akSender)
-  ; Empty function
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    ffStarbornTeleport.Cast(akCaster, akCaster)
+    RegisterForRemoteEvent(akCaster, "OnLoad")
+    RegisterForRemoteEvent(akCaster, "OnDying")
+    RegisterForRemoteEvent(akCaster, "OnDeath")
 EndEvent
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  ffStarbornTeleport.Cast(akCaster as ObjectReference, akCaster as ObjectReference)
-  Self.RegisterForRemoteEvent(akCaster as ScriptObject, "OnLoad")
-  Self.RegisterForRemoteEvent(akCaster as ScriptObject, "OnDying")
-  Self.RegisterForRemoteEvent(akCaster as ScriptObject, "OnDeath")
+Auto State WaitingForLoad
+    Event ObjectReference.OnLoad(ObjectReference akSender)
+        GotoState("HasLoaded")
+        ffStarbornTeleport.Cast(akSender, akSender)
+    EndEvent
+EndState
+
+State HasLoaded
+    Event ObjectReference.OnLoad(ObjectReference akSender)
+        ;do nothing
+    EndEvent
+EndState
+
+Event ObjectReference.OnLoad(ObjectReference akSender)
+    ;do nothing
 EndEvent
 
 Event Actor.OnDying(Actor akSender, ObjectReference akKiller)
-  akSender.BlockActivation(True, True)
-  Starborn_DeathShader.Play(akSender as ObjectReference, 5.0)
-  If !akSender.HasKeyword(NoLoot)
-    If (akKiller as Actor).IsPlayerTeammate()
-      FortifyQuantumEssenceSpell.Cast(akSender as ObjectReference, Game.GetPlayer() as ObjectReference)
-    Else
-      FortifyQuantumEssenceSpell.Cast(akSender as ObjectReference, akKiller)
+    akSender.BlockActivation(true, true)
+    ;ffStarbornDeath.Cast(Self, Self)
+    Starborn_DeathShader.Play(akSender, 5.0)
+
+    ;Don't add Quantum Essence if this is a Parallel Self or Inner Demon duplicate.
+    if (!akSender.HasKeyword(NoLoot))
+        ;add Quantum Essence to the killer, unless that killer is a player teammate
+        If (akKiller as Actor).IsPlayerTeammate()
+            FortifyQuantumEssenceSpell.Cast(akSender, Game.GetPlayer()) ;player gets the Quantum Essence if teammate kills Starborn
+        Else
+            FortifyQuantumEssenceSpell.Cast(akSender, akKiller)
+        EndIf
+        QuantumEssenceAddMSG.Show()
     EndIf
-    QuantumEssenceAddMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
 EndEvent
 
 Event Actor.OnDeath(Actor akSender, ObjectReference akKiller)
-  Utility.Wait(6.0)
-  akSender.Disable(False)
+    Utility.Wait(6.0) ;give the FX some time, and then disable
+    akSender.Disable()
 EndEvent
-
-;-- State -------------------------------------------
-State HasLoaded
-
-  Event ObjectReference.OnLoad(ObjectReference akSender)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForLoad
-
-  Event ObjectReference.OnLoad(ObjectReference akSender)
-    Self.GotoState("HasLoaded")
-    ffStarbornTeleport.Cast(akSender, akSender)
-  EndEvent
-EndState

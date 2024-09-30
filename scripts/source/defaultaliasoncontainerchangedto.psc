@@ -1,22 +1,21 @@
-ScriptName DefaultAliasOnContainerChangedTo Extends DefaultAlias default
-{ Set stage when THIS object's container changes.
+Scriptname DefaultAliasOnContainerChangedTo extends DefaultAlias Default
+{Set stage when THIS object's container changes.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is the container THIS object was moved to.
-<LocationToCheck> is the current location of the container THIS object was moved to. }
+<LocationToCheck> is the current location of the container THIS object was moved to.}
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard EventGuard
-
-;-- Functions ---------------------------------------
-
+Guard EventGuard ProtectsFunctionLogic
+ 
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-  Guard EventGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Location LocationToCheck = None
-    If akOldContainer
-      LocationToCheck = akOldContainer.GetCurrentLocation()
-    EndIf
-    defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akNewContainer, LocationToCheck, None)
-    Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	DefaultScriptFunctions.Trace(self, "OnContainerChanged() akNewContainer: " + akNewContainer + ", akOldContainer: " + akOldContainer, ShowTraces)
+	
+	LockGuard EventGuard
+		Location LocationToCheck = NONE
+		if akOldContainer
+			LocationToCheck = akOldContainer.GetCurrentLocation()
+		endif
+		DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akNewContainer, LocationToCheck = LocationToCheck)
+		DefaultScriptFunctions.Trace(self, "OnContainerChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+		CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	EndLockGuard
 EndEvent

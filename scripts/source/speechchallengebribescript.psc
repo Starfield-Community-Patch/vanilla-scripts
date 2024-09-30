@@ -1,13 +1,10 @@
-ScriptName SpeechChallengeBribeScript Extends Scene Const
-{ incremement BribeCount on player }
+Scriptname SpeechChallengeBribeScript extends Scene const
+{incremement BribeCount on player}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property BribeCount Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ActorValue property BribeCount auto const mandatory
 
 Event OnBegin()
-  Game.GetPlayer().ModValue(BribeCount, 1.0)
+    debug.trace(self + " OnBegin")
+    Game.GetPlayer().ModValue(BribeCount, 1.0)
+    debug.trace(self + " incremented BribeCount to " + Game.GetPlayer().GetValue(BribeCount))
 EndEvent

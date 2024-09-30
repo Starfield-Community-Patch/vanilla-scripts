@@ -1,15 +1,10 @@
-ScriptName SQ_RemoveItem01ItemScript Extends ReferenceAlias Const
+Scriptname SQ_RemoveItem01ItemScript extends ReferenceAlias Const
 { Handles the item being picked up before the bot arrives. }
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Bot Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ReferenceAlias property Bot auto const mandatory
 
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-  If akNewContainer != Bot.GetRef()
-    Self.GetOwningQuest().Stop()
-  EndIf
-EndEvent
+    if akNewContainer != Bot.GetRef()
+        GetOwningQuest().Stop()
+    endif
+endEvent

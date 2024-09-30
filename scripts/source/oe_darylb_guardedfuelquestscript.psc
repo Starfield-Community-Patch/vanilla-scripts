@@ -1,6 +1,3 @@
-ScriptName OE_DarylB_GuardedFuelQuestScript Extends Quest
+Scriptname OE_DarylB_GuardedFuelQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Int Property MyTalkCount Auto

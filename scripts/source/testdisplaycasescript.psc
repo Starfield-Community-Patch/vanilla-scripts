@@ -1,19 +1,17 @@
-ScriptName TestDisplayCaseScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
-
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  ; Empty function
-EndEvent
-
-Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-  ; Empty function
-EndEvent
-
-Function testGetItemCount()
-  ; Empty function
-EndFunction
+Scriptname TestDisplayCaseScript extends ObjectReference Const
 
 Event OnLoad()
-  Self.AddInventoryEventFilter(None)
+    AddInventoryEventFilter(NONE)
 EndEvent
+
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    debug.trace(self + " OnItemAdded " + akBaseItem)
+EndEvent
+
+Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+    debug.trace(self + " OnItemRemoved " + akBaseItem)
+EndEvent
+
+function testGetItemCount()
+    debug.trace(self + " GetItemCount=" + GetItemCount())
+endFunction

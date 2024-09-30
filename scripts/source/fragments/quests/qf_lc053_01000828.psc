@@ -1,15 +1,19 @@
-ScriptName Fragments:Quests:QF_LC053_01000828 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_LC053_01000828 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_PirateWave1 Auto Const mandatory
-ReferenceAlias Property Alias_FirstShipA01 Auto Const mandatory
-ReferenceAlias Property Alias_FirstShipA02 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Alias_FirstShipA01.TryToEnable()
-  Alias_FirstShipA02.TryToEnable()
+;BEGIN CODE
+alias_FirstShipA01.TryToEnable()
+alias_FirstShipA02.TryToEnable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_PirateWave1 Auto Const Mandatory
+
+ReferenceAlias Property Alias_FirstShipA01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_FirstShipA02 Auto Const Mandatory

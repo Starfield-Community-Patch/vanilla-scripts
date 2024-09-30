@@ -1,22 +1,20 @@
-ScriptName MQ102PlayerShipScript Extends ReferenceAlias
+Scriptname MQ102PlayerShipScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property MoaraShip Mandatory Const Auto
+Int Property DockStageToSet Mandatory Const Auto
+ReferenceAlias Property NovaGalacticStaryard Mandatory Const Auto
+Int Property NovaDockStageToSet Mandatory Const Auto
+Int Property PreReqStage = 200 Const Auto
 
-;-- Properties --------------------------------------
-ReferenceAlias Property MoaraShip Auto Const mandatory
-Int Property DockStageToSet Auto Const mandatory
-ReferenceAlias Property NovaGalacticStaryard Auto Const mandatory
-Int Property NovaDockStageToSet Auto Const mandatory
-Int Property PreReqStage = 200 Auto Const
+Event OnShipDock(bool abComplete, SpaceshipReference akDocking, SpaceshipReference akParent)
+    Quest MyQuest = GetOwningQuest()
 
-;-- Functions ---------------------------------------
+    If akParent == MoaraShip.GetShipReference() && abComplete
+        MyQuest.SetStage(DockStageToSet)
+    EndIf
 
-Event OnShipDock(Bool abComplete, spaceshipreference akDocking, spaceshipreference akParent)
-  Quest MyQuest = Self.GetOwningQuest()
-  If akParent == MoaraShip.GetShipReference() && abComplete
-    MyQuest.SetStage(DockStageToSet)
-  EndIf
-  If akParent == NovaGalacticStaryard.GetShipReference() && abComplete && MyQuest.GetStageDone(PreReqStage)
-    MyQuest.SetStage(NovaDockStageToSet)
-  EndIf
+    If (akParent == NovaGalacticStaryard.GetShipReference()) && (abComplete) && (MyQuest.GetStageDone(PreReqStage))
+        MyQuest.SetStage(NovaDockStageToSet)
+    EndIf
+
 EndEvent

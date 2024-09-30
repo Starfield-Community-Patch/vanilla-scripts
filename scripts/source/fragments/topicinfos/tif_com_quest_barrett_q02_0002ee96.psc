@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_COM_Quest_Barrett_Q02_0002EE96 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_COM_Quest_Barrett_Q02_0002EE96 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property BQ01_Scene_BARK_8830_Barrett_CantHoldOn Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  BQ01_Scene_BARK_8830_Barrett_CantHoldOn.Start()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+BQ01_Scene_BARK_8830_Barrett_CantHoldOn.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property BQ01_Scene_BARK_8830_Barrett_CantHoldOn Auto Const Mandatory

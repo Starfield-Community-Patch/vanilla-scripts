@@ -1,19 +1,14 @@
-ScriptName TestKurtCreatureRigSwitchScript Extends ObjectReference Const
+Scriptname TestKurtCreatureRigSwitchScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property TestKurtCreatureRigMessage Auto Const mandatory
+Message property TestKurtCreatureRigMessage auto const mandatory
 { message box for player choices }
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  Int messageIndex = TestKurtCreatureRigMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  If messageIndex > -1
-    testkurtcreaturebehaviorsswitchscript myBehaviorSwitch = Self.GetLinkedRef(None) as testkurtcreaturebehaviorsswitchscript
-    If myBehaviorSwitch
-      myBehaviorSwitch.ChangeRig(messageIndex)
-    EndIf
-  EndIf
-EndEvent
+    int messageIndex = TestKurtCreatureRigMessage.Show()
+    if messageIndex > -1
+        TestKurtCreatureBehaviorsSwitchScript myBehaviorSwitch = GetLinkedRef() as TestKurtCreatureBehaviorsSwitchScript
+        if myBehaviorSwitch
+            myBehaviorSwitch.ChangeRig(messageIndex)
+        endif
+    endif
+endEvent

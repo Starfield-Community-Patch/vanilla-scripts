@@ -1,29 +1,26 @@
-ScriptName GrantTradeTowerLobbyKeyScript Extends ObjectReference Const
+Scriptname GrantTradeTowerLobbyKeyScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Key Property TradeTowerLobbyKey Auto Const mandatory
-Keyword Property PenthouseVisitorKeyword Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Key property TradeTowerLobbyKey auto const mandatory
+Keyword property PenthouseVisitorKeyword auto const mandatory
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef is Actor
-    Actor actorRef = akActionRef as Actor
-    actorRef.AddItem(TradeTowerLobbyKey as Form, 1, False)
-    actorRef.AddKeyword(PenthouseVisitorKeyword)
-  EndIf
+    if(akActionRef is Actor)
+        Actor actorRef = akActionRef as Actor
+
+        actorRef.AddItem(TradeTowerLobbyKey)
+        actorRef.AddKeyword(PenthouseVisitorKeyword)
+    endIf
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  If akActionRef is Actor
-    Actor actorRef = akActionRef as Actor
-    Bool hasPenthouseVisitorKeyword = actorRef.HasKeyword(PenthouseVisitorKeyword)
-    Int keyCount = actorRef.GetItemCount(None)
-    If hasPenthouseVisitorKeyword && keyCount > 0
-      actorRef.RemoveItem(TradeTowerLobbyKey as Form, 1, False, None)
-      actorRef.RemoveKeyword(PenthouseVisitorKeyword)
-    EndIf
-  EndIf
+    if(akActionRef is Actor)
+        Actor actorRef = akActionRef as Actor
+        bool hasPenthouseVisitorKeyword = actorRef.HasKeyword(PenthouseVisitorKeyword) ; An extra level of security, to make sure this script has given this Actor a key, before removing one from their inventory.
+        int keyCount = actorRef.GetItemCount()
+
+        if(hasPenthouseVisitorKeyword && keyCount > 0)
+            actorRef.RemoveItem(TradeTowerLobbyKey)
+            actorRef.RemoveKeyword(PenthouseVisitorKeyword)
+        endIf
+    endIf
 EndEvent

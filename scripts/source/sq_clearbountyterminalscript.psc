@@ -1,81 +1,99 @@
-ScriptName SQ_ClearBountyTerminalScript Extends TerminalMenu conditional
+Scriptname SQ_ClearBountyTerminalScript extends TerminalMenu Conditional
 
-;-- Structs -----------------------------------------
-Struct CrimeFaction
-  Faction theFaction
-  GlobalVariable currentBounty
-  Int currentBountyCost
-EndStruct
+struct CrimeFaction
+    Faction theFaction
+    GlobalVariable currentBounty
+    int currentBountyCost
+endStruct
 
-
-;-- Variables ---------------------------------------
-sq_clearbountyterminalscript:crimefaction clearBountyCrimeFaction
-
-;-- Properties --------------------------------------
-sq_clearbountyterminalscript:crimefaction[] Property CrimeFactions Auto Const
+CrimeFaction[] property CrimeFactions auto const
 { factions to calculate current bounty for }
-ActorValue Property KioskTerminalNoSaleFlag Auto hidden
+
+ActorValue property KioskTerminalNoSaleFlag auto hidden
 { set to 1 if the player tries to buy something with not enough credits }
-TerminalMenu Property SQ_ClearBountyTerminalMenu_Deskop Auto Const mandatory
+
+TerminalMenu property SQ_ClearBountyTerminalMenu_Deskop auto const mandatory
 { the main terminal menu }
-TerminalMenu Property SQ_ClearBountyTerminalMenu_Submenu Auto Const mandatory
+
+TerminalMenu property SQ_ClearBountyTerminalMenu_Submenu auto const mandatory
 { the submenu for this terminal }
-GlobalVariable Property SQ_ClearBountyConvenienceFee Auto Const
+
+GlobalVariable property SQ_ClearBountyConvenienceFee auto Const
 { extra cost for clearing bounty via this terminal }
 
-;-- Functions ---------------------------------------
+CrimeFaction clearBountyCrimeFaction
 
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If akTerminalBase == SQ_ClearBountyTerminalMenu_Deskop
-    Self.UpdateTextReplacement(akTerminalRef)
-  EndIf
+    debug.trace(self + " OnTerminalMenuEnter " + akTerminalRef)
+    if akTerminalBase == SQ_ClearBountyTerminalMenu_Deskop   
+        UpdateTextReplacement(akTerminalRef)
+    endif
+    debug.trace(self + " OnTerminalMenuEnter DONE")
 EndEvent
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If akTerminalBase == SQ_ClearBountyTerminalMenu_Deskop && auiMenuItemID < CrimeFactions.Length
-    clearBountyCrimeFaction = CrimeFactions[auiMenuItemID]
-    If clearBountyCrimeFaction
-      akTerminalRef.AddTextReplacementData("ClearFaction", clearBountyCrimeFaction.theFaction as Form)
-      akTerminalRef.AddTextReplacementValue("ClearBounty", clearBountyCrimeFaction.currentBounty.GetValueInt() as Float)
-      akTerminalRef.AddTextReplacementValue("ClearBountyCost", clearBountyCrimeFaction.currentBountyCost as Float)
-      MiscObject credits = Game.GetCredits()
-      Actor player = Game.GetPlayer()
-      Int playerCredits = player.GetItemCount(credits as Form)
-      Int cost = clearBountyCrimeFaction.currentBountyCost
-      If playerCredits >= cost
-        akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 0.0)
-      Else
-        akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 1.0)
-      EndIf
-    EndIf
-  ElseIf akTerminalBase == SQ_ClearBountyTerminalMenu_Submenu && auiMenuItemID == 0
-    MiscObject credits = Game.GetCredits()
-    Actor player = Game.GetPlayer()
-    Int playercredits = player.GetItemCount(credits as Form)
-    Int cost = clearBountyCrimeFaction.currentBountyCost
-    If playercredits >= cost
-      akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 0.0)
-      player.RemoveItem(credits as Form, cost, False, None)
-      clearBountyCrimeFaction.theFaction.SetCrimeGold(0)
-      clearBountyCrimeFaction.theFaction.SetCrimeGoldViolent(0)
-      clearBountyCrimeFaction.theFaction.SetPlayerEnemy(False)
-      Self.UpdateTextReplacement(akTerminalRef)
-    Else
-      akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 1.0)
-    EndIf
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+    if akTerminalBase == SQ_ClearBountyTerminalMenu_Deskop && auiMenuItemID < CrimeFactions.Length
+        clearBountyCrimeFaction = CrimeFactions[auiMenuItemID]
+        if clearBountyCrimeFaction
+            debug.Trace(self + "  clearBountyCrimeFaction=" + clearBountyCrimeFaction)
+            akTerminalRef.AddTextReplacementData("ClearFaction", clearBountyCrimeFaction.theFaction)
+            akTerminalRef.AddTextReplacementValue("ClearBounty", clearBountyCrimeFaction.currentBounty.GetValueInt())
+            akTerminalRef.AddTextReplacementValue("ClearBountyCost", clearBountyCrimeFaction.currentBountyCost)
+
+            MiscObject credits = Game.GetCredits()
+            Actor player = Game.GetPlayer()
+            int playerCredits = player.GetItemCount(credits)
+            int cost = clearBountyCrimeFaction.currentBountyCost
+            if playerCredits >= cost
+                akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 0)
+            Else
+                ; no sale
+                akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 1)
+            endif
+        EndIf
+    elseif akTerminalBase == SQ_ClearBountyTerminalMenu_Submenu && auiMenuItemID == 0
+        MiscObject credits = Game.GetCredits()
+        Actor player = Game.GetPlayer()
+
+        int playerCredits = player.GetItemCount(credits)
+        int cost = clearBountyCrimeFaction.currentBountyCost
+        if playerCredits >= cost
+            debug.Trace(self + "  clearing bounty for " + clearBountyCrimeFaction.theFaction)
+            akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 0)
+            ; clear bounty with this faction
+            player.RemoveItem(credits, cost)
+            clearBountyCrimeFaction.theFaction.SetCrimeGold(0)
+            clearBountyCrimeFaction.theFaction.SetCrimeGoldViolent(0)
+            clearBountyCrimeFaction.theFaction.SetPlayerEnemy(false)
+            debug.Trace(self + "  bounty should be cleared; current bounty=" + clearBountyCrimeFaction.theFaction.GetCrimeGold())
+            debug.trace(self + " calling UpdateTextReplacement")
+            UpdateTextReplacement(akTerminalRef)
+            debug.trace(self + " calling UpdateTextReplacement - DONE")
+        Else
+            debug.Trace(self + "  player doesn't have enough credits to clear bounty for " + clearBountyCrimeFaction.theFaction + " cost=" + cost)
+            ; no sale
+            akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 1)
+        endif
+        
+    endif
 EndEvent
 
-Function UpdateTextReplacement(ObjectReference akTerminalRef)
-  clearBountyCrimeFaction = None
-  Int I = 0
-  While I < CrimeFactions.Length
-    sq_clearbountyterminalscript:crimefaction theCrimeFaction = CrimeFactions[I]
-    Int currentBounty = theCrimeFaction.theFaction.GetCrimeGold()
-    theCrimeFaction.currentBountyCost = Math.Round(currentBounty as Float * (1.0 + SQ_ClearBountyConvenienceFee.GetValue()))
-    theCrimeFaction.currentBounty.SetValueInt(currentBounty)
-    akTerminalRef.AddTextReplacementData("faction" + I as String, theCrimeFaction.theFaction as Form)
-    akTerminalRef.AddTextReplacementValue(("faction" + I as String) + "Bounty", currentBounty as Float)
-    I += 1
-  EndWhile
-EndFunction
+function UpdateTextReplacement(ObjectReference akTerminalRef)
+    clearBountyCrimeFaction = NONE  
+    ; update text replacement
+    int i = 0
+    while i < CrimeFactions.Length
+        CrimeFaction theCrimeFaction = CrimeFactions[i]
+        int currentBounty = theCrimeFaction.theFaction.GetCrimeGold()
+        theCrimeFaction.currentBountyCost = math.Round(currentBounty * (1.0 + SQ_ClearBountyConvenienceFee.GetValue()))
+
+        debug.trace(self + " crimeFaction: " + theCrimeFaction.theFaction + " currentBounty=" + currentBounty)
+        theCrimeFaction.currentBounty.SetValueInt(currentBounty)
+
+        akTerminalRef.AddTextReplacementData("Faction" + i, theCrimeFaction.theFaction)
+        akTerminalRef.AddTextReplacementValue("Faction" + i + "Bounty", currentBounty)
+        debug.Trace(self + " adding tag Faction" + i + "=" + theCrimeFaction.theFaction + " with value tag Faction" + i + "Bounty=" + theCrimeFaction.currentBountyCost)
+        i += 1
+    endWhile
+endFunction

@@ -1,59 +1,63 @@
-ScriptName UC_WeatherTriggerScript Extends ObjectReference Const
-{ Set or force a weather on the player when this trigger loads }
+Scriptname UC_WeatherTriggerScript extends ObjectReference Const
+{Set or force a weather on the player when this trigger loads}
 
-;-- Variables ---------------------------------------
-Int iTimerID = 1 Const
-Int iTimerLoop = 5 Const
-
-;-- Properties --------------------------------------
 Group Required_Properties
-  Weather Property TargetWeather Auto Const mandatory
-  { The weather we want to turn on }
+    Weather Property TargetWeather Mandatory Const Auto
+    {The weather we want to turn on}
 EndGroup
 
 Group Optional_Properties
-  Bool Property SetAsOverride = False Auto Const
-  { If TRUE, this weather will remain in place until the player leaves this planet OR this trigger unloads }
-  Bool Property UseAcceleratedTransition = False Auto Const
-  { If TRUE, the game will attempt to transition to this weather in its accelerated state }
+    bool Property SetAsOverride = false Const Auto
+    {If TRUE, this weather will remain in place until the player leaves this planet OR this trigger unloads}
+
+    bool Property UseAcceleratedTransition = false Const Auto
+    {If TRUE, the game will attempt to transition to this weather in its accelerated state}
 EndGroup
 
-
-;-- Functions ---------------------------------------
+int iTimerID = 1 const
+int iTimerLoop = 5 const
 
 Event OnLoad()
-  If Self.IsEnabled()
-    Self.StartWeatherChange()
-  EndIf
+    if (IsEnabled())
+        trace(self, "Starting up weather transition. Player location: " + Game.GetPlayer().GetCurrentLocation() + ". Weather to swap to: " + TargetWeather + ". Current Weather: " + Weather.GetCurrentWeather())
+        StartWeatherChange()
+    EndIf
 EndEvent
 
 Function StartWeatherChange()
-  If Weather.GetCurrentWeather() != TargetWeather
-    TargetWeather.SetActive(SetAsOverride, UseAcceleratedTransition)
-  EndIf
-  Self.StartTimer(iTimerLoop as Float, iTimerID)
+    if Weather.GetCurrentWeather() != TargetWeather
+        TargetWeather.SetActive(SetAsOverride, UseAcceleratedTransition)
+        trace(self, "Changed weather. Player location: " + Game.GetPlayer().GetCurrentLocation() + ". Current Weather is now: " + Weather.GetCurrentWeather())
+    endif
+    StartTimer(iTimerLoop, iTimerID)
 EndFunction
 
 Function CleanupWeather()
-  If SetAsOverride
-    Weather.ReleaseOverride()
-  EndIf
+    if SetAsOverride
+        Weather.ReleaseOverride()
+    endif 
 EndFunction
 
 Function CheckCleanupCriteria()
-  If !Self.Is3DLoaded()
-    Self.CleanupWeather()
-  Else
-    Self.StartWeatherChange()
-  EndIf
+    trace(self, "Checking for clean up.")
+    if !Is3DLoaded()
+        trace(self, "Trigger isn't loaded. Clean it up! Player location: " + Game.GetPlayer().GetCurrentLocation())
+        CleanupWeather()
+    else
+        trace(self, "Trigger is still loaded. Player location: " + Game.GetPlayer().GetCurrentLocation())
+        StartWeatherChange()
+    endif
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iTimerID
-    Self.CheckCleanupCriteria()
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == iTimerID
+        CheckCleanupCriteria()
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC02", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

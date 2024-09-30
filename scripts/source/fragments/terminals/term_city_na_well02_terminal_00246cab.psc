@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_City_NA_Well02_Terminal_00246CAB Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_City_NA_Well02_Terminal_00246CAB Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property City_NA_Well02 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_02
 Function Fragment_Terminal_02(ObjectReference akTerminalRef)
-  City_NA_Well02.SetStage(170)
+;BEGIN CODE
+City_NA_Well02.SetStage(170)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property City_NA_Well02 Auto Const Mandatory

@@ -1,9 +1,16 @@
-ScriptName Fragments:Scenes:SF_RI01_400_Imogene_Intervie_002C9B7A Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_RI01_400_Imogene_Intervie_002C9B7A Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  ri01_questscript kmyQuest = Self.GetOwningQuest() as ri01_questscript
-  kmyQuest.UnfreezeControls()
-  Self.GetOwningQuest().SetStage(420)
+;BEGIN AUTOCAST TYPE RI01_QuestScript
+RI01_QuestScript kmyQuest = GetOwningQuest() as RI01_QuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.UnfreezeControls()
+GetOwningQuest().SetStage(420)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

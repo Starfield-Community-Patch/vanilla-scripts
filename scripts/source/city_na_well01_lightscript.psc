@@ -1,21 +1,23 @@
-ScriptName City_NA_Well01_LightScript Extends ReferenceAlias
+Scriptname City_NA_Well01_LightScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 ObjectReference Property Myself Auto
-Quest Property City_NA_Well01 Auto Const mandatory
-GlobalVariable Property MyGlobal Auto
-
-;-- Functions ---------------------------------------
 
 Function SwapState()
-  Myself = Self.GetReference()
-  If MyGlobal.GetValueInt() == 0
-    MyGlobal.SetValue(1.0)
-    Myself.PlayAnimation("Play01")
-  Else
-    MyGlobal.SetValue(0.0)
-    Myself.PlayAnimation("Play02")
-  EndIf
+
+Myself = Self.GetReference()
+
+if MyGlobal.GetValueInt()== 0
+	MyGlobal.SetValue(1)
+;	Myself.SetOpen(True)
+	Myself.PlayAnimation("Play01")
+else
+	MyGlobal.SetValue(0)
+;	Myself.SetOpen(False)
+	Myself.PlayAnimation("Play02")
+endif
+
+
 EndFunction
+Quest Property City_NA_Well01 Auto Const Mandatory
+
+GlobalVariable Property MyGlobal Auto

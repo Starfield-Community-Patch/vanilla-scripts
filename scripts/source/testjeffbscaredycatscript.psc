@@ -1,46 +1,51 @@
-ScriptName TestJeffBScaredycatScript Extends ObjectReference
+Scriptname TestJeffBScaredycatScript extends ObjectReference  
 
-;-- Variables ---------------------------------------
-ObjectReference[] LinkedRefs
-Bool doOnce = False
-ObjectReference myActor
-ObjectReference player
-
-;-- Properties --------------------------------------
-wwiseevent Property mySoundEvent Auto Const
+WwiseEvent Property mySoundEvent Auto Const
 ImageSpaceModifier Property myImageSpace Auto Const
 Keyword Property LinkCustom01 Auto Const
 
-;-- Functions ---------------------------------------
+bool doOnce = False
+ObjectReference myActor
+ObjectReference player
+ObjectReference[] LinkedRefs
+
+;********************************************
 
 Event OnLoad()
-  myActor = Self.getLinkedRef(LinkCustom01)
-  player = Game.GetPlayer() as ObjectReference
-  LinkedRefs = Self.getLinkedRefChain(LinkCustom01, 100)
-  Self.RegisterForHitEvent(myActor as ScriptObject, player as ScriptObject, None, None, -1, -1, -1, -1, True)
+	myActor = getLinkedRef(LinkCustom01)
+	player = game.GetPlayer()
+	LinkedRefs = getLinkedRefChain(LinkCustom01)
+    RegisterForHitEvent(myActor, player)
 EndEvent
+
+;********************************************
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef == player && doOnce == False
-    doOnce = True
-    Int instanceID = mySoundEvent.play(Self.getLinkedRef(None), None, None)
-    myImageSpace.Apply(1.0)
-    myActor.EnableNoWait(False)
-    Utility.wait(0.5)
-    myImageSpace.Remove()
-  EndIf
+    if(akActionRef == player && doOnce == False)
+    	doOnce = True
+    	int instanceID = mySoundEvent.play(getLinkedRef())
+    	myImageSpace.Apply()
+    	myActor.EnableNoWait()
+    	Utility.wait(0.5)
+    	myImageSpace.Remove()
+    endIf
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If akTarget == myActor && akAggressor == player
-    myActor.Disable(False)
-    Int I = 1
-    While I <= LinkedRefs.Length
-      (LinkedRefs[I] as Actor).SetGhost(True)
-      LinkedRefs[I].EnableNoWait(False)
-      I += 1
-    EndWhile
-  Else
-    Self.RegisterForHitEvent(myActor as ScriptObject, player as ScriptObject, None, None, -1, -1, -1, -1, True)
-  EndIf
+;********************************************
+
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+    if(akTarget == myActor && akAggressor == player)
+    	myActor.Disable()
+    	int i = 1
+    	While(i <= LinkedRefs.length)
+    		(LinkedRefs[i] as Actor).SetGhost(True)
+    		LinkedRefs[i].EnableNoWait()
+    		i = i + 1
+    	EndWhile
+    else
+    	RegisterForHitEvent(myActor, player)
+    endIf
 EndEvent
+
+;********************************************

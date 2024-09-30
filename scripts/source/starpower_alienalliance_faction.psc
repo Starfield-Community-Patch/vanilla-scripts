@@ -1,16 +1,14 @@
-ScriptName StarPower_AlienAlliance_Faction Extends ActiveMagicEffect
+Scriptname StarPower_AlienAlliance_Faction extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-Actor target
+Faction Property PlayerAllyFaction Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Faction Property PlayerAllyFaction Auto Const mandatory
+ACTOR target
 
-;-- Functions ---------------------------------------
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  target = akTarget as Actor
-  target.stopcombat()
-  target.makeplayerfriend()
-  target.addtofaction(PlayerAllyFaction)
-EndEvent
+    target = akTarget as Actor
+    target.stopcombat()
+    target.makeplayerfriend()
+    target.addtofaction(PlayerAllyFaction)
+
+ENDEVENT

@@ -1,26 +1,35 @@
-ScriptName WeapAutoEquip Extends ObjectReference
+Scriptname WeapAutoEquip extends ObjectReference
 
-;-- Variables ---------------------------------------
+;Weapon property WeaponToEquip auto const
+
+GlobalVariable property WeaponHasAutoEquipped auto const
+int Property FavoriteSlot = -1 auto const
+
 Form WeaponToEquip
 
-;-- Properties --------------------------------------
-GlobalVariable Property WeaponHasAutoEquipped Auto Const
-Int Property FavoriteSlot = -1 Auto Const
-
-;-- Functions ---------------------------------------
-
 Event OnInit()
-  WeaponToEquip = Self.GetBaseObject()
+	WeaponToEquip = self.GetBaseObject()
 EndEvent
 
+
+;when the player picks up the weapon, automatically equip the weapon and favorite it
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-  If akNewContainer == Game.GetPlayer() as ObjectReference
-    If WeaponHasAutoEquipped.GetValue() == 0.0
-      WeaponHasAutoEquipped.SetValue(1.0)
-      Game.GetPlayer().EquipItem(WeaponToEquip, False, False)
-      Game.GetPlayer().MarkItemAsFavorite(WeaponToEquip, FavoriteSlot)
-      Utility.wait(0.5)
-      Game.GetPlayer().DrawWeapon()
-    EndIf
-  EndIf
+	;Debug.Trace("**************" + self + "changed container!")
+	
+	if akNewContainer == Game.GetPlayer()		
+		if WeaponHasAutoEquipped.GetValue() == 0
+			;set the global so the autoequip only happens the first time
+			WeaponHasAutoEquipped.SetValue(1)
+
+			;autoequipping
+			Game.GetPlayer().EquipItem(WeaponToEquip)
+
+			;favoriting
+			Game.GetPlayer().MarkItemAsFavorite(WeaponToEquip, FavoriteSlot)
+
+			;wait a second to allow the weapon to assemble in the hand before drawing it
+			Utility.wait(0.5)
+			Game.GetPlayer().DrawWeapon()
+		endif
+	endif
 EndEvent

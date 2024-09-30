@@ -1,29 +1,28 @@
-ScriptName MQ401VariantQuestScript Extends Quest
+Scriptname MQ401VariantQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias[] Property RefAliasesToEnableArray Auto Const
-Bool Property MQ402NoLodgeArtifacts Auto Const
-GlobalVariable Property MQ401_NoLodgeArtifacts Auto Const mandatory
-Int Property QuestInitStage = 10 Auto Const
-
-;-- Functions ---------------------------------------
+ReferenceAlias[] Property RefAliasesToEnableArray Const Auto
+Bool Property MQ402NoLodgeArtifacts Const Auto
+GlobalVariable Property MQ401_NoLodgeArtifacts Mandatory Const Auto
+Int Property QuestInitStage=10 Const Auto
 
 Event OnQuestInit()
-  If RefAliasesToEnableArray != None
-    Self.EnableQuestActors()
-  EndIf
-  If MQ402NoLodgeArtifacts
-    MQ401_NoLodgeArtifacts.SetValueInt(1)
-  EndIf
-  Self.SetStage(QuestInitStage)
+    ;for a MQ401 variant, we disable many of the MQ actors, so enable any that the variant needs
+    If RefAliasesToEnableArray != None
+      EnableQuestActors()
+    EndIf
+
+    ;if this Variant doesn't have any Artifacts at the Lodge, or we hand over all of them immediately, then MQ402 needs to skip returning there
+    If MQ402NoLodgeArtifacts
+        MQ401_NoLodgeArtifacts.SetValueInt(1)
+    EndIf
+
+   SetStage(QuestInitStage)
 EndEvent
 
-Function EnableQuestActors()
-  Int currentElement = 0
-  While currentElement < RefAliasesToEnableArray.Length
-    RefAliasesToEnableArray[currentElement].GetActorRef().Enable(False)
-    currentElement += 1
-  EndWhile
-EndFunction
+ Function EnableQuestActors()
+   int currentElement = 0
+   while (currentElement < RefAliasesToEnableArray.Length)
+     RefAliasesToEnableArray[currentElement].GetActorRef().Enable()
+     currentElement += 1
+   endWhile
+ EndFunction

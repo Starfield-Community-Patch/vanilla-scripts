@@ -1,42 +1,40 @@
-ScriptName FXScripts:MagicPlayFXOnLoad Extends ActiveMagicEffect
-{ Places a activator on death. }
+Scriptname FXScripts:MagicPlayFXOnLoad extends ActiveMagicEffect 
+{Places a activator on death.}
 
-;-- Variables ---------------------------------------
+VisualEffect Property VisualEffectToApply Auto Const Mandatory
+
 ObjectReference ObjRef
-Bool done = False
-
-;-- Properties --------------------------------------
-VisualEffect Property VisualEffectToApply Auto Const mandatory
-
-;-- Functions ---------------------------------------
+bool done = False
 
 Event OnInit()
-  ObjRef = Self.GetTargetActor() as ObjectReference
-  If ObjRef
-    
-  EndIf
+    ObjRef = GetTargetActor()
+	If ObjRef
+	    Debug.trace("JumpFX Target is: " + ObjRef)
+	EndIf
 EndEvent
 
 Event OnLoad()
-  If ObjRef as Bool && !done
-    If ObjRef.IsDisabled() == False
-      If ObjRef.Is3DLoaded()
-        VisualEffectToApply.Play(ObjRef, -1.0, None)
-        done = True
-      EndIf
-    EndIf
-  EndIf
+	if ObjRef && !done
+		if ObjRef.IsDisabled() == false
+			if ObjRef.Is3DLoaded()
+				VisualEffectToApply.Play(ObjRef)
+				done = True
+				Debug.trace("OnLoad for " + ObjRef + ". Trying to play effect: " + VisualEffectToApply)
+			EndIf
+		EndIf
+	EndIf
 EndEvent
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  If ObjRef as Bool && !done
-    done = True
-    VisualEffectToApply.Play(akCaster as ObjectReference, -1.0, None)
-  EndIf
-EndEvent
+ Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+ 	if ObjRef && !done
+ 		done = true
+    	VisualEffectToApply.play(akCaster)
+ 	EndIf
+ EndEvent
 
 Event OnUnLoad()
-  If ObjRef
-    VisualEffectToApply.Stop(ObjRef)
-  EndIf
+	if ObjRef
+		VisualEffectToApply.Stop(ObjRef)
+	EndIf
 EndEvent
+

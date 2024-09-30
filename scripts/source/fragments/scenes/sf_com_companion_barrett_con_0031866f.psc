@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_COM_Companion_Barrett_Con_0031866F Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_COM_Companion_Barrett_Con_0031866F Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_11_End
 Function Fragment_Phase_11_End()
-  com_convoquestscript kmyQuest = Self.GetOwningQuest() as com_convoquestscript
-  kmyQuest.SceneCompleted()
+;BEGIN AUTOCAST TYPE COM_ConvoQuestScript
+COM_ConvoQuestScript kmyQuest = GetOwningQuest() as COM_ConvoQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.SceneCompleted()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

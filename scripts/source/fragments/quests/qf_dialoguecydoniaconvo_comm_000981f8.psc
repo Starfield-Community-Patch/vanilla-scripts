@@ -1,21 +1,32 @@
-ScriptName Fragments:Quests:QF_DialogueCydoniaConvo_Comm_000981F8 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueCydoniaConvo_Comm_000981F8 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property CY_CommunityConvo_CooldownTime Auto Const mandatory
-GlobalVariable Property CY_CommunityConvo_CooldownTimeDaysToAdd Auto Const mandatory
-GlobalVariable Property CY_Community_UniversumService01_Variation Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  CY_Community_UniversumService01_Variation.Mod(1.0)
+;BEGIN CODE
+CY_Community_UniversumService01_Variation.Mod(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_10000_Item_00
 Function Fragment_Stage_10000_Item_00()
-  CY_CommunityConvo_CooldownTime.SetValue(Utility.GetCurrentGameTime() + CY_CommunityConvo_CooldownTimeDaysToAdd.GetValue())
-  If CY_Community_UniversumService01_Variation.GetValue() == 3.0
-    CY_Community_UniversumService01_Variation.SetValue(0.0)
-  EndIf
+;BEGIN CODE
+CY_CommunityConvo_CooldownTime.SetValue(Utility.GetCurrentGameTime() + CY_CommunityConvo_CooldownTimeDaysToAdd.GetValue())
+
+;Reset the Variation Value if we've reached the end, so we can loop 
+;again.
+If CY_Community_UniversumService01_Variation.GetValue() == 3
+	CY_Community_UniversumService01_Variation.SetValue(0)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property CY_CommunityConvo_CooldownTime Auto Const Mandatory
+
+GlobalVariable Property CY_CommunityConvo_CooldownTimeDaysToAdd Auto Const Mandatory
+
+GlobalVariable Property CY_Community_UniversumService01_Variation Auto Const Mandatory

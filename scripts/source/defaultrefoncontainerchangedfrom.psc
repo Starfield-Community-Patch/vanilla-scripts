@@ -1,11 +1,12 @@
-ScriptName DefaultRefOnContainerChangedFrom Extends DefaultRef default
-{ Set stage when THIS object's container changes.
+Scriptname DefaultRefOnContainerChangedFrom extends DefaultRef Default
+{Set stage when THIS object's container changes.
 <RefToCheck> is the container THIS object was removed from.
-<LocationToCheck> is the current location of the container THIS object was removed from. }
-
-;-- Functions ---------------------------------------
+<LocationToCheck> is the current location of the container THIS object was removed from.}
 
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akOldContainer, akOldContainer.GetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnContainerChanged()  akNewContainer: " +  akNewContainer + ", akOldContainer: " + akOldContainer, ShowTraces)
+	
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akOldContainer, LocationToCheck = akOldContainer.GetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnContainerChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent

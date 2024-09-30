@@ -1,24 +1,38 @@
-ScriptName Fragments:Terminals:TERM_MS05_CorporateTerminaBu_0016786E Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_MS05_CorporateTerminaBu_0016786E Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property MS05BudgetProposalLevel Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_01
 Function Fragment_TerminalMenu_01(ObjectReference akTerminalRef)
-  MS05BudgetProposalLevel.SetValue(0.0)
+;BEGIN CODE
+MS05BudgetProposalLevel.SetValue(0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_TerminalMenu_02
 Function Fragment_TerminalMenu_02(ObjectReference akTerminalRef)
-  MS05BudgetProposalLevel.SetValue(1.0)
+;BEGIN CODE
+MS05BudgetProposalLevel.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_TerminalMenu_03
 Function Fragment_TerminalMenu_03(ObjectReference akTerminalRef)
-  MS05BudgetProposalLevel.SetValue(2.0)
+;BEGIN CODE
+MS05BudgetProposalLevel.SetValue(2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_TerminalMenu_04
 Function Fragment_TerminalMenu_04(ObjectReference akTerminalRef)
-  MS05BudgetProposalLevel.SetValue(3.0)
+;BEGIN CODE
+MS05BudgetProposalLevel.SetValue(3)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property MS05BudgetProposalLevel Auto Const Mandatory

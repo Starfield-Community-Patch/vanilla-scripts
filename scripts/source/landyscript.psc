@@ -1,15 +1,11 @@
-ScriptName LandyScript Extends Quest
+Scriptname LandyScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property RAD05 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property RAD05 Auto Const Mandatory
 
 Function RestartRAD05()
-  RAD05.Reset()
-  RAD05.Stop()
-  RAD05.Reset()
-  RAD05.Start()
+    Debug.Trace("RestartRad05 on LandryScript has been called.")
+    RAD05.Reset()
+    RAD05.Stop()
+    RAD05.Reset()
+    RAD05.Start()
 EndFunction

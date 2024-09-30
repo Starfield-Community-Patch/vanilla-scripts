@@ -1,661 +1,726 @@
-ScriptName TestSteveCQuestScript Extends Quest
+Scriptname TestSteveCQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-Int CONST_TeleportOutVFXDelay = 2 Const
-Int CONST_TestSwapTimerDelay = 5 Const
-Int CONST_TestSwapTimerID = 2 Const
-ObjectReference[] allTestActivators
-Int currentActivatorCount
-Actor temp
+ReferenceAlias property TestSteveCHoldingContainer Auto Const Mandatory
+
+TextureSet property Decal_JGVectera01 Auto Const Mandatory
 ObjectReference testDecal
-spaceshipreference testShipN
 
-;-- Properties --------------------------------------
-ReferenceAlias Property TestSteveCHoldingContainer Auto Const mandatory
-textureset Property Decal_JGVectera01 Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const mandatory
-Cell Property TestSteveCSpaceCell Auto Const mandatory
-RefCollectionAlias Property TestSpaceCellRefs Auto Const mandatory
-RefCollectionAlias Property TestSpaceCellRefs_Ship01 Auto Const mandatory
-ReferenceAlias Property TestSpaceCellRefs_Ship02 Auto Const mandatory
-ReferenceAlias Property DebugText Auto Const mandatory
-ReferenceAlias Property TestDoor Auto Const mandatory
-spaceshipbase Property PirateShipModular01 Auto Const mandatory
-spaceshipbase[] Property TestShips Auto Const mandatory
-ReferenceAlias Property TestLinkedRefShip Auto Const mandatory
-ReferenceAlias Property TestLinkedRefNonship Auto Const mandatory
-ReferenceAlias Property TestLinkedRefNonship2 Auto Const mandatory
-ReferenceAlias Property TestLever Auto Const mandatory
-Keyword Property BEDisembarkerLink Auto Const mandatory
-Message Property MQ206D_PowerInterlock_Disengage Auto Const mandatory
-Message Property MQ206D_PowerInterlock_Engage Auto Const mandatory
-ReferenceAlias Property SimonSaysMarker Auto Const mandatory
-ReferenceAlias Property SimonSaysActor Auto Const mandatory
-Spell Property LC088_DefensiveBatteryFireProjectileSpell Auto Const mandatory
-Static Property XMarker Auto Const mandatory
-ObjectReference Property TestSteveCSpaceTrigger1Ref Auto Const mandatory
-spaceshipreference Property TestSteveCDockingParentShipRef Auto Const mandatory
-spaceshipreference Property TestSteveCDockingChildShipRef Auto Const mandatory
-ObjectReference Property TestSteveCAsteroidRef Auto Const mandatory
-ObjectReference Property TestSteveCBossChest Auto Const mandatory
-Message Property TestSteveCOnActivateEventMessage Auto Const mandatory
-Message Property TestSteveCOnOpenEventMessage Auto Const mandatory
-Message Property TestMessageBox01 Auto Const mandatory
-ReferenceAlias Property TestAliasedItem01 Auto Const mandatory
-ReferenceAlias Property TestAliasedItem02 Auto Const mandatory
-ReferenceAlias Property TestSteveCUniqueShip Auto Const mandatory
-ReferenceAlias Property TheKeyMapMarkerHeadingRef Auto Const mandatory
-ReferenceAlias Property TheKeyAlternateMapMarkerHeadingRef Auto Const mandatory
-ReferenceAlias Property TheKeyOriginMarkerRef Auto Const mandatory
-ReferenceAlias Property SuvorovPlanetUniqueArrivalMarkerRef Auto Const mandatory
-ReferenceAlias Property DefensiveBatteryLaphaMapMarkerHeadingRef Auto Const mandatory
-ObjectReference Property TestSteveCTerminalRef Auto Const mandatory
-Perk Property TestVorpalShipPerk Auto Const mandatory
-ObjectReference Property TestSteveCAmbushLeverRef Auto Const mandatory
-ObjectReference Property TestSteveCAmbushMarkerRef Auto Const mandatory
-ObjectReference Property MQ206DLandingMarkerRef Auto Const mandatory
-spaceshipbase Property TestLeveledShip Auto Const mandatory
-ReferenceAlias Property LC165TestStarbornCaster Auto Const mandatory
-ActorValue Property LC165_StarbornStateValue Auto Const mandatory
-Spell Property LC165_Starborn_Bridge_GravityWell Auto Const mandatory
-Keyword Property LinkCustom01 Auto Const mandatory
-RefCollectionAlias Property PipeTraps Auto Const mandatory
-spaceshipreference Property TestDisembarking02 Auto Const mandatory
-ReferenceAlias Property TestDialogueBugs2Actor Auto Const mandatory
-Faction Property LC165StarbornEnemyFaction Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-ActorValue Property Confidence Auto Const mandatory
-Spell Property AIPower_VoidForm Auto Const mandatory
-Spell Property LC165_Scripted_VoidFormAb Auto Const mandatory
-Spell Property TestSteveCStarbornCasterScriptedSpell Auto Const mandatory
-FormList Property FilterList_InventoryCategoryAidFood Auto Const mandatory
-ObjectReference Property TestSteveCCloseDoorOnDetachRef Auto Const mandatory
-ObjectReference Property TestSteveCProjectileSourceMarkerRef Auto Const mandatory
-ObjectReference Property TestSteveCTrafficManagerSettingsRef Auto Const mandatory
-ReferenceAlias Property TestSwapActor01 Auto Const mandatory
-ReferenceAlias Property TestSwapActor02 Auto Const mandatory
-Spell Property LC165_AbTeleportSwapIn Auto Const mandatory
-Spell Property LC165_AbTeleportSwapOut Auto Const mandatory
-Explosion Property LC165_StarbornTeleportSwapExplosion Auto Const mandatory
-ReferenceAlias Property MentatsAlias1 Auto Const mandatory
-ReferenceAlias Property MentatsAlias2 Auto Const mandatory
-ReferenceAlias Property BerryMentatsAlias1 Auto Const mandatory
-ReferenceAlias Property BerryMentatsAlias2 Auto Const mandatory
-ReferenceAlias Property BourbonAlias Auto Const mandatory
-RefCollectionAlias Property TestActivators Auto Const mandatory
-GlobalVariable Property TestSteveCCurrentCountGlobal Auto Const mandatory
-GlobalVariable Property TestSteveCTotalCountGlobal Auto Const mandatory
-GlobalVariable Property TestSteveCQuestTargetsGlobal Auto Const mandatory
-Spell Property TestSteveCPerkSpell Auto Const mandatory
-ReferenceAlias Property TestTurret Auto Const mandatory
-sq_parentscript Property SQ_Parent Auto Const mandatory
-ObjectReference Property TestPlatformHelperRef Auto Const mandatory
+ReferenceAlias property PlayerShip Auto Const Mandatory
+Cell property TestSteveCSpaceCell Auto Const Mandatory
+RefCollectionAlias property TestSpaceCellRefs Auto Const Mandatory
+RefCollectionAlias property TestSpaceCellRefs_Ship01 Auto Const Mandatory
+ReferenceAlias property TestSpaceCellRefs_Ship02 Auto Const Mandatory
+ReferenceAlias property DebugText Auto Const Mandatory
+ReferenceAlias property TestDoor Auto Const Mandatory
+SpaceshipBase property PirateShipModular01 Auto Const Mandatory
+SpaceshipBase[] property TestShips Auto Const Mandatory
+ReferenceAlias property TestLinkedRefShip Auto Const Mandatory
+ReferenceAlias property TestLinkedRefNonship Auto Const Mandatory
+ReferenceAlias property TestLinkedRefNonship2 Auto Const Mandatory
+ReferenceAlias property TestLever Auto Const Mandatory
+Keyword property BEDisembarkerLink Auto Const Mandatory
+Message property MQ206D_PowerInterlock_Disengage Auto Const Mandatory
+Message property MQ206D_PowerInterlock_Engage Auto Const Mandatory
+ReferenceAlias property SimonSaysMarker Auto Const Mandatory
+ReferenceAlias property SimonSaysActor Auto Const Mandatory
+Spell property LC088_DefensiveBatteryFireProjectileSpell Auto Const Mandatory
+Static property XMarker Auto Const Mandatory
+ObjectReference property TestSteveCSpaceTrigger1Ref Auto Const Mandatory
+SpaceshipReference property TestSteveCDockingParentShipRef Auto Const Mandatory
+SpaceshipReference property TestSteveCDockingChildShipRef Auto Const Mandatory
+ObjectReference property TestSteveCAsteroidRef Auto Const Mandatory
+ObjectReference property TestSteveCBossChest Auto Const Mandatory
+Message property TestSteveCOnActivateEventMessage Auto Const Mandatory
+Message property TestSteveCOnOpenEventMessage Auto Const Mandatory
+Message property TestMessageBox01 Auto Const Mandatory
+ReferenceAlias property TestAliasedItem01 Auto Const Mandatory
+ReferenceAlias property TestAliasedItem02 Auto Const Mandatory
+ReferenceAlias property TestSteveCUniqueShip Auto Const Mandatory
+ReferenceAlias property TheKeyMapMarkerHeadingRef Auto Const Mandatory
+ReferenceAlias property TheKeyAlternateMapMarkerHeadingRef Auto Const Mandatory
+ReferenceAlias property TheKeyOriginMarkerRef Auto Const Mandatory
+ReferenceAlias property SuvorovPlanetUniqueArrivalMarkerRef Auto Const Mandatory
+ReferenceAlias property DefensiveBatteryLaphaMapMarkerHeadingRef Auto Const Mandatory
+ObjectReference property TestSteveCTerminalRef Auto Const Mandatory
+Perk property TestVorpalShipPerk Auto Const Mandatory
+ObjectReference property TestSteveCAmbushLeverRef Auto Const Mandatory
+ObjectReference property TestSteveCAmbushMarkerRef Auto Const Mandatory
+ObjectReference property MQ206DLandingMarkerRef Auto Const Mandatory
+SpaceshipBase property TestLeveledShip Auto Const Mandatory
+ReferenceAlias property LC165TestStarbornCaster Auto Const Mandatory
+ActorValue property LC165_StarbornStateValue Auto Const Mandatory
+Spell property LC165_Starborn_Bridge_GravityWell Auto Const Mandatory
+Keyword property LinkCustom01 Auto Const Mandatory
+RefCollectionAlias property PipeTraps Auto Const Mandatory
+SpaceshipReference property TestDisembarking02 Auto Const Mandatory
+ReferenceAlias property TestDialogueBugs2Actor Auto Const Mandatory
+Faction property LC165StarbornEnemyFaction Auto Const Mandatory
+ActorValue property Aggression Auto Const Mandatory
+ActorValue property Confidence Auto Const Mandatory
+Spell property AIPower_VoidForm Auto Const Mandatory
+Spell property LC165_Scripted_VoidFormAb Auto Const Mandatory
+Spell property TestSteveCStarbornCasterScriptedSpell Auto Const Mandatory
+Formlist property FilterList_InventoryCategoryAidFood Auto Const Mandatory
+ObjectReference property TestSteveCCloseDoorOnDetachRef Auto Const Mandatory
+ObjectReference property TestSteveCProjectileSourceMarkerRef Auto Const Mandatory
+ObjectReference property TestSteveCTrafficManagerSettingsRef Auto Const Mandatory
+ReferenceAlias property TestSwapActor01 Auto Const Mandatory
+ReferenceAlias property TestSwapActor02 Auto Const Mandatory
+Spell property LC165_AbTeleportSwapIn Auto Const Mandatory
+Spell property LC165_AbTeleportSwapOut Auto Const Mandatory
+Explosion property LC165_StarbornTeleportSwapExplosion Auto Const Mandatory
+int CONST_TestSwapTimerDelay = 5 Const
+int CONST_TestSwapTimerID = 2 Const
+int CONST_TeleportOutVFXDelay = 2 Const
 
-;-- Functions ---------------------------------------
 
-Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
-  ; Empty function
-EndEvent
+SpaceshipReference testShipN
 
-Event ObjectReference.OnTriggerLeave(ObjectReference akSource, ObjectReference akTriggerRef)
-  ; Empty function
-EndEvent
-
-Event SQ_ParentScript.SQ_BEStarted(sq_parentscript source, Var[] akArgs)
-  ; Empty function
-EndEvent
-
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  ; Empty function
-EndEvent
-
-Function TraceGravity(ObjectReference testObject)
-  ; Empty function
+Function TestSpawnLeveledShip(int difficulty)
+	if (testShipN != None)
+		testShipN.Disable()
+		testShipN.Delete()
+	EndIf
+	SpaceshipReference ship = PlayerShip.GetShipRef()
+	testShipN = ship.PlaceShipNearMe(TestLeveledShip, ship.CONST_NearPosition_DeadAhead, ship.CONST_NearDistance_Close, ship.CONST_NearFacing_Direct, aiLevelMod=difficulty)
+	Debug.Trace("EnemyShipLevel: " + testShipN.GetLevel() + " " + testShipN.GetLeveledSpaceshipBase())
 EndFunction
 
-Function TraceHasSpell()
-  ; Empty function
-EndFunction
 
-Function TraceObjectsInTrigger(ObjectReference obj)
-  ; Empty function
-EndFunction
-
-Function TestSpawnLeveledShip(Int difficulty)
-  If testShipN != None
-    testShipN.Disable(False)
-    testShipN.Delete()
-  EndIf
-  spaceshipreference ship = PlayerShip.GetShipRef()
-  testShipN = ship.PlaceShipNearMe(TestLeveledShip as Form, ship.CONST_NearPosition_DeadAhead, ship.CONST_NearDistance_Close, ship.CONST_NearFacing_Direct, difficulty, True, False, False, True, None)
-EndFunction
 
 Event OnQuestStarted()
-  Self.RegisterForRemoteEvent(TestSteveCSpaceTrigger1Ref as ScriptObject, "OnTriggerEnter")
-  Self.RegisterForRemoteEvent(TestSteveCSpaceTrigger1Ref as ScriptObject, "OnTriggerLeave")
-  Self.RegisterForRemoteEvent(TestSteveCBossChest as ScriptObject, "OnActivate")
-  Self.RegisterForRemoteEvent(TestSteveCBossChest as ScriptObject, "OnOpen")
-  Self.RegisterForRemoteEvent(TestSteveCAmbushLeverRef as ScriptObject, "OnActivate")
-  Self.RegisterForRemoteEvent(TestSteveCCloseDoorOnDetachRef as ScriptObject, "OnCellDetach")
-  Self.RegisterForRemoteEvent(TestSwapActor01 as ScriptObject, "OnLoad")
+	RegisterForRemoteEvent(TestSteveCSpaceTrigger1Ref, "OnTriggerEnter")
+	RegisterForRemoteEvent(TestSteveCSpaceTrigger1Ref, "OnTriggerLeave")
+	RegisterForRemoteEvent(TestSteveCBossChest, "OnActivate")
+	RegisterForRemoteEvent(TestSteveCBossChest, "OnOpen")
+	RegisterForRemoteEvent(TestSteveCAmbushLeverRef, "OnActivate")
+	RegisterForRemoteEvent(TestSteveCCloseDoorOnDetachRef, "OnCellDetach")
+	RegisterForRemoteEvent(TestSwapActor01, "OnLoad")
 EndEvent
 
 Function TestSpaceCell()
-  PlayerShip.GetRef().PlaceCellAtMe(TestSteveCSpaceCell, TestSpaceCellRefs, False, True, False, None)
-  TestSpaceCellRefs_Ship01.RefillAlias()
-  TestSpaceCellRefs_Ship02.RefillAlias()
+	PlayerShip.GetRef().PlaceCellAtMe(TestSteveCSpaceCell, TestSpaceCellRefs)
+	TestSpaceCellRefs_Ship01.RefillAlias()
+	TestSpaceCellRefs_Ship02.RefillAlias()
 EndFunction
 
-Function SetDebugTextColor(Int r, Int g, Int b, Int a)
-  DebugText.GetRef()
+Function SetDebugTextColor(int r, int g, int b, int a)
+	DebugText.GetRef().SetDebugTextColor(r, g, b, a)
 EndFunction
 
-Function SetDebugTextSize(Int S)
-  DebugText.GetRef()
+Function SetDebugTextSize(int s)
+	DebugText.GetRef().SetDebugTextSize(s)
 EndFunction
 
 Function SetDebugTextString(String t)
-  DebugText.GetRef()
+	DebugText.GetRef().SetDebugTextString(t)
 EndFunction
 
-Function SetDebugTextBillboard(Bool b)
-  DebugText.GetRef()
+Function SetDebugTextBillboard(bool b)
+	DebugText.GetRef().SetDebugTextBillboard(b)
 EndFunction
 
-Function SetLockedWithDelay(Bool shouldUnlock)
-  Utility.Wait(2.0)
-  If shouldUnlock
-    TestDoor.GetRef().Unlock(False)
-  Else
-    TestDoor.GetRef().Lock(True, False, True)
-  EndIf
+Function SetLockedWithDelay(bool shouldUnlock)
+	Utility.Wait(2)
+	if (shouldUnlock)
+		TestDoor.GetRef().Unlock()
+	Else
+		TestDoor.GetRef().Lock()
+	EndIf
 EndFunction
 
-Function SpawnTestShip(Int I)
-  Float[] offsets = new Float[6]
-  offsets[1] = 1000.0
-  ObjectReference marker = PlayerShip.GetRef().PlaceShipAtMe(TestShips[I] as Form, 4, True, False, False, True, offsets, None, None, True) as ObjectReference
+Function SpawnTestShip(int i)
+	float[] offsets = new float[6]
+	offsets[1] = 1000
+	ObjectReference marker = PlayerShip.GetRef().PlaceShipAtMe(TestShips[i], akOffsetValues=offsets)
 EndFunction
 
-Function MoveShip1(spaceshipreference ship)
-  ship.MoveTo(ship as ObjectReference, 0.0, 0.0, 0.0, True, False)
+Function MoveShip1(SpaceshipReference ship)
+	ship.MoveTo(ship)
 EndFunction
 
-Function MoveShip2(spaceshipreference ship)
-  Float[] offsets = new Float[6]
-  offsets[1] = 1000.0
-  ObjectReference marker = ship.PlaceAtMe(XMarker as Form, 1, False, False, True, offsets, None, True)
-  ship.MoveTo(marker, 0.0, 0.0, 0.0, True, False)
+Function MoveShip2(SpaceshipReference ship)
+	float[] offsets = new float[6]
+	offsets[1] = 1000
+	ObjectReference marker = ship.PlaceAtMe(XMarker, akOffsetValues=offsets)
+	ship.MoveTo(marker)
 EndFunction
 
-Function MoveShip3(spaceshipreference ship)
-  ship.Disable(False)
-  Float[] offsets = new Float[6]
-  offsets[1] = 1000.0
-  ObjectReference marker = ship.PlaceAtMe(XMarker as Form, 1, False, False, True, offsets, None, True)
-  ship.MoveTo(marker, 0.0, 0.0, 0.0, True, False)
-  ship.Enable(False)
+Function MoveShip3(SpaceshipReference ship)
+	ship.Disable()
+	float[] offsets = new float[6]
+	offsets[1] = 1000
+	ObjectReference marker = ship.PlaceAtMe(XMarker, akOffsetValues=offsets)
+	ship.MoveTo(marker)
+	ship.Enable()
 EndFunction
 
 Function MoveShip4()
-  ObjectReference newShip = PlayerShip.GetRef().PlaceShipAtMe(PirateShipModular01 as Form, 4, True, False, False, True, None, None, None, True) as ObjectReference
-  Float[] offsets = new Float[6]
-  offsets[1] = 1000.0
-  ObjectReference marker = PlayerShip.GetRef().PlaceAtMe(XMarker as Form, 1, False, False, True, offsets, None, True)
-  newShip.MoveTo(marker, 0.0, 0.0, 0.0, True, False)
-  newShip.Enable(False)
+	ObjectReference newShip = PlayerShip.GetRef().PlaceShipAtMe(PirateShipModular01)
+	float[] offsets = new float[6]
+	offsets[1] = 1000
+	ObjectReference marker = PlayerShip.GetRef().PlaceAtMe(XMarker, akOffsetValues=offsets)
+	newShip.MoveTo(marker)
+	newShip.Enable()
 EndFunction
 
-Function TestShipOpen(spaceshipreference S, Bool shouldBeOpen)
-  S.SetOpen(shouldBeOpen)
+Function TestShipOpen(SpaceshipReference s, bool shouldBeOpen)
+	s.SetOpen(shouldBeOpen)
+	Debug.Trace("Tried it.")
 EndFunction
 
-Function TestGravJumpVFX(spaceshipreference ship, Bool shouldEnable)
-  If shouldEnable
-    ship.EnableWithGravJump()
-  Else
-    ship.DisableWithGravJump()
-  EndIf
+Function TestGravJumpVFX(SpaceshipReference ship, bool shouldEnable)
+	if (shouldEnable)
+		ship.EnableWithGravJump()
+	Else
+		ship.DisableWithGravJump()
+	EndIf
 EndFunction
 
 Function TraceLinkedRefs()
-  ObjectReference testNonShip = TestLinkedRefNonship.GetRef()
-  ObjectReference[] refsLinkedToMe3 = testNonShip.GetRefsLinkedToMe(None, None)
-  Actor[] actorsLinkedToMe3 = testNonShip.GetActorsLinkedToMe(None, None)
-  ObjectReference[] refsLinkedToMe4 = testNonShip.GetRefsLinkedToMe(BEDisembarkerLink, None)
-  Actor[] actorsLinkedToMe4 = testNonShip.GetActorsLinkedToMe(BEDisembarkerLink, None)
+	ObjectReference testNonShip = TestLinkedRefNonship.GetRef()
+	ObjectReference[] refsLinkedToMe3 = testNonShip.GetRefsLinkedToMe()
+	Actor[] actorsLinkedToMe3 = testNonShip.GetActorsLinkedToMe()
+	Debug.Trace("Tracing NONSHIP Unnamed Linked Ref: " + refsLinkedToMe3.Length + " " + actorsLinkedToMe3.Length)
+	ObjectReference[] refsLinkedToMe4 = testNonShip.GetRefsLinkedToMe(BEDisembarkerLink)
+	Actor[] actorsLinkedToMe4 = testNonShip.GetActorsLinkedToMe(BEDisembarkerLink)
+	Debug.Trace("Tracing NONSHIP Named Linked Ref: " + refsLinkedToMe4.Length + " " + actorsLinkedToMe4.Length)	
 EndFunction
 
+
+;----------------------------------------
+;Container Inventory Bug Test Cases
+;----------------------------
+
+ReferenceAlias property MentatsAlias1 Auto Const Mandatory
+ReferenceAlias property MentatsAlias2 Auto Const Mandatory
+ReferenceAlias property BerryMentatsAlias1 Auto Const Mandatory
+ReferenceAlias property BerryMentatsAlias2 Auto Const Mandatory
+ReferenceAlias property BourbonAlias Auto Const Mandatory
+
 Function AddBourbonByRef()
-  ObjectReference aliasedBourbonRef = BourbonAlias.GetRef()
-  Game.GetPlayer().AddItem(aliasedBourbonRef as Form, 1, False)
+	ObjectReference aliasedBourbonRef = BourbonAlias.GetRef()
+	Game.GetPlayer().AddItem(aliasedBourbonRef)
 EndFunction
 
 Function AddBerryMentatsByRef()
-  ObjectReference aliasedBerryMentats = BerryMentatsAlias1.GetRef()
-  Game.GetPlayer().AddItem(aliasedBerryMentats as Form, 1, False)
+	ObjectReference aliasedBerryMentats = BerryMentatsAlias1.GetRef()
+	Game.GetPlayer().AddItem(aliasedBerryMentats)
 EndFunction
+
+
+
+
+RefCollectionAlias property TestActivators Auto Const Mandatory
+GlobalVariable property TestSteveCCurrentCountGlobal Auto Const Mandatory
+GlobalVariable property TestSteveCTotalCountGlobal Auto Const Mandatory
+GlobalVariable property TestSteveCQuestTargetsGlobal Auto Const Mandatory
+ObjectReference[] allTestActivators
+int currentActivatorCount
 
 Function TestActivatorCounting()
-  currentActivatorCount = 0
-  TestSteveCCurrentCountGlobal.SetValue(currentActivatorCount as Float)
-  If allTestActivators == None
-    Int totalActivatorCount = TestActivators.GetCount()
-    TestSteveCTotalCountGlobal.SetValue(totalActivatorCount as Float)
-    Self.UpdateCurrentInstanceGlobal(TestSteveCTotalCountGlobal)
-    allTestActivators = new ObjectReference[totalActivatorCount]
-    Int I = 0
-    While I < allTestActivators.Length
-      allTestActivators[I] = TestActivators.GetAt(I)
-      Self.RegisterForRemoteEvent(allTestActivators[I] as ScriptObject, "OnActivate")
-      I += 1
-    EndWhile
-  EndIf
-  Self.UpdateActivatorCount()
+	currentActivatorCount = 0
+	TestSteveCCurrentCountGlobal.SetValue(currentActivatorCount)
+	if (allTestActivators == None)
+		int totalActivatorCount = TestActivators.GetCount()
+		TestSteveCTotalCountGlobal.SetValue(totalActivatorCount)
+		UpdateCurrentInstanceGlobal(TestSteveCTotalCountGlobal)
+		allTestActivators = new ObjectReference[totalActivatorCount]
+		int i = 0
+		While (i < allTestActivators.Length)
+			allTestActivators[i] = TestActivators.GetAt(i)
+			RegisterForRemoteEvent(allTestActivators[i], "OnActivate")
+			i = i + 1
+		EndWhile
+	EndIf
+	UpdateActivatorCount()
 EndFunction
 
-Function TestActivatorsBlockActivation(Bool abBlocked, Bool abHideActivateText)
-  Int I = 0
-  While I < allTestActivators.Length
-    allTestActivators[I].BlockActivation(abBlocked, abHideActivateText)
-    I += 1
-  EndWhile
+Function TestActivatorsBlockActivation(bool abBlocked, bool abHideActivateText)
+	int i = 0
+	While (i < allTestActivators.Length)
+		allTestActivators[i].BlockActivation(abBlocked, abHideActivateText)
+		i = i + 1
+	EndWhile
 EndFunction
 
 Function UpdateActivatorCount()
-  TestSteveCCurrentCountGlobal.SetValue(currentActivatorCount as Float)
-  Self.UpdateCurrentInstanceGlobal(TestSteveCCurrentCountGlobal)
-  Self.UpdateCurrentInstanceGlobal(TestSteveCTotalCountGlobal)
-  Self.SetObjectiveDisplayed(300, True, False)
-  If currentActivatorCount % 2 > 0
-    Self.SetObjectiveDisplayed(302, False, False)
-    Self.SetObjectiveDisplayed(301, True, False)
-  Else
-    Self.SetObjectiveDisplayed(301, False, False)
-    Self.SetObjectiveDisplayed(302, True, False)
-  EndIf
+	TestSteveCCurrentCountGlobal.SetValue(currentActivatorCount)
+	UpdateCurrentInstanceGlobal(TestSteveCCurrentCountGlobal)
+	UpdateCurrentInstanceGlobal(TestSteveCTotalCountGlobal)
+	SetObjectiveDisplayed(300,True)
+	Debug.Trace("Val="+(currentActivatorCount%2))
+	if ((currentActivatorCount%2) > 0)
+		SetObjectiveDisplayed(302,False)
+		SetObjectiveDisplayed(301,True)
+	Else
+		SetObjectiveDisplayed(301,False)
+		SetObjectiveDisplayed(302,True)
+	EndIf
 EndFunction
 
-Function SetActivatorCount(Int newCount, Bool redisplay)
-  TestSteveCCurrentCountGlobal.SetValue(newCount as Float)
-  Self.UpdateCurrentInstanceGlobal(TestSteveCCurrentCountGlobal)
-  If redisplay
-    Self.SetObjectiveDisplayed(300, True, True)
-  EndIf
+Function SetActivatorCount(int newCount, bool redisplay)
+	TestSteveCCurrentCountGlobal.SetValue(newCount)
+	UpdateCurrentInstanceGlobal(TestSteveCCurrentCountGlobal)
+	if (redisplay)
+		SetObjectiveDisplayed(300,True,True)
+	EndIf
 EndFunction
 
-Event ObjectReference.OnOpen(ObjectReference akSource, ObjectReference akActionRef)
-  If akSource == TestSteveCBossChest
-    TestSteveCOnOpenEventMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
+
+Auto State Waiting
+	Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
+		GoToState("Busy")
+		if (akSource == TestSteveCBossChest)
+			TestSteveCOnActivateEventMessage.Show()
+		ElseIf (akSource == TestSteveCAmbushLeverRef)
+			if (TestSteveCAmbushMarkerRef.IsDisabled())
+				TestSteveCAmbushMarkerRef.Enable()
+			Else
+				TestSteveCAmbushMarkerRef.Disable()
+			EndIf
+		Else
+			;TestSteveCOnActivateEventMessage.Show()
+			if (TestActivators.Find(akSource) >= 0)
+				TestActivators.RemoveRef(akSource)
+				currentActivatorCount = currentActivatorCount + 1
+			Else
+				TestActivators.AddRef(akSource)
+				currentActivatorCount = currentActivatorCount - 1
+			EndIf
+			UpdateActivatorCount()
+		EndIf
+		Utility.Wait(5)
+		GoToState("Waiting")
+	EndEvent
+EndState
+
+State Busy
+	Event OnBeginState(String oldState)
+		Debug.Trace("Busy begin.")
+	EndEvent
+
+	Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
+		Debug.Trace("Ignored; busy.")
+	EndEvent
+
+	Event OnEndState(String newState)
+		Debug.Trace("Busy end.")
+	EndEvent
+EndState
+
+Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
 EndEvent
 
-Function SetActivateTextOverride(Int index)
-  If index == 0
-    TestLever.GetRef().SetActivateTextOverride(MQ206D_PowerInterlock_Engage)
-  Else
-    TestLever.GetRef().SetActivateTextOverride(MQ206D_PowerInterlock_Disengage)
-  EndIf
+Event ObjectReference.OnOpen(ObjectReference akSource, ObjectReference akActionRef)
+	if (akSource == TestSteveCBossChest)
+		TestSteveCOnOpenEventMessage.Show()
+	EndIf
+EndEvent
+
+Function SetActivateTextOverride(int index)
+	if (index == 0)
+		TestLever.GetRef().SetActivateTextOverride(MQ206D_PowerInterlock_Engage)
+	Else
+		TestLever.GetRef().SetActivateTextOverride(MQ206D_PowerInterlock_Disengage)
+	EndIf
 EndFunction
 
-Function TestPlayBink(Bool shouldWait)
-  If shouldWait
-    Game.PlayBink("artifactvision.bk2", False, True, True, True, False)
-  Else
-    Game.PlayBinkNoWait("artifactvision.bk2", False, True, True, True, False, False)
-  EndIf
-  Utility.Wait(3.0)
-  Utility.Wait(3.0)
-  Utility.Wait(3.0)
-  Utility.Wait(3.0)
+Function TestPlayBink(bool shouldWait)
+	if (shouldWait)
+		Game.PlayBink("artifactvision.bk2")
+	Else
+		Game.PlayBinkNoWait("artifactvision.bk2")
+	EndIf
+	Debug.Trace("0s")
+	Utility.Wait(3)
+	Debug.Trace("3s")
+	Utility.Wait(3)
+	Debug.Trace("6s")
+	Utility.Wait(3)
+	Debug.Trace("9s")
+	Utility.Wait(3)
+	Debug.Trace("12s")
 EndFunction
 
 Function TestCast(ObjectReference source, ObjectReference target)
-  LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
-  Utility.Wait(2.0)
-  LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
-  Utility.Wait(2.0)
-  LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
-  Utility.Wait(2.0)
-  LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
+	LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
+	Utility.Wait(2)
+	LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
+	Utility.Wait(2)
+	LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
+	Utility.Wait(2)
+	LC088_DefensiveBatteryFireProjectileSpell.Cast(source, target)
 EndFunction
 
 Function TestCastFromProjectileSource()
-  LC088_DefensiveBatteryFireProjectileSpell.Cast(TestSteveCProjectileSourceMarkerRef, PlayerShip.GetRef())
+	LC088_DefensiveBatteryFireProjectileSpell.Cast(TestSteveCProjectileSourceMarkerRef, PlayerShip.GetRef())
 EndFunction
 
+
 Event ObjectReference.OnTriggerEnter(ObjectReference akSource, ObjectReference akTriggerRef)
-  Self.StartTimer(0.0, 1)
+	Debug.Trace("Got OnTriggerEnter")
+	StartTimer(0, 1)
 EndEvent
 
-Event OnTimer(Int timerID)
-  If timerID == 1
-    If TestSteveCSpaceTrigger1Ref.IsInTrigger(PlayerShip.GetRef())
-      Self.StartTimer(1.0, 1)
-    EndIf
-  ElseIf timerID == CONST_TestSwapTimerID
-    Self.TestSwap()
-    Self.StartTimer(CONST_TestSwapTimerDelay as Float, CONST_TestSwapTimerID)
-  EndIf
+Event ObjectReference.OnTriggerLeave(ObjectReference akSource, ObjectReference akTriggerRef)
+	Debug.Trace("Got OnTriggerLeave")
 EndEvent
+
+Event OnTimer(int timerID)
+	if (timerID == 1)
+		if (TestSteveCSpaceTrigger1Ref.IsInTrigger(PlayerShip.GetRef()))
+			Debug.Trace("    IN TRIGGER")
+			StartTimer(1, 1)
+		Else
+			Debug.Trace("NOT IN TRIGGER")
+		EndIf
+	ElseIf (timerID == CONST_TestSwapTimerID)
+		TestSwap()
+		StartTimer(CONST_TestSwapTimerDelay, CONST_TestSwapTimerID)
+	EndIf
+EndEvent
+
 
 Function MoveDockingParent()
-  TestSteveCDockingParentShipRef.MoveTo(TestSteveCDockingParentShipRef as ObjectReference, 200.0, 200.0, 200.0, True, False)
+	TestSteveCDockingParentShipRef.MoveTo(TestSteveCDockingParentShipRef, 200, 200, 200)
 EndFunction
 
 Function TraceLinkedRefChildren()
-  ObjectReference[] refsLinkedToParent = TestSteveCDockingParentShipRef.GetRefsLinkedToMe(None, None)
-  Int I = 0
-  While I < refsLinkedToParent.Length
-    I += 1
-  EndWhile
+	Debug.Trace(TestSteveCAsteroidRef + "'s linked ref: " + TestSteveCAsteroidRef.GetLinkedRef())
+	Debug.Trace(TestSteveCDockingChildShipRef + "'s linked ref: " + TestSteveCDockingChildShipRef.GetLinkedRef())
+	Debug.Trace(TestSteveCDockingParentShipRef + "'s Refs Linked To Me:")
+	ObjectReference[] refsLinkedToParent = TestSteveCDockingParentShipRef.GetRefsLinkedToMe()
+	int i = 0
+	While (i < refsLinkedToParent.Length)
+		Debug.Trace(refsLinkedToParent[i])
+		i = i + 1
+	EndWhile
 EndFunction
 
-Function AddPerkSpell(spaceshipreference myShip)
-  myShip.AddSpell(TestSteveCPerkSpell, True)
+Spell property TestSteveCPerkSpell Auto Const Mandatory
+
+Function AddPerkSpell(SpaceshipReference myShip)
+	myShip.AddSpell(TestSteveCPerkSpell)
 EndFunction
 
-Function DispelPerkSpell(spaceshipreference myShip)
-  myShip.DispelSpell(TestSteveCPerkSpell)
+Function DispelPerkSpell(SpaceshipReference myShip)
+	myShip.DispelSpell(TestSteveCPerkSpell)
 EndFunction
 
 Function DisplayMessageBox()
-  TestMessageBox01.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+	TestMessageBox01.Show()
 EndFunction
 
+
+
 Function MoveAliasedItemToContainer01()
-  TestSteveCHoldingContainer.GetRef().AddItem(TestAliasedItem01.GetRef() as Form, 1, False)
+	TestSteveCHoldingContainer.GetRef().AddItem(TestAliasedItem01.GetRef())
 EndFunction
 
 Function MoveAliasedItemToPlayer01()
-  Game.GetPlayer().AddItem(TestAliasedItem01.GetRef() as Form, 1, False)
+	Game.GetPlayer().AddItem(TestAliasedItem01.GetRef())
 EndFunction
 
+
 Function MoveAliasedItemToContainer02()
-  Game.GetPlayer().RemoveItem(TestAliasedItem02.GetRef() as Form, 1, False, TestSteveCHoldingContainer.GetRef())
+	Game.GetPlayer().RemoveItem(TestAliasedItem02.GetRef(), akOtherContainer=TestSteveCHoldingContainer.GetRef())
 EndFunction
 
 Function MoveAliasedItemToPlayer02()
-  Game.GetPlayer().AddItem(TestAliasedItem02.GetRef() as Form, 1, False)
+	Game.GetPlayer().AddItem(TestAliasedItem02.GetRef())
 EndFunction
+
+
 
 Function TraceMyLinkedRefs(ObjectReference obj)
-  ObjectReference[] refsLinkedToMe = obj.GetRefsLinkedToMe(None, None)
-  Int I = 0
-  While I < refsLinkedToMe.Length
-    I += 1
-  EndWhile
+	Debug.Trace(obj + "'s linked ref: " + obj.GetLinkedRef())
+	Debug.Trace(obj + "'s linked ref children:")
+	ObjectReference[] refsLinkedToMe = obj.GetRefsLinkedToMe()
+	int i = 0
+	While (i < refsLinkedToMe.Length)
+		Debug.Trace(" " + i + "-" + refsLinkedToMe[i])
+		i = i + 1
+	EndWhile
 EndFunction
 
-Function MoveKeyMapMarkerHeading(Bool returnToOriginalPosition)
-  If returnToOriginalPosition
-    TheKeyMapMarkerHeadingRef.GetRef().MoveTo(TheKeyOriginMarkerRef.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Else
-    TheKeyMapMarkerHeadingRef.GetRef().MoveTo(TheKeyAlternateMapMarkerHeadingRef.GetRef(), 0.0, 0.0, 0.0, True, False)
-  EndIf
+Function TraceObjectsInTrigger(ObjectReference obj)
+	Debug.Trace("Count: " + obj.GetTriggerObjectCount())
 EndFunction
 
-Function MoveSuvorovArrivalMarker(Bool returnToOriginalPosition)
-  If returnToOriginalPosition
-    SuvorovPlanetUniqueArrivalMarkerRef.GetRef().MoveTo(TheKeyOriginMarkerRef.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Else
-    SuvorovPlanetUniqueArrivalMarkerRef.GetRef().MoveTo(DefensiveBatteryLaphaMapMarkerHeadingRef.GetRef(), 0.0, 0.0, 0.0, True, False)
-  EndIf
+
+Function MoveKeyMapMarkerHeading(bool returnToOriginalPosition)
+	if (returnToOriginalPosition)
+		TheKeyMapMarkerHeadingRef.GetRef().MoveTo(TheKeyOriginMarkerRef.GetRef())
+	Else
+		TheKeyMapMarkerHeadingRef.GetRef().MoveTo(TheKeyAlternateMapMarkerHeadingRef.GetRef())
+	EndIf
 EndFunction
 
-Function TestValues(Int value1, Int value2)
-  TestSteveCTerminalRef.AddTextReplacementValue("value1", value1 as Float)
-  TestSteveCTerminalRef.AddTextReplacementValue("value2", value2 as Float)
+Function MoveSuvorovArrivalMarker(bool returnToOriginalPosition)
+	if (returnToOriginalPosition)
+		SuvorovPlanetUniqueArrivalMarkerRef.GetRef().MoveTo(TheKeyOriginMarkerRef.GetRef())
+	Else
+		SuvorovPlanetUniqueArrivalMarkerRef.GetRef().MoveTo(DefensiveBatteryLaphaMapMarkerHeadingRef.GetRef())
+	EndIf
 EndFunction
+
+Function TestValues(int value1, int value2)
+	TestSteveCTerminalRef.AddTextReplacementValue("Value1", value1)
+	TestSteveCTerminalRef.AddTextReplacementValue("Value2", value2)
+EndFunction
+
+
+ReferenceAlias property TestTurret Auto Const Mandatory
 
 Function TraceTurretLOS()
-  Actor turretRef = TestTurret.GetActorRef()
-  Actor playerRef = Game.GetPlayer()
+	Actor turretRef = TestTurret.GetActorRef()
+	Actor playerRef = Game.GetPlayer()
+	Debug.Trace("Turret to Player, Direct: " + turretRef.HasDirectLOS(playerRef))
+	Debug.Trace("Player to Turret, Direct: " + playerRef.HasDirectLOS(turretRef))
+	Debug.Trace("Turret to Player, Detection: " + turretRef.HasDetectionLOS(playerRef))
+	Debug.Trace("Player to Turret, Detection: " + playerRef.HasDetectionLOS(turretRef))
 EndFunction
 
-Function SetIgnoreFriendlyHits(Bool shouldIgnoreFriendlyHits)
-  ObjectReference shipRef = TestSteveCUniqueShip.GetRef()
-  shipRef.IgnoreFriendlyHits(shouldIgnoreFriendlyHits)
+Function SetIgnoreFriendlyHits(bool shouldIgnoreFriendlyHits)
+	ObjectReference shipRef = TestSteveCUniqueShip.GetRef()
+	Debug.Trace("Is TestSteveCUniqueShipRef ignoring friendly hits before? " + shipRef.IsIgnoringFriendlyHits())
+	shipRef.IgnoreFriendlyHits(shouldIgnoreFriendlyHits)
+	Debug.Trace("Is TestSteveCUniqueShipRef ignoring friendly hits after? " + shipRef.IsIgnoringFriendlyHits())
 EndFunction
 
 Function AddVorpalShipPerk()
-  PlayerShip.GetShipRef().AddPerk(TestVorpalShipPerk, False)
+	PlayerShip.GetShipRef().AddPerk(TestVorpalShipPerk)
 EndFunction
 
 Function RegisterForShipHit()
-  Self.RegisterForHitEvent(TestSteveCDockingParentShipRef as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+	RegisterForHitEvent(TestSteveCDockingParentShipRef)
 EndFunction
 
-Function RegisterForTestBE(spaceshipreference testBEShipRef)
-  Self.RegisterForCustomEvent(SQ_Parent as ScriptObject, "sq_parentscript_SQ_BEStarted")
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+	Debug.Trace("Got Ship Hit.")
+EndEvent
+
+
+SQ_ParentScript property SQ_Parent Auto Const Mandatory
+
+Function RegisterForTestBE(SpaceshipReference testBEShipRef)
+	RegisterForCustomEvent(SQ_Parent, "SQ_BEStarted")
 EndFunction
 
-Function TestCastSpell(Int spellID)
-  Actor caster = LC165TestStarbornCaster.GetActorRef()
-  Self.RegisterForRemoteEvent(caster as ScriptObject, "OnSpellCast")
-  caster.SetValue(LC165_StarbornStateValue, spellID as Float)
-  caster.EvaluatePackage(False)
+Event SQ_ParentScript.SQ_BEStarted(SQ_ParentScript source, Var[] akArgs)
+	Debug.Trace("The quest that started was " + akArgs[1] + " for " + akArgs[0])
+EndEvent
+
+Function TraceGravity(ObjectReference testObject)
+	Debug.Trace(testObject.GetGravityScale())
+EndFunction
+
+Function TestCastSpell(int spellID)
+	Actor caster = LC165TestStarbornCaster.GetActorRef()
+	RegisterForRemoteEvent(caster, "OnSpellCast")
+	caster.SetValue(LC165_StarbornStateValue, spellID)
+	caster.EvaluatePackage()
 EndFunction
 
 Event ObjectReference.OnSpellCast(ObjectReference akSource, Form akSpell)
-  Int spellID = akSource.GetValue(LC165_StarbornStateValue) as Int
-  If spellID == 1
-    LC165_Starborn_Bridge_GravityWell.Cast(akSource, akSource.GetLinkedRef(LinkCustom01))
-  ElseIf spellID == 2
-    AIPower_VoidForm.Cast(akSource, akSource)
-  ElseIf spellID == 3
-    akSource.AddSpell(LC165_Scripted_VoidFormAb, True)
-  EndIf
-  akSource.SetValue(LC165_StarbornStateValue, 0.0)
-  (akSource as Actor).EvaluatePackage(False)
+	int spellID = akSource.GetValue(LC165_StarbornStateValue) as int
+	Debug.Trace("TestSteveCQuestScript got OnSpellCast, ID=" + spellID)
+	if (spellID == 1)
+		LC165_Starborn_Bridge_GravityWell.Cast(akSource, akSource.GetLinkedRef(LinkCustom01))
+	ElseIf (spellID == 2)
+		AIPower_VoidForm.Cast(akSource, akSource)
+	ElseIf (spellID == 3)
+		akSource.AddSpell(LC165_Scripted_VoidFormAb)
+	EndIf
+	akSource.SetValue(LC165_StarbornStateValue, 0)
+	(akSource as Actor).EvaluatePackage()
 EndEvent
 
-Function SetVariable(String name, Float value)
-  TestPlatformHelperRef.SetAnimationVariableFloat(name, value)
+ObjectReference property TestPlatformHelperRef Auto Const Mandatory
+
+Function SetVariable(String name, float value)
+	TestPlatformHelperRef.SetAnimationVariableFloat(name, value)
 EndFunction
 
 Function PlayAnimation(String name)
-  TestPlatformHelperRef.PlayAnimation(name)
+	TestPlatformHelperRef.PlayAnimation(name)
 EndFunction
+
 
 Function BreakPipes()
-  ObjectReference[] pipes = PipeTraps.GetArray()
-  Int I = 0
-  While I < pipes.Length
-    trappipespray pipe = pipes[I] as trappipespray
-    If pipe != None
-      pipe.BreakPipe()
-    EndIf
-    I += 1
-  EndWhile
+	ObjectReference[] pipes = PipeTraps.GetArray()
+	int i = 0
+	While (i < pipes.Length)
+		TrapPipeSpray pipe = pipes[i] as TrapPipeSpray
+		if (pipe != None)
+			pipe.BreakPipe()
+			Debug.Trace("WORKED: " + pipe + " was cast to TrapPipeSpray.")
+		Else
+			Debug.Trace("ERROR: " + pipe + " failed to cast to TrapPipeSpray.")
+		EndIf
+		i = i + 1
+	EndWhile
 EndFunction
 
-Function SetTestDisembarking02Inaccessible(Bool shouldBeInaccessible)
-  TestDisembarking02.SetExteriorLoadDoorInaccessible(shouldBeInaccessible)
+Function SetTestDisembarking02Inaccessible(bool shouldBeInaccessible)
+	TestDisembarking02.SetExteriorLoadDoorInaccessible(shouldBeInaccessible)
 EndFunction
+
+Actor temp
 
 Function DuplicatePlayer()
-  temp = Game.GetPlayer().PlaceDuplicateActorAtMe(Game.GetPlayer(), False, False, True, None, None, True)
-  temp.RemoveFromAllFactions()
-  temp.AddToFaction(LC165StarbornEnemyFaction)
-  temp.SetValue(Aggression, 2.0)
-  temp.SetValue(Confidence, 4.0)
-  temp.SetGroupFaction(None)
-  temp.StartCombat(Game.GetPlayer() as ObjectReference, False)
+	temp = Game.GetPlayer().PlaceDuplicateActorAtMe(Game.GetPlayer())
+	temp.RemoveFromAllFactions()
+	temp.AddToFaction(LC165StarbornEnemyFaction)
+	temp.SetValue(Aggression, 2)
+	temp.SetValue(Confidence, 4)
+	temp.SetGroupFaction(None)
+	temp.StartCombat(Game.GetPlayer())
+EndFunction
+
+Function TraceHasSpell()
+	Debug.Trace("TraceHasSpell " + LC165TestStarbornCaster.GetActorRef() + " has spell " + TestSteveCStarbornCasterScriptedSpell + "? =" + LC165TestStarbornCaster.GetActorRef().HasSpell(TestSteveCStarbornCasterScriptedSpell))
 EndFunction
 
 Function ForceAddSpell()
-  LC165TestStarbornCaster.GetActorRef().AddSpell(TestSteveCStarbornCasterScriptedSpell, True)
+	LC165TestStarbornCaster.GetActorRef().AddSpell(TestSteveCStarbornCasterScriptedSpell)
 EndFunction
+
 
 Function TestGivingFood()
-  Actor testActor = TestDialogueBugs2Actor.GetActorRef()
-  Self.RegisterForRemoteEvent(testActor as ScriptObject, "OnItemAdded")
-  testActor.OpenOneWayTransferMenu(True, FilterList_InventoryCategoryAidFood)
+	Actor testActor = TestDialogueBugs2Actor.GetActorRef()
+	RegisterForRemoteEvent(testActor, "OnItemAdded")
+	testActor.OpenOneWayTransferMenu(True, FilterList_InventoryCategoryAidFood)
 EndFunction
 
-Event ObjectReference.OnItemAdded(ObjectReference akSource, Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  Self.SetStage(600)
+Event ObjectReference.OnItemAdded(ObjectReference akSource, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+	SetStage(600)
 EndEvent
 
 Event ObjectReference.OnCellDetach(ObjectReference akSource)
-  akSource.SetOpen(False)
+	Debug.Trace("Closing door OnCellDetach.")
+	akSource.SetOpen(False)
 EndEvent
 
 Function ClearDialogueBugsActorAlias()
-  TestDialogueBugs2Actor.Clear()
+	TestDialogueBugs2Actor.Clear()
 EndFunction
 
 Function TestLOSToPlayer(Actor source)
-  Int I = 0
-  While I < 500
-    Utility.Wait(0.5)
-    I += 1
-  EndWhile
+	int i = 0
+	While (i < 500)
+		Debug.Trace(source.HasDirectLOS(Game.GetPlayer()))
+		Utility.Wait(0.5)
+		i = i + 1
+	EndWhile
 EndFunction
 
 Function TestArrays()
-  Int[] testArray = new Int[1]
-  testArray[0] = 591
-  Int[] test2 = testArray
-  testArray[0] = 592
-  Int[] test3 = testArray
+	int[] testArray = new int[1]
+	testArray[0] = 591
+	int[] test2 = testArray
+	testArray[0] = 592
+	int[] test3 = testArray
+	Debug.Trace("Done")
 EndFunction
 
 Function TestSnap(ObjectReference target)
-  Game.GetPlayer().SnapIntoInteraction(target)
+	Game.GetPlayer().SnapIntoInteraction(target)
 EndFunction
 
 Function TestActivate(ObjectReference target)
-  Game.GetPlayer().Activate(target, False)
+	Game.GetPlayer().Activate(target)
 EndFunction
 
 Function TestOpen(ObjectReference target)
-  target.SetOpen(True)
+	target.SetOpen()
 EndFunction
 
 Function TestSnap2(ObjectReference target)
-  target.Disable(False)
-  target.Enable(False)
-  Game.GetPlayer().SnapIntoInteraction(target)
+	target.Disable()
+	target.Enable()
+	Game.GetPlayer().SnapIntoInteraction(target)
 EndFunction
 
+
+
 Event ReferenceAlias.OnLoad(ReferenceAlias source)
-  If source == TestSwapActor01
-    Self.StartTimer(CONST_TestSwapTimerDelay as Float, CONST_TestSwapTimerID)
-  EndIf
+	if (source == TestSwapActor01)
+		StartTimer(CONST_TestSwapTimerDelay, CONST_TestSwapTimerID)
+	EndIf
 EndEvent
 
 Function TestSwap()
-  Actor testSwapActor01Ref = TestSwapActor01.GetActorRef()
-  Actor testSwapActor02Ref = TestSwapActor02.GetActorRef()
-  testSwapActor01Ref.RemoveSpell(LC165_AbTeleportSwapIn)
-  testSwapActor02Ref.RemoveSpell(LC165_AbTeleportSwapIn)
-  ObjectReference swapMarker1 = testSwapActor01Ref.PlaceAtMe(XMarker as Form, 1, False, False, True, None, None, True)
-  ObjectReference swapMarker2 = testSwapActor02Ref.PlaceAtMe(XMarker as Form, 1, False, False, True, None, None, True)
-  swapMarker1.PlaceAtMe(LC165_StarbornTeleportSwapExplosion as Form, 1, False, False, True, None, None, True)
-  Self.TeleportIn(testSwapActor01Ref, LC165_AbTeleportSwapIn, None, None)
-  Self.TeleportIn(testSwapActor02Ref, LC165_AbTeleportSwapIn, None, None)
-  testSwapActor01Ref.MoveTo(swapMarker2, 0.0, 0.0, 0.0, True, False)
-  testSwapActor02Ref.MoveTo(swapMarker1, 0.0, 0.0, 0.0, True, False)
-  swapMarker1.Delete()
-  swapMarker2.Delete()
+	Actor testSwapActor01Ref = TestSwapActor01.GetActorRef()
+	Actor testSwapActor02Ref = TestSwapActor02.GetActorRef()
+	testSwapActor01Ref.RemoveSpell(LC165_AbTeleportSwapIn)
+	testSwapActor02Ref.RemoveSpell(LC165_AbTeleportSwapIn)
+	ObjectReference swapMarker1 = testSwapActor01Ref.PlaceAtMe(XMarker)
+	ObjectReference swapMarker2 = testSwapActor02Ref.PlaceAtMe(XMarker)
+	swapMarker1.PlaceAtMe(LC165_StarbornTeleportSwapExplosion)
+	TeleportIn(testSwapActor01Ref, teleportInSpell=LC165_AbTeleportSwapIn)
+	TeleportIn(testSwapActor02Ref, teleportInSpell=LC165_AbTeleportSwapIn)
+	testSwapActor01Ref.MoveTo(swapMarker2)
+	testSwapActor02Ref.MoveTo(swapMarker1)
+	swapMarker1.Delete()
+	swapMarker2.Delete()
 EndFunction
 
-Function TeleportIn(Actor target, Spell teleportInSpell, Explosion teleportInExplosion, Spell teleportOutSpell)
-  If target != None
-    If teleportInSpell == None
-      teleportInSpell = LC165_AbTeleportSwapIn
-    EndIf
-    If teleportOutSpell == None
-      teleportOutSpell = LC165_AbTeleportSwapOut
-    EndIf
-    If teleportInExplosion != None
-      target.PlaceAtMe(teleportInExplosion as Form, 1, False, False, True, None, None, True)
-    EndIf
-    target.RemoveSpell(teleportOutSpell)
-    target.AddSpell(teleportInSpell, True)
-  EndIf
+
+Function TeleportIn(Actor target, Spell teleportInSpell=None, Explosion teleportInExplosion=None, Spell teleportOutSpell=None)
+	if (target != None)
+		if (teleportInSpell == None)
+			teleportInSpell = LC165_AbTeleportSwapIn
+		EndIf
+		if (teleportOutSpell == None)
+			teleportOutSpell = LC165_AbTeleportSwapOut
+		EndIf
+
+		if (teleportInExplosion != None)
+			target.PlaceAtMe(teleportInExplosion)
+		EndIf
+		target.RemoveSpell(teleportOutSpell)
+		target.AddSpell(teleportInSpell)
+	EndIf
 EndFunction
 
-Function TeleportOut(Actor target, Spell teleportInSpell, Spell teleportOutSpell, Explosion teleportOutExplosion, Float teleportOutSpellDelay, Bool shouldDisable)
-  If target != None
-    If teleportInSpell == None
-      teleportInSpell = LC165_AbTeleportSwapIn
-    EndIf
-    If teleportOutSpell == None
-      teleportOutSpell = LC165_AbTeleportSwapOut
-    EndIf
-    If teleportOutExplosion != None
-      target.PlaceAtMe(teleportOutExplosion as Form, 1, False, False, True, None, None, True)
-    EndIf
-    target.RemoveSpell(teleportInSpell)
-    target.AddSpell(teleportOutSpell, True)
-    Utility.Wait(teleportOutSpellDelay)
-    If shouldDisable
-      target.Disable(False)
-    EndIf
-  EndIf
+Function TeleportOut(Actor target, Spell teleportInSpell=None, Spell teleportOutSpell=None, Explosion teleportOutExplosion=None, float teleportOutSpellDelay=-1.0, bool shouldDisable=False)
+	if (target != None)
+		if (teleportInSpell == None)
+			teleportInSpell = LC165_AbTeleportSwapIn
+		EndIf
+		if (teleportOutSpell == None)
+			teleportOutSpell = LC165_AbTeleportSwapOut
+		EndIf
+
+		if (teleportOutExplosion != None)
+			target.PlaceAtMe(teleportOutExplosion)
+		EndIf
+		target.RemoveSpell(teleportInSpell)
+		target.AddSpell(teleportOutSpell)
+		Utility.Wait(teleportOutSpellDelay)
+		if (shouldDisable)
+			target.Disable()
+		EndIf
+	EndIf
 EndFunction
 
-Function CombatTeleportNearRef(Actor actorToTeleport, ObjectReference sourceRef, Float minDistance, Float maxDistance, Bool allowZOffset, Bool alwaysInFront, Spell teleportInSpell, Explosion teleportInExplosion, Spell teleportOutSpell, Explosion teleportOutExplosion, Float teleportOutSpellDelay)
-  If !actorToTeleport.IsDead()
-    Float[] akOffsets = new Float[3]
-    ObjectReference target = sourceRef.PlaceAtMe(XMarker as Form, 1, False, False, True, akOffsets, None, True)
-    If minDistance > 0.0 || maxDistance > 0.0
-      target.MoveToNearestNavmeshLocation()
-    EndIf
-    Self.CombatTeleport(actorToTeleport, target, False, teleportInSpell, teleportInExplosion, teleportOutSpell, teleportOutExplosion, teleportOutSpellDelay)
-    target.Delete()
-  EndIf
+Function CombatTeleportNearRef(Actor actorToTeleport, ObjectReference sourceRef, float minDistance=0.0, float maxDistance=0.0, bool allowZOffset=True, bool alwaysInFront=False, Spell teleportInSpell=None, Explosion teleportInExplosion=None, Spell teleportOutSpell=None, Explosion teleportOutExplosion=None, float teleportOutSpellDelay=-1.0)
+	if (!actorToTeleport.IsDead())
+		float[] akOffsets = new float[3]
+		ObjectReference target = sourceRef.PlaceAtMe(XMarker, akOffsetValues=akOffsets)
+		if ((minDistance > 0) || (maxDistance > 0))
+			target.MoveToNearestNavmeshLocation()
+		EndIf
+		CombatTeleport(actorToTeleport, target, False, teleportInSpell, teleportInExplosion, teleportOutSpell, teleportOutExplosion, teleportOutSpellDelay)
+		target.Delete()
+	EndIf
 EndFunction
 
-Function CombatTeleport(Actor actorToTeleport, ObjectReference target, Bool shouldBeInvisibleAfterTeleport, Spell teleportInSpell, Explosion teleportInExplosion, Spell teleportOutSpell, Explosion teleportOutExplosion, Float teleportOutSpellDelay)
-  Self.TeleportOut(actorToTeleport, teleportInSpell, teleportOutSpell, teleportOutExplosion, teleportOutSpellDelay, False)
-  actorToTeleport.MoveTo(target, 0.0, 0.0, 0.0, True, False)
-  Self.TeleportIn(actorToTeleport, teleportInSpell, teleportInExplosion, teleportOutSpell)
+Function CombatTeleport(Actor actorToTeleport, ObjectReference target, bool shouldBeInvisibleAfterTeleport=False, Spell teleportInSpell=None, Explosion teleportInExplosion=None, Spell teleportOutSpell=None, Explosion teleportOutExplosion=None, float teleportOutSpellDelay=-1.0)
+	TeleportOut(actorToTeleport, teleportInSpell, teleportOutSpell, teleportOutExplosion, teleportOutSpellDelay)
+	actorToTeleport.MoveTo(target)
+	TeleportIn(actorToTeleport, teleportInSpell, teleportInExplosion, teleportOutSpell)
 EndFunction
-
-;-- State -------------------------------------------
-State Busy
-
-  Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
-    ; Empty function
-  EndEvent
-
-  Event OnBeginState(String oldState)
-    ; Empty function
-  EndEvent
-
-  Event OnEndState(String newState)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
-    Self.GoToState("Busy")
-    If akSource == TestSteveCBossChest
-      TestSteveCOnActivateEventMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    ElseIf akSource == TestSteveCAmbushLeverRef
-      If TestSteveCAmbushMarkerRef.IsDisabled()
-        TestSteveCAmbushMarkerRef.Enable(False)
-      Else
-        TestSteveCAmbushMarkerRef.Disable(False)
-      EndIf
-    Else
-      If TestActivators.Find(akSource) >= 0
-        TestActivators.RemoveRef(akSource)
-        currentActivatorCount += 1
-      Else
-        TestActivators.AddRef(akSource)
-        currentActivatorCount -= 1
-      EndIf
-      Self.UpdateActivatorCount()
-    EndIf
-    Utility.Wait(5.0)
-    Self.GoToState("Waiting")
-  EndEvent
-EndState

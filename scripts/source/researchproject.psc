@@ -1,5 +1,4 @@
-ScriptName ResearchProject Extends Form Native hidden
+Scriptname ResearchProject extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Function Complete() Native
+; Set the status of the Research Project to completed.
+Function Complete() native

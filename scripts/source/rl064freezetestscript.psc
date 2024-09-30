@@ -1,69 +1,85 @@
-ScriptName RL064FreezeTestScript Extends ObjectReference
+Scriptname RL064FreezeTestScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+;Test script for a canister that will melt or hyper freeze ice. Quick prototype that will scale objects to appear as ice is melting or growing.
 
-;-- Properties --------------------------------------
 ObjectReference Property IceLinked Auto
-{ Linked ref from Canister to ice }
-Explosion Property fragGrenadeExplosion Auto Const
-{ Test Explosion that triggers on hit }
-Keyword Property RL064_Freeze Auto Const
-{ Keyword on linked ref to tell that ice should freeze }
-Keyword Property RL064_Melt Auto Const
-{ Keyword on linked ref to tell that ice should melt }
-Bool Property isFreeze Auto
-{ If True, ice will freeze. If false, ice will melt }
+{Linked ref from Canister to ice}
 
-;-- Functions ---------------------------------------
+Explosion Property fragGrenadeExplosion Auto Const
+{Test Explosion that triggers on hit}
+
+Keyword Property RL064_Freeze Auto Const
+{Keyword on linked ref to tell that ice should freeze}
+
+Keyword Property RL064_Melt Auto Const
+{Keyword on linked ref to tell that ice should melt}
+
+Bool Property isFreeze Auto
+{If True, ice will freeze. If false, ice will melt}
 
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-    If Self.GetLinkedRef(RL064_Freeze)
-      IceLinked = Self.GetLinkedRef(RL064_Freeze)
-      isFreeze = True
-    EndIf
-    If Self.GetLinkedRef(RL064_Melt)
-      IceLinked = Self.GetLinkedRef(RL064_Melt)
-      isFreeze = False
-    EndIf
+	if Is3DLoaded()
+		RegisterForHitEvent(self)
+    
+    ;Checking for linked ref keyword to determin whterh ice needs to be freezed or melted.
+    if self.GetLinkedRef(RL064_Freeze)
+      IceLinked = GetLinkedRef(RL064_Freeze)
+      isFreeze = true
+    endif
+    if self.GetLinkedRef(RL064_Melt)
+      IceLinked = GetLinkedRef(RL064_Melt)
+      isFreeze = false
+    endif
+	
   EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  Self.PlaceAtMe(fragGrenadeExplosion as Form, 1, False, False, True, None, None, True)
-  If isFreeze == True
-    Self.FreezeIce()
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+  Debug.Trace(akTarget + " was hit by " + akAggressor)
+  self.PlaceAtMe(fragGrenadeExplosion)
+  
+  ;Determining whether to freeze or melt ice
+  if isFreeze == True
+    FreezeIce()
   EndIf
-  If isFreeze == False
-    Self.MeltIce()
+  if isFreeze == False
+    MeltIce()
   EndIf
+
 EndEvent
 
 Function FreezeIce()
-  Float currentScale = IceLinked.GetScale()
-  IceLinked.Enable(False)
-  IceLinked.SetScale(0.100000001)
-  While currentScale <= 0.449999988
-    Utility.Wait(0.100000001)
-    IceLinked.SetScale(currentScale * 1.200000048)
-    currentScale = IceLinked.GetScale()
-  EndWhile
-  IceLinked.SetScale(0.5)
-  Self.UnregisterForAllHitEvents(None)
-EndFunction
+  ;Enables ice object and scales is up over time.
+    float currentScale = IceLinked.GetScale()
+    IceLinked.Enable()
+    IceLinked.SetScale(0.1)
 
-Function MeltIce()
-  Float currentScale = IceLinked.GetScale()
-  While currentScale >= 0.100000001
-    Utility.Wait(0.100000001)
-    IceLinked.SetScale(currentScale * 0.899999976)
-    currentScale = IceLinked.GetScale()
-  EndWhile
-  IceLinked.Disable(False)
-  Self.UnregisterForAllHitEvents(None)
-EndFunction
+    while currentScale <= 0.45
+        Utility.Wait(0.1)
+        IceLinked.SetScale(currentScale * 1.2)
+        currentScale = IceLinked.GetScale()
+    EndWhile
+
+    IceLinked.SetScale(0.5)
+    UnregisterForAllHitEvents()
+ EndFunction 
+
+ Function MeltIce()
+  ;Scales down ice object over time, then diables ice to appear as if it is melting.
+    float currentScale = IceLinked.GetScale()
+    
+    while currentScale >= 0.1
+        Utility.Wait(0.1)
+        IceLinked.SetScale(currentScale * 0.9)
+        currentScale = IceLinked.GetScale()
+    EndWhile
+    
+    IceLinked.Disable()
+    UnregisterForAllHitEvents()
+EndFunction 
+

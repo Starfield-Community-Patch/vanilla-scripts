@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_CF03_KryxLog_Cell_0024CC0E Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_CF03_KryxLog_Cell_0024CC0E Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property CF03 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  CF03.SetStage(190)
+;BEGIN CODE
+CF03.SetStage(190)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property CF03 Auto Const Mandatory

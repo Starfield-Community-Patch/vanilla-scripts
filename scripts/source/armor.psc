@@ -1,1 +1,1 @@
-ScriptName Armor Extends Form Native hidden
+Scriptname Armor extends Form Native Hidden

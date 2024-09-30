@@ -1,48 +1,53 @@
-ScriptName CompanionAffinityScript Extends Actor
+Scriptname CompanionAffinityScript extends Actor
 
-;-- Structs -----------------------------------------
 Struct AngerEvent
-  affinityevent EventCausingAnger
-  GlobalVariable AngerLevel
-  { filter for: COM_AngerLevel }
-  GlobalVariable AngerReason
-  { filter for: COM_AngerReason }
+	AffinityEvent EventCausingAnger
+	GlobalVariable AngerLevel
+	{filter for: COM_AngerLevel}
+	GlobalVariable AngerReason
+	{filter for: COM_AngerReason}
 EndStruct
 
-
-;-- Variables ---------------------------------------
-com_companionquestscript COM_CompanionQuest
-
-;-- Properties --------------------------------------
 Group Autofill
-  sq_companionsscript Property SQ_Companions Auto Const mandatory
+SQ_CompanionsScript Property SQ_Companions Mandatory Const Auto
 EndGroup
 
 Group Properties
-  companionaffinityscript:angerevent[] Property AngerEventData Auto Const mandatory
+	AngerEvent[] Property AngerEventData Mandatory Const Auto
 EndGroup
 
-
-;-- Functions ---------------------------------------
+COM_CompanionQuestScript COM_CompanionQuest ;pointer to main companion quest for this actor
 
 Event OnInit()
-  COM_CompanionQuest = ((Self as Actor) as companionactorscript).COM_CompanionQuest
+	Trace(self, "OnInit()")
+
+	COM_CompanionQuest = ((self as Actor) as CompanionActorScript).COM_CompanionQuest
 EndEvent
 
-Event OnAffinityEvent(affinityevent akAffinityEvent, ActorValue akActorValue, GlobalVariable akReactionValue, ObjectReference akTarget)
-  companionaffinityscript:angerevent[] angerTriggeringEvents = AngerEventData.GetMatchingStructs("EventCausingAnger", akAffinityEvent, 0, -1) ;*** WARNING: Experimental syntax, may be incorrect: GetMatchingStructs 
-  If angerTriggeringEvents.Length > 0
-    companionaffinityscript:angerevent angerTriggeringEvent = angerTriggeringEvents[0]
-    COM_CompanionQuest.SetAngerLevel(angerTriggeringEvent.AngerLevel, angerTriggeringEvent.AngerReason)
-  EndIf
-  SQ_Companions.SQ_Traits.HandleAffinityEvent(Self as Actor, akAffinityEvent, akActorValue, akReactionValue, akTarget)
+Event OnAffinityEvent(AffinityEvent akAffinityEvent, ActorValue akActorValue, GlobalVariable akReactionValue, ObjectReference akTarget)
+	Trace(self, "OnAffinityEvent() akAffinityEvent: " + akAffinityEvent + ", akActorValue: " + akActorValue + ", akReactionValue: " + akReactionValue)
+	Trace(self, "OnAffinityEvent() GetValue(COM_Affinity):" + GetValue(SQ_Companions.COM_Affinity))
+
+	;is it something that makes the companion angry?
+	AngerEvent[] angerTriggeringEvents = AngerEventData.GetAllMatchingStructs("EventCausingAnger", akAffinityEvent)
+	
+	if angerTriggeringEvents.Length > 0
+		AngerEvent angerTriggeringEvent = angerTriggeringEvents[0] ;there should only be one
+		Trace(self, "OnAffinityEvent() angerTriggeringEvent: " + angerTriggeringEvent)
+		COM_CompanionQuest.SetAngerLevel(angerTriggeringEvent.AngerLevel, angerTriggeringEvent.AngerReason)
+	endif
+
+	SQ_Companions.SQ_Traits.HandleAffinityEvent(self, akAffinityEvent = akAffinityEvent, akActorValue = akActorValue, akReactionValue = akReactionValue, akTarget = akTarget)
+
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Companions",  string SubLogName = "CompanionAffinity", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Companions",  string SubLogName = "CompanionAffinity", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

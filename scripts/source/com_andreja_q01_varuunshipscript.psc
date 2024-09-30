@@ -1,12 +1,10 @@
-ScriptName COM_Andreja_Q01_VaruunShipScript Extends ReferenceAlias
+Scriptname COM_Andreja_Q01_VaruunShipScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ActorValue Property pDockingPermission Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ActorValue Property pDockingPermission Auto Const mandatory
-
-;-- Functions ---------------------------------------
 
 Event OnLoad()
-  Self.GetReference().SetValue(pDockingPermission, 4.0)
+
+Self.GetReference().SetValue(pDockingPermission, 4)
+
 EndEvent

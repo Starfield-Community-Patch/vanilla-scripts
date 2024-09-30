@@ -1,17 +1,13 @@
-ScriptName ER_GregAliasOutfitScript Extends ReferenceAlias
+Scriptname ER_GregAliasOutfitScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+GlobalVariable Property ER_QuestlineComplete Mandatory Const Auto
+{Used to check if the ER questline is completed}
 
-;-- Properties --------------------------------------
-GlobalVariable Property ER_QuestlineComplete Auto Const mandatory
-{ Used to check if the ER questline is completed }
-Outfit Property Outfit_Clothes_Security_Guard_01_NoHelmet Auto Const mandatory
-{ Outfit for Greg to wear post-questline }
-
-;-- Functions ---------------------------------------
+Outfit Property Outfit_Clothes_Security_Guard_01_NoHelmet Mandatory Const Auto
+{Outfit for Greg to wear post-questline}
 
 Event OnLoad()
-  If ER_QuestlineComplete.GetValue() >= 1.0
-    Self.GetActorRef().SetOutfit(Outfit_Clothes_Security_Guard_01_NoHelmet, False)
-  EndIf
+    if ER_QuestlineComplete.GetValue() >= 1.0
+        GetActorRef().SetOutfit(Outfit_Clothes_Security_Guard_01_NoHelmet)
+    endif
 EndEvent

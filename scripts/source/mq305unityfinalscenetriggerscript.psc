@@ -1,19 +1,15 @@
-ScriptName MQ305UnityFinalSceneTriggerScript Extends ReferenceAlias
+Scriptname MQ305UnityFinalSceneTriggerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property MQ305_002_Unity_04 Auto Const mandatory
-GlobalVariable Property MQ305FinalSceneInt Auto Const mandatory
-Int Property iSceneNumber Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Scene Property MQ305_002_Unity_04 Mandatory Const Auto
+GlobalVariable Property MQ305FinalSceneInt Mandatory Const Auto
+Int Property iSceneNumber Mandatory Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If MQ305_002_Unity_04.IsPlaying() == False
-      MQ305_002_Unity_04.Start()
+    ;advance the final scene when the player enters
+    If akActionREF == Game.GetPlayer()
+        If MQ305_002_Unity_04.IsPlaying() == false
+            MQ305_002_Unity_04.Start()
+        EndIf
+        MQ305FinalSceneInt.SetValueInt(iSceneNumber)
     EndIf
-    MQ305FinalSceneInt.SetValueInt(iSceneNumber)
-  EndIf
 EndEvent

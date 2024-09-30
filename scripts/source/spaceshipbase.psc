@@ -1,5 +1,4 @@
-ScriptName SpaceshipBase Extends Form Native hidden
+Scriptname SpaceshipBase Extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Bool Function IsUnique() Native
+; Is this base unique?
+bool Function IsUnique() native

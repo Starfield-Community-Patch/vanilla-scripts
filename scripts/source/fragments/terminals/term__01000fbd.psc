@@ -1,13 +1,17 @@
-ScriptName Fragments:Terminals:TERM__01000FBD Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM__01000FBD Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MQ203A Auto Const mandatory
-Quest Property MQ206D Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  MQ206D.SetStage(639)
+;BEGIN CODE
+;End the lockdown.
+MQ206D.SetStage(639)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property MQ203A Auto Const Mandatory
+
+Quest Property MQ206D Auto Const

@@ -1,73 +1,136 @@
-ScriptName Fragments:Quests:QF_SE_ZW08_0012C072 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_ZW08_0012C072 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property HailTemplate_100a_Hailing Auto Const mandatory
-Scene Property PSE_ZW0801_HailingScene Auto Const mandatory
-ReferenceAlias Property Alias_TheBrute Auto Const mandatory
-Faction Property PPlayerFriendFaction Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-ReferenceAlias Property Alias_GuardShip01 Auto Const mandatory
-ReferenceAlias Property Alias_GuardShip02 Auto Const mandatory
-ReferenceAlias Property Alias_GuardShip03 Auto Const mandatory
-ReferenceAlias Property Alias_playerShip Auto Const mandatory
-ActorValue Property SpaceshipEngineHealth Auto Const mandatory
-LocationAlias Property Alias_OrbitLocation Auto Const mandatory
-RefCollectionAlias Property Alias_SpaceCellObjectRefs Auto Const mandatory
-Quest Property SE_ZW08_SpaceCell Auto Const mandatory
-ReferenceAlias Property Alias_MapMarker Auto Const mandatory
-GlobalVariable Property SE_ZW08_DoneOnceGlobal Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Function Fragment_Stage_0100_Item_00()
-  ; Empty function
-EndFunction
-
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  Alias_OrbitLocation.RefillAlias()
-  Alias_SpaceCellObjectRefs.RefillAlias()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+; Let's change the orbit's location
+Alias_OrbitLocation.RefillAlias()
+Alias_SpaceCellObjectRefs.RefillAlias()
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetStage(15)
+;BEGIN CODE
+SetStage(15)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0015_Item_00
 Function Fragment_Stage_0015_Item_00()
-  Quest __temp = Self as Quest
-  se_legendaryscript kmyQuest = __temp as se_legendaryscript
-  SE_ZW08_SpaceCell.Start()
+;BEGIN AUTOCAST TYPE SE_LegendaryScript
+Quest __temp = self as Quest
+SE_LegendaryScript kmyQuest = __temp as SE_LegendaryScript
+;END AUTOCAST
+;BEGIN CODE
+; Spin up the space cell
+SE_ZW08_SpaceCell.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  PSE_ZW0801_HailingScene.Start()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+; Start the hailing scene
+PSE_ZW0801_HailingScene.Start()
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
+Function Fragment_Stage_0100_Item_00()
+;BEGIN CODE
+;Alias_TheBrute.GetShipRef().RemoveFromFaction(PPlayerFriendFaction)
+;Alias_Guardship01.GetShipRef().RemoveFromFaction(PPlayerFriendFaction)
+;Alias_Guardship02.GetShipRef().RemoveFromFaction(PPlayerFriendFaction)
+;Alias_Guardship03.GetShipRef().RemoveFromFaction(PPlayerFriendFaction)
+
+;Alias_Guardship01.GetShipRef().StartCombat(Alias_playerShip.GetShipRef())
+;Alias_Guardship02.GetShipRef().StartCombat(Alias_playerShip.GetShipRef())
+;Alias_Guardship03.GetShipRef().StartCombat(Alias_playerShip.GetShipRef())
+;Alias_TheBrute.GetShipRef().StartCombat(Alias_playerShip.GetShipRef())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  SE_ZW08_DoneOnceGlobal.SetValue(1.0)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SE_ZW08_DoneOnceGlobal.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Alias_MapMarker.GetRef().DisableNoWait(False)
-  SE_ZW08_SpaceCell.Stop()
-  Self.Stop()
+;BEGIN CODE
+Alias_MapMarker.GetRef().DisableNoWait()
+SE_ZW08_SpaceCell.Stop()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1001_Item_00
 Function Fragment_Stage_1001_Item_00()
-  Alias_TheBrute.GetShipRef().DamageValue(SpaceshipEngineHealth, 100000.0)
-  Alias_GuardShip01.GetShipRef().kill(None)
-  Alias_GuardShip02.GetShipRef().kill(None)
-  Alias_GuardShip03.GetShipRef().kill(None)
-  Alias_playerShip.GetShipRef().InstantDock(Alias_TheBrute.GetShipRef() as ObjectReference)
-EndFunction
+;BEGIN CODE
+Alias_TheBrute.GetShipRef().DamageValue( SpaceshipEngineHealth, 100000)
+Alias_Guardship01.GetShipRef().kill()
+Alias_Guardship02.GetShipRef().kill()
+Alias_Guardship03.GetShipRef().kill()
 
-Function Fragment_Stage_1002_Item_00()
-  Alias_TheBrute.GetShipRef().DamageValue(SpaceshipEngineHealth, 100000.0)
-  Alias_GuardShip01.GetShipRef().kill(None)
-  Alias_GuardShip02.GetShipRef().kill(None)
-  Alias_GuardShip03.GetShipRef().kill(None)
+Alias_playership.GetShipRef().InstantDock(Alias_TheBrute.GetShipRef())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1002_Item_00
+Function Fragment_Stage_1002_Item_00()
+;BEGIN CODE
+Alias_TheBrute.GetShipRef().DamageValue( SpaceshipEngineHealth, 100000)
+Alias_Guardship01.GetShipRef().kill()
+Alias_Guardship02.GetShipRef().kill()
+Alias_Guardship03.GetShipRef().kill()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property HailTemplate_100a_Hailing Auto Const Mandatory
+
+
+Scene Property PSE_ZW0801_HailingScene Auto Const Mandatory
+
+ReferenceAlias Property Alias_TheBrute Auto Const Mandatory
+
+Faction Property PPlayerFriendFaction Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_GuardShip01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_GuardShip02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_GuardShip03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_playerShip Auto Const Mandatory
+
+ActorValue Property SpaceshipEngineHealth Auto Const Mandatory
+
+LocationAlias Property Alias_OrbitLocation Auto Const Mandatory
+
+RefCollectionAlias Property Alias_SpaceCellObjectRefs Auto Const Mandatory
+
+Quest Property SE_ZW08_SpaceCell Auto Const Mandatory
+
+ReferenceAlias Property Alias_MapMarker Auto Const Mandatory
+
+GlobalVariable Property SE_ZW08_DoneOnceGlobal Auto Const Mandatory

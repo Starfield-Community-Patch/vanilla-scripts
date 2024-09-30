@@ -1,74 +1,92 @@
-ScriptName UC06_QuestScript Extends Quest
+Scriptname UC06_QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Quest Property SQ_PlayerShip Mandatory Const Auto
+{Quest for the player's ship}
 
-;-- Properties --------------------------------------
-Quest Property SQ_PlayerShip Auto Const mandatory
-{ Quest for the player's ship }
-MiscObject Property UC06_OrlaseID Auto Const mandatory
-{ Orlase's ID }
-Int Property StageToSet = 550 Auto Const
-{ Stage to set once the player has collected Orlase's ID }
-ActorValue Property SpaceshipCrew Auto Const mandatory
-{ Actor value used to adjust Spaceship Crew }
-ActorValue Property Assistance Auto Const mandatory
-{ Actor value used to adjust NPC assistance }
-ActorValue Property HideShipFromHUDValue Auto Const mandatory
-{ Actor value used to turn off ships in the player's HUD (used for ambush purposes) }
-Faction Property PlayerFriendFaction Auto Const mandatory
-{ Faction used to keep the turrets from going hostile to the player until the last possible moment }
-RefCollectionAlias Property EthereaTurrets Auto Const mandatory
-{ Collection of Orlase's turrets for his ambush }
+MiscObject Property UC06_OrlaseID Mandatory Const Auto
+{Orlase's ID}
 
-;-- Functions ---------------------------------------
+int Property StageToSet = 550 Const Auto
+{Stage to set once the player has collected Orlase's ID}
+
+ActorValue Property SpaceshipCrew Mandatory Const Auto
+{Actor value used to adjust Spaceship Crew}
+
+ActorValue Property Assistance Mandatory Const Auto
+{Actor value used to adjust NPC assistance}
+
+ActorValue Property HideShipFromHUDValue Mandatory Const Auto
+{Actor value used to turn off ships in the player's HUD (used for ambush purposes)}
+
+Faction Property PlayerFriendFaction Mandatory Const Auto
+{Faction used to keep the turrets from going hostile to the player until the last possible moment}
+
+RefCollectionAlias Property EthereaTurrets Mandatory Const Auto
+{Collection of Orlase's turrets for his ambush}
 
 Function RegisterForShipItemCollection()
-  ReferenceAlias PlayerShipAlias = (SQ_PlayerShip as sq_playershipscript).PlayerShip
-  If PlayerShipAlias != None
-    Self.RegisterForRemoteEvent(PlayerShipAlias as ScriptObject, "OnItemAdded")
-    Self.AddInventoryEventFilter(UC06_OrlaseID as Form)
-  EndIf
+    ReferenceAlias PlayerShipAlias = (SQ_PlayerShip as SQ_PlayerShipScript).PlayerShip
+    trace(self, "Registering for inventory events from: " + PlayerShipAlias)
+
+    if PlayerShipAlias != none
+    	RegisterForRemoteEvent(PlayerShipAlias, "OnItemAdded")
+        AddInventoryEventFilter(UC06_OrlaseID)
+        trace(self, "Watching for the ID to arrive.")
+    endif
 EndFunction
 
-Event ReferenceAlias.OnItemAdded(ReferenceAlias akSender, Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If (akBaseItem == UC06_OrlaseID as Form) && !Self.GetStageDone(StageToSet) && akSender == (SQ_PlayerShip as sq_playershipscript).PlayerShip
-    Self.RemoveAllInventoryEventFilters()
-    Self.SetStage(StageToSet)
-  EndIf
+Event ReferenceAlias.OnItemAdded(ReferenceAlias akSender, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    trace(self, "Inventory triggered events from: " + akSender + " for object: " + akBaseItem)
+    if akBaseItem == UC06_OrlaseID && !GetStageDone(StageToSet) && akSender == (SQ_PlayerShip as SQ_PlayerShipScript).PlayerShip
+        trace(self, "We got the ID! Unregister and set the stage!")
+        RemoveAllInventoryEventFilters()
+        SetStage(StageToSet)
+    endif
 EndEvent
 
 Function PrepTurrets()
-  Int I = 0
-  Int iCount = EthereaTurrets.GetCount()
-  While I < iCount
-    spaceshipreference currRef = EthereaTurrets.GetAt(I) as spaceshipreference
-    currRef.SetUnconscious(True)
-    currRef.SetValue(HideShipFromHUDValue, 1.0)
-    I += 1
-  EndWhile
+    int i = 0
+    int iCount = EthereaTurrets.GetCount()
+
+    while i < iCount
+        SpaceshipReference currRef = EthereaTurrets.GetAt(i) as SpaceshipReference
+        currRef.SetUnconscious(true)
+        currRef.SetValue(HideShipFromHUDValue, 1.0)
+        trace(self, "Turret: " + currRef + " has SpaceshipCrew value: " + currRef.GetValue(SpaceshipCrew))
+
+        i += 1
+    endwhile
 EndFunction
 
 Function DeployTurrets()
-  Int I = 0
-  Int iCount = EthereaTurrets.GetCount()
-  While I < iCount
-    spaceshipreference currRef = EthereaTurrets.GetAt(I) as spaceshipreference
-    (currRef as uc06_turretonlinescript).SetTurretOnline()
-    I += 1
-  EndWhile
+    int i = 0
+    int iCount = EthereaTurrets.GetCount()
+
+    while i < iCount
+        SpaceshipReference currRef = EthereaTurrets.GetAt(i) as SpaceshipReference
+        (currRef as UC06_TurretOnlineScript).SetTurretOnline()
+        trace(self, "Turret: " + currRef + " has SpaceshipCrew value: " + currRef.GetValue(SpaceshipCrew) + " and is in player friend faction: " + currRef.IsInFaction(PlayerFriendFaction))
+        i += 1
+    endwhile
 EndFunction
 
 Function DisableTurrets()
-  Int I = 0
-  Int iCount = EthereaTurrets.GetCount()
-  While I < iCount
-    spaceshipreference currRef = EthereaTurrets.GetAt(I) as spaceshipreference
-    currRef.SetUnconscious(True)
-    currRef.AddToFaction(PlayerFriendFaction)
-    I += 1
-  EndWhile
+    int i = 0
+    int iCount = EthereaTurrets.GetCount()
+
+    while i < iCount
+        SpaceshipReference currRef = EthereaTurrets.GetAt(i) as SpaceshipReference
+        currRef.SetUnconscious(true)
+        currRef.AddToFaction(PlayerFriendFaction)
+        trace(self, "Turret: " + currRef + " has SpaceshipCrew value: " + currRef.GetValue(SpaceshipCrew) + " and is in player friend faction: " + currRef.IsInFaction(PlayerFriendFaction))
+
+        i += 1
+    endwhile
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC06", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

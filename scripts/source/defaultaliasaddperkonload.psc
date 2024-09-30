@@ -1,32 +1,26 @@
-ScriptName DefaultAliasAddPerkOnLoad Extends ReferenceAlias default
-{ Adds the specified perk to the actor on load. }
+Scriptname DefaultAliasAddPerkOnLoad extends ReferenceAlias Default
+{Adds the specified perk to the actor on load.}
 
-;-- Variables ---------------------------------------
+Perk property PerkToAdd auto const
+{The perk that should be added to the actor upon load.}
 
-;-- Properties --------------------------------------
-Perk Property PerkToAdd Auto Const
-{ The perk that should be added to the actor upon load. }
-Bool Property doOnce = True Auto Const
-{ Whether the Perk should only be added on first load. Default=TRUE }
+bool property doOnce = True auto const
+{Whether the Perk should only be added on first load. Default=TRUE}
 
-;-- State -------------------------------------------
-State Done
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
+Auto State Ready
+	Event OnLoad()
+		Actor myActor = Self.GetActorRef()
+		if (myActor != None)
+			myActor.AddPerk(PerkToAdd)
+		EndIf
+		if (doOnce)
+			GoToState("Done")
+		EndIf
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Ready
-
-  Event OnLoad()
-    Actor myActor = Self.GetActorRef()
-    If myActor != None
-      myActor.AddPerk(PerkToAdd, False)
-    EndIf
-    If doOnce
-      Self.GoToState("Done")
-    EndIf
-  EndEvent
+State Done
+	Event OnLoad()
+		;Do nothing.
+	EndEvent
 EndState

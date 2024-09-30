@@ -1,62 +1,66 @@
-ScriptName TestVanguardCourse Extends ObjectReference
+Scriptname TestVanguardCourse extends ObjectReference
 
-;-- Variables ---------------------------------------
+ObjectReference Property Button1 auto mandatory const
+ObjectReference Property Button2 auto mandatory const
+ObjectReference Property Button3 auto mandatory const
+ObjectReference Property CheatButton auto mandatory const
+ObjectReference Property ExitDoor auto mandatory const
+
 Bool But1p
 Bool But2p
 Bool But3p
 Bool ButCh
 Int curTime = 0
 
-;-- Properties --------------------------------------
-ObjectReference Property Button1 Auto Const mandatory
-ObjectReference Property Button2 Auto Const mandatory
-ObjectReference Property Button3 Auto Const mandatory
-ObjectReference Property CheatButton Auto Const mandatory
-ObjectReference Property ExitDoor Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
 Event OnInit()
-  Self.RegisterForRemoteEvent(Button1 as ScriptObject, "OnActivate")
-  Self.RegisterForRemoteEvent(Button2 as ScriptObject, "OnActivate")
-  Self.RegisterForRemoteEvent(Button3 as ScriptObject, "OnActivate")
-  Self.RegisterForRemoteEvent(CheatButton as ScriptObject, "OnActivate")
+    RegisterForRemoteEvent(Button1, "OnActivate")
+    RegisterForRemoteEvent(Button2, "OnActivate")
+    RegisterForRemoteEvent(Button3, "OnActivate")
+    RegisterForRemoteEvent(CheatButton, "OnActivate")
 EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Self.CourseTime()
+    debug.trace(self + " OnActivate akActionRef=" + akActionRef)
+    CourseTime()
 EndEvent
 
-Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  If akSender == Button1 && But1p == False
-    But1p = True
-    Self.exitTest()
-  EndIf
-  If akSender == Button2 && But2p == False
-    But2p = True
-    Self.exitTest()
-  EndIf
-  If akSender == Button3 && But3p == False
-    But3p = True
-    Self.exitTest()
-  EndIf
-  If akSender == CheatButton && ButCh == False
-    ButCh = True
-  EndIf
+Event ObjectReference.OnActivate(objectReference akSender, ObjectReference akActionRef)
+		if akSender == Button1 && But1p == false
+            debug.trace("Activated by " + akSender)
+            But1p = true
+            exitTest()
+        EndIf
+        if akSender == Button2 && But2p == false
+            debug.trace("Activated by " + akSender)
+            But2p = true
+            exitTest()
+        EndIf
+        if akSender == Button3 && But3p == false
+            debug.trace("Activated by " + akSender)
+            But3p = true
+            exitTest()
+        EndIf
+        if akSender == CheatButton && ButCh == false
+            debug.trace("Activated by " + akSender)
+            ButCh = true
+            ;curTime = 0
+        EndIf
 EndEvent
 
-Function exitTest()
-  If But1p && But2p && But3p
-    ExitDoor.SetOpen(True)
-    If ButCh == True
-      
+Function ExitTest()
+    if (But1p && But2p && But3p)
+        ExitDoor.SetOpen()
+        if Butch == true
+            debug.Notification("your time was $RECORDTIME$-1 seconds")
+        Else
+            debug.Notification("your time was " + curtime + " seconds")
+        EndIf
     EndIf
-  EndIf
 EndFunction
 
 Function CourseTime()
-  While But1p == False && But2p == False && But3p == False
-    Utility.Wait(1.0)
-    curTime += 1
-  EndWhile
+    while (But1p == false) && (But2p == false) && (But3p == false)
+        Utility.Wait(1)
+        curTime = curTime + 1
+    EndWhile
 EndFunction

@@ -1,20 +1,20 @@
-ScriptName PlaySoundOnActivate Extends ObjectReference conditional
+Scriptname PlaySoundOnActivate extends ObjectReference Conditional
 
-;-- Variables ---------------------------------------
+WwiseEvent Property ActivateSound Auto Const
+bool Property bCanPlayAgain = true Auto Conditional
 
-;-- Properties --------------------------------------
-wwiseevent Property ActivateSound Auto Const
-Bool Property bCanPlayAgain = True Auto conditional
-
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  If bCanPlayAgain == True
-    bCanPlayAgain = False
-    If ActivateSound.PlayAndWait(Self as ObjectReference, None, None)
-      bCanPlayAgain = True
-    Else
-      bCanPlayAgain = True
-    EndIf
-  EndIf
+	if bCanPlayAgain == true
+		bCanPlayAgain = false
+
+		if ActivateSound.PlayAndWait(self)
+			bCanPlayAgain = true
+		else
+			bCanPlayAgain = true
+		endif
+
+	endif
+
 EndEvent
+

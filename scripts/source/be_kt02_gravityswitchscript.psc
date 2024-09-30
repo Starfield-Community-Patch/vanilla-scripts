@@ -1,47 +1,44 @@
-ScriptName BE_KT02_GravitySwitchScript Extends ObjectReference
+Scriptname BE_KT02_GravitySwitchScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+bescript Property BE_KT02 Auto Const Mandatory
 
-;-- Properties --------------------------------------
-bescript Property BE_KT02 Auto Const mandatory
-wwiseevent Property PowerON Auto Const mandatory
-wwiseevent Property PowerOFF Auto Const mandatory
-ReferenceAlias Property Alias_EnableMarker Auto Const mandatory
-ReferenceAlias Property Alias_Minibot Auto Const mandatory
-RefCollectionAlias Property Alias_AllCrew Auto Const mandatory
+WwiseEvent Property PowerON Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+WwiseEvent Property PowerOFF Auto Const Mandatory
+
+ReferenceAlias Property Alias_EnableMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_Minibot Auto Const Mandatory
+
+RefCollectionAlias Property Alias_AllCrew Auto Const Mandatory
 
 Function GravitySwitch()
-  ObjectReference PlayerRef = Game.GetPlayer() as ObjectReference
-  Float myGravity = PlayerRef.GetGravityScale()
-  If myGravity == 0.0
-    BE_KT02.SetShipGravity(1.0)
-    PowerON.Play(PlayerRef, None, None)
-    Alias_EnableMarker.GetRef().EnableNoWait(False)
-    Alias_AllCrew.EvaluateAll()
-  Else
-    BE_KT02.SetShipGravity(0.0)
-    PowerOFF.Play(PlayerRef, None, None)
-    Alias_EnableMarker.GetRef().DisableNoWait(False)
-    Alias_Minibot.GetActorRef().EvaluatePackage(False)
-  EndIf
-  Self.BlockActivation(False, False)
-  Self.goToState("waiting")
-EndFunction
+ObjectReference PlayerRef = Game.GetPlayer()
+Float myGravity = PlayerRef.GetGravityScale()
+    if myGravity == 0
+        BE_KT02.SetShipGravity(1)
+        PowerON.Play(PlayerRef)
+        Alias_EnableMarker.GetRef().EnableNoWait()
+        Alias_AllCrew.EvaluateAll()
+    else
+        BE_KT02.SetShipGravity(0)
+        PowerOFF.Play(PlayerRef)
+        Alias_EnableMarker.GetRef().DisableNoWait()
+        Alias_Minibot.GetActorRef().EvaluatePackage()
+    endif
+    Self.BlockActivation(false)
+    goToState("Waiting")
+endFunction
 
-;-- State -------------------------------------------
-State Busy
-EndState
+auto State waiting
+    Event OnActivate(ObjectReference akActionRef)
+        if akActionRef == Game.GetPlayer()
+            goToState("Busy")
+            Self.BlockActivation(true, true)
+            GravitySwitch()
+        endif
+    EndEvent
+endState
 
-;-- State -------------------------------------------
-Auto State waiting
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      Self.goToState("Busy")
-      Self.BlockActivation(True, True)
-      Self.GravitySwitch()
-    EndIf
-  EndEvent
-EndState
+state Busy
+endState

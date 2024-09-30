@@ -1,7 +1,4 @@
-ScriptName UC05_IntercomAliasScript Extends ReferenceAlias
+Scriptname UC05_IntercomAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSetWhenActive Auto Const mandatory
-{ When this intercom is the active intercom, if it's activated, set this stage }
+int Property StageToSetWhenActive Mandatory Const Auto
+{When this intercom is the active intercom, if it's activated, set this stage}

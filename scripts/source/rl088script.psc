@@ -1,88 +1,90 @@
-ScriptName RL088Script Extends Quest
+Scriptname RL088Script extends Quest
 
-;-- Variables ---------------------------------------
-Int EngineinstanceID
-Bool bGravityActive = True
-Int gravTimerID = 10
-Bool tutorialMSG
-
-;-- Properties --------------------------------------
-Cell Property RL088ArmoredStarship Auto Const mandatory
+Cell Property RL088ArmoredStarship Mandatory Const Auto
 ReferenceAlias Property LightsEnableMarker Auto Const
 ReferenceAlias Property EngineRotationHelper Auto Const
-wwiseevent Property WwiseEvent_QST_RL088ArmoredShip_Power_Off Auto Const
-wwiseevent Property WwiseEvent_QST_RL088ArmoredShip_Power_On Auto Const
-wwiseevent Property WwiseEvent_QST_RL088ArmoredShip_Power_LightsOn Auto Const
-wwiseevent Property WwiseEvent_AMB_RL088_SpinningMachine Auto Const
-Quest Property MQ_TutorialQuest Auto Const
-Explosion Property RL088_NoVFXExplosion Auto Const
-ObjectReference Property ExplosionXmarker Auto
+WwiseEvent Property WwiseEvent_QST_RL088ArmoredShip_Power_Off Auto Const
+WwiseEvent Property WwiseEvent_QST_RL088ArmoredShip_Power_On Auto Const
+WwiseEvent Property WwiseEvent_QST_RL088ArmoredShip_Power_LightsOn Auto Const
+WwiseEvent Property WwiseEvent_AMB_RL088_SpinningMachine Auto Const
+Quest Property MQ_TutorialQuest Const Auto
 
-;-- Functions ---------------------------------------
+int gravTimerID = 10
+Bool tutorialMSG
+Bool  bGravityActive = true
+int EngineinstanceID
 
-Function StartGravityCountdown(Int minNum, Int maxNum)
-  Self.StartTimer(Utility.RandomInt(minNum, maxNum) as Float, 10)
+Explosion Property RL088_NoVFXExplosion Const Auto
+ObjectReference Property ExplosionXmarker Auto 
+
+Function StartGravityCountdown(int minNum, int maxNum)
+    StartTimer(Utility.RandomInt(minNum, maxNum), 10)
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == gravTimerID
-    If Game.GetPlayer().GetParentCell() == RL088ArmoredStarship
-      If bGravityActive
-        Self.DisableGravityAutoDuration()
-      Else
-        Self.EnableGravityAutoDuration()
-      EndIf
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == gravTimerID
+        if Game.GetPlayer().GetParentCell() == RL088ArmoredStarship
+            if bGravityActive
+                DisableGravityAutoDuration()
+            else
+                EnableGravityAutoDuration()
+            endif
+        endif
+    endif
 EndEvent
 
+
 Function EnableGravityAutoDuration()
-  bGravityActive = True
-  WwiseEvent_QST_RL088ArmoredShip_Power_On.Play(Game.GetPlayer() as ObjectReference, None, None)
-  Game.ShakeCamera(None, 0.200000003, 0.0)
-  Utility.Wait(2.0)
-  Game.ShakeCamera(None, 0.5, 0.0)
-  WwiseEvent_QST_RL088ArmoredShip_Power_LightsOn.Play(Game.GetPlayer() as ObjectReference, None, None)
-  LightsEnableMarker.getref().enable(False)
-  Utility.Wait(0.300000012)
-  LightsEnableMarker.getref().disable(False)
-  Utility.Wait(0.300000012)
-  LightsEnableMarker.getref().enable(False)
-  RL088ArmoredStarship.SetGravityScale(1.0)
-  Self.SpeedRotationHelper()
-  Self.StartGravityCountdown(9, 13)
+    bGravityActive = true
+    WwiseEvent_QST_RL088ArmoredShip_Power_On.Play(Game.GetPlayer())
+    Game.ShakeCamera(afStrength = 0.2)
+    Utility.Wait(2.0)
+    Game.ShakeCamera()
+    WwiseEvent_QST_RL088ArmoredShip_Power_LightsOn.Play(Game.GetPlayer())
+    LightsEnableMarker.getref().enable()
+    Utility.Wait(0.3)
+    LightsEnableMarker.getref().disable()
+    Utility.Wait(0.3)
+    LightsEnableMarker.getref().enable()
+    RL088ArmoredStarship.SetGravityScale(1.0)
+    SpeedRotationHelper()
+    StartGravityCountdown(9,13)
 EndFunction
 
 Function DisableGravityAutoDuration()
-  bGravityActive = False
-  WwiseEvent_QST_RL088ArmoredShip_Power_Off.Play(Game.GetPlayer() as ObjectReference, None, None)
-  Game.ShakeCamera(None, 0.200000003, 0.0)
-  Utility.Wait(2.0)
-  Game.ShakeCamera(None, 0.5, 0.0)
-  WwiseEvent_QST_RL088ArmoredShip_Power_LightsOn.Play(Game.GetPlayer() as ObjectReference, None, None)
-  LightsEnableMarker.getref().disable(False)
-  Utility.Wait(0.300000012)
-  LightsEnableMarker.getref().enable(False)
-  Utility.Wait(0.300000012)
-  LightsEnableMarker.getref().disable(False)
-  RL088ArmoredStarship.SetGravityScale(0.0)
-  ExplosionXmarker.PlaceAtMe(RL088_NoVFXExplosion as Form, 1, False, False, True, None, None, True)
-  If tutorialMSG == False
-    MQ_TutorialQuest.SetStage(10)
-  EndIf
-  tutorialMSG = True
-  Self.SlowRotationHelper()
-  Self.StartGravityCountdown(12, 15)
+    bGravityActive = false
+    WwiseEvent_QST_RL088ArmoredShip_Power_Off.Play(Game.GetPlayer())
+    Game.ShakeCamera(afStrength = 0.2)
+    Utility.Wait(2.0)
+    Game.ShakeCamera()
+    WwiseEvent_QST_RL088ArmoredShip_Power_LightsOn.Play(Game.GetPlayer())
+    LightsEnableMarker.getref().disable()
+    Utility.Wait(0.3)
+    LightsEnableMarker.getref().enable()
+    Utility.Wait(0.3)
+    LightsEnableMarker.getref().disable()
+    RL088ArmoredStarship.SetGravityScale(0.0)
+    ExplosionXmarker.PlaceAtMe(RL088_NoVFXExplosion)
+    if tutorialMSG == false
+        MQ_TutorialQuest.SetStage(10)
+    EndIf
+    tutorialMSG = true
+    SlowRotationHelper()
+    StartGravityCountdown(12,15)
 EndFunction
 
 Function SpeedRotationHelper()
-  EngineRotationHelper.getref().SetAnimationVariableFloat("Speed", 0.200000003)
-  EngineRotationHelper.getref().PlayAnimation("RotateCW_Loop")
-  EngineinstanceID = WwiseEvent_AMB_RL088_SpinningMachine.Play(EngineRotationHelper.getref(), None, None)
+    EngineRotationHelper.getref().SetAnimationVariableFloat("Speed", 0.2)
+    EngineRotationHelper.getref().PlayAnimation("RotateCW_Loop")
+    EngineinstanceID = WwiseEvent_AMB_RL088_SpinningMachine.play(EngineRotationHelper.getref())
 EndFunction
 
-Function SlowRotationHelper()
-  EngineRotationHelper.getref().SetAnimationVariableFloat("Speed", 0.0)
-  EngineRotationHelper.getref().PlayAnimation("RotateCW_Loop")
-  wwiseevent.StopInstance(EngineinstanceID)
-EndFunction
+ Function SlowRotationHelper()
+    EngineRotationHelper.getref().SetAnimationVariableFloat("Speed", 0.0)
+    EngineRotationHelper.getref().PlayAnimation("RotateCW_Loop")
+    WwiseEvent.StopInstance(EngineinstanceID) 
+ EndFunction
+
+
+
+

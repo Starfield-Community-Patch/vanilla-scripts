@@ -1,1 +1,1 @@
-ScriptName CameraShot Extends Form Native hidden
+Scriptname CameraShot extends Form Native Hidden

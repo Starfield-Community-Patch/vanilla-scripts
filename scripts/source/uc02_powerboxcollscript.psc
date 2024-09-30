@@ -1,23 +1,22 @@
-ScriptName UC02_PowerBoxCollScript Extends RefCollectionAlias
+Scriptname UC02_PowerBoxCollScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
+int Property ShutdownStage = 650 Const Auto
+{If this stage has been set, ignore the additional pulls}
 
-;-- Properties --------------------------------------
-Int Property ShutdownStage = 650 Auto Const
-{ If this stage has been set, ignore the additional pulls }
-Int Property TerrormorphDeadStage = 700 Auto Const
-{ If this stage has been set, ignore the additional pulls }
-Int Property PrereqStage = 601 Auto Const
-{ Only start pulling ref's out of this collection once the prereq stage has been set }
+int Property TerrormorphDeadStage = 700 Const Auto
+{If this stage has been set, ignore the additional pulls}
 
-;-- Functions ---------------------------------------
+int Property PrereqStage = 601 Const Auto
+{Only start pulling ref's out of this collection once the prereq stage has been set}
 
 Event OnActivate(ObjectReference akSenderRef, ObjectReference akActionRef)
-  uc02_questscript OQ = Self.GetOwningQuest() as uc02_questscript
-  If OQ.GetStageDone(PrereqStage)
-    Self.RemoveRef(akSenderRef)
-    If !OQ.GetStageDone(ShutdownStage) && !OQ.GetStageDone(TerrormorphDeadStage)
-      OQ.UpdatePowerBoxCount(akSenderRef, Self as RefCollectionAlias)
-    EndIf
-  EndIf
+    UC02_QuestScript OQ = GetOwningQuest() as UC02_QuestScript
+
+    if OQ.GetStageDone(PrereqStage)
+        RemoveRef(akSenderRef)
+
+        if !OQ.GetStageDone(ShutdownStage) && !OQ.GetStageDone(TerrormorphDeadStage)
+            OQ.UpdatePowerBoxCount(akSenderRef, self) 
+        endif
+    endif
 EndEvent

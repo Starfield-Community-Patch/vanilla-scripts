@@ -1,66 +1,64 @@
-ScriptName DefaultAliasOnCombatStateChanged Extends DefaultAlias default
-{ Sets stage when THIS Alias's combat state changes.
+Scriptname DefaultAliasOnCombatStateChanged extends DefaultAlias Default
+{Sets stage when THIS Alias's combat state changes.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is the reference THIS Alias is getting into combat with
-<LocationToCheck> is the current location of THIS Alias's reference. }
+<LocationToCheck> is the current location of THIS Alias's reference.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Bool Property IncludeOnHitEvent = True Auto Const
-  { If true (default), exceute script functionality when THIS actor is hit in combat and <RefToCheck> will be the aggressor. }
-  Bool Property SpellHits_HostileOnly = True Auto Const
-  { (Default: true) If true, stage will be set when hits from spells are flagged as "hostile". If false, stage will be set from any kind of spell hit.
+	bool Property IncludeOnHitEvent = true Const Auto
+	{If true (default), exceute script functionality when THIS actor is hit in combat and <RefToCheck> will be the aggressor.}
+
+	Bool Property SpellHits_HostileOnly = true Auto Const
+	{(Default: true) If true, stage will be set when hits from spells are flagged as "hostile". If false, stage will be set from any kind of spell hit.
 		NOTE: this only matters if IncludeOnHitEvent = true }
-  Int Property CombatStateToCheckFor = 4 Auto Const
-  { 0: Not In Combat
+
+	Int Property CombatStateToCheckFor = 4 Auto Const
+	{0: Not In Combat
 	1: In Combat
 	2: Searching
-	4 (Default): In Combat or Searching }
+	4 (Default): In Combat or Searching}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnAliasInit()
-  If IncludeOnHitEvent && Self.GetReference().Is3DLoaded()
-    Self.RegisterOnHitFilters()
-  EndIf
+	if IncludeOnHitEvent && GetReference().Is3DLoaded()
+		RegisterOnHitFilters()
+	EndIf
 EndEvent
 
 Event OnLoad()
-  If IncludeOnHitEvent
-    Self.RegisterOnHitFilters()
-  EndIf
+	if IncludeOnHitEvent
+		RegisterOnHitFilters()
+	endif
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  Spell sourceSpell = akSource as Spell
-  If SpellHits_HostileOnly == False || sourceSpell == None || sourceSpell.IsHostile()
-    Self.CombatStateChangedOrHit(akAggressor)
-  EndIf
+State Done
+	Event OnLoad()
+		;don't register
+	EndEvent
+EndState
+
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+	DefaultScriptFunctions.Trace(self, "OnHit() akTarget: " + akAggressor, ShowTraces)
+	; if this is a spell hit make sure it passes SpellHits_HostileOnly
+	Spell sourceSpell = akSource as Spell
+	if SpellHits_HostileOnly == false || sourceSpell == NONE || sourceSpell.IsHostile()
+		CombatStateChangedOrHit(akAggressor)
+	endif
 EndEvent
 
-Event OnCombatStateChanged(ObjectReference akTarget, Int aeCombatState)
-  If aeCombatState > 0 && CombatStateToCheckFor == 4 || aeCombatState == CombatStateToCheckFor
-    Self.CombatStateChangedOrHit(akTarget)
-  EndIf
+Event OnCombatStateChanged(ObjectReference akTarget, int aeCombatState)
+	if ((aeCombatState > 0) && (CombatStateToCheckFor == 4)) || (aeCombatState == CombatStateToCheckFor)
+		DefaultScriptFunctions.Trace(self, "OnCombatStateChanged() akTarget: " + akTarget + ", aeCombatState: " + aeCombatState, ShowTraces)
+		CombatStateChangedOrHit(akTarget)
+	endif
 EndEvent
 
 Function CombatStateChangedOrHit(ObjectReference TargetOrAggressor)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(TargetOrAggressor, Self.TryToGetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = TargetOrAggressor, LocationToCheck = TryToGetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "CombatStateChangedOrHit() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndFunction
-
-;-- State -------------------------------------------
-State Done
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-EndState

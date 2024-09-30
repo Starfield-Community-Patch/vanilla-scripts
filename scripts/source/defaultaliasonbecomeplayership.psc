@@ -1,36 +1,42 @@
-ScriptName DefaultAliasOnBecomePlayerShip Extends DefaultAliasParent default
-{ sets stage and removes factions from this alias's ship when it becomes the current player ship (i.e. player sits in the pilot seat)
-<QuestToSetOrCheck> is THIS Alias's GetOwningQuest() }
+Scriptname DefaultAliasOnBecomePlayerShip extends DefaultAliasParent Default
+{sets stage and removes factions from this alias's ship when it becomes the current player ship (i.e. player sits in the pilot seat)
+<QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
+}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-  { autofill - used to register for player ship change event }
-  Faction[] Property FactionsToRemove Auto Const
-  { factions to remove when this ship becomes the player ship }
+	SQ_PlayerShipScript property SQ_PlayerShip auto Const Mandatory
+	{autofill - used to register for player ship change event }
+
+    Faction[] property FactionsToRemove auto Const
+    { factions to remove when this ship becomes the player ship }
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnAliasInit()
-  Self.RegisterForCustomEvent(SQ_PlayerShip as ScriptObject, "sq_playershipscript_SQ_PlayerShipChanged")
+    ; register for custom event
+    RegisterForCustomEvent(SQ_PlayerShip, "SQ_PlayerShipChanged")
+endEvent
+
+Event SQ_PlayerShipScript.SQ_PlayerShipChanged(SQ_PlayerShipScript akSender, Var[] akArgs)
+	SpaceshipReference newPlayerShip = akArgs[0] as SpaceshipReference
+
+    if newPlayerShip == GetShipRef()
+        
+        DefaultScriptFunctions.Trace(self, "SQ_PlayerShipChanged()", ShowTraces)
+
+        DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = TryToGetCurrentLocation())
+        DefaultScriptFunctions.Trace(self, "SQ_PlayerShipChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+        CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)		
+    endif
 EndEvent
 
-Event SQ_PlayerShipScript.SQ_PlayerShipChanged(sq_playershipscript akSender, Var[] akArgs)
-  spaceshipreference newPlayerShip = akArgs[0] as spaceshipreference
-  If newPlayerShip == Self.GetShipRef()
-    defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, Self.TryToGetCurrentLocation(), None)
-    Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
-  EndIf
-EndEvent
-
-Function DoSpecificThing(defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams, ObjectReference RefToDoThingWith, Bool LastRefToDoThingWith)
-  Int I = 0
-  While I < FactionsToRemove.Length
-    Self.TryToRemoveFromFaction(FactionsToRemove[I])
-    I += 1
-  EndWhile
+;OVERRIDE PARENT SCRIPT
+Function DoSpecificThing(DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams, ObjectReference RefToDoThingWith = None, bool LastRefToDoThingWith = true)
+    DefaultScriptFunctions.Trace(self, "DoSpecificThing() - removing factions", ShowTraces)
+    ; remove factions from this ship
+    int i = 0
+    while i < FactionsToRemove.Length
+        TryToRemoveFromFaction(FactionsToRemove[i])
+        i += 1
+    EndWhile
 EndFunction
+

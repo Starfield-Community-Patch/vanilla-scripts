@@ -1,26 +1,23 @@
-ScriptName FXScripts:FXShipDropCollection Extends ObjectReference
-{ This Script applies a Visual Effect. }
+Scriptname FXScripts:FXShipDropCollection extends ObjectReference
+{This Script applies a Visual Effect.}
 
-;-- Variables ---------------------------------------
-Bool done = False
+EffectShader Property EffectShaderToApply Auto Const Mandatory
+{This is the visue effect that will be used.}
 
-;-- Properties --------------------------------------
-EffectShader Property EffectShaderToApply Auto Const mandatory
-{ This is the visue effect that will be used. }
-
-;-- Functions ---------------------------------------
+bool done = False
 
 Event OnLoad()
-  If !done
-    If Self.IsDisabled() == False
-      If Self.Is3DLoaded()
-        EffectShaderToApply.Play(Self as ObjectReference, -1.0)
-        done = True
-      EndIf
-    EndIf
-  EndIf
+	if !done
+		if Self.IsDisabled() == false
+			if Self.Is3DLoaded()
+				EffectShaderToApply.Play(Self)
+				done = True
+				Debug.trace("OnLoad for " + Self + ". Trying to play effect: " + EffectShaderToApply)
+			EndIf
+		EndIf
+	EndIf
 EndEvent
 
 Event OnUnLoad()
-  EffectShaderToApply.Stop(Self as ObjectReference)
+		EffectShaderToApply.Stop(Self)
 EndEvent

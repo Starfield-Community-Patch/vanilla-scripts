@@ -1,41 +1,47 @@
-ScriptName RI07_QuestScript Extends Quest
+Scriptname RI07_QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-inputenablelayer MeetingLayer
-inputenablelayer NeurosurgeryLayer
-
-;-- Properties --------------------------------------
-Int Property iStageToSet Auto Const
-Int Property iTurnOffStage Auto Const
-
-;-- Functions ---------------------------------------
+InputEnableLayer NeurosurgeryLayer
 
 Function FreezeControls()
-  Game.GetPlayer().StopCombatAlarm()
-  NeurosurgeryLayer = inputenablelayer.Create()
-  NeurosurgeryLayer.DisablePlayerControls(True, True, False, True, False, True, True, False, True, True, False)
+
+    Game.GetPlayer().StopCombatAlarm()
+    NeurosurgeryLayer = InputEnableLayer.Create()
+    NeurosurgeryLayer.DisablePlayerControls(abLooking = True)
+    ;Game.ForceFirstPerson()
+
 EndFunction
 
 Function UnfreezeControls()
-  NeurosurgeryLayer = None
+
+    NeurosurgeryLayer = None
+
 EndFunction
 
+InputEnableLayer MeetingLayer
+
 Function FreezeControlsMeeting()
-  Game.GetPlayer().StopCombatAlarm()
-  MeetingLayer = inputenablelayer.Create()
-  MeetingLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
+
+    Game.GetPlayer().StopCombatAlarm()
+    MeetingLayer = InputEnableLayer.Create()
+    MeetingLayer.DisablePlayerControls(abMovement = True)
+
 EndFunction
 
 Function UnfreezeControlsMeeting()
-  MeetingLayer = None
+
+    MeetingLayer = None
+
 EndFunction
+
+Int Property iStageToSet Auto Const
+Int Property iTurnOffStage Auto Const
 
 Function StartDeMarcusTimer()
-  Self.StartTimer(60.0, 1)
+    StartTimer(60, 1)
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == 1 && !Self.GetStageDone(iTurnOffStage)
-    Self.SetStage(iStageToSet)
-  EndIf
+Event OnTimer(int aiTimerID)
+    If aiTimerID == 1 && !GetStageDone(iTurnOffStage)
+        SetStage(iStageToSet)
+    EndIf
 EndEvent

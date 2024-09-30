@@ -1,22 +1,19 @@
-ScriptName DefaultTopicInfoStopDialogueCamera Extends TopicInfo Const default
-{ Stop Dialogue Cameras when this Info begins or ends }
+Scriptname DefaultTopicInfoStopDialogueCamera extends TopicInfo Const default
+{Stop Dialogue Cameras when this Info begins or ends}
 
-;-- Variables ---------------------------------------
+Bool Property StopCameraOnBegin = True Const Auto
+{If True (default), stop camera when the Info begins. If False then stop camera when the info ends.}
 
-;-- Properties --------------------------------------
-Bool Property StopCameraOnBegin = True Auto Const
-{ If True (default), stop camera when the Info begins. If False then stop camera when the info ends. }
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+ 	if StopCameraOnBegin == True
+ 		debug.trace(self + "stopping Dialogue Camera during Info OnBegin.")
+  		Game.StopDialogueCamera()
+  	endif
+endEvent
 
-;-- Functions ---------------------------------------
-
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If StopCameraOnBegin == True
-    Game.StopDialogueCamera(False, False)
-  EndIf
-EndEvent
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If StopCameraOnBegin == False
-    Game.StopDialogueCamera(False, False)
-  EndIf
-EndEvent
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+ 	if StopCameraOnBegin == False
+ 		debug.trace(self + "stopping Dialogue Camera during Info OnEnd.")
+  		Game.StopDialogueCamera()
+  	endif
+endEvent

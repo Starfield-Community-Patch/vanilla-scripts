@@ -1,14 +1,16 @@
-ScriptName Fragments:Terminals:TERM_CF04_Computer_Purser_Me_0009C208 Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_CF04_Computer_Purser_Me_0009C208 Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property CF04 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_02
 Function Fragment_TerminalMenu_02(ObjectReference akTerminalRef)
-  If CF04.GetStageDone(610) == True
-    CF04.SetStage(630)
-  EndIf
+;BEGIN CODE
+if CF04.GetStageDone(610) == 1
+CF04.SetStage(630)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property CF04 Auto Const Mandatory

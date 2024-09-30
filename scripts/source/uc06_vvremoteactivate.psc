@@ -1,16 +1,11 @@
-ScriptName UC06_VVRemoteActivate Extends ReferenceAlias
+Scriptname UC06_VVRemoteActivate extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property VaeVictis Auto Const mandatory
-{ Alias for Vae Victis NPC }
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property VaeVictis Mandatory Const Auto
+{Alias for Vae Victis NPC}
 
 Event OnActivate(ObjectReference akActionRef)
-  Actor PlayerAct = Game.GetPlayer()
-  If akActionRef == PlayerAct as ObjectReference
-    VaeVictis.GetRef().Activate(PlayerAct as ObjectReference, False)
-  EndIf
+    Actor PlayerAct = Game.GetPlayer()
+    if akActionRef == PlayerAct
+        VaeVictis.GetRef().Activate(PlayerAct)
+    endif
 EndEvent

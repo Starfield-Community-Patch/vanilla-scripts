@@ -1,78 +1,91 @@
-ScriptName ScanTempleScript Extends Quest
-{ prototyping temple scanning via imod }
+Scriptname ScanTempleScript extends Quest
+{prototyping temple scanning via imod}
 
-;-- Variables ---------------------------------------
-Float AngleDiff
-Float DistanceDiff
+ImageSpaceModifier property TestScanTempleImod Auto Const Mandatory
+
+float property MinAngle = 10.0 auto Const
+float property MaxAngle = 90.0 auto Const
+
+float property MinDistance = 200.0 auto Const
+float property MaxDistance = 1000.0 auto const
+
+int scanTempleTimerID = 1 Const
+float scanTempleTimerSeconds = 0.5 Const
+
+bool usingHandscanner = false  ; this isn't going to work for real - we'll need a way to check if you have the scanner up or not
 ObjectReference currentTarget
+
 Actor playerRef
-Int scanTempleTimerID = 1 Const
-Float scanTempleTimerSeconds = 0.5 Const
-Bool usingHandscanner = False
+float DistanceDiff ; difference between MaxDistance and MinDistance
+float AngleDiff ; difference between MaxAngle and MinAngle
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard handscannerGuard
+function StartTempleScanning(ObjectReference targetRef)
+    playerRef = Game.GetPlayer()
+    DistanceDiff = MaxDistance - MinDistance
+    AngleDiff = MaxAngle - MinAngle
 
-;-- Properties --------------------------------------
-ImageSpaceModifier Property TestScanTempleImod Auto Const mandatory
-Float Property MinAngle = 10.0 Auto Const
-Float Property MaxAngle = 90.0 Auto Const
-Float Property MinDistance = 200.0 Auto Const
-Float Property MaxDistance = 1000.0 Auto Const
-
-;-- Functions ---------------------------------------
-
-Function StartTempleScanning(ObjectReference targetRef)
-  playerRef = Game.GetPlayer()
-  DistanceDiff = MaxDistance - MinDistance
-  AngleDiff = MaxAngle - MinAngle
-  Self.RegisterForMenuOpenCloseEvent("MonocleMenu")
-  currentTarget = targetRef
+    RegisterForMenuOpenCloseEvent("MonocleMenu")
+    currentTarget = targetRef
 EndFunction
 
-Function StopTempleScanning()
-  Self.UnRegisterForMenuOpenCloseEvent("MonocleMenu")
-  currentTarget = None
-EndFunction
+function StopTempleScanning()
+    UnRegisterForMenuOpenCloseEvent("MonocleMenu")
+    currentTarget = NONE
+endFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == scanTempleTimerID
-    Self.UpdateTempleScan()
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == scanTempleTimerID
+        UpdateTempleScan()
+    endif
 EndEvent
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If asMenuName == "MonocleMenu"
-    Guard handscannerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      usingHandscanner = abOpening
-      If abOpening
-        Self.StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
-      EndIf
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  EndIf
+guard handscannerGuard ProtectsFunctionLogic
+
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    If asMenuName== "MonocleMenu"
+        LockGuard handscannerGuard
+            usingHandscanner = abOpening
+            if abOpening
+                StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
+            EndIf
+        EndLockGuard
+    endif
 EndEvent
 
-Function UpdateTempleScan()
-  If usingHandscanner
-    Float zAngle = Game.GetCameraHeadingAngle(currentTarget)
-    Float angleExtent = Self.GetAngleExtent()
-    Float currentMaxAngle = angleExtent / 2.0
-    Float currentMinAngle = currentMaxAngle * -1.0
-    If zAngle >= currentMinAngle && zAngle <= currentMaxAngle
-      TestScanTempleImod.Apply(1.0)
+function UpdateTempleScan()
+    if usingHandscanner
+        ; get angle to currentTarget
+        float zAngle = Game.GetCameraHeadingAngle(currentTarget)
+
+        ; TODO - modify min/max angle by distance to target
+        float angleExtent = GetAngleExtent()
+        float currentMaxAngle = angleExtent/2
+        float currentMinAngle = currentMaxAngle * -1
+
+        debug.trace(self + " zAngle=" + zAngle + " currentMin=" + currentMinAngle + " currentMax=" + currentMaxAngle)
+        if zAngle >= currentMinAngle && zAngle <= currentMaxAngle
+            ; make sure VFX is up
+            TestScanTempleImod.Apply()
+        Else
+            TestScanTempleImod.Remove()
+        endif
+        ; rerun timer
+        StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
     Else
-      TestScanTempleImod.Remove()
-    EndIf
-    Self.StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
-  Else
-    TestScanTempleImod.Remove()
-  EndIf
+        ; kill VFX, don't rerun timer
+        TestScanTempleImod.Remove()
+    endif
 EndFunction
 
-Float Function GetAngleExtent()
-  Float distance = Math.Clamp(playerRef.GetDistance(currentTarget), MinDistance, MaxDistance)
-  Float distanceMult = (distance - MinDistance) / DistanceDiff
-  Float angleExtent = MinAngle + distanceMult * AngleDiff
-  Return angleExtent
-EndFunction
+float function GetAngleExtent()
+    ; get distance to target
+    float distance = Math.Clamp(playerRef.GetDistance(currentTarget), MinDistance, MaxDistance)
+
+    ; get multiplier based on how far from target
+    float distanceMult = (distance - MinDistance)/DistanceDiff
+
+    ; scale angle extent by distance mult
+    float angleExtent = MinAngle + distanceMult*AngleDiff
+    debug.trace(self + " clamped distance=" + distance + ", angleExtent=" + angleExtent)
+    return angleExtent
+endFunction

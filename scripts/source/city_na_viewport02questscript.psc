@@ -1,6 +1,3 @@
-ScriptName City_NA_Viewport02QuestScript Extends Quest conditional
+Scriptname City_NA_Viewport02QuestScript extends Quest Conditional
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property Investors Auto conditional
+Int Property Investors Auto Conditional

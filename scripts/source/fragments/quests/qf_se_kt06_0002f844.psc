@@ -1,41 +1,70 @@
-ScriptName Fragments:Quests:QF_SE_KT06_0002F844 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_KT06_0002F844 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property DockingPermission Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-ActorValue Property SpaceshipCrew Auto Const mandatory
-Scene Property HailTemplate_100a_KT06_HailStart Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0.0)
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0006_Item_00
 Function Fragment_Stage_0006_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 4.0)
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 4)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(SpaceshipCrew, 2.0)
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(SpaceshipCrew, 2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(10, True)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0.0)
-  HailTemplate_100a_KT06_HailStart.Start()
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0)
+HailTemplate_100a_KT06_HailStart.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.SetObjectiveFailed(10, True)
-  Self.Stop()
+;BEGIN CODE
+SetObjectiveFailed(10)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+ActorValue Property SpaceshipCrew Auto Const Mandatory
+
+Scene Property HailTemplate_100a_KT06_HailStart Auto Const Mandatory

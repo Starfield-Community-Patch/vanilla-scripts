@@ -1,1 +1,1 @@
-ScriptName Class Extends Form Native hidden
+Scriptname Class extends Form Native Hidden

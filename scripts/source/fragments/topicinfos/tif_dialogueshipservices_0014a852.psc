@@ -1,9 +1,16 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueShipServices_0014A852 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueShipServices_0014A852 Extends TopicInfo Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  dialogueshipservicesscript kmyQuest = Self.GetOwningQuest() as dialogueshipservicesscript
-  kmyQuest.RefuelPlayerShip()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN AUTOCAST TYPE DialogueShipServicesScript
+DialogueShipServicesScript kmyQuest = GetOwningQuest() as DialogueShipServicesScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.RefuelPlayerShip()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

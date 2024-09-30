@@ -1,15 +1,10 @@
-ScriptName NHAliasDisableOnUnloadScript Extends ReferenceAlias
-{ Used when the NPCs leave the interior during the Establishing scene }
+Scriptname NHAliasDisableOnUnloadScript extends ReferenceAlias
+{Used when the NPCs leave the interior during the Establishing scene}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StagePrereq Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property StagePrereq Mandatory Const Auto
 
 Event OnUnload()
-  If Self.GetOwningQuest().GetStageDone(StagePrereq)
-    Self.GetRef().Disable(False)
-  EndIf
+    If GetOwningQuest().GetStageDone(StagePrereq)
+        GetRef().Disable()
+    EndIf
 EndEvent

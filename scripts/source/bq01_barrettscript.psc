@@ -1,13 +1,9 @@
-ScriptName BQ01_BarrettScript Extends Quest
+Scriptname BQ01_BarrettScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property Location_Temple Auto Const mandatory
-Keyword Property BQ01_Keyword_TempleLocation Auto Const mandatory
-
-;-- Functions ---------------------------------------
+LocationAlias Property Location_Temple Mandatory Const Auto
+Keyword Property BQ01_Keyword_TempleLocation Mandatory Const Auto
 
 Event OnQuestStarted()
-  Location_Temple.GetLocation().AddKeyword(BQ01_Keyword_TempleLocation)
+    ;when this quest fully initializes, add special keyword to the Temple so we know its Barrett's
+    Location_Temple.GetLocation().AddKeyword(BQ01_Keyword_TempleLocation)
 EndEvent

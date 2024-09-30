@@ -1,108 +1,166 @@
-ScriptName Fragments:Quests:QF_RIR01_002C572B Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_RIR01_002C572B Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property RIR01_DataDisk Auto Const mandatory
-Quest Property RIR02 Auto Const mandatory
-ReferenceAlias Property Alias_DataDisk Auto Const mandatory
-ReferenceAlias Property Alias_ImogeneSalzo Auto Const mandatory
-Quest Property RI01 Auto Const mandatory
-ReferenceAlias Property Alias_ImogeneStartMarker Auto Const mandatory
-Quest Property RI01_JobAdRadio Auto Const mandatory
-Quest Property LC044 Auto Const mandatory
-Perk Property FactionRyujinIndustriesPerk Auto Const mandatory
-ReferenceAlias Property Alias_NeonCeltCorpTerminal Auto Const mandatory
-MiscObject Property Digipick Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Actor PlayerRef = Game.GetPlayer()
-  PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  PlayerRef.AddPerk(FactionRyujinIndustriesPerk, False)
-  RI01.Start()
-  RI01.SetObjectiveCompleted(100, True)
-  RI01_JobAdRadio.Stop()
-  RI01.SetStage(1300)
-  LC044.SetStage(350)
-  LC044.SetStage(400)
+;BEGIN CODE
+Actor PlayerRef = Game.GetPlayer() as Actor
+PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef())
+PlayerRef.AddPerk(FactionRyujinIndustriesPerk)
+RI01.Start()
+RI01.SetObjectiveCompleted(100)
+RI01_JobAdRadio.Stop()
+RI01.SetStage(1300)
+LC044.SetStage(350)
+LC044.SetStage(400)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  Actor PlayerRef = Game.GetPlayer()
-  PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  PlayerRef.AddPerk(FactionRyujinIndustriesPerk, False)
-  RI01.CompleteQuest()
-  RI01_JobAdRadio.Stop()
-  Self.SetStage(100)
-  LC044.SetStage(350)
-  LC044.SetStage(400)
+;BEGIN CODE
+Actor PlayerRef = Game.GetPlayer() as Actor
+PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef())
+PlayerRef.AddPerk(FactionRyujinIndustriesPerk)
+RI01.CompleteQuest()
+RI01_JobAdRadio.Stop()
+SetStage(100)
+LC044.SetStage(350)
+LC044.SetStage(400)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  Actor PlayerRef = Game.GetPlayer()
-  PlayerRef.AddPerk(FactionRyujinIndustriesPerk, False)
-  RI01.CompleteQuest()
-  RI01_JobAdRadio.Stop()
-  Self.SetStage(100)
-  Self.SetStage(200)
-  LC044.SetStage(350)
-  LC044.SetStage(400)
+;BEGIN CODE
+Actor PlayerRef = Game.GetPlayer() as Actor
+;PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef())
+PlayerRef.AddPerk(FactionRyujinIndustriesPerk)
+RI01.CompleteQuest()
+RI01_JobAdRadio.Stop()
+SetStage(100)
+SetStage(200)
+LC044.SetStage(350)
+LC044.SetStage(400)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0003_Item_00
 Function Fragment_Stage_0003_Item_00()
-  RI01.CompleteQuest()
-  RI01_JobAdRadio.Stop()
-  Self.SetStage(100)
-  Self.SetStage(110)
-  Self.SetStage(120)
-  Self.SetStage(130)
-  Self.SetStage(200)
-  Self.SetStage(300)
-  LC044.SetStage(350)
-  LC044.SetStage(400)
-  Actor PlayerRef = Game.GetPlayer()
-  PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  PlayerRef.AddPerk(FactionRyujinIndustriesPerk, False)
-EndFunction
+;BEGIN CODE
+RI01.CompleteQuest()
+RI01_JobAdRadio.Stop()
+SetStage(100)
+SetStage(110)
+SetStage(120)
+SetStage(130)
+SetStage(200)
+SetStage(300)
+LC044.SetStage(350)
+LC044.SetStage(400)
 
+Actor PlayerRef = Game.GetPlayer() as Actor
+PlayerRef.MoveTo(Alias_ImogeneStartMarker.GetRef())
+PlayerRef.AddPerk(FactionRyujinIndustriesPerk)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  ObjectReference TerminalRef = Alias_NeonCeltCorpTerminal.GetRef()
-  TerminalRef.Lock(True, False, True)
-  TerminalRef.SetLockLevel(25)
+;BEGIN CODE
+ObjectReference TerminalRef = Alias_NeonCeltCorpTerminal.GetRef()
+TerminalRef.Lock()
+TerminalRef.SetLockLevel(25)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetActive(True)
-  Self.SetObjectiveDisplayed(100, True, False)
-  RI01.Stop()
+;BEGIN CODE
+SetActive()
+SetObjectiveDisplayed(100)
+RI01.Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(200, True, False)
-  Actor PlayerRef = Game.GetPlayer()
-  PlayerRef.AddItem(Alias_DataDisk.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(Digipick as Form, 2, False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(200)
 
+Actor PlayerRef = Game.GetPlayer()
+PlayerRef.AddItem(Alias_DataDisk.GetRef())
+PlayerRef.AddItem(Digipick, 2)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(300, True, False)
-  RIR02.SetStage(10)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(300)
 
+RIR02.SetStage(10)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0350_Item_00
 Function Fragment_Stage_0350_Item_00()
-  Game.GetPlayer().RemoveItem(RIR01_DataDisk as Form, 99, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(RIR01_DataDisk, 99)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_10000_Item_00
 Function Fragment_Stage_10000_Item_00()
-  Self.SetObjectiveCompleted(300, True)
+;BEGIN CODE
+SetObjectiveCompleted(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_9000_Item_00
 Function Fragment_Stage_9000_Item_00()
-  Quest __temp = Self as Quest
-  ri_crimetrackingquestscript kmyQuest = __temp as ri_crimetrackingquestscript
-  kmyQuest.AddFinalValues()
+;BEGIN AUTOCAST TYPE RI_CrimeTrackingQuestScript
+Quest __temp = self as Quest
+RI_CrimeTrackingQuestScript kmyQuest = __temp as RI_CrimeTrackingQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.AddFinalValues()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property RIR01_DataDisk Auto Const Mandatory
+
+Quest Property RIR02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_DataDisk Auto Const Mandatory
+
+ReferenceAlias Property Alias_ImogeneSalzo Auto Const Mandatory
+
+Quest Property RI01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_ImogeneStartMarker Auto Const Mandatory
+
+Quest Property RI01_JobAdRadio Auto Const Mandatory
+
+Quest Property LC044 Auto Const Mandatory
+
+Perk Property FactionRyujinIndustriesPerk Auto Const Mandatory
+
+ReferenceAlias Property Alias_NeonCeltCorpTerminal Auto Const Mandatory
+
+MiscObject Property Digipick Auto Const Mandatory

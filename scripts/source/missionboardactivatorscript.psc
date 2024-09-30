@@ -1,86 +1,108 @@
-ScriptName MissionBoardActivatorScript Extends ObjectReference
+Scriptname MissionBoardActivatorScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property MissionBoardFilterKeyword Auto Const
+Keyword property MissionBoardFilterKeyword auto Const
 { optional - keyword to pass in to filter mission quests }
-conditionform Property AccessConditions Auto Const
+
+ConditionForm property AccessConditions auto Const
 { optional - if included, this condition must be true to open the menu }
-Message Property AccessFailureMessage Auto Const
+
+Message property AccessFailureMessage auto Const
 { optional - if included, message will be displayed if the AccessConditions are false }
-missionparentscript Property MB_Parent Auto Const mandatory
+
+MissionParentScript Property MB_Parent Auto Const Mandatory
 { mission parent quest }
-Location Property OverrideLocation Auto Const
+
+Location property OverrideLocation auto Const
 { optional - if provided, the missions will populate using this location rather than the mission board's location }
-Int Property FactionID = -1 Auto Const
+
+int property FactionID = -1 auto Const
 { optional - pass in one of the following factionIDs if you want a "themed" mission board UI:
     United Colonies = 1
     Ryujin Industries = 2
     House Varuun = 3
     Freestar = 4
     Crimson Fleet = 5
-    Constellation = 6 }
-Bool Property NeverResetOnLoad = False Auto Const
+    Constellation = 6
+    Trackers Alliance = 7
+}
+
+bool property NeverResetOnLoad = false auto Const
 { used by "local" activators since we don't want to reset missions on load when the player may not be in the location }
-Bool Property AlwaysResetOnLoad = False Auto Const
+
+bool property AlwaysResetOnLoad = false auto const 
 { if true, will reset with override onLoad. Use carefully, normally we don't want this behavior }
 
-;-- Functions ---------------------------------------
+auto state default
+Event OnActivate(ObjectReference akActionRef)
+    if akActionRef == Game.GetPlayer()
+        GotoState("busy")
+        Trace(Self, " OnActivate")
+        if AccessConditions == NONE || AccessConditions.IsTrue(Game.GetPlayer(), self)
+            Trace(Self, " OnActivate: updating mission data")
+            ; update any mission data as needed
+            MB_Parent.UpdateMissions()
+            Trace(Self, " OnActivate: DONE updating mission data MissionBoardFilterKeyword: " + MissionBoardFilterKeyword + ", FactionID" + FactionID)
+            Game.ShowMissionBoardMenu(MissionBoardFilterKeyword, FactionID)
+        Elseif AccessFailureMessage
+            AccessFailureMessage.Show()
+        endif
+        GotoState("default")
+    endif
+EndEvent
+EndState
+
+state busy
+    Event OnActivate(ObjectReference akActionRef)
+        Trace(Self, " OnActivate: busy - ignore input")
+    endEvent
+EndState
 
 Event OnLoad()
-  If NeverResetOnLoad == False
-    Self.ResetMissions()
-  EndIf
+    Trace(Self, " OnLoad")
+    if NeverResetOnLoad == false
+        ResetMissions()
+    endif
 EndEvent
 
 Function ResetMissions()
-  Location myResetLocation = None
-  If OverrideLocation
-    myResetLocation = OverrideLocation
-  Else
-    If Self.GetWorkshop()
-      myResetLocation = Self.GetCurrentLocation()
-    Else
-      Location[] settlementLocations = Self.GetCurrentLocation().GetParentLocations(MB_Parent.LocTypeSettlement)
-      If settlementLocations.Length > 0
-        myResetLocation = settlementLocations[0]
-      EndIf
-    EndIf
-    If myResetLocation == None
-      myResetLocation = Self.GetCurrentLocation()
-    EndIf
-  EndIf
-  If myResetLocation
-    MB_Parent.ResetMissions(False, False, myResetLocation, AlwaysResetOnLoad)
-  EndIf
-EndFunction
+    Trace(Self, " Mission board activator: ResetMissions")
+    ; try to start any quests to fill in ones that the player has finished
+    Location myResetLocation
+
+    if OverrideLocation
+        myResetLocation = OverrideLocation
+    else
+        if GetWorkshop()
+            ; outpost - always reset missions
+            myResetLocation=GetCurrentLocation()
+        else
+            Location[] settlementLocations = GetCurrentLocation().GetParentLocations(MB_Parent.LocTypeSettlement)
+            if settlementLocations.Length > 0
+                myResetLocation=settlementLocations[0]
+            endif
+        endif
+        if myResetLocation == None
+            myResetLocation=GetCurrentLocation()
+        endif
+    endif
+    Trace(Self, " myResetLocation=" + myResetLocation)
+    if myResetLocation
+        MB_Parent.ResetMissions(bShutDownUnstarted=false, bShutDownAll=false, resetLocation=myResetLocation, resetLocationOverride = AlwaysResetOnLoad)
+    endif
+endFunction
 
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  Self.ResetMissions()
+    ; for workshop mission boards
+    ResetMissions()
 EndEvent
 
-;-- State -------------------------------------------
-State busy
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Missions",  string SubLogName = "ParentScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State default
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      Self.GotoState("busy")
-      If AccessConditions == None || AccessConditions.IsTrue(Game.GetPlayer() as ObjectReference, Self as ObjectReference)
-        MB_Parent.UpdateMissions()
-        Game.ShowMissionBoardMenu(MissionBoardFilterKeyword, FactionID)
-      ElseIf AccessFailureMessage
-        AccessFailureMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-      Self.GotoState("default")
-    EndIf
-  EndEvent
-EndState
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Missions",  string SubLogName = "ParentScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+EndFunction

@@ -1,24 +1,27 @@
-ScriptName DebugQuestScript Extends Quest
-{ Used to send debug output for quest stages }
-
-;-- Functions ---------------------------------------
+Scriptname DebugQuestScript extends Quest
+{Used to send debug output for quest stages}
 
 Event OnQuestInit()
-  ; Empty function
-EndEvent
-
-Event OnQuestShutdown()
-  ; Empty function
-EndEvent
-
-Event OnQuestStarted()
-  ; Empty function
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
 
 Event OnReset()
-  ; Empty function
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  ; Empty function
+Event OnStageSet(int auiStageID, int auiItemID)
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
+
+Event OnQuestShutdown()
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
+endEvent
+
+Event OnQuestStarted()
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
+endEvent

@@ -1,5 +1,5 @@
-ScriptName DefaultPassengerQuestScript Extends Quest default
-{ Manages handling passengers getting on and off your ship at a destination, and setting quest stages dealing with passengers and delivery.
+Scriptname DefaultPassengerQuestScript extends Quest Default
+{Manages handling passengers getting on and off your ship at a destination, and setting quest stages dealing with passengers and delivery.
 
 IMPORTANT: If you want to have you actors continue to walk to the destination marker after they leave the ship,
 you need to put DefaultPassengerPackage on the alias you hook up to Alias_Passengers property.
@@ -9,280 +9,363 @@ Call these functions to make aliases into passengers (which also adds them to th
 *AddPassengers(RefCollectionAlias_To_Make_Passengers)
 
 You shouldn't need to do this, but if you find a reason you need to manually remove an actor from being a passenger:
-*RemovePassengerActor(Actor_To_Stop_Being_Passenger) }
+*RemovePassengerActor(Actor_To_Stop_Being_Passenger)
 
-;-- Variables ---------------------------------------
+}
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
 Guard PassengerGuard
 
-;-- Properties --------------------------------------
 Group AutofillProperties
-  sq_playershipscript Property SQ_Playership Auto Const mandatory
-  Keyword Property LinkPassengerShipMarker Auto Const mandatory
-  Keyword Property LinkPassengerDestinationMarker Auto Const mandatory
-  ActorValue Property DefaultPassengerState Auto Const mandatory
-  GlobalVariable Property DefaultPassengerState_0_WalkToShipThenSandbox Auto Const mandatory
-  GlobalVariable Property DefaultPassengerState_1_RunToShipThenSandbox Auto Const mandatory
-  GlobalVariable Property DefaultPassengerState_2_WalkToDestination Auto Const mandatory
-  GlobalVariable Property DefaultPassengerState_3_RunToDestination Auto Const mandatory
+	SQ_PlayerShipScript Property SQ_Playership Mandatory Const Auto
+	Keyword Property LinkPassengerShipMarker Mandatory Const Auto ;link established via linked aliases in SQ_PlayerShip
+	Keyword Property LinkPassengerDestinationMarker Mandatory Const Auto ;link established in this script
+	ActorValue Property DefaultPassengerState Mandatory Const Auto
+	GlobalVariable Property DefaultPassengerState_0_WalkToShipThenSandbox Mandatory Const Auto
+	GlobalVariable Property DefaultPassengerState_1_RunToShipThenSandbox Mandatory Const Auto
+	GlobalVariable Property DefaultPassengerState_2_WalkToDestination Mandatory Const Auto
+	GlobalVariable Property DefaultPassengerState_3_RunToDestination Mandatory Const Auto
+
 EndGroup
 
 Group Aliases
-  RefCollectionAlias Property Alias_Passengers Auto Const mandatory
-  { The references in this alias should be managed by this script. Use AddPassenger() and AddPassengers() to add refs to this alias. }
-  LocationAlias Property Alias_PassengerDestination Auto Const mandatory
-  { Location alias that represents the destination you are delivering the passenger to. }
-  ReferenceAlias Property Alias_PassengerDestinationMarker Auto Const mandatory
-  { A marker for where you want the passengers to walk to when they disembark at the destination. }
+	RefCollectionAlias Property Alias_Passengers Mandatory Const Auto RequiresGuard(PassengerGuard) 
+	{The references in this alias should be managed by this script. Use AddPassenger() and AddPassengers() to add refs to this alias.}
+	LocationAlias Property Alias_PassengerDestination Mandatory Const Auto
+	{Location alias that represents the destination you are delivering the passenger to.}
+	ReferenceAlias Property Alias_PassengerDestinationMarker Mandatory Const Auto
+	{A marker for where you want the passengers to walk to when they disembark at the destination.}
 EndGroup
 
 Group Stages
-  Int Property StageToSetOnPlayerShipArrivesAtDestination Auto Const mandatory
-  { will set this stage when player's ship arrives at Alias_PassengerDestination }
-  Int Property StageToSetWhenAllPassengersDisembark Auto Const mandatory
-  { will set this stage when all the Passengers exit the ship after it arrives at Alias_PassengerDestination }
-  Float Property ArrivalDistance = 5.0 Auto Const
-  { how close to the Arrival Marker do Passengers need to be to be considered to have arrived? }
+	int Property StageToSetOnPlayerShipArrivesAtDestination Mandatory Const Auto
+	{will set this stage when player's ship arrives at Alias_PassengerDestination }
+
+	int Property StageToSetWhenAllPassengersDisembark Mandatory Const Auto
+	{will set this stage when all the Passengers exit the ship after it arrives at Alias_PassengerDestination}
+
+	float Property ArrivalDistance = 5.0 Const Auto
+	{how close to the Arrival Marker do Passengers need to be to be considered to have arrived?}
+
 EndGroup
 
 Group Default_Passenger_Behavior_REMEMBER_Add_DefaultPassengerAlias_to_Passengers_Alias
-{ IMPORTANT: If you want to have you actors continue to walk to the destination marker after they leave the ship,
-you need to put DefaultPassengerPackage on the alias you hook up to Alias_Passengers property. }
-  Bool Property RunToShip = True Auto Const
-  { (Default: false) If true, passengers will run instead of walk to get to the player ship. }
-  Bool Property RunToDestination = False Auto Const
-  { (Default: false) If true, passengers will run instead of walk to get to the destination upon arrival. }
+{IMPORTANT: If you want to have you actors continue to walk to the destination marker after they leave the ship,
+you need to put DefaultPassengerPackage on the alias you hook up to Alias_Passengers property.}
+	bool Property RunToShip = true Const Auto
+	{(Default: false) If true, passengers will run instead of walk to get to the player ship.}
+	bool Property RunToDestination = false Const Auto
+	{(Default: false) If true, passengers will run instead of walk to get to the destination upon arrival.}
 EndGroup
 
 Group Debug_Properties
-  Bool Property ShowTraces = False Auto Const
-  { (Default: false) If true, will trace to log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives. }
-  String Property CustomLog = "" Auto Const
-  { *Default: "") If not empy, will trace to this log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives. }
+    Bool Property ShowTraces = false Auto Const
+    {(Default: false) If true, will trace to log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives.}
+
+	string Property CustomLog = "" Const Auto
+	{*Default: "") If not empy, will trace to this log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives.}
 EndGroup
 
 
-;-- Functions ---------------------------------------
+
 
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Alias_PassengerDestinationMarker as ScriptObject, "OnAliasChanged")
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.RegisterForRemoteEvent(Alias_Passengers as ScriptObject, "OnAliasChanged")
-    Self.RegisterForRemoteEvent(Alias_Passengers as ScriptObject, "OnDeath")
-    Self.RegisterForRemoteEvent(Alias_Passengers as ScriptObject, "OnUnload")
-    Self.RegisterForRemoteEvent(Alias_Passengers as ScriptObject, "OnExitShipInterior")
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  Self.RegisterForRemoteEvent(SQ_Playership.PlayerShip as ScriptObject, "OnShipLanding")
-  Self.RegisterForRemoteEvent(SQ_Playership.PlayerShip as ScriptObject, "OnShipTakeoff")
-  Self.RegisterForRemoteEvent(SQ_Playership.PlayerShip as ScriptObject, "OnShipDock")
-  Self.RegisterForRemoteEvent(SQ_Playership.PlayerShip as ScriptObject, "OnShipUndock")
+	RegisterForRemoteEvent(Alias_PassengerDestinationMarker, "OnAliasChanged")
+	
+	LockGuard PassengerGuard
+		RegisterForRemoteEvent(Alias_Passengers, "OnAliasChanged")
+		RegisterForRemoteEvent(Alias_Passengers, "OnDeath")
+		RegisterForRemoteEvent(Alias_Passengers, "OnUnload")
+		RegisterForRemoteEvent(Alias_Passengers, "OnExitShipInterior")
+	EndLockGuard
+	
+	RegisterForRemoteEvent(SQ_PlayerShip.PlayerShip, "OnShipLanding")
+	RegisterForRemoteEvent(SQ_PlayerShip.PlayerShip, "OnShipTakeoff")
+	RegisterForRemoteEvent(SQ_PlayerShip.PlayerShip, "OnShipDock")
+	RegisterForRemoteEvent(SQ_PlayerShip.PlayerShip, "OnShipUndock")
 EndEvent
 
-Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, Bool abRemove)
-  If akSender == Alias_PassengerDestinationMarker
-    If abRemove
-      Self._UpdatePassengerDestinationLinks(None)
-    Else
-      Self._UpdatePassengerDestinationLinks(Alias_PassengerDestinationMarker.GetReference())
-    EndIf
-  EndIf
+
+Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, bool abRemove)
+	debug.trace(self + " OnAliasChanged " + akSender)
+	;if the destination has changed, update links - this is to support objectives like "take passenger to nearest destination"
+	;Note: the reason I'm not using aliases to create the links, is because I have no script way of enforcing that has been done without checking them manually anyway, so might as well just create/remove them (which is also simpler for end user)
+	if akSender == Alias_PassengerDestinationMarker
+		if abRemove
+			DefaultScriptFunctions.Trace(self, "OnAliasChanged() Alias_PassengerDestinationMarker is cleared, calling _UpdatePassengerDestinationLinks()", ShowTraces, CustomLog)
+			_UpdatePassengerDestinationLinks(None)
+		else
+			DefaultScriptFunctions.Trace(self, "OnAliasChanged() Alias_PassengerDestinationMarker changed, calling _UpdatePassengerDestinationLinks()", ShowTraces, CustomLog)
+			_UpdatePassengerDestinationLinks(Alias_PassengerDestinationMarker.GetReference())
+		endif
+	endif
 EndEvent
 
-Event RefCollectionAlias.OnAliasChanged(RefCollectionAlias akSender, ObjectReference akObject, Bool abRemove)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If akSender == Alias_Passengers
-      ObjectReference destinationMarkerRef = Alias_PassengerDestinationMarker.GetReference()
-      If abRemove
-        Self.UnregisterForDistanceEvents(akObject as ScriptObject, destinationMarkerRef as ScriptObject, -1)
-        akObject.SetLinkedRef(None, LinkPassengerDestinationMarker, True)
-      Else
-        Self.RegisterForDistanceLessThanEvent(akObject as ScriptObject, destinationMarkerRef as ScriptObject, ArrivalDistance, 0)
-        akObject.SetLinkedRef(destinationMarkerRef, LinkPassengerDestinationMarker, True)
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Event RefCollectionAlias.OnAliasChanged(RefCollectionAlias akSender, ObjectReference akObject, bool abRemove)
+	LockGuard PassengerGuard
+		;if an actor is removed or added, un/register for distance checks update the links.
+		;Note: the reason I'm not using aliases to create the links, is because I have no script way of enforcing that has been done without checking them manually anyway, so might as well just create/remove them (which is also simpler for end user)
+		if akSender == Alias_Passengers
+
+			ObjectReference destinationMarkerRef = Alias_PassengerDestinationMarker.GetReference()
+
+			if abRemove
+				DefaultScriptFunctions.Trace(self, "OnAliasChanged() UnregisterForDistanceEvents() and unsetting LinkPassengerDestinationMarker for akObject: " + akObject + " linking to destinationMarkerRef: " + destinationMarkerRef, ShowTraces, CustomLog)
+				UnregisterForDistanceEvents(akObject, destinationMarkerRef)
+				akObject.SetLinkedRef(NONE, LinkPassengerDestinationMarker)
+				
+			else
+				DefaultScriptFunctions.Trace(self, "OnAliasChanged() RegisterForDistanceLessThanEvent() and setting LinkPassengerDestinationMarker for akObject: " + akObject + " linking to destinationMarkerRef: " + destinationMarkerRef, ShowTraces, CustomLog)
+				RegisterForDistanceLessThanEvent(akObject, destinationMarkerRef, ArrivalDistance)
+				akObject.SetLinkedRef(destinationMarkerRef, LinkPassengerDestinationMarker)
+
+			endif
+		endif
+	EndLockGuard
 EndEvent
 
 Event RefCollectionAlias.OnDeath(RefCollectionAlias akSender, ObjectReference akSenderRef, ObjectReference akKiller)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If akSender == Alias_Passengers
-      Self.RemovePassengerActor(akSenderRef as Actor)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "OnDeath() akSender: " + akSender + ", akSenderRef: " + akSenderRef + ", akKiller: " + akKiller, ShowTraces, CustomLog)
+		if akSender == Alias_Passengers
+			RemovePassengerActor(akSenderRef as Actor)
+		endif
+	EndLockGuard
 EndEvent
 
 Event RefCollectionAlias.OnUnload(RefCollectionAlias akSender, ObjectReference akSenderRef)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If akSender == Alias_Passengers && Self.GetStageDone(StageToSetOnPlayerShipArrivesAtDestination)
-      Self._HandlePassengerArrival(akSenderRef)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "OnUnload() akSender: " + akSender + ", akSenderRef: " + akSenderRef, ShowTraces, CustomLog)
+
+		if akSender == Alias_Passengers && GetStageDone(StageToSetOnPlayerShipArrivesAtDestination)
+			DefaultScriptFunctions.Trace(self, "OnUnload() StageToSetOnPlayerShipArrivesAtDestination done, calling _HandlePassengerArrival() akSenderRef: " + akSenderRef, ShowTraces, CustomLog)
+			_HandlePassengerArrival(akSenderRef)
+		endif
+	EndLockGuard
 EndEvent
 
 Event RefCollectionAlias.OnExitShipInterior(RefCollectionAlias akSender, ObjectReference akSenderRef, ObjectReference akShip)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If akSender == Alias_Passengers && Self.GetStageDone(StageToSetOnPlayerShipArrivesAtDestination)
-      Self._HandlePassengerArrival(akSenderRef)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "OnExitShipInterior() akSender: " + akSender + ", akSenderRef: " + akSenderRef, ShowTraces, CustomLog)
+
+		if akSender == Alias_Passengers && GetStageDone(StageToSetOnPlayerShipArrivesAtDestination)
+			DefaultScriptFunctions.Trace(self, "OnExitShipInterior() StageToSetOnPlayerShipArrivesAtDestination done, calling _HandlePassengerArrival() akSenderRef: " + akSenderRef, ShowTraces, CustomLog)
+			_HandlePassengerArrival(akSenderRef)
+		endif
+	EndLockGuard
 EndEvent
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    ObjectReference passengerRef = None
-    If Alias_Passengers.find(akObj1) > -1
-      passengerRef = akObj1
-    ElseIf Alias_Passengers.find(akObj2) > -1
-      passengerRef = akObj2
-    EndIf
-    If passengerRef
-      Self._HandlePassengerArrival(passengerRef)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+	LockGuard PassengerGuard
+		ObjectReference passengerRef
+
+		if Alias_Passengers.find(akObj1) > -1
+			passengerRef = akObj1
+		elseif Alias_Passengers.find(akObj2) > -1
+			passengerRef = akObj2
+		endif
+
+		if passengerRef
+			DefaultScriptFunctions.Trace(self, "OnDistanceLessThan() passenger arrived at marker. passengerRef: " + passengerRef, ShowTraces, CustomLog)
+			_HandlePassengerArrival(passengerRef)
+		else
+			DefaultScriptFunctions.Warning(self, "OnDistanceLessThan() could not find a passenger in Alias_Passengers that matches akObj1: " + akObj1 + ", or akObj2: " + akObj2, CustomLog)
+		endIf
+	EndLockGuard
 EndEvent
 
-Event ReferenceAlias.OnShipLanding(ReferenceAlias akSender, Bool abComplete)
-  Self.ShipArriving(akSender, abComplete)
+Event ReferenceAlias.OnShipLanding(ReferenceAlias akSender, bool abComplete)
+	DefaultScriptFunctions.Trace(self, "OnShipLanding() akSender: " + akSender + ", abComplete: " + abComplete, ShowTraces, CustomLog)
+	ShipArriving(akSender, abComplete)
 EndEvent
 
-Event ReferenceAlias.OnShipTakeOff(ReferenceAlias akSender, Bool abComplete)
-  Self.ShipDeparting(akSender, abComplete)
+Event ReferenceAlias.OnShipTakeOff(ReferenceAlias akSender, bool abComplete)
+	DefaultScriptFunctions.Trace(self, "OnShipTakeOff() akSender: " + akSender + ", abComplete: " + abComplete, ShowTraces, CustomLog)
+	ShipDeparting(akSender, abComplete)
 EndEvent
 
-Event ReferenceAlias.OnShipDock(ReferenceAlias akSender, Bool abComplete, spaceshipreference akDocking, spaceshipreference akParent)
-  Self.ShipArriving(akSender, abComplete)
+Event ReferenceAlias.OnShipDock(ReferenceAlias akSender, bool abComplete, SpaceshipReference akDocking, SpaceshipReference akParent)
+	DefaultScriptFunctions.Trace(self, "OnShipDock() akSender: " + akSender +", abComplete: " + abComplete + "OnShipDock() akDocking: " + akDocking + ", akParent: " + akParent, ShowTraces, CustomLog)
+	ShipArriving(akSender, abComplete)
 EndEvent
 
-Event ReferenceAlias.OnShipUndock(ReferenceAlias akSender, Bool abComplete, spaceshipreference akDocking, spaceshipreference akParent)
-  Self.ShipDeparting(akSender, abComplete)
+Event ReferenceAlias.OnShipUndock(ReferenceAlias akSender, bool abComplete, SpaceshipReference akDocking, SpaceshipReference akParent)
+	DefaultScriptFunctions.Trace(self, "OnShipUndock() akSender: " + akSender +", abComplete: " + abComplete + "OnShipDock() akDocking: " + akDocking + ", akParent: " + akParent, ShowTraces, CustomLog)
+	ShipDeparting(akSender, abComplete)
 EndEvent
 
-Function ShipArriving(ReferenceAlias akSender, Bool abComplete)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    ObjectReference shipRef = akSender.GetShipReference() as ObjectReference
-    If abComplete && shipRef.IsInLocation(Alias_PassengerDestination.GetLocation()) && Self.HavePassengers()
-      If Self.GetStageDone(StageToSetOnPlayerShipArrivesAtDestination) == False
-        Self.SetStage(StageToSetOnPlayerShipArrivesAtDestination)
-        Self.SetAllPassengersGoToDestination()
-        SQ_Playership.RemovePassengers(Alias_Passengers)
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+
+
+Function ShipArriving(ReferenceAlias akSender, bool abComplete)
+	DefaultScriptFunctions.Trace(self, "ShipArriving() akSender: " + akSender + ", abComplete: " + abComplete, ShowTraces, CustomLog)
+	LockGuard PassengerGuard
+		ObjectReference shipRef = akSender.GetShipReference()
+
+		;DEBUGGING
+		DefaultScriptFunctions.Trace(self, "OnShipLanding() shipRef.GetCurrentLocation(): " + shipRef.GetCurrentLocation(), ShowTraces, CustomLog)
+		DefaultScriptFunctions.Trace(self, "OnShipLanding() Alias_PassengerDestination.GetLocation(): " + Alias_PassengerDestination.GetLocation(), ShowTraces, CustomLog)
+		DefaultScriptFunctions.Trace(self, "OnShipLanding() shipRef.IsInLocation(Alias_PassengerDestination.GetLocation()): " + shipRef.IsInLocation(Alias_PassengerDestination.GetLocation()), ShowTraces, CustomLog)
+		DefaultScriptFunctions.Trace(self, "OnShipLanding() HavePassengers(): " + HavePassengers(), ShowTraces, CustomLog)
+
+		if abComplete && shipRef.IsInLocation(Alias_PassengerDestination.GetLocation()) && HavePassengers()
+			if GetStageDone(StageToSetOnPlayerShipArrivesAtDestination) == false
+				DefaultScriptFunctions.Trace(self, "OnShipLanding() Arrived at destination!", ShowTraces, CustomLog)
+				SetStage(StageToSetOnPlayerShipArrivesAtDestination)
+
+				SetAllPassengersGoToDestination()
+
+				;remove from SQ_PlayerShip passengers alias (and restore the passengers actorvalue, etc.)
+				SQ_Playership.RemovePassengers(Alias_Passengers)
+
+				;NOTE: we don't remove from this quest's Alias_Passsengers yet - they need to keep running the package to go to destination marker
+			endif
+		endif
+	EndLockGuard
 EndFunction
 
-Function ShipDeparting(ReferenceAlias akSender, Bool abComplete)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If Self.GetStageDone(StageToSetOnPlayerShipArrivesAtDestination) && Alias_Passengers.GetCount() > 0
-      Self.MoveAllPassengersToLinkedRef(LinkPassengerDestinationMarker, ArrivalDistance)
-    Else
-      Float notOnShipDistance = 1000.0
-      Self.MoveAllPassengersToLinkedRef(LinkPassengerShipMarker, notOnShipDistance)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Function ShipDeparting(ReferenceAlias akSender, bool abComplete)
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "ShipDeparting() akSender: " + akSender + ", abComplete: " + abComplete, ShowTraces, CustomLog)
+
+		if GetStageDone(StageToSetOnPlayerShipArrivesAtDestination) && Alias_Passengers.GetCount() > 0
+			;they've arrived at the destination, and are on the player's ship when it takes off
+			;which means the player has to taken off while they are still aboard 
+			;moveto them to the destination marker
+			;rationale: then we don't have to handle "partial deliveries"
+			MoveAllPassengersToLinkedRef(LinkPassengerDestinationMarker, ArrivalDistance)
+
+		else ;make sure they are all on the ship
+			float notOnShipDistance = 1000.0 ;effectively infinitely away since the marker is on the ship and actors are infinitely away from refs in different cells
+			MoveAllPassengersToLinkedRef(LinkPassengerShipMarker, notOnShipDistance)
+		EndIf
+	EndLockGuard
 EndFunction
 
-Bool Function HavePassengers()
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Bool returnVal = Alias_Passengers as Bool && Alias_Passengers.GetCount() > 0
-    Return returnVal
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+bool Function HavePassengers()
+	LockGuard PassengerGuard
+		bool returnVal = Alias_Passengers && Alias_Passengers.GetCount() > 0
+
+		DefaultScriptFunctions.Trace(self, "HavePassengers() returnVal: " + returnVal, ShowTraces, CustomLog)
+		return returnVal
+	EndLockGuard
 EndFunction
 
-Function MoveAllPassengersToLinkedRef(Keyword linkedRefKeyword, Float MoveIfDistanceGreaterThan)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Actor[] passengers = Alias_Passengers.GetActorArray()
-    Int I = 0
-    While I < passengers.Length
-      Actor currentPassenger = passengers[I]
-      ObjectReference linkedRef = currentPassenger.GetLinkedRef(linkedRefKeyword)
-      If currentPassenger.GetDistance(linkedRef) > MoveIfDistanceGreaterThan
-        currentPassenger.MoveTo(currentPassenger.GetLinkedRef(linkedRefKeyword), 0.0, 0.0, 0.0, True, False)
-      EndIf
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Function MoveAllPassengersToLinkedRef(Keyword linkedRefKeyword, float MoveIfDistanceGreaterThan = 0.0)
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "MoveAllPassengersToLinkedRef() linkedRefKeyword: " + linkedRefKeyword + ", MoveIfDistanceGreaterThan: " + MoveIfDistanceGreaterThan, ShowTraces, CustomLog)
+		
+		Actor[] passengers = Alias_Passengers.GetActorArray()
+
+		int i = 0
+		While (i < passengers.length)
+			Actor currentPassenger = passengers[i]
+			ObjectReference linkedRef = currentPassenger.GetLinkedRef(linkedRefKeyword)
+			if currentPassenger.GetDistance(linkedRef) > MoveIfDistanceGreaterThan
+				currentPassenger.MoveTo(currentPassenger.GetLinkedRef(linkedRefKeyword))
+			endif
+			i += 1
+		EndWhile
+	EndLockGuard
 EndFunction
+
 
 Function _HandlePassengerArrival(ObjectReference arrivingPassenger)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.RemovePassengerActor(arrivingPassenger as Actor)
-    Int passengerCount = Alias_Passengers.GetCount()
-    If passengerCount == 0
-      Self.SetStage(StageToSetWhenAllPassengersDisembark)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "_HandlePassengerArrival() arrivingPassenger: " + arrivingPassenger, ShowTraces, CustomLog)
+		RemovePassengerActor(arrivingPassenger as Actor)
+
+		;ihas everyone arrived?
+		int passengerCount = Alias_Passengers.GetCount()
+		if  passengerCount == 0
+			DefaultScriptFunctions.Trace(self, "_HandlePassengerArrival() no more actors in Alias_Passengers collection. Setting StageToSetWhenAllPassengersDisembark: " + StageToSetWhenAllPassengersDisembark, ShowTraces, CustomLog)
+			SetStage(StageToSetWhenAllPassengersDisembark)
+		else
+			DefaultScriptFunctions.Trace(self, "_HandlePassengerArrival() remaining actors in Alias_Passengers collection. passengerCount: " + passengerCount, ShowTraces, CustomLog)
+		endif
+	EndLockGuard
 EndFunction
 
 Function _UpdatePassengerDestinationLinks(ObjectReference DestinationMarker)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    ObjectReference[] passengerRefs = Alias_Passengers.GetArray()
-    Int I = 0
-    While I < passengerRefs.Length
-      ObjectReference currentRef = passengerRefs[I]
-      currentRef.SetLinkedRef(DestinationMarker, LinkPassengerDestinationMarker, True)
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "_UpdatePassengerDestinationLinks() DestinationMarker: " + DestinationMarker, ShowTraces, CustomLog)
+
+		ObjectReference[]  passengerRefs = Alias_Passengers.GetArray()
+
+		int i = 0
+		While (i < passengerRefs.length)
+			ObjectReference currentRef = passengerRefs[i]
+			currentRef.SetLinkedRef(DestinationMarker, LinkPassengerDestinationMarker)		
+			i += 1
+		EndWhile
+	EndLockGuard
 EndFunction
 
 Function AddPassenger(ReferenceAlias PassengerToAdd)
-  Self._AddPassengers(PassengerToAdd.GetReference().GetSingleRefArray() as Actor[])
+	DefaultScriptFunctions.Trace(self, "AddPassenger() PassengerToAdd: " + PassengerToAdd, ShowTraces, CustomLog)
+	_AddPassengers(PassengerToAdd.GetReference().GetSingleRefArray() as Actor[])
 EndFunction
 
 Function AddPassengers(RefCollectionAlias PassengersToAdd)
-  Self._AddPassengers(PassengersToAdd.GetActorArray())
+	DefaultScriptFunctions.Trace(self, "AddPassengers() PassengersToAdd: " + PassengersToAdd, ShowTraces, CustomLog)
+	_AddPassengers(PassengersToAdd.GetActorArray())
 EndFunction
 
-Function _AddPassengers(Actor[] PassengersToAdd)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int I = 0
-    While I < PassengersToAdd.Length
-      Actor currentActor = PassengersToAdd[I]
-      If currentActor.IsDead() == False
-        SQ_Playership.AddPassenger(currentActor)
-        Alias_Passengers.AddRef(currentActor as ObjectReference)
-      EndIf
-      I += 1
-    EndWhile
-    Self.SetAllPassengersGoToShip()
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Function _AddPassengers(Actor[] passengersToAdd)
+	LockGuard PassengerGuard
+		int i = 0
+		While (i < passengersToAdd.length)
+			Actor currentActor = passengersToAdd[i]
+			
+			if currentActor.IsDead() == false
+				SQ_Playership.AddPassenger(currentActor)
+				Alias_Passengers.AddRef(currentActor)
+			endif
+
+			i += 1
+		EndWhile
+
+		SetAllPassengersGoToShip()
+	EndLockGuard
 EndFunction
 
 Function RemovePassengerActor(Actor ActorToRemove)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    SQ_Playership.RemovePassenger(ActorToRemove)
-    Alias_Passengers.RemoveRef(ActorToRemove as ObjectReference)
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		DefaultScriptFunctions.Trace(self, "RemovePassengerActor() ActorToRemove: " + ActorToRemove, ShowTraces, CustomLog)
+		SQ_Playership.RemovePassenger(ActorToRemove)
+		Alias_Passengers.RemoveRef(ActorToRemove)
+	EndLockGuard
 EndFunction
 
+
 Function SetAllPassengersGoToShip()
-  If RunToShip
-    Self._SetAllPassengersAV(DefaultPassengerState_1_RunToShipThenSandbox)
-  Else
-    Self._SetAllPassengersAV(DefaultPassengerState_0_WalkToShipThenSandbox)
-  EndIf
+	if RunToShip
+		_SetAllPassengersAV(DefaultPassengerState_1_RunToShipThenSandbox)
+	else
+		_SetAllPassengersAV(DefaultPassengerState_0_WalkToShipThenSandbox)
+	endif
 EndFunction
 
 Function SetAllPassengersGoToDestination()
-  If RunToDestination
-    Self._SetAllPassengersAV(DefaultPassengerState_3_RunToDestination)
-  Else
-    Self._SetAllPassengersAV(DefaultPassengerState_2_WalkToDestination)
-  EndIf
+	if RunToDestination
+		_SetAllPassengersAV(DefaultPassengerState_3_RunToDestination)
+	else
+		_SetAllPassengersAV(DefaultPassengerState_2_WalkToDestination)
+	endif
 EndFunction
 
 Function _SetAllPassengersAV(GlobalVariable GlobalWithValue)
-  Guard PassengerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    ActorValue AV = DefaultPassengerState
-    Actor[] passengers = Alias_Passengers.GetActorArray()
-    Int I = 0
-    While I < passengers.Length
-      Actor currentActor = passengers[I]
-      currentActor.SetValue(AV, GlobalWithValue.GetValue())
-      currentActor.EvaluatePackage(False)
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard PassengerGuard
+		ActorValue AV = DefaultPassengerState
+		DefaultScriptFunctions.Trace(self, "_SetAllPassengersAV() AV : " + AV + ", GlobalWithValue: " + GlobalWithValue + ".GetValue(): " + GlobalWithValue.GetValue(), ShowTraces, CustomLog)
+
+		Actor[] passengers = Alias_Passengers.GetActorArray()
+		DefaultScriptFunctions.Trace(self, "_SetAllPassengersAV() passengers : " + passengers, ShowTraces, CustomLog)
+
+		int i = 0
+		While (i < passengers.length)
+			Actor currentActor = passengers[i]
+			currentActor.SetValue(AV, GlobalWithValue.GetValue())
+			currentActor.EvaluatePackage()
+			i += 1
+		EndWhile
+	EndLockGuard
 EndFunction

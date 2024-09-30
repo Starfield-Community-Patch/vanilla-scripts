@@ -1,5 +1,4 @@
-ScriptName Enchantment Extends Form Native hidden
+Scriptname Enchantment extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Bool Function IsHostile() Native
+; Is this enchantment classified as hostile?
+bool Function IsHostile() native

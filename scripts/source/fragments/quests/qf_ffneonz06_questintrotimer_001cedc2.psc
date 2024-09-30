@@ -1,18 +1,26 @@
-ScriptName Fragments:Quests:QF_FFNeonZ06_QuestIntroTimer_001CEDC2 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNeonZ06_QuestIntroTimer_001CEDC2 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property pDialogueFCNeon Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Quest __temp = Self as Quest
-  dialoguefcneon_timerscript kmyQuest = __temp as dialoguefcneon_timerscript
-  kmyQuest.Wait24()
+;BEGIN AUTOCAST TYPE DialogueFCNeon_TimerScript
+Quest __temp = self as Quest
+DialogueFCNeon_TimerScript kmyQuest = __temp as DialogueFCNeon_TimerScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.Wait24()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  pDialogueFCNeon.SetStage(294)
+;BEGIN CODE
+pDialogueFCNeon.SetStage(294)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property pDialogueFCNeon Auto Const Mandatory

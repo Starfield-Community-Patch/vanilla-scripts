@@ -1,31 +1,26 @@
-ScriptName LC082_BrigManagerRefScript Extends ObjectReference
-{ Script for the LC082 Brig Manager ref. Initializes the Brig when its cell loads for the first time. }
+Scriptname LC082_BrigManagerRefScript extends ObjectReference
+{Script for the LC082 Brig Manager ref. Initializes the Brig when its cell loads for the first time.}
 
-;-- Variables ---------------------------------------
-Bool initialized
-
-;-- Properties --------------------------------------
 Group AutofillProperties
-  lc082_brigquestscript Property LC082 Auto Const mandatory
+	LC082_BrigQuestScript property LC082 Auto Const Mandatory
 EndGroup
 
+;Local variables.
+bool initialized
 
-;-- Functions ---------------------------------------
 
-Bool Function HasInitilized()
-  Return initialized
-EndFunction
-
-;-- State -------------------------------------------
 Auto State Waiting
-
-  Event OnCellLoad()
-    Self.GoToState("initialized")
-    initialized = True
-    LC082.InitBrig()
-  EndEvent
+	Event OnCellLoad()
+		GoToState("Initialized")
+		initialized = True
+		LC082.InitBrig()
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-State initialized
+State Initialized
+	;Do nothing.
 EndState
+
+bool Function HasInitilized()
+	return initialized
+EndFunction

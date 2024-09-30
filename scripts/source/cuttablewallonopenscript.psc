@@ -1,20 +1,16 @@
-ScriptName CuttableWallOnOpenScript Extends ReferenceAlias
+Scriptname CuttableWallOnOpenScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkCustom02 Auto Const mandatory
-Int Property QuestStageToSet Auto Const
-Int Property QuestPrereqStage = -1 Auto Const
-Int Property QuestTurnOffStage = -1 Auto Const
-
-;-- Functions ---------------------------------------
+Keyword Property LinkCustom02 Mandatory Const Auto
+Int Property QuestStageToSet Const Auto
+Int Property QuestPrereqStage = -1 Const Auto
+Int Property QuestTurnOffStage = -1 Const Auto
 
 Event OnLoad()
-  Self.RegisterForRemoteEvent(Self.GetRef().GetLinkedRef(LinkCustom02) as ScriptObject, "OnOpen")
+    ;get the OnOpen event from the linked ref because this is a dynamically instanced packin
+    RegisterForRemoteEvent(Self.GetRef().GetLinkedRef(LinkCustom02), "OnOpen")
 EndEvent
 
 Event ObjectReference.OnOpen(ObjectReference akSender, ObjectReference akActionRef)
-  Quest MyQuest = Self.GetOwningQuest()
-  MyQuest.SetStage(QuestStageToSet)
+    Quest MyQuest = GetOwningQuest()
+    MyQuest.SetStage(QuestStageToSet)
 EndEvent

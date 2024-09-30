@@ -1,311 +1,421 @@
-ScriptName MQ_Temple_SubScript Extends Quest
+Scriptname MQ_Temple_SubScript extends Quest
 
-;-- Structs -----------------------------------------
-Struct imageSpaceData
-  ImageSpaceModifier scanTempleImod
-  Int distortionLevel = 1
-  wwiseevent soundEvent
-  Float requiredAngleExtent
-  Float loopTime
-EndStruct
+ReferenceAlias property PlayerShip auto const mandatory
 
+LocationAlias property PlanetWithTrait auto const mandatory
 
-;-- Variables ---------------------------------------
-Float AngleDiff
-Float DistanceDiff
-Int currentImodIndex = -1
-Float currentImodTime
-ObjectReference currentTarget
+Keyword property LocTypeMajorOrbital auto const mandatory
+
+LocationAlias property TempleLocation auto const mandatory
+
+Int Property QuestInitStage=-1 Auto Const
+
+Int Property LandingSetStage=30 Auto Const
+
+Int Property PowerReceivedStage=60 Const Auto
+
+Int Property PowerNumber=-1 Const Auto
 Int iArtifactNumber
+
+ReferenceAlias Property TemplePowerTrigger Mandatory Const Auto
+ReferenceAlias Property AnomalyMapMarker Mandatory Const Auto
+ReferenceAlias Property TempleMapMarker Mandatory Const Auto
+Quest Property StarbornTempleQuest Mandatory Const Auto
+ActorValue Property OutpostScannerMultiplier Mandatory Const Auto
+Keyword Property MQTempleQuestActive Mandatory Const Auto
+Keyword Property PlanetTrait26GravitationalAnomaly Mandatory Const Auto
+Quest Property MQ_TempleQuest_SpawnTemple Mandatory Const Auto
+Message Property MQ_TempleTutorial_DistanceMSG Mandatory Const Auto
+ReferenceAlias Property TempleStarbornMarker Const Auto
+ActorBase Property LvlStarborn_Boss_Aggro Mandatory Const Auto
+ReferenceAlias Property TempleStarborn Const Auto
+Quest Property MQ106 Mandatory Const Auto
+LocationAlias Property AnomalyLocation Mandatory Const Auto
+
 Actor playerRef
-Int scanTempleTimerID = 1 Const
-Float scanTempleTimerSeconds = 0.5 Const
-Bool usingHandscanner = False
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard CheckForTempleScanningGuard
-Guard handscannerGuard
-
-;-- Properties --------------------------------------
-Group soundData
-  String Property ArtifactPuzzle_TempleDistance = "ArtifactPuzzle_TempleDistance" Auto Const
-EndGroup
-
-ReferenceAlias Property PlayerShip Auto Const mandatory
-LocationAlias Property PlanetWithTrait Auto Const mandatory
-Keyword Property LocTypeMajorOrbital Auto Const mandatory
-LocationAlias Property TempleLocation Auto Const mandatory
-Int Property QuestInitStage = -1 Auto Const
-Int Property LandingSetStage = 30 Auto Const
-Int Property PowerReceivedStage = 60 Auto Const
-Int Property PowerNumber = -1 Auto Const
-ReferenceAlias Property TemplePowerTrigger Auto Const mandatory
-ReferenceAlias Property AnomalyMapMarker Auto Const mandatory
-ReferenceAlias Property TempleMapMarker Auto Const mandatory
-Quest Property StarbornTempleQuest Auto Const mandatory
-ActorValue Property OutpostScannerMultiplier Auto Const mandatory
-Keyword Property MQTempleQuestActive Auto Const mandatory
-Keyword Property PlanetTrait26GravitationalAnomaly Auto Const mandatory
-Quest Property MQ_TempleQuest_SpawnTemple Auto Const mandatory
-Message Property MQ_TempleTutorial_DistanceMSG Auto Const mandatory
-ReferenceAlias Property TempleStarbornMarker Auto Const
-ActorBase Property LvlStarborn_Boss_Aggro Auto Const mandatory
-ReferenceAlias Property TempleStarborn Auto Const
-Quest Property MQ106 Auto Const mandatory
-LocationAlias Property AnomalyLocation Auto Const mandatory
-GlobalVariable Property MQ401_SkipMQ Auto Const mandatory
-MusicType Property MUSGenesisStingerStarbornAppearB Auto Const mandatory
-mq_temple_subscript:imagespacedata[] Property TempleScanImods Auto Const
-{ array of imod data, ordered from highest priority (index 0) to lowest - use first one where currentAnglePercent <= maxPercent }
-Float Property MinAngle = 0.0 Auto Const
-Float Property MaxAngle = 85.0 Auto Const
-Float Property MinDistance = 300.0 Auto Const
-Float Property MaxDistance = 1200.0 Auto Const
-Float Property MaxScanEffectDistance = 5000.0 Auto Const
-{ outside this distance, turn off temple scan effect }
-
-;-- Functions ---------------------------------------
+GlobalVariable Property MQ401_SkipMQ Mandatory Const Auto
 
 Event OnQuestInit()
-  playerRef = Game.GetPlayer()
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnShipLanding")
-  Self.RegisterForRemoteEvent(playerRef as ScriptObject, "OnExitShipInterior")
-  Self.RegisterForRemoteEvent(playerRef as ScriptObject, "OnLocationChange")
-  If PowerNumber == -1
-    iArtifactNumber = (StarbornTempleQuest as starborntemplequestscript).CheckPlayerArtifactForPower()
-    If iArtifactNumber == -1
-      Self.Stop()
-      Return 
+    playerRef = Game.GetPlayer()
+    RegisterForRemoteEvent(PlayerShip, "OnShipLanding")
+    RegisterForRemoteEvent(playerRef, "OnExitShipInterior")
+    RegisterForRemoteEvent(PlayerREF, "OnLocationChange")
+
+    ;determine which Artifact Power we're looking for
+    If PowerNumber == -1
+        ;find a random Aritfact the player has but doesn't have a Power for
+        iArtifactNumber = (StarbornTempleQuest as StarbornTempleQuestScript).CheckPlayerArtifactForPower()
+
+        ;if no valid Artifact is found, shut down early
+        If iArtifactNumber == -1
+            Stop()
+            return
+        EndIf
+    Else
+        iArtifactNumber = PowerNumber
     EndIf
-  Else
-    iArtifactNumber = PowerNumber
-  EndIf
-  If iArtifactNumber != -1
-    Self.SetMapMarkerFlags(AnomalyMapMarker.GetRef())
-    PlanetWithTrait.GetLocation().GetCurrentPlanet().GetLocation().AddKeyword(MQTempleQuestActive)
-    (StarbornTempleQuest as starborntemplequestscript).SetPlayerFoundTemple(iArtifactNumber)
-    If QuestInitStage > -1
-      Self.SetStage(QuestInitStage)
+
+    If iArtifactNumber != -1
+        ;make sure the right map marker flags are set
+        SetMapMarkerFlags(AnomalyMapMarker.GetRef())
+
+        ;add a keyword to the planet we picked so other temple quests don't pick this planet
+        PlanetWithTrait.GetLocation().GetCurrentPlanet().GetLocation().AddKeyword(MQTempleQuestActive)
+
+        ;set player as having found the Temple so that we don't spawn a second Temple with same power
+        (StarbornTempleQuest as StarbornTempleQuestScript).SetPlayerFoundTemple(iArtifactNumber)
+
+        ;set init stage if one is specified
+        If (QuestInitStage > -1) 
+            SetStage(QuestInitStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
 Function SetMapMarkerFlags(ObjectReference akMapMarker)
-  akMapMarker.Enable(False)
-  akMapMarker.AddToMapScanned(True)
-  akMapMarker.SetMarkerVisibleOnStarMap(True)
-  akMapMarker.SetRequiresScanning(False)
-  akMapMarker.EnableFastTravel(True)
+    akMapMarker.Enable()
+    akMapMarker.AddToMapScanned(True)
+    akMapMarker.SetMarkerVisibleOnStarMap()
+    akMapMarker.SetRequiresScanning(false)
+    akMapMarker.EnableFastTravel()
 EndFunction
 
 Function TempleDiscovered()
-  Self.SetMapMarkerFlags(TempleMapMarker.GetRef())
-  AnomalyMapMarker.GetRef().Disable(False)
-  Self.RegisterForCustomEvent((TemplePowerTrigger.GetRef() as sbpowercollectionactivatorscript) as ScriptObject, "sbpowercollectionactivatorscript_PowerAcquiredEvent")
+    debug.trace(self + " TempleDiscovered")
+    ;Temple can now be seen on Planet Map and can be fast-travelled to
+    SetMapMarkerFlags(TempleMapMarker.GetRef())
+
+    ;turn off the anomaly map marker
+    AnomalyMapMarker.GetRef().Disable()
+
+    ;failsafe re-register for temple power acquired event
+    RegisterForCustomEvent((TemplePowerTrigger.GetRef() as SBPowerCollectionActivatorScript), "PowerAcquiredEvent")
 EndFunction
 
 Function PowerReceived()
-  Guard CheckForTempleScanningGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.StopTempleScanning()
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+    ;make sure we stop the scanning IMOD
+    LockGuard CheckForTempleScanningGuard
+        StopTempleScanning()
+    EndLockGuard
 EndFunction
 
-Event ReferenceAlias.OnShipLanding(ReferenceAlias akSource, Bool abComplete)
-  If abComplete
-    If TempleLocation.GetLocation() == None
-      Self.RefillTemple()
-    EndIf
-    Self.CheckForTempleScanning()
-  EndIf
-EndEvent
+Event ReferenceAlias.OnShipLanding(ReferenceAlias akSource, bool abComplete)
+    ; watch for ship to land on target planet and spawn Temple
+    debug.trace(self + " OnShipLanding abComplete=" + abComplete)
+    if (abComplete)
+        if (TempleLocation.GetLocation() == None)
+    	    RefillTemple()
+        EndIf
+        CheckForTempleScanning()
+    endif
+endEvent
 
-Function RefillTemple()
-  Location landingLocation = PlayerShip.GetRef().GetCurrentLocation()
-  Location planetLocation = PlanetWithTrait.GetLocation()
-  If landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
-    TempleLocation.RefillAlias()
-    TempleLocation.RefillDependentAliases()
-    Self.RegisterForCustomEvent((TemplePowerTrigger.GetRef() as sbpowercollectionactivatorscript) as ScriptObject, "sbpowercollectionactivatorscript_PowerAcquiredEvent")
-    (StarbornTempleQuest as starborntemplequestscript).SetArtifactAndPower(iArtifactNumber, TempleLocation.GetLocation())
-  EndIf
-EndFunction
+function RefillTemple()
+        Location landingLocation = PlayerShip.GetRef().GetCurrentLocation()
+        Location planetLocation = PlanetWithTrait.GetLocation()
+        debug.trace(self + " RefillTemple: landingLocation=" + landingLocation + " planetLocation=" + planetLocation)
+        if landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
+            debug.trace(" target planet - refill templeLocation")
+            TempleLocation.RefillAlias()
+            TempleLocation.RefillDependentAliases()
+            RegisterForCustomEvent((TemplePowerTrigger.GetRef() as SBPowerCollectionActivatorScript), "PowerAcquiredEvent")
+            (StarbornTempleQuest as StarbornTempleQuestScript).SetArtifactAndPower(iArtifactNumber, TempleLocation.GetLocation())
+        endif
+endFunction
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  ObjectReference ScanTarget = TempleMapMarker.GetRef()
-  If akSender == Game.GetPlayer() && ScanTarget != None && Self.GetStageDone(PowerReceivedStage) == False
-    Self.CheckForTempleScanning()
-  EndIf
+    debug.trace(self + " OnLocationChange akNewLoc=" + akNewLoc)
+    ObjectReference ScanTarget = TempleMapMarker.GetRef()
+
+    ;turn the scanner gameplay on and off as the player enters or leaves the planet
+    ;only do this if the temple has been spawned
+    If (akSender == Game.GetPlayer()) && (ScanTarget != None) && (GetStageDone(PowerReceivedStage) == 0)
+        CheckForTempleScanning()
+    EndIf
 EndEvent
 
 Event Actor.OnExitShipInterior(Actor akSource, ObjectReference akShip)
-  If Self.GetStageDone(LandingSetStage) == False
-    Location landingLocation = akShip.GetCurrentLocation()
-    Location planetLocation = PlanetWithTrait.GetLocation()
-    If landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
-      Self.SetStage(LandingSetStage)
+    debug.trace(self + " OnExitShipInterior")
+    if GetStageDone(LandingSetStage) == false
+        ; see if we're in target location
+        Location landingLocation = akShip.GetCurrentLocation()
+        Location planetLocation = PlanetWithTrait.GetLocation()
+        debug.trace(self + " OnExitShipInterior landingLocation=" + landingLocation + " planetLocation=" + planetLocation)
+        if landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
+            SetStage(LandingSetStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
-Function CheckForTempleScanning()
-  Guard CheckForTempleScanningGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    ObjectReference ScanTarget = TempleMapMarker.GetRef()
-    If ScanTarget != None && Self.GetStageDone(PowerReceivedStage) == False
-      Location TemplePlanetLocation = PlanetWithTrait.GetLocation()
-      spaceshipreference playerShipRef = PlayerShip.GetShipRef()
-      Location playerCurrentLocation = playerRef.GetCurrentLocation()
-      Location landingLocation = playerShipRef.GetCurrentLocation()
-      Bool onTargetPlanet = playerCurrentLocation.IsSameLocation(TemplePlanetLocation, LocTypeMajorOrbital) || landingLocation.IsSameLocation(TemplePlanetLocation, LocTypeMajorOrbital)
-      Bool nearTemple = playerRef.GetDistance(ScanTarget) < MaxScanEffectDistance || playerShipRef.GetDistance(ScanTarget) < MaxScanEffectDistance
-      If onTargetPlanet && nearTemple
-        Self.StartTempleScanning(ScanTarget)
-      Else
-        Self.StopTempleScanning()
-      EndIf
+Guard CheckForTempleScanningGuard ProtectsFunctionLogic
+
+function CheckForTempleScanning()
+    debug.trace(self + "CheckForTempleScanning")
+    LockGuard CheckForTempleScanningGuard
+
+        ;turn the scanner gameplay on and off based on how far the player is from the temple
+        ;only do this if the temple has been spawned
+
+        ObjectReference ScanTarget = TempleMapMarker.GetRef()
+        If (ScanTarget != None) && (GetStageDone(PowerReceivedStage) == 0)
+            Location TemplePlanetLocation = PlanetWithTrait.GetLocation()
+            SpaceshipReference playerShipRef = PlayerShip.GetShipRef()
+
+            Location playerCurrentLocation = playerRef.GetCurrentLocation()
+            Location landingLocation = playerShipRef.GetCurrentLocation()
+
+            debug.trace(self + "    playerCurrentLocation=" + playerCurrentLocation + " TemplePlanetLocation=" + TemplePlanetLocation + " ScanTarget=" + ScanTarget)
+
+            bool onTargetPlanet = playerCurrentLocation.IsSameLocation(TemplePlanetLocation, LocTypeMajorOrbital) || landingLocation.IsSameLocation(TemplePlanetLocation, LocTypeMajorOrbital)
+            bool nearTemple = playerRef.GetDistance(ScanTarget) < MaxScanEffectDistance || playerShipRef.GetDistance(ScanTarget) < MaxScanEffectDistance
+            debug.trace(self + "    onTargetPlanet=" + onTargetPlanet + " nearTemple=" + nearTemple)
+            If onTargetPlanet && nearTemple
+                StartTempleScanning(ScanTarget)
+            Else
+                StopTempleScanning()
+            EndIf
+        EndIf
+    EndLockGuard
+endFunction
+
+Event SBPowerCollectionActivatorScript.PowerAcquiredEvent(SBPowerCollectionActivatorScript akSender, Var[] akArgs)
+    If (akSender == TemplePowerTrigger.GetRef()) && (GetStageDone(PowerReceivedStage) == False)
+        SetStage(PowerReceivedStage)
+        (StarbornTempleQuest as StarbornTempleQuestScript).SetPlayerAcquiredPower(iArtifactNumber)
     EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
-
-Event SBPowerCollectionActivatorScript.PowerAcquiredEvent(sbpowercollectionactivatorscript akSender, Var[] akArgs)
-  If (akSender as ObjectReference == TemplePowerTrigger.GetRef()) && Self.GetStageDone(PowerReceivedStage) == False
-    Self.SetStage(PowerReceivedStage)
-    (StarbornTempleQuest as starborntemplequestscript).SetPlayerAcquiredPower(iArtifactNumber)
-  EndIf
 EndEvent
 
-Event MQSpawnTempleScript.TempleSpawnedEvent(mqspawntemplescript akSender, Var[] akArgs)
-  Location myLocation = akArgs[0] as Location
-  ObjectReference myMapMarker = akArgs[1] as ObjectReference
-  Self.UnRegisterForCustomEvent(akSender as ScriptObject, "mqspawntemplescript_TempleSpawnedEvent")
-  TempleLocation.ForceLocationTo(myLocation)
-  TempleLocation.RefillDependentAliases()
-  Self.RegisterForCustomEvent((TemplePowerTrigger.GetRef() as sbpowercollectionactivatorscript) as ScriptObject, "sbpowercollectionactivatorscript_PowerAcquiredEvent")
-  (StarbornTempleQuest as starborntemplequestscript).SetArtifactAndPower(iArtifactNumber, TempleLocation.GetLocation())
+Event MQSpawnTempleScript.TempleSpawnedEvent(MQSpawnTempleScript akSender, Var[] akArgs)
+    ;we are trying to force spawn a temple through the MQ_TempleQuest_SpawnTemple quest. Update aliases to use the newly spawned temple location
+    Location myLocation = akArgs[0] as Location
+    ObjectReference myMapMarker = akArgs[1] as ObjectReference
+    UnRegisterForCustomEvent(akSender, "TempleSpawnedEvent")
+    TempleLocation.ForceLocationTo(myLocation)
+    TempleLocation.RefillDependentAliases()
+    RegisterForCustomEvent((TemplePowerTrigger.GetRef() as SBPowerCollectionActivatorScript), "PowerAcquiredEvent")
+    (StarbornTempleQuest as StarbornTempleQuestScript).SetArtifactAndPower(iArtifactNumber, TempleLocation.GetLocation())
 EndEvent
+
+MusicType Property MUSGenesisStingerStarbornAppearB Mandatory Const Auto
 
 Function SpawnStarborn()
-  If MQ106.IsCompleted() || MQ401_SkipMQ.GetValueInt() >= 1
-    Actor StarbornREF = TempleStarbornMarker.GetRef().PlaceActorAtMe(LvlStarborn_Boss_Aggro, 4, None, False, False, True, None, True)
-    MUSGenesisStingerStarbornAppearB.Add()
-    TempleStarborn.ForceRefTo(StarbornREF as ObjectReference)
-    (StarbornTempleQuest as starborntemplequestscript).RenameTempleStarborn(iArtifactNumber, StarbornREF)
-  EndIf
+    ;spawn a Starborn at the Temple
+    If (MQ106.IsCompleted()) || (MQ401_SkipMQ.GetValueInt() >= 1 );MQ106, where the Starborn are introduced, must be complete, or the MQ must have been skipped
+        Actor StarbornREF = TempleStarbornMarker.GetRef().PlaceActorAtMe(LvlStarborn_Boss_Aggro)
+        ;play music
+        MUSGenesisStingerStarbornAppearB.Add()
+        TempleStarborn.ForceRefTo(StarbornREF)
+        ;rename the Starborn to the Temple Specific name based on the Artifact number set earlier on QuestInit
+        (StarbornTempleQuest as StarbornTempleQuestScript).RenameTempleStarborn(iArtifactNumber, StarbornREF)
+    EndIf
 EndFunction
 
-Function StartTempleScanning(ObjectReference targetRef)
-  DistanceDiff = MaxDistance - MinDistance
-  AngleDiff = MaxAngle - MinAngle
-  Self.RegisterForMenuOpenCloseEvent("MonocleMenu")
-  currentTarget = targetRef
+;/ 
+********************************************************
+Scanning for temple
+********************************************************
+/;
+
+struct imageSpaceData
+    ImageSpaceModifier scanTempleImod
+    int distortionLevel = 1
+    WwiseEvent soundEvent
+    float requiredAngleExtent ; when angle extent is <= requiredAngleExtent, this imod can start showing up within that angle
+    float loopTime ; how long between reapplying the imod?
+endStruct
+
+imageSpaceData[] property TempleScanImods auto Const
+{ array of imod data, ordered from highest priority (index 0) to lowest - use first one where currentAnglePercent <= maxPercent }
+
+;WwiseEvent Property ArtifactPuzzle_TempleDistance Auto Const mandatory
+
+float property MinAngle = 0.0 auto Const
+float property MaxAngle = 85.0 auto Const
+
+float property MinDistance = 300.0 auto Const
+float property MaxDistance = 1200.0 auto const
+float property MaxScanEffectDistance = 5000.0 auto const
+{ outside this distance, turn off temple scan effect }
+
+group soundData
+    ; sound handles
+    String property ArtifactPuzzle_TempleDistance = "ArtifactPuzzle_TempleDistance" Auto Const
+EndGroup
+
+int scanTempleTimerID = 1 Const
+float scanTempleTimerSeconds = 0.5 Const
+
+bool usingHandscanner = false  ; this may not be reliable - if not, we'll need a function to check if you have the scanner up or not
+ObjectReference currentTarget
+int currentImodIndex = -1 ; track what's our current index for TempleScanImods
+float currentImodTime ; how long since the current imod was applied - used to determine when to reapply
+float DistanceDiff ; difference between MaxDistance and MinDistance
+float AngleDiff ; difference between MaxAngle and MinAngle
+
+function StartTempleScanning(ObjectReference targetRef) RequiresGuard(CheckForTempleScanningGuard)
+    debug.trace(self + " StartTempleScanning " + targetRef)
+    DistanceDiff = MaxDistance - MinDistance
+    AngleDiff = MaxAngle - MinAngle
+
+    RegisterForMenuOpenCloseEvent("MonocleMenu")
+    currentTarget = targetRef
 EndFunction
 
-Function StopTempleScanning()
-  Self.UnRegisterForMenuOpenCloseEvent("MonocleMenu")
-  currentTarget = None
-EndFunction
+function StopTempleScanning() RequiresGuard(CheckForTempleScanningGuard)
+    debug.trace(self + " StopTempleScanning")
+    UnRegisterForMenuOpenCloseEvent("MonocleMenu")
+    currentTarget = NONE
+endFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == scanTempleTimerID
-    Self.UpdateTempleScan()
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == scanTempleTimerID
+        UpdateTempleScan()
+    endif
 EndEvent
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If asMenuName == "MonocleMenu"
-    Guard handscannerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      usingHandscanner = abOpening
-      If abOpening
-        Self.StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
-      EndIf
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  EndIf
+guard handscannerGuard ProtectsFunctionLogic
+
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    If asMenuName== "MonocleMenu"
+        LockGuard handscannerGuard
+            usingHandscanner = abOpening
+            if abOpening
+                StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
+            EndIf
+        EndLockGuard
+    endif
 EndEvent
 
-Function UpdateTempleScan()
-  If usingHandscanner && currentTarget as Bool
-    Float zAngle = Game.GetCameraHeadingAngle(currentTarget)
-    Float currentMaxImodAngle = Self.GetAngleExtent()
-    If Math.abs(zAngle) <= MaxAngle
-      Self.UpdateImod(zAngle, currentMaxImodAngle)
+function UpdateTempleScan()
+    debug.trace(self + "UpdateTempleScan: usingHandscanner=" + usingHandscanner)
+    if usingHandscanner && currentTarget
+        ; get angle to currentTarget
+        float zAngle = Game.GetCameraHeadingAngle(currentTarget)
+
+        ; modify min/max angle by distance to target
+        float currentMaxImodAngle = GetAngleExtent()
+
+        debug.trace(self + "    zAngle=" + zAngle)
+        debug.trace(self + "    currentMaxImodAngle=" + currentMaxImodAngle)
+
+        if Math.abs(zAngle) <= MaxAngle
+            UpdateImod(zAngle, currentMaxImodAngle)
+        Else
+            RemoveAllImods()
+        endif
+        
+        ; rerun timer
+        StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
     Else
-      Self.RemoveAllImods()
-    EndIf
-    Self.StartTimer(scanTempleTimerSeconds, scanTempleTimerID)
-  Else
-    Self.RemoveAllImods()
-  EndIf
+        ; kill VFX, don't rerun timer
+        RemoveAllImods()
+    endif
 EndFunction
 
-Float Function GetAngleExtent()
-  Float distance = Self.GetClampedDistance()
-  Float distanceMult = (distance - MinDistance) / DistanceDiff
-  Float angleExtent = MinAngle + distanceMult * AngleDiff
-  Return angleExtent
+; returns value between MinAngle and MaxAngle, based on how close the player is to the target
+float function GetAngleExtent()
+    ; get distance to target
+    float distance = GetClampedDistance()
+
+    ; get multiplier based on how far from target
+    float distanceMult = (distance - MinDistance)/DistanceDiff
+
+    ; scale angle extent by distance mult
+    float angleExtent = MinAngle + distanceMult*AngleDiff
+    debug.trace(self + "    clamped distance=" + distance)
+    return angleExtent
+endFunction
+
+float function GetClampedDistance()
+    ; get distance to target
+    float distance = Math.Clamp(playerRef.GetDistance(currentTarget), MinDistance, MaxDistance)
+    return distance
 EndFunction
 
-Float Function GetClampedDistance()
-  Float distance = Math.Clamp(playerRef.GetDistance(currentTarget), MinDistance, MaxDistance)
-  Return distance
-EndFunction
+function UpdateImod(float currentAngle, float currentMaxImodAngle)
+    bool foundValidImod = false
+    debug.trace(self + "    UpdateImod:")
+    debug.trace(self + "        currentAngle=" + currentAngle)
+    debug.trace(self + "        currentMaxImodAngle=" + currentMaxImodAngle)
 
-Function UpdateImod(Float currentAngle, Float currentMaxImodAngle)
-  Bool foundValidImod = False
-  Int I = 0
-  While I < TempleScanImods.Length
-    mq_temple_subscript:imagespacedata theData = TempleScanImods[I]
-    If foundValidImod
-      If theData.scanTempleImod
-        theData.scanTempleImod.Remove()
-      EndIf
-    ElseIf currentMaxImodAngle <= theData.requiredAngleExtent && Math.abs(currentAngle) <= theData.requiredAngleExtent
-      foundValidImod = True
-      Float distance = Self.GetClampedDistance()
-      If currentImodIndex != I
-        currentImodIndex = I
-        Game.SetHandscannerDistortionLevel(theData.distortionLevel)
-        If theData.scanTempleImod
-          theData.scanTempleImod.Apply(1.0)
-        EndIf
-        If theData.soundEvent
-          theData.soundEvent.PlayWithRTPC(playerRef as ObjectReference, ArtifactPuzzle_TempleDistance, distance)
-        EndIf
-        currentImodTime = 0.0
-      ElseIf currentImodTime >= theData.loopTime
-        If theData.scanTempleImod
-          theData.scanTempleImod.Apply(1.0)
-        EndIf
-        If theData.soundEvent
-          theData.soundEvent.PlayWithRTPC(playerRef as ObjectReference, ArtifactPuzzle_TempleDistance, distance)
-        EndIf
-        currentImodTime = 0.0
-      Else
-        currentImodTime += scanTempleTimerSeconds
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
-  If foundValidImod == False
-    currentImodIndex = 0
+    int i = 0
+    while i < TempleScanImods.Length
+        imageSpaceData theData = TempleScanImods[i]
+        if foundValidImod
+            ; if we already found one, make sure others are removed
+            if theData.scanTempleImod
+                theData.scanTempleImod.Remove()
+            endif
+        Else
+            ; check if this imod is valid:
+            ;   - currentMaxImodAngle <= requiredAngleExtent
+            ;   - current angle is within requiredAngleExtent
+            if currentMaxImodAngle <= theData.requiredAngleExtent && Math.abs(currentAngle) <= theData.requiredAngleExtent 
+                debug.trace(self + "        found valid data: i="+ i + ": theData.requiredAngleExtent=" + theData.requiredAngleExtent + " - distortionLevel=" + theData.distortionLevel)
+                foundValidImod = true
+
+                float distance = GetClampedDistance()
+
+                if currentImodIndex != i
+                    currentImodIndex = i
+                    debug.trace(self + "            different from current distortion level - applying")
+                    Game.SetHandscannerDistortionLevel(theData.distortionLevel)
+                    if theData.scanTempleImod
+                        theData.scanTempleImod.Apply()
+                    endif
+                    ; sound
+                    if theData.soundEvent
+                        theData.soundEvent.PlayWithRTPC(playerRef, ArtifactPuzzle_TempleDistance, distance)
+                    endif
+                    ; reset currentImodTime
+                    currentImodTime = 0.0
+                Else
+                    debug.trace(self + "            same as current distortion level - currentImodTime=" + currentImodTime + " loopTime=" + theData.loopTime)
+                    ; check if it's time to reapply
+                    if currentImodTime >= theData.loopTime
+                        debug.trace(self + "                reapplying imod " + currentImodIndex)
+                        if theData.scanTempleImod
+                            theData.scanTempleImod.Apply()
+                        endif
+                        ; sound
+                        if theData.soundEvent
+                            theData.soundEvent.PlayWithRTPC(playerRef, ArtifactPuzzle_TempleDistance, distance)
+                        endif
+                        ; reset currentImodTime
+                        currentImodTime = 0.0
+                    Else
+                        ; increment currentImodTime
+                        currentImodTime += scanTempleTimerSeconds
+                    endif
+                endif
+            endif
+        endif
+        i += 1
+    EndWhile
+    if foundValidImod == false
+        currentImodIndex = 0
+        Game.SetHandscannerDistortionLevel(0)
+    endif
+endFunction
+
+function RemoveAllImods()
     Game.SetHandscannerDistortionLevel(0)
-  EndIf
-EndFunction
+    currentImodIndex = -1
+    currentImodTime = 0.0
 
-Function RemoveAllImods()
-  Game.SetHandscannerDistortionLevel(0)
-  currentImodIndex = -1
-  currentImodTime = 0.0
-  Int I = 0
-  While I < TempleScanImods.Length
-    If TempleScanImods[I].scanTempleImod
-      TempleScanImods[I].scanTempleImod.Remove()
-    EndIf
-    I += 1
-  EndWhile
-EndFunction
+    int i = 0
+    while i < TempleScanImods.Length
+        if TempleScanImods[i].scanTempleImod
+            TempleScanImods[i].scanTempleImod.Remove()
+        endif
+        i += 1
+    EndWhile
+endFunction
 
+;SF-26384: Adding a "Refresh your anomaly/temple aliases" function to fix cases where the game couldn't place a the anomaly on first pass
 Function RefillAnomalyOE()
-  AnomalyLocation.RefillAlias()
-  AnomalyMapMarker.RefillAlias()
-  Self.SetMapMarkerFlags(AnomalyMapMarker.GetRef())
-EndFunction
+    AnomalyLocation.RefillAlias()
+    AnomalyMapMarker.RefillAlias()
+    SetMapMarkerFlags(AnomalyMapMarker.GetRef())
+EndFunction 

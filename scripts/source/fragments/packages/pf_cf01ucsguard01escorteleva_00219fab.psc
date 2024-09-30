@@ -1,12 +1,14 @@
-ScriptName Fragments:Packages:PF_CF01UCSGuard01EscortEleva_00219FAB Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_CF01UCSGuard01EscortEleva_00219FAB Extends Package Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property CF01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  CF01.SetStage(185)
+;BEGIN CODE
+CF01.SetStage(185)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property CF01 Auto Const Mandatory

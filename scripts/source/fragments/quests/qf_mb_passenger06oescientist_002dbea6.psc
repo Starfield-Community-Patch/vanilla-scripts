@@ -1,18 +1,25 @@
-ScriptName Fragments:Quests:QF_MB_Passenger06OEScientist_002DBEA6 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MB_Passenger06OEScientist_002DBEA6 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property PCM_Request_OE_Civilian Auto Const mandatory
-LocationAlias Property Alias_TargetPlanetLocation Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.StopQuestTimer()
-  Self.SetObjectiveCompleted(10, True)
+;BEGIN CODE
+StopQuestTimer()
+SetObjectiveCompleted(10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Keyword Property PCM_Request_OE_Civilian Auto Const Mandatory
+
+LocationAlias Property Alias_TargetPlanetLocation Auto Const Mandatory

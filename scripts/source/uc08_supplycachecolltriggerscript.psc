@@ -1,19 +1,15 @@
-ScriptName UC08_SupplyCacheCollTriggerScript Extends RefCollectionAlias
+Scriptname UC08_SupplyCacheCollTriggerScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property AccessCachesObjIndex = 335 Auto Const
-{ Objective index for the "Access the supply caches" objective. We'll turn that off when the player has no
-unexplored caches }
-
-;-- Functions ---------------------------------------
+int Property AccessCachesObjIndex = 335 Const Auto
+{Objective index for the "Access the supply caches" objective. We'll turn that off when the player has no
+unexplored caches}
 
 Event OnTriggerEnter(ObjectReference akSenderRef, ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Self.RemoveRef(akSenderRef)
-    If Self.GetCount() <= 0
-      Self.GetOwningQuest().SetObjectiveDisplayed(AccessCachesObjIndex, False, False)
-    EndIf
-  EndIf
+    if akActionRef == Game.GetPlayer()
+        RemoveRef(akSenderRef)
+
+        if GetCount() <= 0
+            GetOwningQuest().SetObjectiveDisplayed(AccessCachesObjIndex, false, false)
+        endif
+    endif
 EndEvent

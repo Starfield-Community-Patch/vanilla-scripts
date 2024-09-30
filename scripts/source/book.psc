@@ -1,1 +1,1 @@
-ScriptName Book Extends Form Native hidden
+Scriptname Book Extends Form Native Hidden

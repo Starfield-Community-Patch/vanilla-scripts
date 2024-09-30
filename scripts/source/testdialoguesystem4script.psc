@@ -1,7 +1,5 @@
-ScriptName TestDialogueSystem4Script Extends Quest
-
-;-- Functions ---------------------------------------
+Scriptname TestDialogueSystem4Script extends Quest
 
 Function TestMyFunction()
-  ; Empty function
+    debug.trace(self + "TestMyFunction called")
 EndFunction

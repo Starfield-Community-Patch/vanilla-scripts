@@ -1,14 +1,9 @@
-ScriptName CastSpellOnEffectScript Extends ActiveMagicEffect hidden
-{ Cast spell on target timed after another effect. }
+Scriptname CastSpellOnEffectScript extends ActiveMagicEffect Hidden
+{Cast spell on target timed after another effect.}
 
-;-- Variables ---------------------------------------
+Spell property OnEffectSpell auto const
+{Cast this spell on effect start.}
 
-;-- Properties --------------------------------------
-Spell Property OnEffectSpell Auto Const
-{ Cast this spell on effect start. }
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  OnEffectSpell.Cast(akCaster as ObjectReference, akTarget)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	OnEffectSpell.Cast(akCaster, akTarget)
 EndEvent

@@ -1,52 +1,62 @@
-ScriptName SQ_CCT_Enviro_AmbusherScript Extends Quest
+Scriptname SQ_CCT_Enviro_AmbusherScript extends Quest
 
-;-- Structs -----------------------------------------
-Struct AmbushData
-  ReferenceAlias AmbushMarker
-  ReferenceAlias Prey
-EndStruct
-
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property SQ_CCT_Enviro_AmbusherScene Auto Const mandatory
+Scene property SQ_CCT_Enviro_AmbusherScene auto const mandatory
 { scene to start once target is initialized }
-sq_cct_enviro_ambusherscript:ambushdata[] Property AmbushMarkers Auto Const mandatory
+
+struct AmbushData
+    ReferenceAlias AmbushMarker
+    ReferenceAlias Prey
+endStruct
+
+AmbushData[] property AmbushMarkers auto const mandatory
 { array of ambush markers and nearest prey }
-ReferenceAlias Property BehaviorActor Auto Const mandatory
+
+ReferenceAlias property BehaviorActor auto const mandatory
 { ambusher }
-ReferenceAlias Property BehaviorTarget Auto Const mandatory
+
+ReferenceAlias property BehaviorTarget auto const mandatory
 { ambush marker to use - fill in with one that's farthest from prey }
-RefCollectionAlias Property BehaviorActorHerd Auto Const
+
+RefCollectionAlias property BehaviorActorHerd auto const
 { OPTIONAL - used for herd actors }
 
-;-- Functions ---------------------------------------
-
 Event OnQuestStarted()
-  ObjectReference actorRef = BehaviorActor.GetRef()
-  ObjectReference targetRef = BehaviorTarget.GetRef()
-  Int h = 0
-  While h < BehaviorActorHerd.GetCount()
-    h += 1
-  EndWhile
-  Float minDistance = 0.0
-  ObjectReference bestMarker = None
-  Int I = 0
-  While I < AmbushMarkers.Length
-    ObjectReference AmbushMarker = AmbushMarkers[I].AmbushMarker.GetRef()
-    ObjectReference preyRef = AmbushMarkers[I].Prey.GetRef()
-    If AmbushMarker as Bool && preyRef as Bool
-      Float preyDistance = AmbushMarker.GetDistance(preyRef)
-      If preyDistance > minDistance
-        minDistance = preyDistance
-        bestMarker = AmbushMarker
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
-  If bestMarker
-    BehaviorTarget.ForceRefTo(bestMarker)
-  EndIf
-  SQ_CCT_Enviro_AmbusherScene.Start()
+    Objectreference actorRef = BehaviorActor.GetRef()
+    Objectreference targetRef = BehaviorTarget.GetRef()
+    debug.trace(self + " OnQuestStarted BehaviorActor="+ actorRef + ", BehaviorTarget=" + targetRef + " distance=" + targetRef.GetDistance(actorRef))
+    ; temp
+    debug.trace(self + "    BehaviorActorHerd:")
+    int h = 0
+    while h < BehaviorActorHerd.GetCount()
+        debug.trace(self + "     " + BehaviorActorHerd.GetActorAt(h) + " distance from main actor=" + BehaviorActorHerd.GetActorAt(h).GetDistance(actorRef))
+        h += 1
+    endWhile
+    ; find ambush marker with prey that's furthest from it, to give predator best chance of getting there first
+    float minDistance = 0.0
+    ObjectReference bestMarker = None
+
+    int i = 0
+    while i < AmbushMarkers.Length
+        ObjectReference ambushMarker = AmbushMarkers[i].AmbushMarker.GetRef()
+        ObjectReference preyRef = AmbushMarkers[i].Prey.GetRef()
+        debug.trace(self + " ambushMarker=" + ambushMarker + " preyRef=" + preyRef)
+        if ambushMarker && preyRef
+            float preyDistance = ambushMarker.GetDistance(preyRef)
+            debug.trace(self + "    distance=" + preyDistance)
+            if preyDistance > minDistance
+                minDistance = preyDistance
+                bestMarker = ambushMarker
+                debug.trace(self + "    This is current max, picking marker " + bestMarker)
+            endif
+        endif
+        i += 1
+    EndWhile
+
+    if bestMarker
+        debug.trace(self + " Updating target marker to " + bestMarker)
+        BehaviorTarget.ForceRefTo(bestMarker)
+    endif
+
+    SQ_CCT_Enviro_AmbusherScene.Start()
 EndEvent
+

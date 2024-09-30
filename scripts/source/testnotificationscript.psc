@@ -1,12 +1,7 @@
-ScriptName TestNotificationScript Extends ObjectReference Const
+Scriptname TestNotificationScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property TestNotification Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message Property TestNotification Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  TestNotification.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+  TestNotification.Show()
 EndEvent

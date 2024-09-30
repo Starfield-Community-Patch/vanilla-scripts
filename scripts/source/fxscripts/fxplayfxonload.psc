@@ -1,25 +1,24 @@
-ScriptName FXScripts:FXPlayFXOnLoad Extends ObjectReference
-{ Places a activator on death. }
+Scriptname FXScripts:FXPlayFXOnLoad extends ObjectReference 
+{Places a activator on death.}
 
-;-- Variables ---------------------------------------
-Bool done = False
+VisualEffect Property VisualEffectToApply Auto Const Mandatory
 
-;-- Properties --------------------------------------
-VisualEffect Property VisualEffectToApply Auto Const mandatory
 
-;-- Functions ---------------------------------------
+bool done = False
 
 Event OnLoad()
-  If !done
-    If Self.IsDisabled() == False
-      If Self.Is3DLoaded()
-        VisualEffectToApply.Play(Self as ObjectReference, -1.0, None)
-        done = True
-      EndIf
-    EndIf
-  EndIf
+	if !done
+		if Self.IsDisabled() == false
+			if Self.Is3DLoaded()
+				VisualEffectToApply.Play(Self)
+				done = True
+				Debug.trace("OnLoad for " + Self + ". Trying to play effect: " + VisualEffectToApply)
+			EndIf
+		EndIf
+	EndIf
 EndEvent
 
 Event OnUnLoad()
-  VisualEffectToApply.Stop(Self as ObjectReference)
+		VisualEffectToApply.Stop(Self)
 EndEvent
+

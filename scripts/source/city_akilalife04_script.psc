@@ -1,22 +1,23 @@
-ScriptName City_AkilaLife04_Script Extends Quest
+Scriptname City_AkilaLife04_Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet Auto Const
-ReferenceAlias Property KateFoley Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+; Wait 24 hours to progress quest
 Function Wait24()
-  Self.StartTimerGameTime(24.0, 1)
+    Debug.Trace("Akila04 - 24 hour timer kicked off")
+    StartTimerGameTime(24, 1)
 EndFunction
 
-Event OnTimerGameTime(Int aiTimerID)
-  If aiTimerID == 1
-    Self.SetStage(StageToSet)
-    If KateFoley.GetRef().Is3DLoaded()
-      Self.SetStage(350)
+Event OnTimerGameTime(int aiTimerID)
+    Debug.Trace("Akila04 timer check")
+    If aiTimerID == 1
+        Debug.Trace("Akila04 - 24 hour timer has fired")
+        SetStage(StageToSet)
+
+        ; Is the player in the Stoneroot Inn already?
+        if ( KateFoley.GetRef().Is3DLoaded() )
+            SetStage(350)   ; If so progress with their scene immediately
+        endif
     EndIf
-  EndIf
 EndEvent
+
+Int Property StageToSet Auto Const
+ReferenceAlias Property KateFoley Auto Const Mandatory

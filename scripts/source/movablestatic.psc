@@ -1,1 +1,1 @@
-ScriptName MovableStatic Extends Static Native hidden
+Scriptname MovableStatic Extends Static Native Hidden

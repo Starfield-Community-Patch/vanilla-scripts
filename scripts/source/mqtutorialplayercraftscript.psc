@@ -1,16 +1,12 @@
-ScriptName MQTutorialPlayerCraftScript Extends ReferenceAlias
+Scriptname MQTutorialPlayerCraftScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property StageToSet=100 Const Auto
 
-;-- Properties --------------------------------------
-Int Property StageToSet = 100 Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnPlayerModArmorWeapon(Form akBaseObject, objectmod akModBaseObject)
-  Self.GetOwningQuest().SetStage(StageToSet)
-EndEvent
+;we only care if the player crafts or mods anything
+Event OnPlayerModArmorWeapon(Form akBaseObject, ObjectMod akModBaseObject)
+    GetOwningQuest().SetStage(StageToSet)
+endEvent
 
 Event OnPlayerCraftItem(ObjectReference akBench, Location akLocation, Form akCreatedItem)
-  Self.GetOwningQuest().SetStage(StageToSet)
-EndEvent
+    GetOwningQuest().SetStage(StageToSet)
+endEvent

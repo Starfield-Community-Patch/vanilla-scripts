@@ -1,28 +1,28 @@
-ScriptName UC05_PlaySoundonActivate Extends ObjectReference
+Scriptname UC05_PlaySoundonActivate extends ObjectReference
 
-;-- Variables ---------------------------------------
+WwiseEvent Property SuccessSound Auto Const Mandatory
 
-;-- Properties --------------------------------------
-wwiseevent Property SuccessSound Auto Const mandatory
-wwiseevent Property FailureSound Auto Const mandatory
-Quest Property myQuest Auto Const mandatory
-Int Property HasKey Auto Const mandatory
-Int Property AccessGranted Auto Const mandatory
-Keyword Property BlockPlayerActivation Auto Const mandatory
+WwiseEvent Property FailureSound Auto Const Mandatory
 
-;-- State -------------------------------------------
-State busy
-EndState
+Quest Property myQuest Auto Const Mandatory
 
-;-- State -------------------------------------------
-Auto State waiting
+Int Property HasKey Auto Const Mandatory
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.goToState("busy")
-    If (akActionRef == Game.GetPlayer() as ObjectReference) && myQuest.GetStageDone(HasKey) && !myQuest.GetStageDone(AccessGranted)
-      SuccessSound.PlayAndWait(Self as ObjectReference, None, None)
-      Self.AddKeyword(BlockPlayerActivation)
-    EndIf
-    Self.goToState("waiting")
-  EndEvent
-EndState
+Int Property AccessGranted Auto Const Mandatory
+
+Keyword Property BlockPlayerActivation Auto Const Mandatory
+
+auto STATE waiting
+    Event OnActivate(ObjectReference akActionRef)
+    ;Play success sound if player has the codes and has yet to use them
+        goToState("busy")
+        if akActionRef == Game.GetPlayer() && myQuest.GetStageDone(HasKey) && !myQuest.GetStageDone(AccessGranted)
+                SuccessSound.PlayAndWait(Self)
+                Self.AddKeyword(BlockPlayerActivation)
+        endif
+        goToState("waiting")
+    endEvent
+endSTATE
+
+STATE busy
+endSTATE

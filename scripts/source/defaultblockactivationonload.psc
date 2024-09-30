@@ -1,21 +1,17 @@
-ScriptName DefaultBlockActivationOnLoad Extends ObjectReference default
-{ Blocks activation once on load. }
+Scriptname DefaultBlockActivationOnLoad extends ObjectReference default
+{Blocks activation once on load.}
 
-;-- Variables ---------------------------------------
-Bool HasLoaded = False
+bool property HideActivationText = true const auto
 
-;-- Properties --------------------------------------
-Bool Property HideActivationText = True Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnActivate(ObjectReference akActionRef)
-  ; Empty function
-EndEvent
+Bool HasLoaded = FALSE
 
 Event OnLoad()
-  If !HasLoaded
-    HasLoaded = True
-    Self.BlockActivation(True, HideActivationText)
-  EndIf
+	if !HasLoaded
+		HasLoaded = TRUE
+    	BlockActivation(TRUE,HideActivationText)
+    endif
+EndEvent
+
+Event OnActivate(ObjectReference akActionRef)
+    debug.trace(self + " OnActivate " + akActionRef)
 EndEvent

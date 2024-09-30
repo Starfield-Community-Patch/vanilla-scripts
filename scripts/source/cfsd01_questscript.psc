@@ -1,141 +1,149 @@
-ScriptName CFSD01_QuestScript Extends Quest
+Scriptname CFSD01_QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-Actor PlayerRef
+ActorValue Property CFSD01Evidence Auto Const Mandatory
+ActorValue Property CFSD01EvidenceTotal Auto Const Mandatory
+Book[] Property EvidenceList Auto Const Mandatory
+Quest Property LC082 Mandatory Const Auto
+Quest Property LC088_Key Mandatory Const Auto
+Quest Property CF01 Mandatory Const Auto
+Quest Property CF04 Mandatory Const Auto
+Quest Property CF05 Mandatory Const Auto
+Quest Property CF06 Mandatory Const Auto
 
-;-- Properties --------------------------------------
 Group Autofill
-  ReferenceAlias Property CFSD01_Evidence_CF01_Kemp Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF03_Carter Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF03_LockRiots Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF04_Rokov Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF04_GalbankScheme Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF05_Daiyu Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF05_ComSpike Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF06_BayuGenerdyne Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF06_AyumiKomiko Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF06_EstelleVincent Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CF07_KryxFate Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CFKeyZ01_Maddie Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_CFKeyZ02_Kirova Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_Durand Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_Voss Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_Jaso Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_Chunks Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_Chiroptera Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_HopeTown Auto Const mandatory
-  ReferenceAlias Property CFSD01_Evidence_MSC_Kreet Auto Const mandatory
-  ReferenceAlias Property CFSD01_AdlerKemp Auto Const mandatory
-  ReferenceAlias Property CFSD01_EstelleVincent Auto Const mandatory
-  ReferenceAlias Property CFSD01_LarryDumbrosky Auto Const mandatory
-  ReferenceAlias Property CFSD01_HuanDaiyu Auto Const mandatory
-  ReferenceAlias Property CFSD01_EvgenyRokov Auto Const mandatory
-  ReferenceAlias Property CFSD01_Delgado Auto Const mandatory
-  ReferenceAlias Property CFSD01_AyumiKomiko Auto Const mandatory
+ReferenceAlias Property CFSD01_Evidence_CF01_Kemp Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF03_Carter Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF03_LockRiots Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF04_Rokov Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF04_GalbankScheme Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF05_Daiyu Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF05_ComSpike Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF06_BayuGenerdyne Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF06_AyumiKomiko Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF06_EstelleVincent Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CF07_KryxFate Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CFKeyZ01_Maddie Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_CFKeyZ02_Kirova Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_Durand Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_Voss Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_Jaso Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_Chunks Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_Chiroptera Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_HopeTown Mandatory Const Auto
+ReferenceAlias Property CFSD01_Evidence_MSC_Kreet Mandatory Const Auto
+ReferenceAlias Property CFSD01_AdlerKemp Mandatory Const Auto
+ReferenceAlias Property CFSD01_EstelleVincent Mandatory Const Auto
+ReferenceAlias Property CFSD01_LarryDumbrosky Mandatory Const Auto
+ReferenceAlias Property CFSD01_HuanDaiyu Mandatory Const Auto
+ReferenceAlias Property CFSD01_EvgenyRokov Mandatory Const Auto
+ReferenceAlias Property CFSD01_Delgado Mandatory Const Auto
+ReferenceAlias Property CFSD01_AyumiKomiko Mandatory Const Auto
 EndGroup
 
-ActorValue Property CFSD01Evidence Auto Const mandatory
-ActorValue Property CFSD01EvidenceTotal Auto Const mandatory
-Book[] Property EvidenceList Auto Const mandatory
-Quest Property LC082 Auto Const mandatory
-Quest Property LC088_Key Auto Const mandatory
-Quest Property CF01 Auto Const mandatory
-Quest Property CF04 Auto Const mandatory
-Quest Property CF05 Auto Const mandatory
-Quest Property CF06 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Actor PlayerRef
 
 Event OnQuestInit()
-  PlayerRef = Game.GetPlayer()
+    PlayerRef = Game.GetPlayer()
 EndEvent
 
 Function EvidenceCheck()
-  Int I = 0
-  While I < EvidenceList.Length
-    If PlayerRef.GetItemCount(EvidenceList[I] as Form) >= 1
-      PlayerRef.SetValue(CFSD01Evidence, 1.0)
-      Self.SetObjectiveDisplayed(100, False, False)
-      Self.SetObjectiveDisplayed(200, True, False)
-      Return 
-    EndIf
-    I += 1
-  EndWhile
-  PlayerRef.SetValue(CFSD01Evidence, 0.0)
-  Self.SetObjectiveDisplayed(100, True, False)
-  Self.SetObjectiveDisplayed(200, False, False)
+    ;We are checking an array of all the Evidence Fragments to see if the Player has any - controls the Objectives and Scenes
+    int i = 0
+    While (i < EvidenceList.Length)
+        If PlayerRef.GetItemCount(EvidenceList[i]) >= 1
+            PlayerRef.SetValue(CFSD01Evidence,1)
+            SetObjectiveDisplayed(100,0)
+            SetObjectiveDisplayed(200,1)
+            Return
+        EndIf
+        i = i + 1
+    EndWhile
+        PlayerRef.SetValue(CFSD01Evidence,0)
+            SetObjectiveDisplayed(100,1)
+            SetObjectiveDisplayed(200,0)
 EndFunction
 
 Function EvidenceCounter()
-  PlayerRef.ModValue(CFSD01EvidenceTotal, 1.0)
-  If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 3.0
-    Self.SetStage(310)
-  EndIf
-  If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 7.0
-    Self.SetStage(330)
-  EndIf
-  If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 11.0
-    Self.SetStage(350)
-  EndIf
-  If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 15.0
-    Self.SetStage(1000)
-  EndIf
+    ;Every time an Evidence Fragment is turned in, increment the AV by 1 and check for Story Scene Availability
+    PlayerRef.ModValue(CFSD01EvidenceTotal,1)
+    If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 3
+        SetStage(310)
+    EndIf
+    If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 7
+        SetStage(330)
+    EndIf
+    If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 11    
+        SetStage(350)
+    EndIf
+    If PlayerRef.GetValue(CFSD01EvidenceTotal) >= 15
+        SetStage(1000)
+    EndIf
 EndFunction
 
 Function DebugAddAll()
-  PlayerRef.AddItem(CFSD01_Evidence_CF01_Kemp.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF03_Carter.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF03_LockRiots.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF04_Rokov.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF04_GalbankScheme.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF05_Daiyu.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF05_ComSpike.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF06_BayuGenerdyne.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF06_AyumiKomiko.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF06_EstelleVincent.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CF07_KryxFate.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CFKeyZ01_Maddie.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_CFKeyZ02_Kirova.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_Durand.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_Voss.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_Jaso.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_Chunks.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_Chiroptera.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_HopeTown.GetRef() as Form, 1, False)
-  PlayerRef.AddItem(CFSD01_Evidence_MSC_Kreet.GetRef() as Form, 1, False)
+
+PlayerRef.AddItem(CFSD01_Evidence_CF01_Kemp.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF03_Carter.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF03_LockRiots.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF04_Rokov.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF04_GalbankScheme.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF05_Daiyu.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF05_ComSpike.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF06_BayuGenerdyne.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF06_AyumiKomiko.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF06_EstelleVincent.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CF07_KryxFate.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CFKeyZ01_Maddie.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_CFKeyZ02_Kirova.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_Durand.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_Voss.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_Jaso.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_Chunks.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_Chiroptera.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_HopeTown.GetRef())
+PlayerRef.AddItem(CFSD01_Evidence_MSC_Kreet.GetRef())
+
 EndFunction
 
 Function JailCheck()
-  If Self.GetStageDone(15) == True && !Self.GetStageDone(410) && CF01.IsCompleted()
-    (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_AdlerKemp.GetActorRef(), 1)
-    Self.SetStage(410)
-  EndIf
-  If Self.GetStageDone(45) == True && !Self.GetStageDone(420) && CF04.IsCompleted()
-    (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_EvgenyRokov.GetActorRef(), 2)
-    Self.SetStage(420)
-  EndIf
-  If CF04.GetStageDone(158) == False
-    If Self.GetStageDone(55) == True && !Self.GetStageDone(460) && CF04.IsCompleted()
-      (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_LarryDumbrosky.GetActorRef(), 7)
-      Self.SetStage(460)
+    ;When Player leaves Vigilance, check if a piece of evidence has been turned in and then place prisoner in jail
+    If ((GetStageDone(15) == 1) && (!GetStageDone(410))) && CF01.IsCompleted()
+        (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_AdlerKemp.GetActorRef(),1)
+        SetStage(410)
     EndIf
-  EndIf
-  If Self.GetStageDone(65) == True && !Self.GetStageDone(430) && CF05.IsCompleted()
-    (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_HuanDaiyu.GetActorRef(), 3)
-    Self.SetStage(430)
-  EndIf
-  If Self.GetStageDone(85) == True && !Self.GetStageDone(440) && CF06.IsCompleted()
-    (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_EstelleVincent.GetActorRef(), 4)
-    Self.SetStage(440)
-  EndIf
-  If CF06.GetStageDone(70) == False
-    If Self.GetStageDone(105) == True && !Self.GetStageDone(470) && CF06.IsCompleted()
-      (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_AyumiKomiko.GetActorRef(), 8)
-      Self.SetStage(470)
+
+     If ((GetStageDone(45) == 1) && (!GetStageDone(420))) && CF04.IsCompleted()
+        (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_EvgenyRokov.GetActorRef(),2)
+        SetStage(420)
     EndIf
-  EndIf
-  If LC088_Key.GetStageDone(650) == True && !Self.GetStageDone(450)
-    (LC082 as lc082_brigquestscript).AddPrisoner(CFSD01_Delgado.GetActorRef(), 5)
-    Self.SetStage(450)
-  EndIf
+
+    If CF04.GetStageDone(158) == 0
+        If ((GetStageDone(55) == 1) && (!GetStageDone(460))) && CF04.IsCompleted()
+            (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_LarryDumbrosky.GetActorRef(),7)
+            SetStage(460)
+        EndIf
+   EndIf
+
+    If ((GetStageDone(65) == 1) && (!GetStageDone(430))) && CF05.IsCompleted()
+        (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_HuanDaiyu.GetActorRef(),3)
+        SetStage(430)
+    EndIf
+
+    If ((GetStageDone(85) == 1) && (!GetStageDone(440))) && CF06.IsCompleted()
+        (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_EstelleVincent.GetActorRef(),4)
+        SetStage(440)
+    EndIf
+
+    If CF06.GetStageDone(70) == 0
+        If ((GetStageDone(105) == 1) && (!GetStageDone(470))) && CF06.IsCompleted()
+            (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_AyumiKomiko.GetActorRef(),8)
+            SetStage(470)
+        EndIf
+    EndIf
+
+    If ((LC088_Key.GetStageDone(650) == 1) && (!GetStageDone(450)))
+        (LC082 as LC082_BrigQuestScript).AddPrisoner(CFSD01_Delgado.GetActorRef(),5)
+        SetStage(450)
+    EndIf
+
 EndFunction

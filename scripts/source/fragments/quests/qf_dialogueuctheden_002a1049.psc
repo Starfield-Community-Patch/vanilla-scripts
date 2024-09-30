@@ -1,22 +1,30 @@
-ScriptName Fragments:Quests:QF_DialogueUCTheDen_002A1049 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueUCTheDen_002A1049 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFDenR01 Auto Const mandatory
-Scene Property pDialogueUCTheDen_IntroScene Auto Const mandatory
-Quest Property UC06 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  If !UC06.IsRunning()
-    pDialogueUCTheDen_IntroScene.Start()
-  Else
-    Self.SetStage(5)
-  EndIf
+;BEGIN CODE
+if !UC06.IsRunning()
+  pDialogueUCTheDen_IntroScene.Start()
+else
+  SetStage(5)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  FFDenR01.SetStage(10)
+;BEGIN CODE
+FFDenR01.SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFDenR01 Auto Const Mandatory
+
+Scene Property pDialogueUCTheDen_IntroScene Auto Const Mandatory
+
+Quest Property UC06 Auto Const Mandatory

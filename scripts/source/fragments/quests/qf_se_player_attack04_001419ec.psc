@@ -1,46 +1,78 @@
-ScriptName Fragments:Quests:QF_SE_Player_Attack04_001419EC Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_Attack04_001419EC Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-Scene Property Attack01_100a_DefenderHailStart Auto Const mandatory
-MiscObject Property InorgCommonHelium3 Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-RefCollectionAlias Property Alias_AttackersRC Auto Const mandatory
-RefCollectionAlias Property Alias_DefendersRC Auto Const mandatory
-Faction Property PPlayerEnemyFaction Auto Const mandatory
-LeveledItem Property LL_Loot_ShipRepairKit Auto Const mandatory
-LeveledItem Property LL_Quest_Reward_Credits_Misc_01_Small Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-Message Property SE_ShipPartsAdded Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Alias_AttackersRC.RefillAlias()
-  Alias_DefendersRC.RefillAlias()
+;BEGIN CODE
+Alias_AttackersRC.RefillAlias()
+Alias_DefendersRC.RefillAlias()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Alias_HailingShip.RefillAlias()
-  Attack01_100a_DefenderHailStart.Start()
+;BEGIN CODE
+Alias_HailingShip.RefillAlias()
+Attack01_100a_DefenderHailStart.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Alias_DefendersRC.RemoveFromAllFactions()
-  Alias_DefendersRC.AddToFaction(PPlayerEnemyFaction)
+;BEGIN CODE
+Alias_DefendersRC.RemoveFromAllFactions()
+Alias_DefendersRC.AddToFaction(PPlayerEnemyFaction)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0175_Item_00
 Function Fragment_Stage_0175_Item_00()
-  Alias_PlayerShip.GetShipRef().AddItem(LL_Loot_ShipRepairKit as Form, 1, False)
-  SE_ShipPartsAdded.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+Alias_PlayerShip.GetShipRef().AddItem(LL_Loot_ShipRepairKit)
+SE_ShipPartsAdded.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0180_Item_00
 Function Fragment_Stage_0180_Item_00()
-  Game.GetPlayer().AddItem(LL_Quest_Reward_Credits_Misc_01_Small as Form, 1, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(LL_Quest_Reward_Credits_Misc_01_Small)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetStage(40)
+;BEGIN CODE
+SetStage(40)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+Scene Property Attack01_100a_DefenderHailStart Auto Const Mandatory
+
+MiscObject Property InorgCommonHelium3 Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+RefCollectionAlias Property Alias_AttackersRC Auto Const Mandatory
+
+RefCollectionAlias Property Alias_DefendersRC Auto Const Mandatory
+
+Faction Property PPlayerEnemyFaction Auto Const Mandatory
+
+LeveledItem Property LL_Loot_ShipRepairKit Auto Const Mandatory
+
+LeveledItem Property LL_Quest_Reward_Credits_Misc_01_Small Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+Message Property SE_ShipPartsAdded Auto Const Mandatory

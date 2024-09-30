@@ -1,7 +1,5 @@
-ScriptName UC03_HadrianAliasScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname UC03_HadrianAliasScript extends ReferenceAlias
 
 Event OnAliasInit()
-  Self.GetRef().IgnoreFriendlyHits(True)
+    GetRef().IgnoreFriendlyHits()
 EndEvent

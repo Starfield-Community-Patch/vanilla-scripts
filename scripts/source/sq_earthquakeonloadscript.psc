@@ -1,160 +1,198 @@
-ScriptName SQ_EarthquakeOnLoadScript Extends ObjectReference
-{ does an "earthquake" effect on load, and disables itself }
+Scriptname SQ_EarthquakeOnLoadScript extends ObjectReference
+{does an "earthquake" effect on load, and disables itself}
 
-;-- Variables ---------------------------------------
-Int earthquakeTimerID = 1 Const
-Int numQuakes = 0
-Int numRevealCave = 0
-Int numStaggers = 0
-ObjectReference rockfallFXRef
-Int rockfallFXTimerID = 2 Const
-Float staggerTime = 0.0
-Int staggerTimerID = 3 Const
-
-;-- Properties --------------------------------------
-Group CaveRevealData
-  Bool Property HasCaveReveal = True Auto Const
-  { set to true if there's a cave to reveal (FX will play)
-      set to false if this should only play earthquake FX }
-  Explosion Property RockfallExplosion Auto Const mandatory
-  { rockfall explosion }
-  movablestatic Property RockfallFX Auto Const mandatory
-  { place some FX at me for a bit }
-  Float Property RockfallFXTime = 10.0 Auto Const
-  { how long to leave RockfallFX enabled? }
-EndGroup
-
-Float Property EarthquakePercentChance = 50.0 Auto Const
+float property EarthquakePercentChance = 50.0 auto Const
 { percent chance the earthquake is triggered onLoad }
-Float Property timeBetweenQuakesMin = 5.0 Auto Const
-Float Property timeBetweenQuakesMax = 15.0 Auto Const
-Float Property earthquakeDurationMin = 2.5 Auto Const
-Float Property earthquakeDurationMax = 7.0 Auto Const
-Float Property earthquakeStaggerMinTime = 3.0 Auto Const
+
+float property timeBetweenQuakesMin = 5.0 auto Const
+
+float property  timeBetweenQuakesMax = 15.0 auto Const
+
+float property earthquakeDurationMin = 2.5 auto Const
+
+float property  earthquakeDurationMax = 7.0 auto Const
+
+float property earthquakeStaggerMinTime = 3.0 auto Const
 { min amount of time between casting the stagger spell }
-Int Property minQuakes = 2 Auto Const
-Int Property maxQuakes = 5 Auto Const
-wwiseevent Property OE_EarthquakeSound Auto Const mandatory
+
+int property minQuakes = 2 auto Const
+
+int property maxQuakes = 5 auto Const
+
+int numQuakes = 0 ; how many quakes to trigger
+int numRevealCave = 0 ; when to disable myself to reveal the cave etc.
+float staggerTime = 0.0 ; how long between stagger spells?
+int numStaggers = 0 ; how many times to cast stagger?
+
+WwiseEvent Property OE_EarthquakeSound Mandatory Const Auto
 { sound the earthquake makes }
-wwiseevent Property WwiseEvent_ShakeController_p5_p5_05 Auto Const mandatory
+
+WwiseEvent Property WwiseEvent_ShakeController_p5_p5_05 Mandatory Const Auto
 { controller shake }
-wwiseevent Property WwiseEvent_ShakeController_p25_p25_03 Auto Const mandatory
+
+WwiseEvent Property WwiseEvent_ShakeController_p25_p25_03 Mandatory Const Auto
 { controller shake }
-Spell Property SQ_EarthquakeStagger Auto Const mandatory
+
+Spell Property SQ_EarthquakeStagger auto const mandatory
 { spell to stagger actors in loaded area }
-Keyword[] Property EarthquakeTraits Auto Const
+
+Keyword[] property EarthquakeTraits auto Const
 { array of planet traits that allow earthquakes - if this is on a planet without earthquakes, immediately do the cave reveal (if any) and shut down }
-String Property jumpAnimVariableName = "iSyncJumpState" Auto Const
+
+String property jumpAnimVariableName = "iSyncJumpState" auto Const
 { used to check player's jump state }
-Keyword Property PCM_Request_BlockCreation Auto Const mandatory
+
+Keyword property PCM_Request_BlockCreation auto const mandatory
 { used to check if being placed by quest/scan request }
 
-;-- Functions ---------------------------------------
+Group CaveRevealData
+    bool property HasCaveReveal = true auto const
+    { set to true if there's a cave to reveal (FX will play)
+      set to false if this should only play earthquake FX }
 
-Function Earthquake()
-  Float duration = Utility.RandomFloat(earthquakeDurationMin, earthquakeDurationMax)
-  Game.ShakeCamera(None, 0.25, duration)
-  If duration < 5.0
-    WwiseEvent_ShakeController_p25_p25_03.Play(Game.GetPlayer() as ObjectReference, None, None)
-  Else
-    WwiseEvent_ShakeController_p5_p5_05.Play(Game.GetPlayer() as ObjectReference, None, None)
-  EndIf
-  Actor playerRef = Game.GetPlayer()
-  OE_EarthquakeSound.Play(playerRef as ObjectReference, None, None)
-  Bool isJumping = playerRef.GetAnimationVariableBool(jumpAnimVariableName)
-  If isJumping == False
-    SQ_EarthquakeStagger.Cast(Self as ObjectReference, playerRef as ObjectReference)
-  EndIf
-  If duration > earthquakeStaggerMinTime
-    staggerTime = Utility.RandomFloat(earthquakeStaggerMinTime, duration)
-    numStaggers = Math.Floor(duration / staggerTime)
-  EndIf
-  If HasCaveReveal && numQuakes <= numRevealCave && Self.IsDisabled() == False
-    Utility.wait(1.0)
-    Self.Disable(False)
-    Self.StartTimer(RockfallFXTime, rockfallFXTimerID)
-  EndIf
-  numQuakes -= 1
-  If numQuakes > 0
-    Float timeToNextQuake = Utility.RandomFloat(timeBetweenQuakesMin, timeBetweenQuakesMax)
-    Self.StartTimer(timeToNextQuake, earthquakeTimerID)
-  Else
-    Self.GotoState("Done")
-  EndIf
-EndFunction
+    Explosion property RockfallExplosion Mandatory const Auto
+    { rockfall explosion }
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == earthquakeTimerID
-    Self.Earthquake()
-  ElseIf aiTimerID == rockfallFXTimerID
-    If rockfallFXRef
-      rockfallFXRef.Disable(False)
-      rockfallFXRef = None
+    MovableStatic property RockfallFX mandatory const Auto
+    { place some FX at me for a bit }
+
+    float property RockfallFXTime = 10.0 const Auto
+    { how long to leave RockfallFX enabled? }
+EndGroup
+
+int earthquakeTimerID = 1 Const
+int rockfallFXTimerID = 2 Const
+int staggerTimerID = 3 Const
+
+ObjectReference rockfallFXRef
+
+auto STATE Waiting
+    Event OnInit()
+        debug.trace(self + "OnInit")
+        ; does this planet even have earthquakes?
+        Planet myPlanet = GetCurrentPlanet()
+        if myPlanet
+            int i = 0
+            bool traitFound = false
+            ; only enable this for block-creation placed locations
+            Location myLocation = GetCurrentLocation()
+            debug.trace(self + "OnInit: myLocation=" + myLocation)
+            if myLocation == NONE || myLocation.HasKeyword(PCM_Request_BlockCreation)
+                while i < EarthquakeTraits.Length && traitFound == false
+                    traitFound = myPlanet.HasKeyword(EarthquakeTraits[i])
+                    i += 1
+                EndWhile
+            EndIf
+
+            if traitFound == false
+                debug.trace(self + " OnInit: no earthquake trait found - turn off: location=" + GetCurrentLocation())
+                ; clear cave block and turn off
+                GotoState("Done")
+            Else
+                ; if this has a cave reveal, roll now
+                if HasCaveReveal == false || Game.GetDieRollSuccess(EarthquakePercentChance as int)
+                    debug.trace(self + " OnInit: enabling trigger in " + GetCurrentLocation())
+                    EnableNoWait() ; enable trigger and cave block, which disables map marker
+                Else
+                    debug.trace(self + " OnInit: cave is always visible - turn off: location=" + GetCurrentLocation())
+                    ; clear cave block and turn off
+                    GotoState("Done")
+                endif
+            endif
+        endif
+    endEvent
+
+    Event OnLoad()
+        debug.trace(self + " OnLoad - location=" + GetCurrentLocation())
+        if IsDisabled() == false
+            ; if this has a cave reveal and is enabled, we always want an earthquake (to reveal the cave)
+            if HasCaveReveal || Game.GetDieRollSuccess(EarthquakePercentChance as int)
+                ; start earthquake
+                gotoState("earthquake")
+            endif
+        endif
+    EndEvent
+EndState
+
+state earthquake
+    Event OnBeginState(string asOldState)
+        debug.trace(self + " OnBeginState EARTHQUAKE asOldState=" + asOldState)
+        numQuakes = Utility.RandomInt(minQuakes, maxQuakes)
+        numRevealCave = Utility.RandomInt(1, numQuakes)
+
+        float timeToNextQuake = Utility.RandomFloat(timeBetweenQuakesMin, timeBetweenQuakesMax)
+        debug.trace(self + "numQuakes=" + numQuakes + " timeToNextQuake=" + timeToNextQuake)
+        StartTimer(timeToNextQuake, earthquakeTimerID)
+    EndEvent
+EndState
+
+state Done
+    Event OnBeginState(string asOldState)
+        debug.trace(self + " OnBeginState DONE asOldState=" + asOldState)
+    endEvent
+    ; do nothing
+endState
+
+function Earthquake()
+    debug.trace(self + " Earthquake")
+    float duration = Utility.RandomFloat(earthquakeDurationMin, earthquakeDurationMax)
+    Game.ShakeCamera(none, 0.25, duration)
+    if duration < 5
+        WwiseEvent_ShakeController_p25_p25_03.Play(game.GetPlayer())
+    Else
+        WwiseEvent_ShakeController_p5_p5_05.Play(game.GetPlayer())
+    endif
+    Actor playerRef = Game.GetPlayer()
+    OE_EarthquakeSound.Play(playerRef)
+   bool isJumping = playerRef.GetAnimationVariableBool(jumpAnimVariableName)
+    debug.trace(self + "   isJumping=" + isJumping)
+    if isJumping == false
+        SQ_EarthquakeStagger.Cast(self, playerRef)
+    endif
+    ; see if we need to play another stagger
+    if duration > earthquakeStaggerMinTime
+        staggerTime = Utility.RandomFloat(earthquakeStaggerMinTime, duration)
+        numStaggers = Math.Floor(duration/staggerTime)
+        ; for now don't do this, unless we get a longer earthquake sound
+        ;StartTimer(staggerTime, staggerTimerID)
+    endif
+    
+    if HasCaveReveal && numQuakes <= numRevealCave && IsDisabled() == false
+        ; FX for cave entrance reveal
+        utility.wait(1.0)
+        Disable()
+        StartTimer(RockfallFXTime, rockfallFXTimerID)
     EndIf
-  ElseIf aiTimerID == staggerTimerID
-    numStaggers -= 1
-    SQ_EarthquakeStagger.Cast(Self as ObjectReference, Game.GetPlayer() as ObjectReference)
-    If numStaggers > 0
-      Self.StartTimer(staggerTime, staggerTimerID)
-    EndIf
-  EndIf
+
+    numQuakes -= 1
+    if numQuakes > 0
+        float timeToNextQuake = Utility.RandomFloat(timeBetweenQuakesMin, timeBetweenQuakesMax)
+        StartTimer(timeToNextQuake, earthquakeTimerID)
+    Else
+        GotoState("Done")
+    endif
+endFunction
+
+Event OnTimer(int aiTimerID)
+    if aiTimerID == earthquakeTimerID
+        Earthquake()
+    elseif aiTimerID == rockfallFXTimerID
+        if rockfallFXRef
+            rockfallFXRef.Disable()
+            rockfallFXRef = NONE
+        endif
+    elseif aiTimerID == staggerTimerID
+        numStaggers -= 1
+        SQ_EarthquakeStagger.Cast(self, Game.GetPlayer())
+        if numStaggers > 0
+            StartTimer(staggerTime, staggerTimerID)
+        endif
+    endif
 EndEvent
 
 Event OnUnload()
-  Self.CancelTimer(earthquakeTimerID)
-  Self.CancelTimer(rockfallFXTimerID)
-  Self.CancelTimer(staggerTimerID)
+    ; cancel all timers!
+    CancelTimer(earthquakeTimerID)
+    CancelTimer(rockfallFXTimerID)
+    CancelTimer(staggerTimerID)
 EndEvent
-
-;-- State -------------------------------------------
-State Done
-
-  Event OnBeginState(String asOldState)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-State Earthquake
-
-  Event OnBeginState(String asOldState)
-    numQuakes = Utility.RandomInt(minQuakes, maxQuakes)
-    numRevealCave = Utility.RandomInt(1, numQuakes)
-    Float timeToNextQuake = Utility.RandomFloat(timeBetweenQuakesMin, timeBetweenQuakesMax)
-    Self.StartTimer(timeToNextQuake, earthquakeTimerID)
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnLoad()
-    If Self.IsDisabled() == False
-      If HasCaveReveal || Game.GetDieRollSuccess(EarthquakePercentChance as Int, 1, 100, -1, -1)
-        Self.GotoState("Earthquake")
-      EndIf
-    EndIf
-  EndEvent
-
-  Event OnInit()
-    planet myPlanet = Self.GetCurrentPlanet()
-    If myPlanet
-      Int I = 0
-      Bool traitFound = False
-      Location myLocation = Self.GetCurrentLocation()
-      If myLocation == None || myLocation.HasKeyword(PCM_Request_BlockCreation)
-        While I < EarthquakeTraits.Length && traitFound == False
-          traitFound = myPlanet.HasKeyword(EarthquakeTraits[I])
-          I += 1
-        EndWhile
-      EndIf
-      If traitFound == False
-        Self.GotoState("Done")
-      ElseIf HasCaveReveal == False || Game.GetDieRollSuccess(EarthquakePercentChance as Int, 1, 100, -1, -1)
-        Self.EnableNoWait(False)
-      Else
-        Self.GotoState("Done")
-      EndIf
-    EndIf
-  EndEvent
-EndState

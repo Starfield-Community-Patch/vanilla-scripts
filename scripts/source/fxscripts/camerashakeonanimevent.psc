@@ -1,42 +1,39 @@
-ScriptName FXScripts:CameraShakeOnAnimEvent Extends ObjectReference Const
-{ Shake the camera on an animation event }
+Scriptname FXScripts:CameraShakeOnAnimEvent extends ObjectReference Const
+{Shake the camera on an animation event}
 
-;-- Variables ---------------------------------------
+String[] Property sAnimEventList Auto Const Mandatory
 
-;-- Properties --------------------------------------
-String[] Property sAnimEventList Auto Const mandatory
 Float Property fCameraShake = 1.0 Auto Const
 Float Property fCameraShakeDuration = 1.0 Auto Const
 
-;-- Functions ---------------------------------------
-
-Function ShakeAndRumble(Float fShakeAmount, Float fShakeTime)
-  Game.ShakeCamera(None, fShakeAmount, fShakeTime)
-  Game.ShakeController(fShakeAmount, fShakeAmount, fShakeTime)
+Function ShakeAndRumble(float fShakeAmount, float fShakeTime)
+	Game.ShakeCamera(afStrength = fShakeAmount, afDuration = fShakeTime)
+	Game.ShakeController(fShakeAmount, fShakeAmount, fShakeTime)
 EndFunction
 
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Int I = 0
-    While I < sAnimEventList.Length
-      Self.RegisterForAnimationEvent(Self as ObjectReference, sAnimEventList[I])
-      I += 1
-    EndWhile
-  EndIf
+	if (Self.Is3DLoaded())
+		int i = 0
+		while (i < sAnimEventList.length)
+			RegisterForAnimationEvent(self, sAnimEventList[i])
+			debug.Trace("EventName " + i + " is: " + sAnimEventList[i])
+			i += 1
+		EndWhile
+	endif
 EndEvent
 
-Event OnAnimationEvent(ObjectReference akSource, String asEventName)
-  If sAnimEventList.find(asEventName, 0) < 0
-    Return 
-  Else
-    Self.ShakeAndRumble(fCameraShake, fCameraShakeDuration)
-  EndIf
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+	if sAnimEventList.Find(asEventName) < 0
+	  return
+	else
+	  ShakeAndRumble(fCameraShake, fCameraShakeDuration)
+	endIf
 EndEvent
 
 Event OnUnLoad()
-  Int I = 0
-  While I < sAnimEventList.Length
-    Self.UnRegisterForAnimationEvent(Self as ObjectReference, sAnimEventList[I])
-    I += 1
-  EndWhile
+	int i = 0
+	while (i < sAnimEventList.length)
+		UnRegisterForAnimationEvent(self, sAnimEventList[i])
+		i += 1
+	EndWhile
 EndEvent

@@ -1,15 +1,10 @@
-ScriptName PushActorAwayScript Extends ActiveMagicEffect
+Scriptname PushActorAwayScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Float Property Magnitude Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor targetActor = akTarget as Actor
-  If targetActor
-    akCaster.PushActorAway(targetActor, Magnitude)
-  EndIf
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	Actor targetActor = akTarget as Actor
+	If targetActor
+		akCaster.PushActorAway(targetActor, Magnitude)
+	EndIf
 EndEvent
+
+Float Property Magnitude Auto Const

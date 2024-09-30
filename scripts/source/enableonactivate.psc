@@ -1,26 +1,23 @@
-ScriptName EnableOnActivate Extends ObjectReference Const
-{ On activate, toggles enable/disable of linked refs }
+Scriptname EnableOnActivate extends ObjectReference Const
+{On activate, toggles enable/disable of linked refs}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property toggleEnabled = True Auto Const
-{ Set LinkedRef to opposite enable/disable state. }
-Bool Property onlyEnable = True Auto Const
-{ If true this will only enable, if false only disable. Ignored if toggleEnabled }
-
-;-- Functions ---------------------------------------
+bool Property toggleEnabled = true Const Auto
+{Set LinkedRef to opposite enable/disable state.}
+bool Property onlyEnable = true Const Auto
+{If true this will only enable, if false only disable. Ignored if toggleEnabled}
 
 Event OnActivate(ObjectReference akActionRef)
-  If toggleEnabled
-    If Self.GetLinkedRef(None).IsEnabled()
-      Self.GetLinkedRef(None).Disable(False)
+    if(toggleEnabled)
+    DEbug.Trace("Toggle is Enabled")
+        if(GetLinkedRef().IsEnabled())
+            GetLinkedRef().Disable()
+            Debug.Trace("LinkedRef is Enabled, Disabling")
+        Else
+            GetLinkedRef().Enable()
+        EndIf
+    ElseIf(onlyEnable)
+        GetLinkedRef().Enable()
     Else
-      Self.GetLinkedRef(None).Enable(False)
+        GetLinkedRef().Disable()
     EndIf
-  ElseIf onlyEnable
-    Self.GetLinkedRef(None).Enable(False)
-  Else
-    Self.GetLinkedRef(None).Disable(False)
-  EndIf
 EndEvent

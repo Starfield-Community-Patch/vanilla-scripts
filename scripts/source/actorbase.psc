@@ -1,35 +1,56 @@
-ScriptName ActorBase Extends Form Native hidden
+Scriptname ActorBase extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Returns this actor's class
+Class Function GetClass() native
 
-Function DeriveGeneticParentAppearance(ActorBase akChildSourceToDeriveFrom) Native
+; Gets the number of actors of this type that have been killed
+int Function GetDeadCount() native
 
-Class Function GetClass() Native
+; Returns this actor's gift filter formlist
+FormList Function GetGiftFilter() native
 
-Int Function GetDeadCount() Native
+; Returns this actor's race
+Race Function GetRace() native
 
-FormList Function GetGiftFilter() Native
+; Obtains this actor's level
+int Function GetLevel() native
 
-Int Function GetLevel() Native
+; Obtains this actor's level, unmodified by matching the player's level
+int Function GetLevelExact() native
 
-Int Function GetLevelExact() Native
+; Returns this actor's sex. Values for sex are:
+; -1 - None
+; 0 - Male
+; 1 - Female
+int Function GetSex() native
 
-Int Function GetPronoun() Native
+; Returns this actor's pronoun.
+; 0 - Unselected
+; 1 - He_Him
+; 2 - She_Her
+; 3 - They_Them
+int Function GetPronoun() native
 
-Race Function GetRace() Native
+; Copy some genetic parent appearance related information from another npc to the calling npc
+Function DeriveGeneticParentAppearance(ActorBase akChildSourceToDeriveFrom) native
 
-Int Function GetSex() Native
+; Gets the actor for this UniqueNPC
+Actor Function GetUniqueActor() native
 
-Actor Function GetUniqueActor() Native
+; Is this actor essential?
+bool Function IsEssential() native
 
-Bool Function IsEssential() Native
+; Is this actor protected (can only be killed by player)?
+bool Function IsProtected() native
 
-Bool Function IsProtected() Native
+; Is this actor base unique?
+bool Function IsUnique() native
 
-Bool Function IsUnique() Native
+; Sets this actor as essential or not - if set as essential, will UNSET protected
+Function SetEssential(bool abEssential = true) native
 
-Function SetEssential(Bool abEssential) Native
+; Sets this actor as protected or not - if set as protected, will UNSET essential
+Function SetProtected(bool abProtected = true) native
 
-Function SetOutfit(Outfit akOutfit, Bool abSleepOutfit) Native
-
-Function SetProtected(Bool abProtected) Native
+; Sets the actors outfit
+Function SetOutfit( Outfit akOutfit, bool abSleepOutfit = false ) native

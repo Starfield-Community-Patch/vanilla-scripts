@@ -1,7 +1,8 @@
-ScriptName Fragments:Perks:PRKF_Zoology_002E389A Extends Perk Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Perks:PRKF_Zoology_002E389A Extends Perk Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-ActorValue Property ZoologyNonLethalHarvestCount Auto Const mandatory
-sq_parentscript Property SQ_Parent Auto Const mandatory
+ActorValue Property ZoologyNonLethalHarvestCount Auto Const Mandatory
+
+SQ_ParentScript Property SQ_Parent Auto Const Mandatory

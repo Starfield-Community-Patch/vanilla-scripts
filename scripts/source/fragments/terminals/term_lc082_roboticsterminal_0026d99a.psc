@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_LC082_RoboticsTerminal_0026D99A Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_LC082_RoboticsTerminal_0026D99A Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-lc088_vigilancequestscript Property LC088_Vigilance Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  LC088_Vigilance.Robotics_DeactivateRobots()
+;BEGIN CODE
+LC088_Vigilance.Robotics_DeactivateRobots()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+LC088_VigilanceQuestScript Property LC088_Vigilance Auto Const

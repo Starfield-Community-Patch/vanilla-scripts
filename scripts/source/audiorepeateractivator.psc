@@ -1,39 +1,41 @@
-ScriptName AudioRepeaterActivator Extends ObjectReference
-{ Repeats a given sound's playback }
+Scriptname AudioRepeaterActivator extends ObjectReference
+{Repeats a given sound's playback}
 
-;-- Variables ---------------------------------------
+Import Utility
+Import Debug
+
+WwiseEvent Property SoundDescriptor const auto
+{WwiseEvent that this script will play}
+
+float property delayMin = 1.0 const auto
+float property delayMax = 5.0 const auto
 Bool bRunning = True
-Int iPlaySoundTimerID = 1 Const
 
-;-- Properties --------------------------------------
-wwiseevent Property SoundDescriptor Auto Const
-{ WwiseEvent that this script will play }
-Float Property delayMin = 1.0 Auto Const
-Float Property delayMax = 5.0 Auto Const
+int iPlaySoundTimerID = 1 const
 
-;-- Functions ---------------------------------------
-
-Event OnCellAttach()
-  bRunning = Self.isEnabled()
-  If bRunning
-    Self.StartTimer(Self.GetWaitTime(), iPlaySoundTimerID)
-  EndIf
+EVENT OnCellAttach()
+	;debug.trace("Audio Debug: loaded successfully "+self)
+	bRunning = isEnabled()
+	if (bRunning)
+		StartTimer(GetWaitTime(), iPlaySoundTimerID)
+	endIf
 EndEvent
 
 Event OnCellDetach()
-  bRunning = False
-  Self.CancelTimer(iPlaySoundTimerID)
+	bRunning = false
+	CancelTimer(iPlaySoundTimerID)
+	;debug.trace("Audio Debug: turning loop off "+self)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iPlaySoundTimerID
-    SoundDescriptor.Play(Self as ObjectReference, None, None)
-    If bRunning && Self.isEnabled()
-      Self.StartTimer(Self.GetWaitTime(), iPlaySoundTimerID)
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+	if (aiTimerID == iPlaySoundTimerID)
+		SoundDescriptor.Play (self)
+		if (bRunning && isEnabled())
+			StartTimer(GetWaitTime(), iPlaySoundTimerID)
+		endIf
+	endIf
 EndEvent
 
-Float Function GetWaitTime()
-  Return Utility.RandomFloat(delayMin, delayMax)
-EndFunction
+float Function GetWaitTime()
+	return RandomFloat (DelayMin,DelayMax)
+endFunction

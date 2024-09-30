@@ -1,11 +1,13 @@
-ScriptName Ingredient Extends Form Native hidden
+Scriptname Ingredient extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Is this ingredient classified as hostile?
+bool Function IsHostile() native
 
-Bool Function IsHostile() Native
+; Flags the effect with the given 0 based index as known by the player
+Function LearnEffect(int aiIndex) native
 
-Function LearnAllEffects() Native
+; Flags the next unknown effect as known by the player, returning index of effect learned
+int Function LearnNextEffect() native
 
-Function LearnEffect(Int aiIndex) Native
-
-Int Function LearnNextEffect() Native
+; Flags the all effects as known by the player
+Function LearnAllEffects() native

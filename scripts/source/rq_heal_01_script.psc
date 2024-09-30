@@ -1,30 +1,31 @@
-ScriptName RQ_Heal_01_Script Extends RQScript
+Scriptname RQ_Heal_01_Script extends RQScript
 
-;-- Variables ---------------------------------------
+import Utility
 
-;-- Properties --------------------------------------
 Group Heal_Properties
-  ActorValue Property RQ_AV_Heal_01_Hook_Danger Auto Const mandatory
-  ActorValue Property RQ_AV_Heal_01_Hook_LeftBehind Auto Const mandatory
-  ActorValue Property RQ_AV_Heal_01_Hook_HelpUs Auto Const mandatory
-  Int Property DangerLineCount = 3 Auto Const
-  { The number of randomly selectable dialogue lines related to the Quest Giver's dangerous situation. }
-  Int Property LeftBehindLineCount = 3 Auto Const
-  { The number of randomly selectable dialogue lines related to the Quest Giver's circumstances leaving a person behind. }
-  Int Property HelpUsLineCount = 3 Auto Const
-  { The number of randomly selectable dialogue lines where the Quest Giver asks for help. }
-EndGroup
+    ActorValue property RQ_AV_Heal_01_Hook_Danger auto const mandatory
+    ActorValue property RQ_AV_Heal_01_Hook_LeftBehind auto const mandatory
+    ActorValue property RQ_AV_Heal_01_Hook_HelpUs auto const mandatory
+    
+    int property DangerLineCount = 3 auto const
+    { The number of randomly selectable dialogue lines related to the Quest Giver's dangerous situation. }
+    
+    int property LeftBehindLineCount = 3 auto const
+    { The number of randomly selectable dialogue lines related to the Quest Giver's circumstances leaving a person behind. }
+
+    int property HelpUsLineCount = 3 auto const
+    { The number of randomly selectable dialogue lines where the Quest Giver asks for help. }
+endGroup
 
 Group DPIERCE_TESTING
-  RefCollectionAlias Property Alias_Actors Auto Const mandatory
-EndGroup
+    RefCollectionAlias property Alias_Actors auto const mandatory
+endGroup
 
+function SetQuestHookDialogueAVs()
+    debug.trace("**** Alias_Actors has a value, continuing!")
+    ObjectReference questGiverRef = Alias_QuestGiver.GetRef()
 
-;-- Functions ---------------------------------------
-
-Function SetQuestHookDialogueAVs()
-  ObjectReference questGiverRef = Alias_QuestGiver.GetRef()
-  Self.SetDialogueAV(RQ_AV_Heal_01_Hook_Danger, Utility.RandomInt(1, DangerLineCount))
-  Self.SetDialogueAV(RQ_AV_Heal_01_Hook_LeftBehind, Utility.RandomInt(1, LeftBehindLineCount))
-  Self.SetDialogueAV(RQ_AV_Heal_01_Hook_HelpUs, Utility.RandomInt(1, HelpUsLineCount))
-EndFunction
+    SetDialogueAV(RQ_AV_Heal_01_Hook_Danger, RandomInt(1, DangerLineCount))
+    SetDialogueAV(RQ_AV_Heal_01_Hook_LeftBehind, RandomInt(1, LeftBehindLineCount))
+    SetDialogueAV(RQ_AV_Heal_01_Hook_HelpUs, RandomInt(1, HelpUsLineCount))
+endFunction

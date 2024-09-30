@@ -1,11 +1,9 @@
-ScriptName DebugResetScript Extends ObjectReference
-
-;-- Functions ---------------------------------------
-
-Event OnCellLoad()
-  ; Empty function
-EndEvent
+Scriptname DebugResetScript extends ObjectReference
 
 Event OnReset()
-  ; Empty function
+	Debug.Trace("Got OnReset")
+EndEvent
+
+Event OnCellLoad()
+	Debug.Trace("Got OnCellLoad")
 EndEvent

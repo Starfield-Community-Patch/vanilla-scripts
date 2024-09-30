@@ -1,14 +1,17 @@
-ScriptName Fragments:Quests:QF_City_GG_Mark_EnemyHolder_002E284C Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_GG_Mark_EnemyHolder_002E284C Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property enemies Auto Const mandatory
-RefCollectionAlias Property Alias_enemies Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  enemies.AddRefCollection(Alias_enemies)
-  Self.Stop()
+;BEGIN CODE
+Enemies.AddRefCollection(Alias_Enemies)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property enemies Auto Const Mandatory
+
+RefCollectionAlias Property Alias_enemies Auto Const Mandatory

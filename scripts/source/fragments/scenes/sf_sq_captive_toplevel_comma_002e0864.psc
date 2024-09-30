@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_SQ_Captive_TopLevel_Comma_002E0864 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_SQ_Captive_TopLevel_Comma_002E0864 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  sq_captivescript kmyQuest = Self.GetOwningQuest() as sq_captivescript
-  kmyQuest.CaptiveFollowerFollowSceneEnded()
+;BEGIN AUTOCAST TYPE SQ_CaptiveScript
+SQ_CaptiveScript kmyQuest = GetOwningQuest() as SQ_CaptiveScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.CaptiveFollowerFollowSceneEnded()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

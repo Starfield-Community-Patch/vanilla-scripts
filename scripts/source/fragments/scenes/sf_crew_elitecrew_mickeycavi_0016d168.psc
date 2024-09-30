@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_CREW_EliteCrew_MickeyCavi_0016D168 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_CREW_EliteCrew_MickeyCavi_0016D168 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_04_Begin
 Function Fragment_Phase_04_Begin()
-  crew_elitecrewquestscript kmyQuest = Self.GetOwningQuest() as crew_elitecrewquestscript
-  kmyQuest.UpdateCost()
+;BEGIN AUTOCAST TYPE Crew_EliteCrewQuestScript
+Crew_EliteCrewQuestScript kmyQuest = GetOwningQuest() as Crew_EliteCrewQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.UpdateCost()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

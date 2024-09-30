@@ -1,98 +1,118 @@
-ScriptName NativeTerminal:AlarmScript Extends TerminalMenu
-{ handles alarms via native terminal }
+Scriptname NativeTerminal:AlarmScript extends TerminalMenu
+{handles alarms via native terminal}
 
-;-- Variables ---------------------------------------
-Bool anyEnabled = False
-Bool anyOn = False
+Keyword property LinkTerminalAlarm auto const mandatory
 
-;-- Properties --------------------------------------
 Group autofillProperties
-  ActorValue Property NativeTerminalAlarm_AnyOn Auto Const mandatory
-  { autofill }
-  ActorValue Property NativeTerminalAlarm_AnyEnabled Auto Const mandatory
-  { autofill }
+    ActorValue property NativeTerminalAlarm_AnyOn auto const mandatory
+    { autofill }
+
+    ActorValue property NativeTerminalAlarm_AnyEnabled auto const mandatory
+    { autofill }
 EndGroup
 
-Keyword Property LinkTerminalAlarm Auto Const mandatory
-Int Property menuItemID_TurnOn = 1 Auto Const
-Int Property menuItemID_TurnOff = 2 Auto Const
-Int Property menuItemID_Disable = 3 Auto Const
-Int Property menuItemID_Enable = 4 Auto Const
+; enums
+int property menuItemID_TurnOn = 1 auto const
+int property menuItemID_TurnOff = 2 auto const
+int property menuItemID_Disable = 3 auto const
+int property menuItemID_Enable = 4 auto const
 
-;-- Functions ---------------------------------------
+; script variables
+bool anyOn = false  ; set to true if any alarms are on
+bool anyEnabled = false  ; set to true if any alarms are enabled
 
+; check linked refs to set up conditional actor values for what options the menu should show
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  Self.UpdateAllTerminalVariables(akTerminalRef)
+    debug.trace(self + " OnTerminalMenuEnter " + akTerminalRef)
+    UpdateAllTerminalVariables(akTerminalRef)
 EndEvent
 
-Function UpdateAllTerminalVariables(ObjectReference akTerminalRef)
-  sq_alarmactivatorscript[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalAlarm, 100) as sq_alarmactivatorscript[]
-  sq_alarmactivatorscript[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalAlarm, None) as sq_alarmactivatorscript[]
-  anyOn = False
-  anyEnabled = False
-  If linkedRefChain.Length > 0
-    Self.UpdateTerminalVariablesForArray(linkedRefChain)
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.UpdateTerminalVariablesForArray(linkedRefChildren)
-  EndIf
-  akTerminalRef.SetValue(NativeTerminalAlarm_AnyOn, (anyOn as Int) as Float)
-  akTerminalRef.SetValue(NativeTerminalAlarm_AnyEnabled, (anyEnabled as Int) as Float)
+function UpdateAllTerminalVariables(ObjectReference akTerminalRef)
+    debug.trace(self + " UpdateAllTerminalVariables " + akTerminalRef)
+    ; handle things linked either way
+    SQ_AlarmActivatorScript[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalAlarm) as SQ_AlarmActivatorScript[]
+    SQ_AlarmActivatorScript[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalAlarm) as SQ_AlarmActivatorScript[]
+
+    ; these will be set to true by UpdateTerminalVariablesForArray if any alarms fall into these categories
+    anyOn = false  ; set to true if any alarms are on
+    anyEnabled = false  ; set to true if any alarms are enabled
+
+    if linkedRefChain.Length > 0
+        UpdateTerminalVariablesForArray(linkedRefChain)
+    EndIf
+    if linkedRefChildren.Length > 0
+        UpdateTerminalVariablesForArray(linkedRefChildren)
+    EndIf
+    debug.trace(self + " actor values set:")
+    debug.trace(self + "   NativeTerminalAlarm_AnyOn: " + anyOn)
+    debug.trace(self + "   NativeTerminalAlarm_AnyEnabled: " + anyEnabled)
+
+    akTerminalRef.SetValue(NativeTerminalAlarm_AnyOn, anyOn as int)
+    akTerminalRef.SetValue(NativeTerminalAlarm_AnyEnabled, anyEnabled as int)
+
+endFunction
+
+function UpdateTerminalVariablesForArray(SQ_AlarmActivatorScript[] alarmArray)
+    debug.trace(self + " UpdateTerminalVariablesForArray " + alarmArray)
+    int i = 0
+    while i < alarmArray.Length
+        SQ_AlarmActivatorScript theAlarm = alarmArray[i]
+        debug.trace(self + "  checking " + theAlarm)
+        if theAlarm.GetAlarmDisabled() == false
+            anyEnabled = true
+        endif
+        if theAlarm.GetOpenState() >= 3
+            anyOn = true
+        EndIf
+        i += 1
+    EndWhile
 EndFunction
 
-Function UpdateTerminalVariablesForArray(sq_alarmactivatorscript[] alarmArray)
-  Int I = 0
-  While I < alarmArray.Length
-    sq_alarmactivatorscript theAlarm = alarmArray[I]
-    If theAlarm.GetAlarmDisabled() == False
-      anyEnabled = True
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+    ; handle things linked either way
+    SQ_AlarmActivatorScript[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalAlarm) as SQ_AlarmActivatorScript[]
+    SQ_AlarmActivatorScript[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalAlarm) as SQ_AlarmActivatorScript[]
+    if linkedRefChain.Length > 0
+        HandleMenuItem(auiMenuItemID, linkedRefChain, akTerminalRef)
     EndIf
-    If theAlarm.GetOpenState() >= 3
-      anyOn = True
+    if linkedRefChildren.Length > 0
+        HandleMenuItem(auiMenuItemID, linkedRefChildren, akTerminalRef)
     EndIf
-    I += 1
-  EndWhile
-EndFunction
-
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  sq_alarmactivatorscript[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalAlarm, 100) as sq_alarmactivatorscript[]
-  sq_alarmactivatorscript[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalAlarm, None) as sq_alarmactivatorscript[]
-  If linkedRefChain.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, linkedRefChain, akTerminalRef)
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, linkedRefChildren, akTerminalRef)
-  EndIf
 EndEvent
 
-Function HandleMenuItem(Int auiMenuItemID, sq_alarmactivatorscript[] alarmArray, ObjectReference akTerminalRef)
-  If auiMenuItemID == menuItemID_TurnOn
-    Int I = 0
-    While I < alarmArray.Length
-      alarmArray[I].TurnOnAlarm(True)
-      I += 1
-    EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  ElseIf auiMenuItemID == menuItemID_TurnOff
-    Int i = 0
-    While i < alarmArray.Length
-      alarmArray[i].TurnOnAlarm(False)
-      i += 1
-    EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  ElseIf auiMenuItemID == menuItemID_Disable
-    Int i = 0
-    While i < alarmArray.Length
-      alarmArray[i].DisableAlarm(True)
-      i += 1
-    EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  ElseIf auiMenuItemID == menuItemID_Enable
-    Int i = 0
-    While i < alarmArray.Length
-      alarmArray[i].DisableAlarm(False)
-      i += 1
-    EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  EndIf
+function HandleMenuItem(int auiMenuItemID, SQ_AlarmActivatorScript[] alarmArray, ObjectReference akTerminalRef)
+    if auiMenuItemID == menuItemID_TurnOn
+        int i = 0
+        While i < alarmArray.Length
+            alarmArray[i].TurnOnAlarm(true)
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    elseif auiMenuItemID == menuItemID_TurnOff
+        int i = 0
+        While i < alarmArray.Length
+            alarmArray[i].TurnOnAlarm(false)
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    elseif auiMenuItemID == menuItemID_Disable
+        int i = 0
+        While i < alarmArray.Length
+            alarmArray[i].DisableAlarm(true)
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    elseif auiMenuItemID == menuItemID_Enable
+        int i = 0
+        While i < alarmArray.Length
+            alarmArray[i].DisableAlarm(false)
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    EndIf
 EndFunction

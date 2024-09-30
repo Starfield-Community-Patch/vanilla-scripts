@@ -1,19 +1,20 @@
-ScriptName ReturnUnityTriggerAliasScript Extends ReferenceAlias
+Scriptname ReturnUnityTriggerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property LeftUnityStage = 300 Auto Const
-Int Property ReturnUnityObjective = 120 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property LeftUnityStage=300 Const Auto
+Int Property ReturnUnityObjective = 120 Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Actor PlayerREF = Game.GetPlayer()
-  Quest myMQ305 = Self.GetOwningQuest()
-  If (akActionRef == PlayerREF as ObjectReference) && myMQ305.GetStageDone(LeftUnityStage)
-    (myMQ305 as mq305script).LockPlayerControlsUnity()
-    myMQ305.SetObjectiveCompleted(ReturnUnityObjective, True)
-    (Self.GetOwningQuest() as mq305script).EnableUnityEndScenes()
-  EndIf
+    Actor PlayerREF = Game.GetPlayer()
+    Quest myMQ305 = GetOwningQuest()
+    
+    If (akActionRef == PlayerREF) && (myMQ305.GetStageDone(LeftUnityStage))
+        ;if we're returning to the Unity again after the first time through playthrough, reset objectives
+
+        (myMQ305 as MQ305Script).LockPlayerControlsUnity()
+        
+        myMQ305.SetObjectiveCompleted(ReturnUnityObjective)
+
+        ;turn the Unity scenes back on
+        (GetOwningQuest() as MQ305Script).EnableUnityEndScenes()
+    EndIf
 EndEvent

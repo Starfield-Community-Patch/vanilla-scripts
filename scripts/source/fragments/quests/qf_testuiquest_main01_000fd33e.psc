@@ -1,13 +1,22 @@
-ScriptName Fragments:Quests:QF_TestUIQuest_Main01_000FD33E Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TestUIQuest_Main01_000FD33E Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.setobjectivedisplayed(10, True, False)
-  Self.setobjectivedisplayed(20, True, False)
+;BEGIN CODE
+setobjectivedisplayed(10)
+setobjectivedisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.setobjectivecompleted(10, True)
-  Self.setobjectivecompleted(20, True)
+;BEGIN CODE
+setobjectivecompleted(10)
+setobjectivecompleted(20)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

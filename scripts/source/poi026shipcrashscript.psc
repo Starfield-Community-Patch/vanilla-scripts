@@ -1,19 +1,23 @@
-ScriptName POI026ShipCrashScript Extends ObjectReference
+Scriptname POI026ShipCrashScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool activateOnce = False
 
-;-- Properties --------------------------------------
 ObjectReference Property ExplosionLocation Auto Const
 Explosion Property ExplosionEffect Auto Const
 ObjectReference Property EnableMarkerRef Auto Const
 
-;-- Functions ---------------------------------------
+bool activateOnce = false
+
+
+;Prototype script mock up for ship crash
+
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If (akActionRef == Game.getplayer() as ObjectReference) && activateOnce == False
-    activateOnce = True
-    ExplosionLocation.PlaceAtMe(ExplosionEffect as Form, 1, False, False, True, None, None, True)
-    EnableMarkerRef.Enable(False)
-  EndIf
+    if((akActionRef == Game.getplayer()) && (activateOnce==false))
+    activateOnce = true
+    ;Debug.Notification("Test1")
+    ExplosionLocation.PlaceAtMe(ExplosionEffect)
+    ;utility.wait(2)
+    EnableMarkerRef.Enable()
+    endIf
 EndEvent
+

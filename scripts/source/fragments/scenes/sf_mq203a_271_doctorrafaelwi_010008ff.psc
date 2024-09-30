@@ -1,6 +1,6 @@
-ScriptName Fragments:Scenes:SF_MQ203A_271_DoctorRafaelWi_010008FF Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ203A_271_DoctorRafaelWi_010008FF Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-Scene Property MQ203A_270_DoctorRafaelWindowAlert Auto Const mandatory
+Scene Property MQ203A_270_DoctorRafaelWindowAlert Auto Const Mandatory

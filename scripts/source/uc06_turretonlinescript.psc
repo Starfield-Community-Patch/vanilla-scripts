@@ -1,23 +1,21 @@
-ScriptName UC06_TurretOnlineScript Extends SpaceshipReference Const
+Scriptname UC06_TurretOnlineScript extends SpaceshipReference Const
 
-;-- Variables ---------------------------------------
-Int iTurnOnWaitID = 1 Const
+Faction Property PlayerFriendFaction Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Faction Property PlayerFriendFaction Auto Const mandatory
-Float Property WaitTime Auto Const mandatory
-ActorValue Property HideShipFromHUDValue Auto Const mandatory
+Float Property WaitTime Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+ActorValue Property HideShipFromHUDValue Mandatory Const Auto
+
+int iTurnOnWaitID = 1 const
 
 Function SetTurretOnline()
-  Self.StartTimer(WaitTime, iTurnOnWaitID)
+    StartTimer(WaitTime, iTurnOnWaitID)
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iTurnOnWaitID
-    Self.SetValue(HideShipFromHUDValue, 0.0)
-    Self.SetUnconscious(False)
-    Self.RemoveFromFaction(PlayerFriendFaction)
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == iTurnOnWaitID
+        SetValue(HideShipFromHUDValue, 0.0)
+        Self.SetUnconscious(false)
+        Self.RemoveFromFaction(PlayerFriendFaction)
+    endif
 EndEvent

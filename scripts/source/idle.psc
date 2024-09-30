@@ -1,1 +1,1 @@
-ScriptName Idle Extends Form Native hidden
+Scriptname Idle extends Form Native Hidden

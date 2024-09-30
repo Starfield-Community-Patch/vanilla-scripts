@@ -1,16 +1,12 @@
-ScriptName NASAGravDriveDoorScript Extends ObjectReference Const
+Scriptname NASAGravDriveDoorScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MQ301 Auto Const mandatory
-Int Property iAnimatedStage = 170 Auto Const
-String Property sAnimationEvent = "Opened" Auto Const
-
-;-- Functions ---------------------------------------
+Quest Property MQ301 Mandatory Const Auto
+Int Property iAnimatedStage = 170 Const Auto
+String Property sAnimationEvent = "Opened" Const Auto
 
 Event OnLoad()
-  If MQ301.IsCompleted() || MQ301.GetStageDone(iAnimatedStage)
-    Self.PlayAnimation("sAnimationEvent")
-  EndIf
+    ;set to post-animated state if we've advanced far enough
+    If MQ301.IsCompleted() || MQ301.GetStageDone(iAnimatedStage)
+        Self.PlayAnimation("sAnimationEvent")
+    EndIf
 EndEvent

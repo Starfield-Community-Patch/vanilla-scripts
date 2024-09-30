@@ -1,88 +1,147 @@
-ScriptName Fragments:Quests:QF_OE_AustinF_DyingWish_000FC908 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_OE_AustinF_DyingWish_000FC908 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_NPC Auto Const mandatory
-Spell Property AbilityDamageHealthSlow Auto Const
-LeveledItem Property LL_Food_Homemade Auto Const mandatory
-Potion Property FriedPickles Auto Const mandatory
-Potion Property Kiffles Auto Const mandatory
-Potion Property Pierogis Auto Const mandatory
-Potion Property Gazpacho Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Self.SetStage(50)
+;BEGIN CODE
+SetStage(50)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Int Request = Utility.RandomInt(1, 3)
-  If Request == 1
-    Self.SetStage(110)
-  ElseIf Request == 2
-    Self.SetStage(120)
-  Else
-    Self.SetStage(130)
-  EndIf
-EndFunction
+;BEGIN CODE
+Int Request = Utility.RandomInt(1,3)
 
+If Request == 1
+   SetStage(110)
+ElseIf Request == 2
+   SetStage(120)
+Else
+   SetStage(130)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Alias_NPC.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_NPC.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0225_Item_00
 Function Fragment_Stage_0225_Item_00()
-  Game.GetPlayer().RemoveItem(FriedPickles as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(FriedPickles, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0230_Item_00
 Function Fragment_Stage_0230_Item_00()
-  Game.GetPlayer().RemoveItem(Kiffles as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Kiffles, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0235_Item_00
 Function Fragment_Stage_0235_Item_00()
-  Game.GetPlayer().RemoveItem(Pierogis as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Pierogis, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0245_Item_00
 Function Fragment_Stage_0245_Item_00()
-  Game.GetPlayer().RemoveItem(Gazpacho as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Gazpacho, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetStage(400)
+;BEGIN CODE
+SetStage(400)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Actor NPC = Alias_NPC.GetActorRef()
-  NPC.EvaluatePackage(False)
-  NPC.SetUnconscious(True)
-  Alias_NPC.GetActorRef().AddSpell(AbilityDamageHealthSlow, True)
-  Utility.Wait(2.5)
-  Self.SetStage(450)
-EndFunction
+;BEGIN CODE
+Actor NPC = Alias_NPC.GetActorRef()
 
+NPC.EvaluatePackage()
+NPC.SetUnconscious(True)
+Alias_NPC.GetActorRef().AddSpell(AbilityDamageHealthSlow)
+Utility.Wait(2.5)
+SetStage(450)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0450_Item_00
 Function Fragment_Stage_0450_Item_00()
-  Actor NPC = Alias_NPC.GetActorRef()
-  NPC.Kill(None)
+;BEGIN CODE
+Actor NPC = Alias_NPC.GetActorRef()
+NPC.Kill()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetStage(800)
+;BEGIN CODE
+SetStage(800)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  Actor NPC = Alias_NPC.GetActorRef()
-  If Self.GetStageDone(225)
-    NPC.AddItem(FriedPickles as Form, 1, False)
-  ElseIf Self.GetStageDone(230)
-    NPC.AddItem(Kiffles as Form, 1, False)
-  Else
-    NPC.AddItem(Pierogis as Form, 1, False)
-  EndIf
-  Self.SetStage(999)
-EndFunction
+;BEGIN CODE
+Actor NPC = Alias_NPC.GetActorRef()
 
-Function Fragment_Stage_0999_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+If GetStageDone(225)
+   NPC.AddItem(FriedPickles, 1)
+ElseIf GetStageDone(230) 
+   NPC.AddItem(Kiffles, 1)
+Else 
+   NPC.AddItem(Pierogis, 1)
+EndIf
+
+SetStage(999)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0999_Item_00
+Function Fragment_Stage_0999_Item_00()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_NPC Auto Const Mandatory
+Spell Property AbilityDamageHealthSlow Auto Const
+
+LeveledItem Property LL_Food_Homemade Auto Const Mandatory
+
+Potion Property FriedPickles Auto Const Mandatory
+
+Potion Property Kiffles Auto Const Mandatory
+
+Potion Property Pierogis Auto Const Mandatory
+
+Potion Property Gazpacho Auto Const Mandatory

@@ -1,64 +1,80 @@
-ScriptName NewAtlantisTransitScript Extends ObjectReference
-{ Controls the transit system for New Atlantis }
+ScriptName NewAtlantisTransitScript extends ObjectReference
+{Controls the transit system for New Atlantis}
 
-;-- Variables ---------------------------------------
-Bool carWaiting = False
-ObjectReference myLinkCustom01
-ObjectReference myTrack
-Bool playerInsideCar = False
-
-;-- Properties --------------------------------------
 String Property offRamp = "offRamp" Auto Const
-{ event to call the car off the line }
+{event to call the car off the line}
 String Property onRamp = "takeOff" Auto Const
-{ event to call the car back on the line }
+{event to call the car back on the line}
 String Property offRampDone = "IdleStop" Auto Const
-{ event that fires when offRamp is done }
+{event that fires when offRamp is done}
 Keyword Property LinkCustom01 Auto Const
 
-;-- Functions ---------------------------------------
+
+;**********************************************
+
+ObjectReference myTrack
+ObjectReference myLinkCustom01
+Bool carWaiting = FALSE
+Bool playerInsideCar = FALSE
+
+;**********************************************
 
 Event OnLoad()
-  myTrack = Self.getLinkedRef(None)
-  myLinkCustom01 = Self.getLinkedRef(LinkCustom01)
-  Self.RegisterForRemoteEvent(myLinkCustom01 as ScriptObject, "OnTriggerEnter")
-  Self.RegisterForRemoteEvent(myLinkCustom01 as ScriptObject, "OnTriggerLeave")
-  Self.RegisterForRemoteEvent(myTrack as ScriptObject, "OnActivate")
+	myTrack = getLinkedRef()
+	myLinkCustom01 = getLinkedRef(LinkCustom01)
+	RegisterForRemoteEvent(myLinkCustom01, "OnTriggerEnter")
+	RegisterForRemoteEvent(myLinkCustom01, "OnTriggerLeave")
+	RegisterForRemoteEvent(myTrack, "OnActivate")
 EndEvent
+
+;**********************************************
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && carWaiting == False
-    myTrack.PlayAnimationAndWait(offRamp, offRampDone)
-    carWaiting = True
-    myLinkCustom01.enable(False)
-  EndIf
+    if(akActionRef == game.GetPlayer() && carWaiting == FALSE)
+    	myTrack.PlayAnimationAndWait(offRamp, offRampDone)
+    	carWaiting = TRUE
+    	;car is off track and waiting, enable the trigger that lets us know when player is in the car
+    	myLinkCustom01.enable()
+
+    EndIf
 EndEvent
+
+;**********************************************
 
 Event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If carWaiting == True
-      playerInsideCar = True
-    EndIf
-    Self.RegisterForRemoteEvent(myLinkCustom01 as ScriptObject, "OnTriggerEnter")
-  EndIf
+	if(akActionRef == game.GetPlayer())
+		if(carWaiting == TRUE)
+			;player is inside parked car
+			playerInsideCar = TRUE
+		EndIf
+		RegisterForRemoteEvent(myLinkCustom01, "OnTriggerEnter")
+	EndIf
 EndEvent
+
+;**********************************************
 
 Event ObjectReference.OnTriggerLeave(ObjectReference akSender, ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    playerInsideCar = False
-    Self.RegisterForRemoteEvent(myLinkCustom01 as ScriptObject, "OnTriggerLeave")
-  EndIf
+	if(akActionRef == game.GetPlayer())
+		playerInsideCar = FALSE
+		RegisterForRemoteEvent(myLinkCustom01, "OnTriggerLeave")
+	EndIf
 EndEvent
 
+;**********************************************
+
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If carWaiting == True && playerInsideCar == True
-      carWaiting = False
-      myTrack.PlayAnimation(onRamp)
-    ElseIf carWaiting == False
-      myTrack.PlayAnimationAndWait(offRamp, offRampDone)
-      carWaiting = True
-    EndIf
-    Self.RegisterForRemoteEvent(myTrack as ScriptObject, "OnActivate")
-  EndIf
+	 if(akActionRef == game.GetPlayer())
+   		if(carWaiting == TRUE && playerInsideCar == TRUE)
+   			;player is inside a stopped car and wants to get back on track
+   			carWaiting = FALSE
+   			myTrack.PlayAnimation(onRamp)
+   		elseif(carWaiting == FALSE)
+   			;player is riding car and wants to stop at next station
+   			myTrack.PlayAnimationAndWait(offRamp, offRampDone)
+   			carWaiting = TRUE
+   		EndIf
+		RegisterForRemoteEvent(myTrack, "OnActivate")
+   EndIf
 EndEvent
+
+;**********************************************

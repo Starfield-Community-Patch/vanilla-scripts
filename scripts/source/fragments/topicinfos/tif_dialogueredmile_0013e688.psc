@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueRedMile_0013E688 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueRedMile_0013E688 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueShipServices Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  (DialogueShipServices as dialogueshipservicesscript).RepairPlayerShip()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+(DialogueShipServices as DialogueShipServicesScript).RepairPlayerShip()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueShipServices Auto Const Mandatory

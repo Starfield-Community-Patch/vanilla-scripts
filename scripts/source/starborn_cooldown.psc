@@ -1,13 +1,11 @@
-ScriptName Starborn_Cooldown Extends ActiveMagicEffect
+Scriptname Starborn_Cooldown extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+ActorValue Property CooldownGroup Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ActorValue Property CooldownGroup Auto Const mandatory
-Int Property CooldownValue Auto Const mandatory
+Int Property CooldownValue Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akCaster.SetValue(CooldownGroup, CooldownValue as Float)
-EndEvent
+    akCaster.SetValue(CooldownGroup, CooldownValue)
+
+ENDEVENT		

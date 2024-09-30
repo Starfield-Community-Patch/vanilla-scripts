@@ -1,12 +1,11 @@
-ScriptName Artifact01_ActivatorScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname Artifact01_ActivatorScript extends ObjectReference Const
 
 Event OnLoad()
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+	RegisterForHitEvent(Self)
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  Self.PlayAnimation("Play02")
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+	;play animation every time it's hit
+	Self.PlayAnimation("Play02")
+	RegisterForHitEvent(Self)
 EndEvent

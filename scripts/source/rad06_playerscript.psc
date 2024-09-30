@@ -1,15 +1,13 @@
-ScriptName RAD06_PlayerScript Extends ReferenceAlias
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property QuestGiverLoc Auto Const
-
-;-- Functions ---------------------------------------
+Scriptname RAD06_PlayerScript extends ReferenceAlias
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  Quest MyQuest = Self.GetOwningQuest()
-  If akNewLoc == QuestGiverLoc.GetLocation()
-    (Self.GetOwningQuest() as rad06script).CargoHoldResourceCheck()
-  EndIf
+    Debug.Trace("RAD06 - entered location " + akNewLoc + ", looking for " + QuestGiverLoc.GetLocation() )
+
+    ;check when the player enters the proper Staryard
+    Quest MyQuest = GetOwningQuest()
+	If ( akNewLoc == QuestGiverLoc.GetLocation() )
+        (GetOwningQuest() as RAD06Script).CargoHoldResourceCheck()
+    EndIf
 EndEvent
+
+LocationAlias Property QuestGiverLoc Auto Const

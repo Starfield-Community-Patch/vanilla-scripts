@@ -1,89 +1,116 @@
-ScriptName SQ_HoteliersActorScript Extends Actor Const
+Scriptname SQ_HoteliersActorScript extends Actor Const
 
-;-- Variables ---------------------------------------
+Group Autofill
+    Quest Property SQ_Hoteliers Mandatory Const Auto
+    {autofill}
 
-;-- Properties --------------------------------------
-Group autofill
-  Quest Property SQ_Hoteliers Auto Const mandatory
-  { autofill }
-  Keyword Property SQ_Hoteliers_Trigger_Link Auto Const mandatory
-  { autofill; keyword that links Hotlier NPC to the room trigger. }
-  Keyword Property SQ_Hoteliers_Door_Link Auto Const mandatory
-  { autofill; keyword that links room trigger to the room door(s). }
-  Keyword Property SQ_Hoteliers_Bed_Link Auto Const mandatory
-  { autofill; keyword that links the room trigger to the bed(s). }
-  GlobalVariable Property SQ_Hoteliers_RoomCost_Daily_TextReplacementValue Auto Const mandatory
-  { autofill }
-  GlobalVariable Property SQ_Hoteliers_RoomCost_Weekly_TextReplacementValue Auto Const mandatory
-  { autofill }
-  ActorValue Property SQ_Hoteliers_RoomExpiry Auto Const mandatory
-  { autofill }
+    Keyword Property SQ_Hoteliers_Trigger_Link Mandatory Const Auto
+    {autofill; keyword that links Hotlier NPC to the room trigger.}
+
+    Keyword Property SQ_Hoteliers_Door_Link Mandatory Const Auto
+    {autofill; keyword that links room trigger to the room door(s).}
+    
+    Keyword Property SQ_Hoteliers_Bed_Link Mandatory Const Auto
+    {autofill; keyword that links the room trigger to the bed(s).}
+
+    GlobalVariable Property SQ_Hoteliers_RoomCost_Daily_TextReplacementValue Mandatory Const Auto
+    {autofill}
+
+    GlobalVariable Property SQ_Hoteliers_RoomCost_Weekly_TextReplacementValue Mandatory Const Auto
+    {autofill}
+
+    ActorValue Property SQ_Hoteliers_RoomExpiry Mandatory Const Auto
+    {autofill}
 EndGroup
 
 Group AutofillOrSetSpecifically
-  GlobalVariable Property SQ_Hoteliers_RoomCost_Daily Auto Const mandatory
-  { autofill for default, otherwise you can replace with your own global if you want a different cost - this is for a single day rental }
-  GlobalVariable Property SQ_Hoteliers_RoomCost_Weekly Auto Const mandatory
-  { autofill for default, otherwise you can replace with your own global if you want a different cost - this is for a weekly rental }
+    GlobalVariable Property SQ_Hoteliers_RoomCost_Daily Mandatory Const Auto
+    {autofill for default, otherwise you can replace with your own global if you want a different cost - this is for a single day rental}
+
+    GlobalVariable Property SQ_Hoteliers_RoomCost_Weekly Mandatory Const Auto
+    {autofill for default, otherwise you can replace with your own global if you want a different cost - this is for a weekly rental}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Function SetPrices()
-  SQ_Hoteliers_RoomCost_Daily_TextReplacementValue.SetValue(SQ_Hoteliers_RoomCost_Daily.GetValue())
-  SQ_Hoteliers.UpdateCurrentInstanceGlobal(SQ_Hoteliers_RoomCost_Daily_TextReplacementValue)
-  SQ_Hoteliers_RoomCost_Weekly_TextReplacementValue.SetValue(SQ_Hoteliers_RoomCost_Weekly.GetValue())
-  SQ_Hoteliers.UpdateCurrentInstanceGlobal(SQ_Hoteliers_RoomCost_Weekly_TextReplacementValue)
+    Trace(self, "SetPrices() ")
+
+	SQ_Hoteliers_RoomCost_Daily_TextReplacementValue.SetValue(SQ_Hoteliers_RoomCost_Daily.GetValue())
+	SQ_Hoteliers.UpdateCurrentInstanceGlobal(SQ_Hoteliers_RoomCost_Daily_TextReplacementValue)
+
+	SQ_Hoteliers_RoomCost_Weekly_TextReplacementValue.SetValue(SQ_Hoteliers_RoomCost_Weekly.GetValue())
+	SQ_Hoteliers.UpdateCurrentInstanceGlobal(SQ_Hoteliers_RoomCost_Weekly_TextReplacementValue)
 EndFunction
 
 Function RentRoomDaily()
-  Self.RentRoom(SQ_Hoteliers_RoomCost_Daily, 1)
+    Trace(self, "RentRoomDaily()")
+    RentRoom(SQ_Hoteliers_RoomCost_Daily, 1)
 EndFunction
 
 Function RentRoomWeekly()
-  Self.RentRoom(SQ_Hoteliers_RoomCost_Weekly, 7)
+    Trace(self, "RentRoomWeekly()")
+    RentRoom(SQ_Hoteliers_RoomCost_Weekly, 7)
 EndFunction
 
-Function RentRoom(GlobalVariable Cost, Int Days)
-  sq_hoteliertriggerscript triggerRef = Self.GetLinkedRef(SQ_Hoteliers_Trigger_Link) as sq_hoteliertriggerscript
-  Game.GetPlayer().RemoveItem(Game.GetCredits() as Form, Cost.GetValueInt(), False, None)
-  Float expiryDay = Utility.expiryDay(Days as Float, None, -1.0, Self.GetValue(SQ_Hoteliers_RoomExpiry))
-  Self.SetValue(SQ_Hoteliers_RoomExpiry, expiryDay)
-  triggerRef.Update()
-  ObjectReference[] myDoorRefs = Self.GetLinkedRef(SQ_Hoteliers_Trigger_Link).GetLinkedRefChain(SQ_Hoteliers_Door_Link, 100)
-  If myDoorRefs.Length > 1
-    Self.CancelTimerGameTime(0)
-    Float CurrentTime = Utility.GetCurrentGameTime()
-    Float TimeRemaining = expiryDay - CurrentTime
-    Self.StartTimerGameTime(Math.DaysAsHours(TimeRemaining), 0)
-  EndIf
-  If triggerRef != None
-    ObjectReference myHotelierRef = Self as ObjectReference
-    If triggerRef.GetParentCell() != myHotelierRef.GetParentCell()
-      ObjectReference[] BedRefs = triggerRef.GetLinkedRefChain(SQ_Hoteliers_Bed_Link, 100)
-      (SQ_Hoteliers as sq_hoteliersquestscript).UpdateBedsAliasAndObjective(BedRefs[0], myHotelierRef as SQ_HoteliersActorScript)
-    EndIf
-  EndIf
-EndFunction
+Function RentRoom(GlobalVariable Cost, int Days)
+    SQ_HotelierTriggerScript triggerRef = GetLinkedRef(SQ_Hoteliers_Trigger_Link) as SQ_HotelierTriggerScript
 
-Bool Function IsRoomRented()
-  Float AV = Self.GetValue(SQ_Hoteliers_RoomExpiry)
-  Return AV > 0.0 && Utility.HasExpiryDayPassed(AV) == False
-EndFunction
+    ;player pays for:
+    Game.GetPlayer().RemoveItem(Game.GetCredits(), Cost.GetValueInt())
 
-Event OnTimerGameTime(Int aiTimerID)
-  If Self.IsRoomRented() == False
-    sq_hoteliertriggerscript triggerRef = Self.GetLinkedRef(SQ_Hoteliers_Trigger_Link) as sq_hoteliertriggerscript
+    ;update the expiry day
+    float expiryDay = Utility.ExpiryDay(Days, FutureStartDay = GetValue(SQ_Hoteliers_RoomExpiry))
+
+    SetValue(SQ_Hoteliers_RoomExpiry, expiryDay)
+
+    Trace(self, "RentRoom() triggerRef: " + triggerRef + ", Cost: " + Cost + ", Days: " + Days + ", expiryDay: " + expiryDay + ", GetCurrentGameTime(): " + Utility.GetCurrentGameTime() + ", ")
+
     triggerRef.Update()
-  EndIf
+
+    ;Check to see if multiple hotel room doors are hooked up. If so, start a timer to determine the end of the room rental.
+    ObjectReference[] myDoorRefs = GetLinkedRef(SQ_Hoteliers_Trigger_Link).GetLinkedRefChain(SQ_Hoteliers_Door_Link)
+    If myDoorRefs.Length > 1
+        CancelTimerGameTime()
+        float CurrentTime = Utility.GetCurrentGameTime()
+        float TimeRemaining = expiryDay - CurrentTime
+        StartTimerGameTime(Math.DaysAsHours(TimeRemaining))
+    EndIf
+    
+    ;Check if the trigger is in the same cell as the Hotelier Actor. if not, update the aliases and objectives.
+    If triggerRef != None
+    ObjectReference myHotelierRef = Self as ObjectReference
+        If triggerRef.GetParentCell() != myHotelierRef.GetParentCell()
+            ObjectReference[] BedRefs = triggerRef.GetLinkedRefChain(SQ_Hoteliers_Bed_Link)
+            (SQ_Hoteliers as SQ_HoteliersQuestScript).UpdateBedsAliasAndObjective(BedRefs[0], myHotelierRef as SQ_HoteliersActorScript)         
+        EndIf
+    EndIf
+EndFunction
+
+
+bool Function IsRoomRented()
+    float AV = GetValue(SQ_Hoteliers_RoomExpiry)
+
+    return AV > 0 && Utility.HasExpiryDayPassed(AV) == false
+EndFunction
+
+
+;When the Expiry Timer ends, it will update the doors accordingly. This will only happen if a Hotel has multiple doors.
+Event OnTimerGameTime(int aiTimerID)
+    If IsRoomRented() == false
+        SQ_HotelierTriggerScript triggerRef = GetLinkedRef(SQ_Hoteliers_Trigger_Link) as SQ_HotelierTriggerScript
+        triggerRef.Update()
+    EndIf
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Hoteliers",  string SubLogName = "SQ_HoteliersActorScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Hoteliers",  string SubLogName = "SQ_HoteliersActorScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

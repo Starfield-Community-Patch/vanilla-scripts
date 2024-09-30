@@ -1,23 +1,17 @@
-ScriptName LC088_KeyJasminesRobotScript Extends ObjectReference
-{ Move Jasmine's Robot back to its mark following the cell reset for CF08. Lowest-risk fix for this. }
+Scriptname LC088_KeyJasminesRobotScript extends ObjectReference
+{Move Jasmine's Robot back to its mark following the cell reset for CF08. Lowest-risk fix for this.}
 
-;-- Variables ---------------------------------------
+Quest property LC088_Key Auto Const Mandatory
+Keyword property LC088_Key_LinkStartMarkerKeyword Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Quest Property LC088_Key Auto Const mandatory
-Keyword Property LC088_Key_LinkStartMarkerKeyword Auto Const mandatory
-
-;-- State -------------------------------------------
-State Done
+Auto State Initial
+	Event OnCellLoad()
+	    if (LC088_Key.IsRunning())
+	    	GotoState("Done")
+			MoveTo(GetLinkedRef(LC088_Key_LinkStartMarkerKeyword))
+		EndIf
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Initial
-
-  Event OnCellLoad()
-    If LC088_Key.IsRunning()
-      Self.GotoState("Done")
-      Self.MoveTo(Self.GetLinkedRef(LC088_Key_LinkStartMarkerKeyword), 0.0, 0.0, 0.0, True, False)
-    EndIf
-  EndEvent
+State Done
 EndState

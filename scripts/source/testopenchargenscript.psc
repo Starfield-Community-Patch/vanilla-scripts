@@ -1,17 +1,15 @@
-ScriptName TestOpenCharGenScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestOpenCharGenScript extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  Game.ShowRaceMenu(None, 0, None, None, None)
-  Self.RegisterForMenuOpenCloseEvent("ChargenMenu")
+    Game.ShowRaceMenu()    
+    RegisterForMenuOpenCloseEvent("ChargenMenu")
 EndEvent
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If asMenuName == "ChargenMenu"
-    If abOpening == False
-      Self.UnRegisterForMenuOpenCloseEvent("ChargenMenu")
-      Game.FadeOutGame(False, True, 0.0, 0.100000001, False)
-    EndIf
-  EndIf
-EndEvent
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    if (asMenuName== "ChargenMenu")
+        if (abOpening == False)
+            UnRegisterForMenuOpenCloseEvent("ChargenMenu")
+            Game.FadeOutGame(False, True, 0.0, 0.1) ;fade in        
+        endif
+    endif
+endEvent

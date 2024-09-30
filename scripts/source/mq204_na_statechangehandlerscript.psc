@@ -1,40 +1,35 @@
-ScriptName MQ204_NA_StateChangeHandlerScript Extends Quest
+Scriptname MQ204_NA_StateChangeHandlerScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Location Property CityNewAtlantisLocation Auto Const
-Int Property LeftNAStageToSet = 100 Auto Const
-Int Property LeftNAPrereqStage = 10 Auto Const
-sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Location Property CityNewAtlantisLocation Const Auto
+Int Property LeftNAStageToSet=100 Const Auto
+Int Property LeftNAPrereqStage=10 Const Auto
+SQ_PlayerShipScript property SQ_PlayerShip auto const mandatory
 
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-  Self.RegisterForRemoteEvent(SQ_PlayerShip.PlayerShip as ScriptObject, "OnLocationChange")
-EndEvent
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+	RegisterForRemoteEvent(SQ_PlayerShip.PlayerShip, "OnLocationChange")
+endEvent
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  If akSender == Game.GetPlayer()
-    If Self.GetStageDone(LeftNAPrereqStage)
-      If akOldLoc == CityNewAtlantisLocation || akOldLoc.IsChild(CityNewAtlantisLocation)
-        If akSender.IsInLocation(CityNewAtlantisLocation) == False
-          Self.SetStage(LeftNAStageToSet)
+    if akSender == Game.GetPlayer()
+        if GetStageDone(LeftNAPrereqStage)
+            If (akOldLoc == CityNewAtlantisLocation) || (akOldLoc.IsChild(CityNewAtlantisLocation))
+                If akSender.IsInLocation(CityNewAtlantisLocation) == 0
+                    SetStage(LeftNAStageToSet)
+                EndIf
+            EndIf
         EndIf
-      EndIf
-    EndIf
-  EndIf
+    endif
 EndEvent
 
 Event ReferenceAlias.OnLocationChange(ReferenceAlias akSender, Location akOldLoc, Location akNewLoc)
-  If akSender == SQ_PlayerShip.PlayerShip
-    If Self.GetStageDone(LeftNAPrereqStage)
-      If akOldLoc == CityNewAtlantisLocation || akOldLoc.IsChild(CityNewAtlantisLocation)
-        If akSender.GetRef().IsInLocation(CityNewAtlantisLocation) == False
-          Self.SetStage(LeftNAStageToSet)
+    if akSender == SQ_PlayerShip.PlayerShip
+        if GetStageDone(LeftNAPrereqStage)
+            If (akOldLoc == CityNewAtlantisLocation) || (akOldLoc.IsChild(CityNewAtlantisLocation))
+                If akSender.GetRef().IsInLocation(CityNewAtlantisLocation) == 0
+                    SetStage(LeftNAStageToSet)
+                EndIf
+            EndIf
         EndIf
-      EndIf
-    EndIf
-  EndIf
+    endif
 EndEvent

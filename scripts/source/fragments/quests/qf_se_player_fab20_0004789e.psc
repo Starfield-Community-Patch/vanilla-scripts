@@ -1,67 +1,103 @@
-ScriptName Fragments:Quests:QF_SE_Player_FAB20_0004789E Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_FAB20_0004789E Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property HailTemplate_100a_Hailing Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-RefCollectionAlias Property Alias_MathisAllies Auto Const mandatory
-ReferenceAlias Property Alias_PatrolStartMarker01 Auto Const mandatory
-Form Property EncShip_CrimsonFleet_F Auto Const
-Faction Property PlayerEnemyFaction Auto Const mandatory
-ReferenceAlias Property Alias_playerShip Auto Const mandatory
-ReferenceAlias Property Alias_GeneralMarker03 Auto Const mandatory
-ReferenceAlias Property Alias_GeneralMarker01 Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-Faction Property PlayerFriendFaction Auto Const mandatory
-GlobalVariable Property SE_Player_FAB20_RunOnce Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  ObjectReference oMarker = Alias_GeneralMarker01.GetRef()
-  spaceshipreference sShip = None
-  Float[] offset = new Float[6]
-  offset[0] = 221.0
-  offset[1] = -333.0
-  offset[2] = 0.0
-  offset[5] = 23.0
-  sShip = oMarker.PlaceShipAtMe(EncShip_CrimsonFleet_F, 4, True, False, False, True, offset, None, None, True)
-  Alias_MathisAllies.AddRef(sShip as ObjectReference)
-  offset[0] = -100.0
-  sShip = oMarker.PlaceShipAtMe(EncShip_CrimsonFleet_F, 4, True, False, False, True, offset, None, None, True)
-  Alias_MathisAllies.AddRef(sShip as ObjectReference)
-  offset[1] = -200.0
-  sShip = oMarker.PlaceShipAtMe(EncShip_CrimsonFleet_F, 4, True, False, False, True, offset, None, None, True)
-  Alias_MathisAllies.AddRef(sShip as ObjectReference)
-EndFunction
+;BEGIN CODE
+; Spawn in Mathis's wingmen
+ObjectReference oMarker = Alias_GeneralMarker01.GetRef()
+SpaceshipReference sShip
 
+; Have to wire up the offsets for spawning the ships
+float[] offset = new float[6]
+offset[0] = 221  ;Right(positive) and Left(negative)
+offset[1] = -333 ;front(positive) and behind(negative)
+offset[2] = 0    ;up(positive) and down(negative)
+offset[5] = 23    ;heading/yaw in degrees
+
+sShip = oMarker.PlaceShipAtMe(EncShip_CrimsonFleet_F, akOffsetValues=offset)
+Alias_MathisAllies.AddRef(sShip)
+
+offset[0] = -100  ;Right(positive) and Left(negative)
+sShip = oMarker.PlaceShipAtMe(EncShip_CrimsonFleet_F, akOffsetValues=offset)
+Alias_MathisAllies.AddRef(sShip)
+
+offset[1] = -200 ;front(positive) and behind(negative)
+sShip = oMarker.PlaceShipAtMe(EncShip_CrimsonFleet_F, akOffsetValues=offset)
+Alias_MathisAllies.AddRef(sShip)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Utility.wait(6.0)
-  HailTemplate_100a_Hailing.Start()
+;BEGIN CODE
+; Start the hailing scene
+Utility.wait(6)
+HailTemplate_100a_Hailing.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  spaceshipreference sShip = Alias_HailingShip.GetRef() as spaceshipreference
-  spaceshipreference sPlayer = Alias_playerShip.GetRef() as spaceshipreference
-  sShip.RemoveFromFaction(PlayerFriendFaction)
-  sShip.AddToFaction(PlayerEnemyFaction)
-  sShip.SetValue(Aggression, 1.0)
-  sShip.StartCombat(sPlayer, False)
-  Int I = 0
-  Int iCount = Alias_MathisAllies.GetCount()
-  While I < iCount
-    sShip = Alias_MathisAllies.GetShipAt(I)
-    If sShip
-      sShip.RemoveFromFaction(PlayerFriendFaction)
-      sShip.AddToFaction(PlayerEnemyFaction)
-      sShip.SetValue(Aggression, 1.0)
-      sShip.StartCombat(sPlayer, False)
-    EndIf
-    I += 1
-  EndWhile
-EndFunction
+;BEGIN CODE
+; Mathis goes hostile
+SpaceshipReference sShip = Alias_HailingShip.GetRef() as SpaceshipReference
+SpaceshipReference sPlayer = Alias_PlayerShip.GetRef() as SpaceshipReference
+sShip.RemoveFromFaction(PlayerFriendFaction)
+sShip.AddToFaction(PlayerEnemyFaction)
+sShip.SetValue(Aggression, 1)
+sShip.StartCombat(sPlayer)
 
-Function Fragment_Stage_1000_Item_00()
-  SE_Player_FAB20_RunOnce.SetValue(1.0)
+; His allies go hostile
+int i = 0
+int iCount = Alias_MathisAllies.GetCount()
+
+while i < iCount
+  sShip = Alias_MathisAllies.GetShipAt(i)
+  if sShip 
+    sShip.RemoveFromFaction(PlayerFriendFaction)
+    sShip.AddToFaction(PlayerEnemyFaction)
+    sShip.SetValue(Aggression, 1)
+    sShip.StartCombat(sPlayer)
+  endif
+
+  i += 1
+endwhile
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
+Function Fragment_Stage_1000_Item_00()
+;BEGIN CODE
+SE_Player_FAB20_RunOnce.SetValue(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property HailTemplate_100a_Hailing Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+RefCollectionAlias Property Alias_MathisAllies Auto Const Mandatory
+
+ReferenceAlias Property Alias_PatrolStartMarker01 Auto Const Mandatory
+Form Property EncShip_CrimsonFleet_F Auto Const
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+ReferenceAlias Property Alias_playerShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_GeneralMarker03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_GeneralMarker01 Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+Faction Property PlayerFriendFaction Auto Const Mandatory
+
+GlobalVariable Property SE_Player_FAB20_RunOnce Auto Const Mandatory

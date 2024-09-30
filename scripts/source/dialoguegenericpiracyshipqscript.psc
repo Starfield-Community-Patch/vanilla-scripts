@@ -1,39 +1,42 @@
-ScriptName DialogueGenericPiracyShipQScript Extends Quest
+Scriptname DialogueGenericPiracyShipQScript extends Quest
 
-;-- Variables ---------------------------------------
-Int iPiracy_Lose = 2
-Int iPiracy_LoseGU = 3
-Int iPiracy_Win = 1
-
-;-- Properties --------------------------------------
-ReferenceAlias Property DialogueGenericPiracyShips_Ship Auto Const mandatory
-ActorValue Property DialogueGenericPiracyShipsAV Auto Const mandatory
-ActorValue Property PiracySurrenderCountAV Auto Const mandatory
+ReferenceAlias Property DialogueGenericPiracyShips_Ship Mandatory Const Auto
+ActorValue Property DialogueGenericPiracyShipsAV Mandatory Const Auto
+ActorValue Property PiracySurrenderCountAV Mandatory Const Auto
 { used to track number of ships that surrender to the player }
-sq_parentscript Property SQ_Parent Auto Const mandatory
+
+SQ_ParentScript Property SQ_Parent auto const mandatory
 { autofill }
 
-;-- Functions ---------------------------------------
+int iPiracy_Win = 1
+int iPiracy_Lose = 2
+int iPiracy_LoseGU = 3
 
-Function PiracySuccess(spaceshipreference ShipRef)
-  ShipRef.SetValue(DialogueGenericPiracyShipsAV, iPiracy_Win as Float)
-  ShipRef.OpenInventory()
-  Self.SendPiracyAlarm(ShipRef, True)
-  Game.GetPlayer().ModValue(PiracySurrenderCountAV, 1.0)
+;The Player's Speech Challenge was a success
+Function PiracySuccess(SpaceshipReference ShipRef)
+    debug.trace(self + " PiracySuccess " + shipRef)
+    ShipRef.SetValue(DialogueGenericPiracyShipsAV, iPiracy_Win)
+    ShipRef.OpenInventory()
+    SendPiracyAlarm(ShipRef, true)
+    Game.GetPlayer().ModValue(PiracySurrenderCountAV, 1)
 EndFunction
 
-Function PiracyFail(spaceshipreference ShipRef)
-  ShipRef.SetValue(DialogueGenericPiracyShipsAV, iPiracy_Lose as Float)
-  Self.SendPiracyAlarm(ShipRef, False)
-  ShipRef.StartCombat(Game.GetPlayer().GetCurrentShipRef(), False)
+;This is if the Player ever choses the attack option
+Function PiracyFail(SpaceshipReference ShipRef)
+    debug.trace(self + " PiracyFail " + shipRef)
+    ShipRef.SetValue(DialogueGenericPiracyShipsAV, iPiracy_Lose)
+    SendPiracyAlarm(ShipRef, false) ; so player gets bounty
+    ShipRef.StartCombat(Game.GetPlayer().GetCurrentShipRef())
 EndFunction
 
-Function PiracyLoseSpeechChallenge(spaceshipreference ShipRef)
-  ShipRef.SetValue(DialogueGenericPiracyShipsAV, iPiracy_LoseGU as Float)
-  Self.SendPiracyAlarm(ShipRef, False)
+;This is if the Player loses the Speech Challenge
+Function PiracyLoseSpeechChallenge(SpaceshipReference ShipRef)
+    debug.trace(self + " PiracyLoseSpeechChallenge " + shipRef)
+    ShipRef.SetValue(DialogueGenericPiracyShipsAV, iPiracy_LoseGU)
+    SendPiracyAlarm(ShipRef, false) ; so player gets bounty
 EndFunction
 
-Function SendPiracyAlarm(spaceshipreference ShipRef, Bool PiracySuccess)
-  SQ_Parent.SendPiracyEvent(ShipRef as ObjectReference, PiracySuccess)
-  ShipRef.SendPiracyAlarm()
-EndFunction
+Function SendPiracyAlarm(SpaceshipReference shipRef, bool piracySuccess)
+    SQ_Parent.SendPiracyEvent(shipRef, piracySuccess)
+    shipRef.SendPiracyAlarm()
+endFunction

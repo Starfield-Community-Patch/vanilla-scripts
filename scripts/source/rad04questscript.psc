@@ -1,22 +1,19 @@
-ScriptName RAD04QuestScript Extends Quest
+Scriptname RAD04QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property EndQuestStage = 1000 Auto Const
-missionparentscript Property MissionParent Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property EndQuestStage = 1000 Const Auto
+MissionParentScript Property MissionParent Auto Const Mandatory
 
 Event OnQuestInit()
-  Actor myPlayer = Game.GetPlayer()
-  Self.RegisterForCustomEvent(MissionParent as ScriptObject, "missionparentscript_MissionAccepted")
+    Actor myPlayer = Game.GetPlayer()
+    RegisterForCustomEvent(MissionParent, "MissionAccepted")
 EndEvent
 
-Event MissionParentScript.MissionAccepted(missionparentscript akSender, Var[] akArgs)
-  missionquestscript acceptedQuest = akArgs[0] as missionquestscript
-  If acceptedQuest as Bool && (acceptedQuest.MissionType == 0 || acceptedQuest.MissionType == 9)
-    Self.UnregisterForCustomEvent(MissionParent as ScriptObject, "missionparentscript_MissionAccepted")
-    Self.SetStage(EndQuestStage)
-  EndIf
+;When the MissionQuestscript used for Mission Board Quests sends an event saying the player has accepted the mission, it will set the stage to complete the objective and end the quest.
+Event MissionParentScript.MissionAccepted(MissionParentScript akSender, Var[] akArgs)
+    MissionQuestScript acceptedQuest = akArgs[0] as MissionQuestScript
+    ;MissionType == 0 for Bounty, 9 for Destroy (Bounty in Space)
+    If acceptedQuest && (acceptedQuest.MissionType == 0 || acceptedQuest.MissionType == 9)
+        UnregisterForCustomEvent(MissionParent, "MissionAccepted")
+        SetStage(EndQuestStage)
+    EndIf
 EndEvent

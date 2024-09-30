@@ -1,7 +1,5 @@
-ScriptName KioskSSNNPlayerScript Extends ObjectReference Const
+Scriptname KioskSSNNPlayerScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+Quest Property DialgoueSSNNScenes Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Quest Property DialgoueSSNNScenes Auto Const mandatory
 ReferenceAlias Property RadioHost Auto Const

@@ -1,31 +1,31 @@
-ScriptName PersonalAtmosphereAudioEffectScript Extends ActiveMagicEffect
-{ Effect script for the Personal Atmosphere spell. Attaches an audio occlusion sphere to the target. }
+Scriptname PersonalAtmosphereAudioEffectScript extends ActiveMagicEffect
+{Effect script for the Personal Atmosphere spell. Attaches an audio occlusion sphere to the target.}
+;
+;TODO - GEN-385173 - PlaceAtMe should be able to spawn packins. Starting a quest just to spawn a packin is hacky.
 
-;-- Variables ---------------------------------------
-ObjectReference occlusionMarker
+Quest property PersonalAtmosphereFXQuest Auto Const Mandatory
+ReferenceAlias property PersonalAtmospherePackin Auto Const Mandatory
+;Form property Audio_Occlusion_Artifact_Power_Personal_Atmosphere Auto Const Mandatory
+
 ObjectReference occlusionPivot
+ObjectReference occlusionMarker
 
-;-- Properties --------------------------------------
-Quest Property PersonalAtmosphereFXQuest Auto Const mandatory
-ReferenceAlias Property PersonalAtmospherePackin Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor player = Game.GetPlayer()
-  If akTarget == player as ObjectReference
-    PersonalAtmosphereFXQuest.Start()
-    occlusionPivot = PersonalAtmospherePackin.GetRef()
-    occlusionMarker = occlusionPivot.GetLinkedRef(None)
-    occlusionMarker.MoveTo(player as ObjectReference, 0.0, 0.0, 0.0, True, False)
-    occlusionMarker.AttachTo(akTarget)
-  EndIf
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	Actor player = Game.GetPlayer()
+	if (akTarget == player)
+		PersonalAtmosphereFXQuest.Start()
+		occlusionPivot = PersonalAtmospherePackin.GetRef()
+		;occlusionPivot = Game.GetPlayer().PlaceAtMe(Audio_Occlusion_Artifact_Power_Personal_Atmosphere)
+		occlusionMarker = occlusionPivot.GetLinkedRef()
+		occlusionMarker.MoveTo(player)
+		occlusionMarker.AttachTo(akTarget)
+	EndIf
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  If akTarget == Game.GetPlayer() as ObjectReference
-    PersonalAtmosphereFXQuest.Stop()
-    occlusionPivot.Delete()
-    occlusionMarker.Delete()
-  EndIf
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	if (akTarget == Game.GetPlayer())
+		PersonalAtmosphereFXQuest.Stop()
+		occlusionPivot.Delete()
+		occlusionMarker.Delete()
+	EndIf
 EndEvent

@@ -1,50 +1,47 @@
-ScriptName LC088_Key_RestrainingRefScript Extends ObjectReference
-{ In LC088_Key, script for objects that are restraining actors. }
+Scriptname LC088_Key_RestrainingRefScript extends ObjectReference
+{In LC088_Key, script for objects that are restraining actors.}
+;
+;In LC088_Key, actors are linked to objects with LC088_Key_LinkRestraintKeyword, and given Stay At Self Ignore Combat packages as long as they have those links.
+;The restraining objects have this script. When they are entered (triggers), opened, or activated, we remove the links and release the actors.
 
-;-- Variables ---------------------------------------
+Keyword property LC088_Key_LinkRestraintKeyword Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Keyword Property LC088_Key_LinkRestraintKeyword Auto Const mandatory
+Auto State Waiting
+	Event OnTriggerEnter(ObjectReference akTriggerRef)
+		ReleaseRestraint()
+	EndEvent
 
-;-- Functions ---------------------------------------
+	Event OnActivate(ObjectReference akActivator)
+		ReleaseRestraint()
+	EndEvent
+
+	Event OnOpen(ObjectReference akActionRef)
+		ReleaseRestraint()
+	EndEvent
+
+	Function ReleaseRestraint()
+		GoToState("Done")
+		ObjectReference[] restrainedRefs = GetRefsLinkedToMe(LC088_Key_LinkRestraintKeyword)
+		int i = 0
+		While (i < restrainedRefs.Length)
+			Actor currentActor = restrainedRefs[i] as Actor
+			LC088_Key_RestrainingRefScript currentRestrainingRef = restrainedRefs[i] as LC088_Key_RestrainingRefScript
+			if (currentActor != None)
+				currentActor.SetLinkedRef(None, LC088_Key_LinkRestraintKeyword)
+				currentActor.EvaluatePackage()
+			ElseIf (currentRestrainingRef != None)
+				currentRestrainingRef.ReleaseRestraint()
+			EndIf
+			i = i + 1
+		EndWhile
+	EndFunction
+EndState
+
+State Done
+	;Do nothing.
+EndState
+
 
 Function ReleaseRestraint()
-  ; Empty function
+	;Do nothing.
 EndFunction
-
-;-- State -------------------------------------------
-State Done
-EndState
-
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnActivate(ObjectReference akActivator)
-    Self.ReleaseRestraint()
-  EndEvent
-
-  Event OnOpen(ObjectReference akActionRef)
-    Self.ReleaseRestraint()
-  EndEvent
-
-  Function ReleaseRestraint()
-    Self.GoToState("Done")
-    ObjectReference[] restrainedRefs = Self.GetRefsLinkedToMe(LC088_Key_LinkRestraintKeyword, None)
-    Int I = 0
-    While I < restrainedRefs.Length
-      Actor currentActor = restrainedRefs[I] as Actor
-      LC088_Key_RestrainingRefScript currentRestrainingRef = restrainedRefs[I] as LC088_Key_RestrainingRefScript
-      If currentActor != None
-        currentActor.SetLinkedRef(None, LC088_Key_LinkRestraintKeyword, True)
-        currentActor.EvaluatePackage(False)
-      ElseIf currentRestrainingRef != None
-        currentRestrainingRef.ReleaseRestraint()
-      EndIf
-      I += 1
-    EndWhile
-  EndFunction
-
-  Event OnTriggerEnter(ObjectReference akTriggerRef)
-    Self.ReleaseRestraint()
-  EndEvent
-EndState

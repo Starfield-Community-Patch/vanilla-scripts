@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF__01009364 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF__01009364 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_04_End
 Function Fragment_Phase_04_End()
-  sq_alarmscript kmyQuest = Self.GetOwningQuest() as sq_alarmscript
-  kmyQuest.SetAlarmed(True)
+;BEGIN AUTOCAST TYPE SQ_AlarmScript
+SQ_AlarmScript kmyQuest = GetOwningQuest() as SQ_AlarmScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.SetAlarmed(true)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

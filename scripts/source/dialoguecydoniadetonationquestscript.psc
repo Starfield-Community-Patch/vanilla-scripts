@@ -1,172 +1,196 @@
-ScriptName DialogueCydoniaDetonationQuestScript Extends Quest
+Scriptname DialogueCydoniaDetonationQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Cell Property CityCydoniaMainLevel Mandatory Const Auto
+Cell Property CityCydoniaMainLevel02 Mandatory Const Auto
+GlobalVariable Property CY_DetonationEndOfDay Mandatory Const Auto
+GlobalVariable Property CY_DetonationCount Mandatory Const Auto
+LocationAlias Property Cydonia Mandatory Const Auto
+Scene Property DialogueCydonia_Detonation_Announcer_Countdown Mandatory Const Auto
+Scene Property DialogueCydonia_Detonation_Announcer_LastCall Mandatory Const Auto
+Scene Property DialogueCydonia_Detonation_Concluded Mandatory Const Auto
+Scene Property DialogueCydonia_Detonation_Concluded_LastCall Mandatory Const Auto
+WwiseEvent Property AMB_Cydonia_Fracking_Explosion_FirstEncounter Mandatory Const Auto
+WwiseEvent Property AMB_Cydonia_Fracking_Explosion Mandatory Const Auto
+WwiseEvent Property AMB_Cydonia_Fracking_Klaxon_TriggerEchos Mandatory Const Auto
+WwiseEvent Property AMB_Cydonia_EXT_Fracking_Explosion_NoOcc Mandatory Const Auto
+WwiseEvent Property AMB_Cydonia_EXT_Fracking_StructureRumbleTriggerEchos Mandatory Const Auto
+ReferenceAlias Property DetonationSoundMarkerFirstTime Mandatory Const Auto
+ReferenceAlias Property DetonationSoundMarker Mandatory Const Auto
+ReferenceAlias Property DetonationSoundMarkerInt02 Mandatory Const Auto
+ReferenceAlias Property DetonationSoundMarkerExt Mandatory Const Auto
+RefCollectionAlias Property Klaxons Mandatory Const Auto
+Int Property KlaxonTimerID = 1 Const Auto
+Float Property KlaxonTimerLength = 3.0 Const Auto
+Int Property DetonationTimerID = 2 Const Auto
+Float Property DetonationTimerLength = 8.0 Const Auto
+Int Property EndQuestTimerID = 3 Const Auto
+Float Property EndQuestTimerLength = 3.0 Const Auto
+Float Property DetonationShakeLength = 4.0 Const Auto
+Int Property QuestDoneStage = 1000 Const Auto
 
-;-- Properties --------------------------------------
-Cell Property CityCydoniaMainLevel Auto Const mandatory
-Cell Property CityCydoniaMainLevel02 Auto Const mandatory
-GlobalVariable Property CY_DetonationEndOfDay Auto Const mandatory
-GlobalVariable Property CY_DetonationCount Auto Const mandatory
-LocationAlias Property Cydonia Auto Const mandatory
-Scene Property DialogueCydonia_Detonation_Announcer_Countdown Auto Const mandatory
-Scene Property DialogueCydonia_Detonation_Announcer_LastCall Auto Const mandatory
-Scene Property DialogueCydonia_Detonation_Concluded Auto Const mandatory
-Scene Property DialogueCydonia_Detonation_Concluded_LastCall Auto Const mandatory
-wwiseevent Property AMB_Cydonia_Fracking_Explosion_FirstEncounter Auto Const mandatory
-wwiseevent Property AMB_Cydonia_Fracking_Explosion Auto Const mandatory
-wwiseevent Property AMB_Cydonia_Fracking_Klaxon_TriggerEchos Auto Const mandatory
-wwiseevent Property AMB_Cydonia_EXT_Fracking_Explosion_NoOcc Auto Const mandatory
-wwiseevent Property AMB_Cydonia_EXT_Fracking_StructureRumbleTriggerEchos Auto Const mandatory
-ReferenceAlias Property DetonationSoundMarkerFirstTime Auto Const mandatory
-ReferenceAlias Property DetonationSoundMarker Auto Const mandatory
-ReferenceAlias Property DetonationSoundMarkerInt02 Auto Const mandatory
-ReferenceAlias Property DetonationSoundMarkerExt Auto Const mandatory
-RefCollectionAlias Property Klaxons Auto Const mandatory
-Int Property KlaxonTimerID = 1 Auto Const
-Float Property KlaxonTimerLength = 3.0 Auto Const
-Int Property DetonationTimerID = 2 Auto Const
-Float Property DetonationTimerLength = 8.0 Auto Const
-Int Property EndQuestTimerID = 3 Auto Const
-Float Property EndQuestTimerLength = 3.0 Auto Const
-Float Property DetonationShakeLength = 4.0 Auto Const
-Int Property QuestDoneStage = 1000 Auto Const
 
-;-- Functions ---------------------------------------
-
+;Plays first
 Function PlayKlaxons()
-  Int I = 0
-  Int iCount = Klaxons.GetCount()
-  While I < iCount
-    ObjectReference myKlaxon = Klaxons.GetAt(I)
-    myKlaxon.PlayAnimation("Play01")
-    I += 1
-  EndWhile
-  If CY_DetonationCount.GetValue() < 1.0
-    AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerFirstTime.GetRef(), None, None)
-    AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerInt02.GetRef(), None, None)
-  Else
-    AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarker.GetRef(), None, None)
-    AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerInt02.GetRef(), None, None)
-    AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerExt.GetRef(), None, None)
-  EndIf
-  Self.StartTimer(KlaxonTimerLength, KlaxonTimerID)
+    ;Turn on the klaxon lights.
+    Int i
+    Int iCount = Klaxons.GetCount()
+    While i < iCount
+        ObjectReference myKlaxon = Klaxons.GetAt(i)
+        myKlaxon.PlayAnimation("Play01")
+        i += 1
+    EndWhile
+
+    If CY_DetonationCount.GetValue() < 1
+        AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerFirstTime.GetRef())
+        AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerInt02.GetRef())
+    Else
+        AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarker.GetRef())
+        AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerInt02.GetRef())
+        AMB_Cydonia_Fracking_Klaxon_TriggerEchos.Play(DetonationSoundMarkerEXT.GetRef())
+    EndIf
+    StartTimer(KlaxonTimerLength, KlaxonTimerID)
 EndFunction
 
+;Announcement plays second, based on where the player is.
 Function PlaySequence()
-  Actor myPlayer = Game.GetPlayer()
-  If Game.GetLocalTime() >= CY_DetonationEndOfDay.GetValue() - 2.0 && Game.GetLocalTime() <= CY_DetonationEndOfDay.GetValue()
-    If myPlayer.IsInLocation(Cydonia.GetLocation())
-      DialogueCydonia_Detonation_Announcer_LastCall.Start()
+    Actor myPlayer = Game.GetPlayer()
+    If ( Game.GetLocalTime() >= (CY_DetonationEndOfDay.GetValue() - 2.0) && Game.GetLocalTime() <= CY_DetonationEndOfDay.GetValue() )
+        If myPlayer.IsInLocation(Cydonia.GetLocation())
+            DialogueCydonia_Detonation_Announcer_LastCall.Start()
+        Else
+            SetStage(QuestDoneStage)
+        EndIf
+        
     Else
-      Self.SetStage(QuestDoneStage)
+        If myPlayer.IsInLocation(Cydonia.GetLocation())
+            DialogueCydonia_Detonation_Announcer_Countdown.Start()
+        Else
+            SetStage(QuestDoneStage)
+        EndIf
     EndIf
-  ElseIf myPlayer.IsInLocation(Cydonia.GetLocation())
-    DialogueCydonia_Detonation_Announcer_Countdown.Start()
-  Else
-    Self.SetStage(QuestDoneStage)
-  EndIf
 EndFunction
+
 
 Function Shake()
-  Game.ShakeCamera(None, 0.200000003, DetonationShakeLength)
-  Game.ShakeController(0.300000012, 0.150000006, DetonationShakeLength)
-  Utility.Wait(3.0)
-  Game.ShakeCamera(None, 0.050000001, DetonationShakeLength)
-  Game.ShakeController(0.150000006, 0.0, DetonationShakeLength)
+    Game.ShakeCamera(none, 0.2, DetonationShakeLength)
+	Game.ShakeController(0.3, 0.15, DetonationShakeLength)
+    Utility.Wait(3)
+    Game.ShakeCamera(none, 0.05, DetonationShakeLength)
+	Game.ShakeController(0.15, 0.0, DetonationShakeLength)
 EndFunction
 
+
+;Detonation plays third (Interior)
 Function PlayDetonationFX()
-  If CY_DetonationCount.GetValue() < 1.0
-    AMB_Cydonia_Fracking_Explosion_FirstEncounter.Play(DetonationSoundMarkerFirstTime.GetRef(), None, None)
-  Else
-    AMB_Cydonia_Fracking_Explosion.Play(DetonationSoundMarker.GetRef(), None, None)
-  EndIf
-  Self.DetonationTimer()
-  Self.Shake()
+    If CY_DetonationCount.GetValue() < 1
+        AMB_Cydonia_Fracking_Explosion_FirstEncounter.Play(DetonationSoundMarkerFirstTime.GetRef())
+    Else
+        AMB_Cydonia_Fracking_Explosion.Play(DetonationSoundMarker.GetRef())
+    EndIf
+    DetonationTimer()
+    Shake()
 EndFunction
 
+;Detonation plays third (Interior 2)
 Function PlayDetonationFXInt02()
-  AMB_Cydonia_Fracking_Explosion.Play(DetonationSoundMarkerInt02.GetRef(), None, None)
-  Self.DetonationTimer()
-  Self.Shake()
+    AMB_Cydonia_Fracking_Explosion.Play(DetonationSoundMarkerInt02.GetRef())
+    DetonationTimer()
+    Shake()
 EndFunction
 
+;Detonation plays third (Exterior)
 Function PlayDetonationFXEXT()
-  AMB_Cydonia_EXT_Fracking_Explosion_NoOcc.Play(DetonationSoundMarkerExt.GetRef(), None, None)
-  AMB_Cydonia_EXT_Fracking_StructureRumbleTriggerEchos.Play(Game.GetPlayer() as ObjectReference, None, None)
-  Self.DetonationTimer()
-  Self.Shake()
+    AMB_Cydonia_EXT_Fracking_Explosion_NoOcc.Play(DetonationSoundMarkerExt.GetRef())
+    AMB_Cydonia_EXT_Fracking_StructureRumbleTriggerEchos.Play(Game.GetPlayer())
+    DetonationTimer()
+    Shake()
 EndFunction
 
+
+;Starts the Detonation Timer so the rest of the sequence can proceed.
 Function DetonationTimer()
-  Self.StartTimer(DetonationTimerLength, DetonationTimerID)
+    StartTimer(DetonationTimerLength, DetonationTimerID)
 EndFunction
 
+
+;Conclusion announcement plays fourth (Interior)
 Function ConcludeSequence()
-  If Game.GetLocalTime() >= CY_DetonationEndOfDay.GetValue() - 1.0 && Game.GetLocalTime() <= CY_DetonationEndOfDay.GetValue() + 1.0
-    DialogueCydonia_Detonation_Concluded_LastCall.Start()
-  Else
-    DialogueCydonia_Detonation_Concluded.Start()
-  EndIf
+    If ( Game.GetLocalTime() >= (CY_DetonationEndOfDay.GetValue() - 1.0) && Game.GetLocalTime() <= (CY_DetonationEndOfDay.GetValue() + 1.0) )
+        DialogueCydonia_Detonation_Concluded_LastCall.Start()
+    Else 
+        DialogueCydonia_Detonation_Concluded.Start()
+    EndIf
 EndFunction
 
+
+;Delay the end of the quest after the last call detonation message goes out so that we don't play it again. 
+;CYDetonationHelperQuestScript will handle this check in StartDetonationSequence()
 Function DelayQuestEndForLastCall()
-  Self.StartTimerGameTime(EndQuestTimerLength, EndQuestTimerID)
+    StartTimerGameTime(EndQuestTimerLength, EndQuestTimerID)
 EndFunction
+
 
 Function EndKlaxons()
-  Int I = 0
-  Int iCount = Klaxons.GetCount()
-  While I < iCount
-    ObjectReference myKlaxon = Klaxons.GetAt(I)
-    myKlaxon.PlayAnimation("Play02")
-    I += 1
-  EndWhile
+    ;Turn off the klaxon lights.
+    Int i
+    Int iCount = Klaxons.GetCount()
+    While i < iCount
+        ObjectReference myKlaxon = Klaxons.GetAt(i)
+        myKlaxon.PlayAnimation("Play02")
+        i += 1
+    EndWhile
 EndFunction
 
+
+;Selects the correct Detonation to play based on where the player is.
 Function SelectCorrectDetonation()
-  Actor myPlayer = Game.GetPlayer()
-  If myPlayer.IsInLocation(Cydonia.GetLocation())
-    If myPlayer.IsInInterior()
-      Cell myCell = myPlayer.GetParentCell()
-      If myCell == CityCydoniaMainLevel
-        Self.PlayDetonationFX()
-      ElseIf myCell == CityCydoniaMainLevel02
-        Self.PlayDetonationFXInt02()
-      Else
-        Self.SetStage(QuestDoneStage)
-      EndIf
+    Actor myPlayer = Game.GetPlayer()
+    If myPlayer.IsInLocation(Cydonia.GetLocation())
+        If myPlayer.IsInInterior()
+            Cell myCell = myPlayer.GetParentCell()
+            If myCell == CityCydoniaMainLevel
+                PlayDetonationFX()
+            ElseIf myCell == CityCydoniaMainLevel02
+                PlayDetonationFXInt02()
+            Else
+                SetStage(QuestDoneStage)
+            EndIf
+        Else
+            PlayDetonationFXEXT()
+        EndIf
     Else
-      Self.PlayDetonationFXEXT()
+        SetStage(QuestDoneStage)
     EndIf
-  Else
-    Self.SetStage(QuestDoneStage)
-  EndIf
 EndFunction
 
+
+;Chooses which scene to play based on where the player is. If no locations/cells are valid, then it ends the quest
 Function SelectCorrectConclusion()
-  Actor myPlayer = Game.GetPlayer()
-  If myPlayer.IsInLocation(Cydonia.GetLocation())
-    Self.ConcludeSequence()
-  Else
-    Self.SetStage(QuestDoneStage)
-  EndIf
+    Actor myPlayer = Game.GetPlayer()
+    If myPlayer.IsInLocation(Cydonia.GetLocation())
+        ConcludeSequence()
+    Else
+        SetStage(QuestDoneStage)
+    EndIf
 EndFunction
+
+
+
 
 Event OnQuestInit()
-  Self.PlayKlaxons()
+    PlayKlaxons()
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == KlaxonTimerID
-    Self.PlaySequence()
-  ElseIf aiTimerID == DetonationTimerID
-    Self.SelectCorrectConclusion()
-  EndIf
+Event OnTimer(int aiTimerID)
+    If aiTimerID == KlaxonTimerID
+        PlaySequence()
+    ElseIf aiTimerID == DetonationTimerID
+        SelectCorrectConclusion()
+    EndIf
 EndEvent
 
-Event OnTimerGameTime(Int aiTimerID)
-  If aiTimerID == EndQuestTimerID
-    Self.Stop()
-  EndIf
+Event OnTimerGameTime(int aiTimerID)
+    If aiTimerID == EndQuestTimerID
+        Stop()
+    Endif
 EndEvent

@@ -1,47 +1,46 @@
-ScriptName UC01_StealthCourseTriggerScript Extends ObjectReference
+Scriptname UC01_StealthCourseTriggerScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool bProcessing
-Int iTriggerCount
+Quest Property UC01 Mandatory Const Auto
+{Quest object that manages this stage}
 
-;-- Properties --------------------------------------
-Quest Property UC01 Auto Const mandatory
-{ Quest object that manages this stage }
-Int Property ShutdownStage = 400 Auto Const
-{ Once this stage is set on UC01, shut it all down }
-Faction Property UC01_SectorBEnemyFaction Auto Const mandatory
-{ Faction to apply to the player if they're in the trigger }
+int Property ShutdownStage = 400 Const Auto
+{Once this stage is set on UC01, shut it all down}
 
-;-- Functions ---------------------------------------
+Faction Property UC01_SectorBEnemyFaction Mandatory Const Auto
+{Faction to apply to the player if they're in the trigger}
+
+int iTriggerCount
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If !UC01.GetStageDone(ShutdownStage)
-    Self.AdjustTriggerCount(True)
-  EndIf
+    if !UC01.GetStageDone(ShutdownStage)
+        AdjustTriggerCount()
+    endif
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  If !UC01.GetStageDone(ShutdownStage)
-    Self.AdjustTriggerCount(False)
-  EndIf
+    if !UC01.GetStageDone(ShutdownStage)
+        AdjustTriggerCount(false)
+    endif
 EndEvent
 
-Function AdjustTriggerCount(Bool bAdd)
-  While bProcessing
+bool bProcessing
+Function AdjustTriggerCount(bool bAdd = true)
+ while bProcessing
     Utility.Wait(0.5)
-  EndWhile
-  bProcessing = True
-  Actor PlayerACT = Game.GetPlayer()
-  If bAdd
-    iTriggerCount += 1
-    If iTriggerCount == 1
-      PlayerACT.AddToFaction(UC01_SectorBEnemyFaction)
-    EndIf
-  Else
-    iTriggerCount -= 1
-    If iTriggerCount == 0
-      PlayerACT.RemoveFromFaction(UC01_SectorBEnemyFaction)
-    EndIf
-  EndIf
-  bProcessing = False
+ endwhile
+    bProcessing = true
+    Actor PlayerACT = Game.GetPlayer()
+
+    if bAdd
+        iTriggerCount += 1
+        if iTriggerCount == 1
+            PlayerACT.AddToFaction(UC01_SectorBEnemyFaction)
+        endif
+    else
+        iTriggerCount -= 1
+        if iTriggerCount == 0
+            PlayerACT.RemoveFromFaction(UC01_SectorBEnemyFaction)
+        endif
+    endif
+    bProcessing = false
 EndFunction

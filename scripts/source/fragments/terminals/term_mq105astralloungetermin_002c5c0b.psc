@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_MQ105AstralLoungeTermin_002C5C0B Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_MQ105AstralLoungeTermin_002C5C0B Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MQ105 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  MQ105.SetStage(215)
+;BEGIN CODE
+MQ105.SetStage(215)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property MQ105 Auto Const Mandatory

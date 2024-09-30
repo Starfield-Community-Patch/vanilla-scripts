@@ -1,20 +1,20 @@
-ScriptName DefaultIncActorValue Extends ActiveMagicEffect Const
+Scriptname DefaultIncActorValue extends ActiveMagicEffect Const
+;Increment the Quantum Essence on the player
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Data
-  ActorValue Property ValueToInc Auto Const mandatory
-  Float Property AmountToInc = 1.0 Auto Const
+ActorValue Property ValueToInc Auto Const Mandatory
+
+float Property AmountToInc = 1.0 Auto Const
+
 EndGroup
 
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	;debug.trace(self + "OnEffectStart() akTarget: " + akTarget + ", akCaster: " + akCaster)
+	game.getPlayer().SetValue(ValueToInc, (game.getPlayer().GetValue(ValueToInc) + AmountToInc))
 
-;-- Functions ---------------------------------------
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  ; Empty function
 EndEvent
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Game.getPlayer().SetValue(ValueToInc, Game.getPlayer().GetValue(ValueToInc) + AmountToInc)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+
 EndEvent

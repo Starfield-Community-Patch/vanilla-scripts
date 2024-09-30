@@ -1,17 +1,23 @@
-ScriptName Fragments:Scenes:SF_MQ206A_007d_BarrettSpeech_002295B0 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ206A_007d_BarrettSpeech_002295B0 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Barrett Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  Barrett.GetActorRef().SetGhost(True)
+;BEGIN CODE
+Barrett.GetActorRef().SetGhost()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  Barrett.GetActorRef().SetGhost(False)
-  Self.GetOwningQuest().SetStage(230)
+;BEGIN CODE
+Barrett.GetActorRef().SetGhost(False)
+GetOwningQuest().SetStage(230)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Barrett Auto Const

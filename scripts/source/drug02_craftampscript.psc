@@ -1,27 +1,28 @@
-ScriptName Drug02_CraftAmpScript Extends ReferenceAlias Const
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Form Property FormToCheck Auto Const
-Int Property StageToSet Auto Const
-researchproject Property Drug_Research_T1_Amp Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Scriptname Drug02_CraftAmpScript extends ReferenceAlias Const
 
 Event OnAliasInit()
-  Self.RegisterForRemoteEvent(Self as ScriptObject, "OnPlayerCraftItem")
-  Self.RegisterForRemoteEvent(Self as ScriptObject, "OnPlayerCompleteResearch")
+    RegisterForRemoteEvent(SELF, "OnPlayerCraftItem")
+    RegisterForRemoteEvent(SELF, "OnPlayerCompleteResearch")
 EndEvent
 
 Event OnPlayerCraftItem(ObjectReference akBench, Location akLocation, Form akCreatedItem)
-  If akCreatedItem == FormToCheck
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
-EndEvent
+    Debug.Trace(akCreatedItem + " was made at " + akBench + " in location " + akLocation)
 
-Event OnPlayerCompleteResearch(ObjectReference akBench, Location akLocation, researchproject akCompletedProject)
-  If akCompletedProject == Drug_Research_T1_Amp
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
-EndEvent
+    ; Once the proper item is crafted - set the indicated stage
+    if ( akCreatedItem == FormToCheck )
+        GetOwningQuest().SetStage(StageToSet)
+    endif
+endEvent
+
+Event OnPlayerCompleteResearch(ObjectReference akBench, Location akLocation, ResearchProject akCompletedProject)
+    Debug.Trace("Research on " + akCompletedProject + " was completed at " + akBench + " in location " + akLocation)
+
+    ; If the player researched Amp, progress the quest
+    if ( akCompletedProject == Drug_Research_T1_Amp )
+        GetOwningQuest().SetStage(StageToSet)
+    EndIf
+endEvent
+
+Form Property FormToCheck Auto Const
+Int Property StageToSet Auto Const
+ResearchProject Property Drug_Research_T1_Amp Auto Const Mandatory

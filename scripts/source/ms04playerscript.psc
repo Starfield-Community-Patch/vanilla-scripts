@@ -1,23 +1,24 @@
-ScriptName MS04PlayerScript Extends ReferenceAlias
+Scriptname MS04PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Book Property Slate1 Auto Const
 Book Property Slate02 Auto Const
-FormList Property MS04SlateFilter Auto Const mandatory
-
-;-- Functions ---------------------------------------
+FormList Property MS04SlateFilter Auto Const Mandatory
 
 Event OnAliasInit()
-  Self.AddInventoryEventFilter(MS04SlateFilter as Form)
+	AddInventoryEventFilter(MS04SlateFilter)
 EndEvent
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If akBaseItem == Slate1 as Form
-    Self.GetOwningQuest().SetStage(355)
-  EndIf
-  If akBaseItem == Slate02 as Form
-    Self.GetOwningQuest().SetStage(360)
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    Debug.Trace("MS04 Player: Item Added = "+akBaseItem)
+
+    ; Did the player pick up Alice's first slate?
+    if akBaseItem == Slate1
+        GetOwningQuest().SetStage(355)
+    endif
+
+    ; Did the player pick up Alice's second slate?
+    if akBaseItem == Slate02
+        GetOwningQuest().SetStage(360)
+    endif
 EndEvent
+

@@ -1,58 +1,71 @@
-ScriptName TraitStarterHomeDoorsScript Extends RefCollectionAlias
-{ handle player access to the Starter Home }
+Scriptname TraitStarterHomeDoorsScript extends RefCollectionAlias
+{handle player access to the Starter Home}
 
-;-- Variables ---------------------------------------
-Bool bDoorOpen = True
-Float fPaymentTimestamp = -7.0
+Message Property TraitStarterHome_DoorMortgageMessage Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Message Property TraitStarterHome_DoorMortgageMessage Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-Int Property MortgageObjectiveStage = 200 Auto Const
-Int Property PaidOffMortgageStage = 400 Auto Const
-Int Property EndQuestStage = 9000 Auto Const
-Int Property ForeclosedStage = 500 Auto Const
-Int Property MortgageDueDays = 7 Auto Const
+MiscObject Property Credits Auto Const Mandatory
+
+int property MortgageObjectiveStage = 200 auto Const
+
+int property PaidOffMortgageStage = 400 auto Const
+
+int property EndQuestStage = 9000 auto Const
+
+int property ForeclosedStage = 500 auto Const
+
+int property MortgageDueDays = 7 auto Const
 { how often (in days) is the mortgage due? }
-GlobalVariable Property Trait_StarterHome_Interest Auto Const
+
+GlobalVariable property Trait_StarterHome_Interest auto Const
 { how much does the mortage cost }
 
-;-- Functions ---------------------------------------
+Bool bDoorOpen = TRUE
+Float fPaymentTimestamp = -7.0    ; This is the timestamp of the last mortgage payment
 
 Event OnActivate(ObjectReference akSource, ObjectReference akActionRef)
-  If !bDoorOpen
-    Int messageIndex = TraitStarterHome_DoorMortgageMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    If messageIndex > -1
-      If messageIndex == 0
-        Game.GetPlayer().RemoveItem(Credits as Form, Trait_StarterHome_Interest.GetValueInt(), False, None)
-        fPaymentTimestamp = Utility.GetCurrentGameTime() + MortgageDueDays as Float
-        bDoorOpen = True
-        Self.Lock(False, False, True)
-        Self.BlockActivation(False, False)
-      ElseIf messageIndex == 1
-        Self.GetOwningQuest().SetStage(MortgageObjectiveStage)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+
+    if ( !bDoorOpen )  ; As long as you haven't forelosed or paid off the mortgage 
+        int messageIndex = TraitStarterHome_DoorMortgageMessage.Show()
+        if messageIndex > -1
+            if messageIndex == 0        ; PAY THE WEEKLY MORTGAGE
+                Game.GetPlayer().RemoveItem(Credits, Trait_StarterHome_Interest.GetValueInt())
+                fPaymentTimestamp = Utility.GetCurrentGameTime() + MortgageDueDays  ; Flag when the player needs to pay the mortgage again
+                bDoorOpen = true
+                ; unlock all doors
+                Lock(FALSE)
+                BlockActivation(false, false)
+            elseif messageIndex == 1    ; DEAL WITH MORTGAGE DIRECTLY
+                GetOwningQuest().SetStage(MortgageObjectiveStage)
+            endif
+        endif
+    endif
+endEvent
 
 Event OnLoad(ObjectReference akSource)
-  If akSource == Self.GetAt(0)
-    If Self.GetOwningQuest().GetStageDone(ForeclosedStage)
-      Self.Lock(True, False, True)
-      Self.BlockActivation(False, False)
-    ElseIf !Self.GetOwningQuest().GetStageDone(PaidOffMortgageStage)
-      Float currentGameTime = Utility.GetCurrentGameTime()
-      If currentGameTime >= fPaymentTimestamp
-        bDoorOpen = False
-        Self.Lock(True, False, True)
-        Self.BlockActivation(True, False)
-      EndIf
-    Else
-      bDoorOpen = True
-      Self.Lock(False, False, True)
-      Self.BlockActivation(False, False)
-      Self.GetOwningQuest().SetStage(EndQuestStage)
-    EndIf
-  EndIf
+    ; only need to do this once per load
+    if akSource == GetAt(0)
+        Debug.Trace(self + " The door to your starter home has loaded.")
+
+        ; If the property is foreclosed, lock the door (forever)
+        if ( GetOwningQuest().GetStageDone(ForeclosedStage) )
+            Lock()
+            BlockActivation(false, false) 
+        else
+            ; If you haven't paid off the mortgage, then lock the door if the payment is past due
+            if ( !GetOwningQuest().GetStageDone(PaidOffMortgageStage) )
+                float currentGameTime = Utility.GetCurrentGameTime()
+                if (currentGameTime >= fPaymentTimestamp)
+                    bDoorOpen = false    ; This flag being FALSE means the door is locked and has a message box
+                    Lock()
+                    BlockActivation(true, false) 
+                endif
+            Else
+                ; If you've bought off the house - unlock the door
+                bDoorOpen = TRUE
+                Lock(FALSE)
+                BlockActivation(false, false)
+                GetOwningQuest().SetStage(EndQuestStage)     ; Close off the quest - you own the place now
+            endif
+        endif
+    endif
 EndEvent

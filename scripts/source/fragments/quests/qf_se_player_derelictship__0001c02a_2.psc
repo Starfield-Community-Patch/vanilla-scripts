@@ -1,107 +1,163 @@
-ScriptName Fragments:Quests:QF_SE_Player_DerelictShip__0001C02A_2 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_DerelictShip__0001C02A_2 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_DerelictShip Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-GlobalVariable Property SE_DerelictGeneric_MissionCompanyGlobal Auto Const mandatory
-GlobalVariable Property SE_DerelictGeneric_MissionTypeGlobal Auto Const mandatory
-GlobalVariable Property SE_DerelictGeneric_MissionHazardGlobal Auto Const mandatory
-GlobalVariable Property SE_DerelictGeneric_MissionHazardCauseGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_Repaired Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_MissionCrewTypeGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_IDCardGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_BlackboxGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_LogsDownloaded Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_HazardFixed Auto Const mandatory
-GlobalVariable Property BE_GenericDerelicCrewGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_TerminalGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_TerminalCrewGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_TerminalDockingGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_TerminalCrewEquipmentGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_TerminalVoteTallyGlobal Auto Const mandatory
-GlobalVariable Property SE_GenericDerelict_UniqueEntry01Global Auto Const mandatory
-FormList Property BEHazardKeywordList Auto Const mandatory
-sq_parentscript Property SQ_Parent Auto Const mandatory
-sq_parentscript:actorvaluedatum[] Property AdditionalActorValuesToDamage Auto Const
-RefCollectionAlias Property Alias_CrewSpawnMarkers Auto Const mandatory
-RefCollectionAlias Property Alias_CrewWoundedMarkers Auto Const mandatory
-Furniture Property NPCWoundedLean Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  SQ_Parent.SetupDamagedShip(Alias_DerelictShip.GetShipRef(), False, True, True, True, True, True, AdditionalActorValuesToDamage)
+;BEGIN CODE
+SQ_Parent.SetupDamagedShip(Alias_DerelictShip.GetShipRef(), false, true, true, true, true, true, AdditionalActorValuesToDamage)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Alias_DerelictShip.GetShipRef().SetValue(DockingPermission, 0.0)
-  SE_GenericDerelict_MissionCrewTypeGlobal.SetValue(Utility.RandomInt(0, 3) as Float)
-  SE_DerelictGeneric_MissionCompanyGlobal.SetValueInt(Utility.RandomInt(0, 4))
-  SE_DerelictGeneric_MissionHazardGlobal.SetValueInt(Utility.RandomInt(0, 11))
-  SE_DerelictGeneric_MissionHazardCauseGlobal.SetValueInt(Utility.RandomInt(0, 2))
-  SE_DerelictGeneric_MissionTypeGlobal.SetValueInt(Utility.RandomInt(0, 1))
-  SE_GenericDerelict_Repaired.SetValue(0.0)
-  SE_GenericDerelict_LogsDownloaded.SetValue(0.0)
-  SE_GenericDerelict_HazardFixed.SetValue(0.0)
-  SE_GenericDerelict_TerminalGlobal.SetValue(0.0)
-  SE_GenericDerelict_TerminalCrewGlobal.SetValue(0.0)
-  SE_GenericDerelict_TerminalDockingGlobal.SetValue(0.0)
-  SE_GenericDerelict_TerminalCrewEquipmentGlobal.SetValue(0.0)
-  SE_GenericDerelict_TerminalVoteTallyGlobal.SetValue(0.0)
-  ObjectReference[] FurnitureRef = Alias_CrewSpawnMarkers.GetArray()
-  Int I = 0
-  While I < FurnitureRef.Length
-    Alias_CrewWoundedMarkers.AddRef(FurnitureRef[I].PlaceAtMe(NPCWoundedLean as Form, 1, False, False, True, None, None, True))
-    I += 1
-  EndWhile
-EndFunction
+;BEGIN CODE
+Alias_DerelictShip.GetShipRef().SetValue(DockingPermission, 0)
+SE_GenericDerelict_MissionCrewTypeGlobal.SetValue(Utility.RandomInt(0,3))
+SE_DerelictGeneric_MissionCompanyGlobal.SetValueInt(Utility.RandomInt(0,4))
+SE_DerelictGeneric_MissionHazardGlobal.SetValueInt(Utility.RandomInt(0,11))
+SE_DerelictGeneric_MissionHazardCauseGlobal.SetValueInt(Utility.RandomInt(0,2))
+SE_DerelictGeneric_MissionTypeGlobal.SetValueInt(Utility.RandomInt(0,1))
+SE_GenericDerelict_Repaired.SetValue(0)
+SE_GenericDerelict_LogsDownloaded.SetValue(0)
+SE_GenericDerelict_HazardFixed.SetValue(0)
+SE_GenericDerelict_TerminalGlobal.SetValue(0)
+SE_GenericDerelict_TerminalCrewGlobal.SetValue(0)
+SE_GenericDerelict_TerminalDockingGlobal.SetValue(0)
+SE_GenericDerelict_TerminalCrewEquipmentGlobal.SetValue(0)
+SE_GenericDerelict_TerminalVoteTallyGlobal.SetValue(0)
 
+ObjectReference[] FurnitureRef = Alias_CrewSpawnMarkers.GetArray()
+int i = 0
+while i < FurnitureRef.Length
+    Alias_CrewWoundedMarkers.AddRef(FurnitureRef[i].PlaceAtMe(NPCWoundedLean))
+    i += 1
+endWhile
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Keyword[] hazardKeywords = BEHazardKeywordList.GetArray(False) as Keyword[]
-  spaceshipreference DerelictShip = Alias_DerelictShip.GetShipRef()
-  Int biohazard = Utility.RandomInt(0, 2)
-  If biohazard == 0
+;BEGIN CODE
+Keyword[] hazardKeywords = BEHazardKeywordList.GetArray() as Keyword[]
+SpaceshipReference DerelictShip = Alias_DerelictShip.GetShipRef()
+
+int biohazard = utility.randomint(0,2)
+if biohazard == 0
     DerelictShip.AddKeyword(hazardKeywords[11])
-  ElseIf biohazard == 1
+elseif biohazard == 1
     DerelictShip.AddKeyword(hazardKeywords[8])
-  Else
+else
     DerelictShip.AddKeyword(hazardKeywords[10])
-  EndIf
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_01
 Function Fragment_Stage_0020_Item_01()
-  Keyword[] hazardKeywords = BEHazardKeywordList.GetArray(False) as Keyword[]
-  Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[8])
+;BEGIN CODE
+Keyword[] hazardKeywords = BEHazardKeywordList.GetArray() as Keyword[]
+Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[8])
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_02
 Function Fragment_Stage_0020_Item_02()
-  Keyword[] hazardKeywords = BEHazardKeywordList.GetArray(False) as Keyword[]
-  Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[6])
+;BEGIN CODE
+Keyword[] hazardKeywords = BEHazardKeywordList.GetArray() as Keyword[]
+Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[6])
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_03
 Function Fragment_Stage_0020_Item_03()
-  Keyword[] hazardKeywords = BEHazardKeywordList.GetArray(False) as Keyword[]
-  Int biohazard = Utility.RandomInt(0, 1)
-  If biohazard == 1
+;BEGIN CODE
+Keyword[] hazardKeywords = BEHazardKeywordList.GetArray() as Keyword[]
+int biohazard = utility.randomint(0,1)
+if biohazard == 1
     Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[4])
-  Else
+else
     Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[24])
-  EndIf
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_04
 Function Fragment_Stage_0020_Item_04()
-  Keyword[] hazardKeywords = BEHazardKeywordList.GetArray(False) as Keyword[]
-  Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[3])
+;BEGIN CODE
+Keyword[] hazardKeywords = BEHazardKeywordList.GetArray() as Keyword[]
+Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[3])
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_05
 Function Fragment_Stage_0020_Item_05()
-  Keyword[] hazardKeywords = BEHazardKeywordList.GetArray(False) as Keyword[]
-  Int biohazard = Utility.RandomInt(0, 1)
-  If biohazard == 1
+;BEGIN CODE
+Keyword[] hazardKeywords = BEHazardKeywordList.GetArray() as Keyword[]
+int biohazard = utility.randomint(0,1)
+if biohazard == 1
     Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[5])
-  Else
+else
     Alias_DerelictShip.GetShipRef().AddKeyword(hazardKeywords[0])
-  EndIf
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_DerelictShip Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+GlobalVariable Property SE_DerelictGeneric_MissionCompanyGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_DerelictGeneric_MissionTypeGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_DerelictGeneric_MissionHazardGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_DerelictGeneric_MissionHazardCauseGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_Repaired Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_MissionCrewTypeGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_IDCardGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_BlackboxGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_LogsDownloaded Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_HazardFixed Auto Const Mandatory
+
+GlobalVariable Property BE_GenericDerelicCrewGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_TerminalGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_TerminalCrewGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_TerminalDockingGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_TerminalCrewEquipmentGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_TerminalVoteTallyGlobal Auto Const Mandatory
+
+GlobalVariable Property SE_GenericDerelict_UniqueEntry01Global Auto Const Mandatory
+
+FormList Property BEHazardKeywordList Auto Const Mandatory
+
+sq_parentscript Property SQ_Parent Auto Const Mandatory
+
+SQ_ParentScript:ActorValueDatum[] property AdditionalActorValuesToDamage Auto Const
+
+RefCollectionAlias Property Alias_CrewSpawnMarkers Auto Const Mandatory
+
+RefCollectionAlias Property Alias_CrewWoundedMarkers Auto Const Mandatory
+
+Furniture Property NPCWoundedLean Auto Const Mandatory

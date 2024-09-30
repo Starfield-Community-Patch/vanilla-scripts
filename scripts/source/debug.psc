@@ -1,129 +1,195 @@
-ScriptName Debug Extends ScriptObject Native hidden
+Scriptname Debug Native DebugOnly Hidden
 
-;-- Functions ---------------------------------------
+; Note that these functions will do nothing in release console builds
 
-Function AutomatedTestLogDebug(String asMessage) Global Native
+; Logs a debug message to the automated testing logger
+Function AutomatedTestLogDebug(string asMessage) native global
 
-Function AutomatedTestLogError(String asMessage) Global Native
+; Logs an error message to the automated testing logger
+Function AutomatedTestLogError(string asMessage) native global
 
-Function AutomatedTestLogProgress(String asMessage) Global Native
+; Logs a test progress message to the automated testing logger
+Function AutomatedTestLogProgress(string asMessage) native global
 
-Function CenterOnCell(String asCellname) Global Native
+; COC functionality
+Function CenterOnCell(string asCellname) native global
 
-Float Function CenterOnCellAndWait(String asCellname) Global Native
+; COC functionality
+float Function CenterOnCellAndWait(string asCellname) native global
 
-Function CloseUserLog(String asLogName) Global Native
+; player.moveto functionality
+float Function PlayerMoveToAndWait(string asDestRef) native global
 
-Function DBSendPlayerPosition() Global Native
+; Closes the specified user log
+Function CloseUserLog(string asLogName) native global
 
-Function DumpAliasData(Quest akQuest) Global Native
+; Dumps all alias fill information for the quest to the AliasDump log in Logs/Script/
+Function DumpAliasData(Quest akQuest) native global
 
-Function DumpEventRegistrations(ScriptObject akScript) Global Native
+; Dumps all event registrations for the specified script to the Papyrus log
+Function DumpEventRegistrations(ScriptObject akScript) native global
 
-Function EnableAI(Bool abEnable) Global Native
+; Enable/disable AI processing
+Function EnableAI(bool abEnable = true) native global
 
-Function EnableCollisions(Bool abEnable) Global Native
+; Enable/disable collision detection
+Function EnableCollisions(bool abEnable = true) native global
 
-Function EnableDetection(Bool abEnable) Global Native
+; Enable/disable AI detection
+Function EnableDetection(bool abEnable = true) native global
 
-Function EnableMenus(Bool abEnable) Global Native
+; Enable/disable menu rendering
+Function EnableMenus(bool abEnable = true) native global
 
-Function ExecuteConsole(String aCommand) Global Native
+; Execute the specified console command
+Function ExecuteConsole(string aCommand) native global
 
-String Function GetConfigName() Global Native
+; Returns the config name
+string Function GetConfigName() native global
 
-String Function GetPlatformName() Global Native
+; Returns the platform name
+string Function GetPlatformName() native global
 
-String Function GetVersionNumber() Global Native
+; Returns the version number string
+string Function GetVersionNumber() native global
 
-Function MessageBox(String asMessageBoxText) Global Native
+; Displays an in-game message box
+Function MessageBox(string asMessageBoxText) native global
 
-Function Notification(String asNotificationText) Global Native
+; Displays an in-game notification
+Function Notification(string asNotificationText) native global
 
-Bool Function OpenUserLog(String asLogName) Global Native
+; Opens a user log - fails if the log is already open
+bool Function OpenUserLog(string asLogName) native global
 
-Float Function PlayerMoveToAndWait(String asDestRef) Global Native
+; Quits the game
+Function QuitGame() native global
 
-Function QuitGame() Global Native
+; TGM functionality
+Function SetGodMode(bool abGodMode) native global
 
-Function SetFootIK(Bool abFootIK) Global Native
+; Start profiing a specific script - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StartScriptProfiling(string asScriptName) native global
 
-Function SetGodMode(Bool abGodMode) Global Native
+; Start profiling the calling stack - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StartStackProfiling() native global
 
-Function ShowRefPosition(ObjectReference arRef) Global Native
+; Starts profiling all stacks that start in the specified script (and object, if any) - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StartStackRootProfiling(string asScriptName, ScriptObject akObj = None) native global
 
-Function StartScriptProfiling(String asScriptName) Global Native
+; Stop profiling a specific script - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StopScriptProfiling(string asScriptName) native global
 
-Function StartStackProfiling() Global Native
+; Stop profiling the calling stack - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StopStackProfiling() native global
 
-Function StartStackRootProfiling(String asScriptName, ScriptObject akObj) Global Native
+; Stop profiling all stacks that start in the specified script (and object, if any) - setting doesn't persist across saves
+; Will do nothing on release console builds, and if the Papyrus:bEnableProfiling ini setting is off
+Function StopStackRootProfiling(string asScriptName, ScriptObject akObj = None) native global
 
-Function StopScriptProfiling(String asScriptName) Global Native
+; Outputs the string to the log
+; Severity is one of the following:
+; 0 - Info
+; 1 - Warning
+; 2 - Error
+Function Trace(string asTextToPrint, int aiSeverity = 0) native global
 
-Function StopStackProfiling() Global Native
+; Outputs the current function to the log, including all variable values
+Function TraceFunction(string asTextToPrint = "Tracing function on request", int aiSeverity = 0) native global
 
-Function StopStackRootProfiling(String asScriptName, ScriptObject akObj) Global Native
+; Outputs the current stack to the log
+Function TraceStack(string asTextToPrint = "Tracing stack on request", int aiSeverity = 0) native global
 
-Function Trace(String asTextToPrint, Int aiSeverity) Global Native
+; Outputs the string to a user log - fails if the log hasn't been opened
+bool Function TraceUser(string asUserLog, string asTextToPrint, int aiSeverity = 0) native global
 
-Function TraceFunction(String asTextToPrint, Int aiSeverity) Global Native
-
-Function TraceStack(String asTextToPrint, Int aiSeverity) Global Native
-
-Bool Function TraceUser(String asUserLog, String asTextToPrint, Int aiSeverity) Global Native
-
-Function TraceConditionalGlobal(String TextToPrint, GlobalVariable ShowTrace) Global
-{ As TraceConditional() but checks to make sure the global exists to avoid error messages in the log }
-  If ShowTrace as Bool && ShowTrace.value as Bool
-    Debug.Trace(TextToPrint, 0)
-  EndIf
+Function TraceConditionalGlobal(string TextToPrint, GlobalVariable ShowTrace) Global
+{As TraceConditional() but checks to make sure the global exists to avoid error messages in the log}
+;kmk
+	if ShowTrace && ShowTrace.value
+		Trace(TextToPrint)
+	endif
 EndFunction
 
-Function TraceConditional(String TextToPrint, Bool ShowTrace, Int Severity) Global
-{ As Trace() but takes a second parameter bool ShowTrace (which if false suppresses the message). Used to turn off and on traces that might be otherwise annoying. }
-  If ShowTrace
-    Debug.Trace(TextToPrint, Severity)
-  EndIf
+;Suppressable Trace
+Function TraceConditional(string TextToPrint, bool ShowTrace, int Severity = 0) Global
+{As Trace() but takes a second parameter bool ShowTrace (which if false suppresses the message). Used to turn off and on traces that might be otherwise annoying.}
+;jduval
+	if ShowTrace
+		trace(TextToPrint, Severity)
+	EndIf
 EndFunction
 
-Function TraceAndBox(String asTextToPrint, Int aiSeverity) Global
-{ A convenience function to both throw a message box AND write to the trace log, since message boxes sometimes stack in weird ways and won't show up reliably. }
-  Debug.MessageBox(asTextToPrint)
-  Debug.Trace(asTextToPrint, aiSeverity)
+Function TraceAndBox(string asTextToPrint, int aiSeverity = 0) global
+{A convenience function to both throw a message box AND write to the trace log, since message boxes sometimes stack in weird ways and won't show up reliably.}
+	;SJML
+	MessageBox(asTextToPrint)
+	Trace(asTextToPrint, aiSeverity)
 EndFunction
 
-Function TraceSelf(ScriptObject CallingScript, String FunctionName, String StringToTrace) Global
-{ Convenient way to trace the script name and optional function name as a prefix to the trace string
-Note, always pass in SELF as the CallingScript }
-  FunctionName = "-->" + FunctionName + "():"
-  Debug.Trace((CallingScript as String + FunctionName) + " " + StringToTrace, 0)
+;jduvall
+Function TraceSelf(ScriptObject CallingScript, string FunctionName, string StringToTrace) global
+{Convenient way to trace the script name and optional function name as a prefix to the trace string
+Note, always pass in SELF as the CallingScript}
+
+	FunctionName = "-->" + FunctionName + "():"
+
+	trace(CallingScript + FunctionName + " " + StringToTrace)
+
 EndFunction
 
-Bool Function TraceLog(ScriptObject CallingObject, String asTextToPrint, String logName, String SubLogName, Int aiSeverity, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames, Bool bPrefixTracesWithCallingObject) Global
-  String logNamePrefix = ""
-  String subLogNamePrefix = ""
-  If bPrefixTraceWithLogNames
-    logNamePrefix = logName + ": "
-    subLogNamePrefix = SubLogName + ": "
-  EndIf
-  String callingObjectPrefix = ""
-  If bPrefixTracesWithCallingObject
-    callingObjectPrefix = CallingObject as String + ": "
-  EndIf
-  String traceString = logNamePrefix + callingObjectPrefix + asTextToPrint
-  If bShowWarning
-    traceString = ("WARNING!!! " + CallingObject as String) + ": " + asTextToPrint
-  EndIf
-  If bShowNormalTrace
-    Debug.Trace(traceString, aiSeverity)
-  EndIf
-  Bool returnVal = False
-  Debug.OpenUserLog(logName)
-  returnVal = Debug.TraceUser(logName, traceString, aiSeverity)
-  If SubLogName != ""
-    SubLogName = logName + "_" + SubLogName
-    Debug.OpenUserLog(SubLogName)
-    returnVal = returnVal && Debug.TraceUser(SubLogName, traceString, aiSeverity)
-  EndIf
-  Return returnVal
+;jduvall
+bool Function TraceLog(ScriptObject CallingObject, string asTextToPrint, string logName, string SubLogName = "", int aiSeverity = 0, bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = false, bool bPrefixTracesWithCallingObject = true) global
+	;we are sending callingObject so we can in the future route traces to different logs based on who is calling the function
+
+	string logNamePrefix = ""
+	string subLogNamePrefix = ""
+	if bPrefixTraceWithLogNames
+		logNamePrefix = logName + ": "
+		subLogNamePrefix = subLogName + ": "
+	endif
+
+	string callingObjectPrefix = ""
+	if bPrefixTracesWithCallingObject
+		callingObjectPrefix = CallingObject + ": "
+	endif
+
+	string traceString = logNamePrefix + callingObjectPrefix + asTextToPrint
+
+	if bShowWarning
+		;change the format for the trace below 
+		traceString = "WARNING!!! " + CallingObject + ": " + asTextToPrint
+		Game.Warning(traceString)
+	endif
+
+	if bShowNormalTrace
+		debug.trace(traceString, aiSeverity)
+	endif
+
+	bool returnVal
+
+	;trace to main log
+	debug.OpenUserLog(logName)
+	returnVal = debug.TraceUser(logName, traceString, aiSeverity)
+
+	if SubLogName != ""	;if we have a sub log
+		;trace to sub log
+		subLogName = logName + "_" + SubLogName
+		debug.OpenUserLog(subLogName)
+		returnVal = returnVal && debug.TraceUser(SubLogName, traceString, aiSeverity)
+	endif
+
+	RETURN returnVal
 EndFunction
+
+
+; Used to add a tripod to a reference (non-release builds only)
+Function ShowRefPosition(ObjectReference arRef) native global
+
+;Prints out the players position to the database (non-release PC and Xenon builds only)
+Function DBSendPlayerPosition() native global

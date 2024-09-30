@@ -1,28 +1,25 @@
-ScriptName SQ_ShipDebrisScript Extends Quest
+Scriptname SQ_ShipDebrisScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property SQ_ShipDebrisKeyword Auto Const mandatory
+Keyword property SQ_ShipDebrisKeyword auto const mandatory
 { add keyword to orbit location when quest is running to block other quests from starting up here }
-LocationAlias Property OrbitLocation Auto Const mandatory
+
+LocationAlias property OrbitLocation auto const mandatory
 { add keyword to this location }
-
-;-- Functions ---------------------------------------
-
 Event OnQuestStarted()
-  Self.AddKeywordToLocation(True)
+    debug.trace(self + " OnQuestInit OrbitLocation=" + OrbitLocation.GetLocation())
+    AddKeywordToLocation()
 EndEvent
 
 Event OnQuestShutdown()
-  Self.AddKeywordToLocation(False)
+    AddKeywordToLocation(false)
 EndEvent
 
-Function AddKeywordToLocation(Bool addKeyword)
-  Location theOrbitLocation = OrbitLocation.GetLocation()
-  If addKeyword
-    theOrbitLocation.addKeyword(SQ_ShipDebrisKeyword)
-  Else
-    theOrbitLocation.RemoveKeyword(SQ_ShipDebrisKeyword)
-  EndIf
-EndFunction
+function AddKeywordToLocation(bool addKeyword = true)
+    Location theOrbitLocation = OrbitLocation.GetLocation()
+
+    if addKeyword
+        theOrbitLocation.AddKeyword(SQ_ShipDebrisKeyword)
+    Else
+        theOrbitLocation.RemoveKeyword(SQ_ShipDebrisKeyword)
+    EndIf
+endFunction

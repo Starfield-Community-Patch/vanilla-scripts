@@ -1,15 +1,10 @@
-ScriptName MQ102MoaraShipScript Extends ReferenceAlias
+Scriptname MQ102MoaraShipScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property DisabledEngineStage = 640 Auto Const 
+ActorValue Property SpaceshipMainEnginePower Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Int Property DisabledEngineStage = 640 Auto Const
-ActorValue Property SpaceshipMainEnginePower Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnShipSystemDamaged(ActorValue akSystem, Int aBlocksLost, Bool aElectromagneticDamage, Bool aFullyDamaged)
-  If akSystem == SpaceshipMainEnginePower && aFullyDamaged
-    Self.GetOwningQuest().SetStage(DisabledEngineStage)
-  EndIf
+Event OnShipSystemDamaged(ActorValue akSystem, int aBlocksLost, bool aElectromagneticDamage, bool aFullyDamaged)
+    If akSystem == (SpaceshipMainEnginePower) && (aFullyDamaged)
+        GetOwningQuest().SetStage(DisabledEngineStage)
+    EndIf
 EndEvent

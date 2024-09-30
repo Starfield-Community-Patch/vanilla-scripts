@@ -1,17 +1,13 @@
-ScriptName CF05_HuanShipOnLoadScript Extends ReferenceAlias
+Scriptname CF05_HuanShipOnLoadScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property Alias_CF05_HuanShipDoor Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_CF05_HuanShipDoor Auto Const mandatory
-ReferenceAlias Property Alias_CF05_HuanShip Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property Alias_CF05_HuanShip Auto Const Mandatory
 
 Event OnLoad()
-  If !Self.GetOwningQuest().GetStageDone(721)
-    Alias_CF05_HuanShip.GetShipRef().SetExteriorLoadDoorInaccessible(False)
-    Self.RefillDependentAliases()
-    Alias_CF05_HuanShipDoor.RefillAlias()
-  EndIf
-EndEvent
+    if !GetOwningQuest().GetStageDone(721)
+        Alias_CF05_HuanShip.GetShipRef().SetExteriorLoadDoorInaccessible(False)
+        Self.RefillDependentAliases()
+        Alias_CF05_HuanShipDoor.RefillAlias()
+    endif
+endEvent

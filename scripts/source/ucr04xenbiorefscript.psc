@@ -1,15 +1,10 @@
-ScriptName UCR04XenbioRefScript Extends Actor Const
+Scriptname UCR04XenbioRefScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property UCR04XenoBiologistActive Auto Const mandatory
-{ Keyword applied to this NPC if they're actively in UCR04. If they don't have it, they shouldn't be standing around }
-
-;-- Functions ---------------------------------------
+Keyword Property UCR04XenoBiologistActive Mandatory Const Auto
+{Keyword applied to this NPC if they're actively in UCR04. If they don't have it, they shouldn't be standing around}
 
 Event OnUnload()
-  If Self.IsEnabled() && !Self.HasKeyword(UCR04XenoBiologistActive)
-    Self.Disable(False)
-  EndIf
+    if IsEnabled() && !HasKeyword(UCR04XenoBiologistActive)
+        Disable()
+    endif
 EndEvent

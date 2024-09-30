@@ -1,7 +1,7 @@
-ScriptName EffectShader Extends Form Native hidden
+Scriptname EffectShader extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Starts playing this effect shader on the specified object for the specified length of time in seconds. Negative values indiciate "infinite"
+Function Play(ObjectReference akObject, float afDuration = -1.0) native
 
-Function Play(ObjectReference akObject, Float afDuration) Native
-
-Function Stop(ObjectReference akObject) Native
+; Stops playing this effect shader on the specified object
+Function Stop(ObjectReference akObject) native

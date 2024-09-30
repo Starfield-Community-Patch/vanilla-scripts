@@ -1,18 +1,24 @@
-ScriptName Fragments:Scenes:SF_COM_Barrett_TopLevel_Frie_0014A9F5 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_COM_Barrett_TopLevel_Frie_0014A9F5 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property COM_AffinityLevel_3_Commitment Auto Const mandatory
-ReferenceAlias Property Alias_Barrett Auto Const mandatory
-ActorValue Property COM_StoryGatesCompleted Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_05_Begin
 Function Fragment_Phase_05_Begin()
-  com_companionquestscript kmyQuest = Self.GetOwningQuest() as com_companionquestscript
-  kmyQuest.MakeRomantic()
-  If Self.GetOwningQuest().GetStageDone(1000)
-    kmyQuest.MakeCommitted()
-  EndIf
+;BEGIN AUTOCAST TYPE com_companionquestscript
+com_companionquestscript kmyQuest = GetOwningQuest() as com_companionquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.MakeRomantic()
+if GetOwningQuest().GetStageDone(1000)
+    kmyquest.MakeCommitted()
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property COM_AffinityLevel_3_Commitment Auto Const Mandatory
+
+ReferenceAlias Property Alias_Barrett Auto Const Mandatory
+
+ActorValue Property COM_StoryGatesCompleted Auto Const Mandatory

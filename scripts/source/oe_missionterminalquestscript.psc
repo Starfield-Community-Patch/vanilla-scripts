@@ -1,38 +1,45 @@
-ScriptName OE_MissionTerminalQuestScript Extends Quest
+Scriptname OE_MissionTerminalQuestScript extends Quest
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
 Group Autofill
-  LocationAlias Property CurrentMissionTerminalLocation Auto Const mandatory
-  ReferenceAlias Property CurrentMissionTerminal Auto Const mandatory
+    LocationAlias Property CurrentMissionTerminalLocation Mandatory Const Auto
+    ReferenceAlias Property CurrentMissionTerminal Mandatory Const Auto
 EndGroup
 
-Int Property MissionTerminalObjective = 10 Auto Const
+int Property MissionTerminalObjective = 10 Const Auto
 
-;-- Functions ---------------------------------------
-
+;called from dialogue
 Function PlayerToldAboutMissionTerminal(ObjectReference SpeakerRef)
-  Location currentLocation = SpeakerRef.GetCurrentLocation()
-  CurrentMissionTerminalLocation.ForceLocationTo(currentLocation)
-  CurrentMissionTerminal.ClearAndRefillAlias()
-  ObjectReference currentTerminalRef = CurrentMissionTerminal.GetReference()
-  If currentTerminalRef
-    Self.SetObjectiveActive(MissionTerminalObjective, True)
-  Else
-    Self.SetObjectiveSkipped(MissionTerminalObjective)
-  EndIf
+    Location currentLocation = SpeakerRef.GetCurrentLocation()
+    
+    CurrentMissionTerminalLocation.ForceLocationTo(currentLocation)
+
+    CurrentMissionTerminal.ClearAndRefillAlias() ;LocRef fill type using CurrentMissionTerminalLocation
+
+    ObjectReference currentTerminalRef = CurrentMissionTerminal.GetReference()
+
+    Trace(self, "PlayerToldAboutMissionTerminal SpeakerRef: " + SpeakerRef + ",  currentLocation  : " +  currentLocation + ", currentTerminalRef: " + currentTerminalRef)
+    
+    if currentTerminalRef
+        SetObjectiveActive(MissionTerminalObjective)
+    else
+        SetObjectiveSkipped(MissionTerminalObjective)
+    endif
 EndFunction
 
+;called by OE_MissionTerminalAliasScript
 Function PlayerActivateMissionTerminal()
-  Self.SetObjectiveCompleted(MissionTerminalObjective, True)
+    Trace(self, "PlayerActivateMissionTerminal()")
+    SetObjectiveCompleted(MissionTerminalObjective)
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "OverlayEncounters",  string SubLogName = "OE_MissionTerminalQuestScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "OverlayEncounters",  string SubLogName = "OE_MissionTerminalQuestScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

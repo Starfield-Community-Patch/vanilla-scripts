@@ -1,2 +1,2 @@
-ScriptName REAliasScriptPilot Extends ScriptObject
+Scriptname REAliasScriptPilot
 { OBSOLETE }

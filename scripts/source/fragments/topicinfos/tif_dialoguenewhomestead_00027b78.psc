@@ -1,14 +1,17 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueNewHomestead_00027B78 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueNewHomestead_00027B78 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFNewHomesteadR04Misc Auto Const mandatory
-Quest Property FFNewHomesteadR04 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  FFNewHomesteadR04Misc.SetStage(100)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+FFNewHomesteadR04Misc.SetStage(100)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFNewHomesteadR04Misc Auto Const Mandatory
+
+Quest Property FFNewHomesteadR04 Auto Const Mandatory

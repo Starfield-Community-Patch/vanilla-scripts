@@ -1,18 +1,15 @@
-ScriptName MQSpawnTempleScript Extends Quest
+Scriptname MQSpawnTempleScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property TempleLocationPlaced Auto Const mandatory
-ReferenceAlias Property TemplePlacedMapMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
+CustomEvent TempleSpawnedEvent
+LocationAlias Property TempleLocationPlaced Mandatory Const Auto
+ReferenceAlias Property TemplePlacedMapMarker Mandatory Const Auto
 
 Event OnQuestInit()
-  Var[] kargs = new Var[2]
-  kargs[0] = TempleLocationPlaced.GetLocation() as Var
-  kargs[1] = TemplePlacedMapMarker.GetRef() as Var
-  Self.SendCustomEvent("mqspawntemplescript_TempleSpawnedEvent", kargs)
-  Self.Stop()
-  Self.Reset()
+    ;when we intialize, send out a custom event for any scripts listening along with the Location spawned
+    Var[] kargs = new Var[2]
+    kargs[0] = TempleLocationPlaced.GetLocation()
+    kargs[1] = TemplePlacedMapMarker.GetRef()
+    SendCustomEvent("TempleSpawnedEvent", kargs)
+    Stop()
+    Reset()
 EndEvent

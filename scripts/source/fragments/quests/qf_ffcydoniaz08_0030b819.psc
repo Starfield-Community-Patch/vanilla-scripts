@@ -1,34 +1,55 @@
-ScriptName Fragments:Quests:QF_FFCydoniaZ08_0030B819 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFCydoniaZ08_0030B819 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_DevicePlaced Auto Const mandatory
-Quest Property FFCydoniaZ08Misc Auto Const mandatory
-ReferenceAlias Property Alias_DeviceActivator Auto Const mandatory
-ReferenceAlias Property Alias_Device Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  If FFCydoniaZ08Misc.IsRunning()
-    FFCydoniaZ08Misc.SetStage(1000)
-  EndIf
-  Alias_DeviceActivator.GetRef().Enable(False)
-  Self.SetObjectiveDisplayed(100, True, False)
-EndFunction
+;BEGIN CODE
+If FFCydoniaZ08Misc.IsRunning()
+	FFCydoniaZ08Misc.SetStage(1000)
+EndIf
 
+
+
+Alias_DeviceActivator.GetRef().Enable()
+
+SetObjectiveDisplayed(100)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Game.GetPlayer().RemoveItem(Alias_Device.GetRef() as Form, 1, False, None)
-  Alias_DevicePlaced.GetRef().Enable(False)
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(200, True, False)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Alias_Device.GetRef())
+Alias_DevicePlaced.GetRef().Enable()
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
+;BEGIN CODE
+CompleteAllObjectives()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_2000_Item_00
 Function Fragment_Stage_2000_Item_00()
-  Self.Stop()
+;BEGIN CODE
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_DevicePlaced Auto Const Mandatory
+
+Quest Property FFCydoniaZ08Misc Auto Const Mandatory
+
+ReferenceAlias Property Alias_DeviceActivator Auto Const Mandatory
+
+ReferenceAlias Property Alias_Device Auto Const Mandatory

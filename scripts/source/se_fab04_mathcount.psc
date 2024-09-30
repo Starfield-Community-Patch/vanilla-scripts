@@ -1,33 +1,33 @@
-ScriptName SE_FAB04_MathCount Extends Quest
-{ Calculate the total number of ship parts the player has for both ship and inventory }
+Scriptname SE_FAB04_MathCount extends Quest
+{Calculate the total number of ship parts the player has for both ship and inventory}
 
-;-- Variables ---------------------------------------
-Int CargoShipParts
-Int PlayerShipParts
+GlobalVariable Property InventoryTotal Auto Const Mandatory
 
-;-- Properties --------------------------------------
-GlobalVariable Property InventoryTotal Auto Const mandatory
-Form Property ItemToRemove Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-Int Property RequiredParts = 10 Auto
+Form Property ItemToRemove Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+int Property RequiredParts = 10 Auto
+
+int CargoShipParts
+int PlayerShipParts
 
 Function CountShipParts()
-  CargoShipParts = Alias_PlayerShip.GetRef().GetItemCount(ItemToRemove)
-  PlayerShipParts = Game.GetPlayer().GetItemCount(ItemToRemove)
-  Int TotalParts = CargoShipParts + PlayerShipParts
-  InventoryTotal.SetValue(TotalParts as Float)
-EndFunction
+    CargoShipParts = Alias_PlayerShip.GetRef().GetItemCount(ItemToRemove)
+    PlayerShipParts = Game.GetPlayer().GetItemCount(ItemToRemove)
+    int TotalParts = (CargoShipParts + PlayerShipParts)
+    InventoryTotal.SetValue(TotalParts)
+endFunction
 
 Function RemoveShipParts()
-  spaceshipreference ShipRef = Alias_PlayerShip.GetShipRef()
-  ObjectReference PlayerRef = Game.GetPlayer() as ObjectReference
-  If CargoShipParts >= RequiredParts
-    ShipRef.RemoveItem(ItemToRemove, RequiredParts, False, None)
-  Else
-    Int NumberOfPartsRemoved = ShipRef.RemoveItem(ItemToRemove, CargoShipParts, False, None)
-    Int RemainingPartRemoval = RequiredParts - NumberOfPartsRemoved
-    PlayerRef.RemoveItem(ItemToRemove, RemainingPartRemoval, False, None)
-  EndIf
-EndFunction
+    SpaceshipReference ShipRef = Alias_PlayerShip.GetShipRef()
+    ObjectReference PlayerRef = Game.GetPlayer()
+
+    If CargoShipParts >= RequiredParts
+        ShipRef.RemoveItem(ItemToRemove, RequiredParts)
+    else
+        int NumberOfPartsRemoved = ShipRef.RemoveItem(ItemToRemove, CargoShipParts)
+        int RemainingPartRemoval = (RequiredParts - NumberOfPartsRemoved)
+        PlayerRef.RemoveItem(ItemToRemove, RemainingPartRemoval)
+    endif
+endFunction

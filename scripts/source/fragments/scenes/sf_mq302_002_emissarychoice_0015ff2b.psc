@@ -1,13 +1,16 @@
-ScriptName Fragments:Scenes:SF_MQ302_002_EmissaryChoice_0015FF2B Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ302_002_EmissaryChoice_0015FF2B Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Explosion Property LC165_ScriptedTeleportSourceExplosion Auto Const mandatory
-ReferenceAlias Property Alias_Hunter Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  Alias_Hunter.GetActorRef().PlaceAtMe(LC165_ScriptedTeleportSourceExplosion as Form, 1, False, False, True, None, None, True)
+;BEGIN CODE
+Alias_Hunter.GetActorRef().PlaceAtMe(LC165_ScriptedTeleportSourceExplosion)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Explosion Property LC165_ScriptedTeleportSourceExplosion Auto Const Mandatory
+
+ReferenceAlias Property Alias_Hunter Auto Const

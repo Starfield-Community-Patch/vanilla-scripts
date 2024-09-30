@@ -1,13 +1,16 @@
-ScriptName Fragments:Terminals:TERM_LC168_StorageTerminal_D_002D4A51 Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_LC168_StorageTerminal_D_002D4A51 Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkCustom01 Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_01
 Function Fragment_TerminalMenu_01(ObjectReference akTerminalRef)
-  akTerminalRef.GetLinkedRef(LinkCustom01).Unlock(False)
-  akTerminalRef.GetLinkedRef(LinkCustom01).SetOpen(True)
+;BEGIN CODE
+;Unlock Linked Door
+akTerminalRef.GetLinkedRef(LinkCustom01).Unlock()
+akTerminalRef.GetLinkedRef(LinkCustom01).SetOpen()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Keyword Property LinkCustom01 Auto Const

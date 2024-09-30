@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_LC044DRONEEavesdroppingSc_0027076B Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_LC044DRONEEavesdroppingSc_0027076B Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Minibot Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  Minibot.getactorref().SetUnconscious(False)
+;BEGIN CODE
+Minibot.getactorref().SetUnconscious(false)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Minibot Auto Const

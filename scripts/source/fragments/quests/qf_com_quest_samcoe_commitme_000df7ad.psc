@@ -1,134 +1,246 @@
-ScriptName Fragments:Quests:QF_COM_Quest_SamCoe_Commitme_000DF7AD Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_COM_Quest_SamCoe_Commitme_000DF7AD Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_SamCoe Auto Const mandatory
-ReferenceAlias Property Alias_CoraCoe Auto Const mandatory
-ReferenceAlias Property Alias_JacobCoe Auto Const mandatory
-ReferenceAlias Property Alias_LillianHart Auto Const mandatory
-ReferenceAlias Property Alias_AhnjongSinclair Auto Const mandatory
-ReferenceAlias Property Alias_EliasCartwright Auto Const mandatory
-Keyword Property Commitment_SamCoe_PreCeremony Auto Const mandatory
-Keyword Property Commitment_SamCoe_RoundUp Auto Const mandatory
-ActorValue Property Commitment_SamCoe_State Auto Const mandatory
-ObjectReference Property CommitmentCeremonyMarker_Player Auto Const mandatory
-Scene Property Commitment_SamCoe_0325_CoraSinclair_BarkScene Auto Const mandatory
-sq_companionsscript Property SQ_Companions Auto Const mandatory
-ObjectReference Property CommitmentCeremonyMarker_Jacob Auto Const mandatory
-ObjectReference Property CommitmentCeremonyMarker_Elias Auto Const mandatory
-ObjectReference Property Commitment_SamCoe_Marker_RoundUp_Lillian Auto Const mandatory
-ObjectReference Property Commitment_OverrideMarker Auto Const mandatory
-ObjectReference Property Commitment_SamCoe_Cora_Start_Marker Auto Const mandatory
-ObjectReference Property Commitment_SamCoe_Player_Start_Marker Auto Const mandatory
-ObjectReference Property CommitmentCeremonyMarker_Sam Auto Const mandatory
-sq_followersscript Property SQ_Followers Auto Const mandatory
-ObjectReference Property CommitmentCeremonyEnableMarker Auto Const mandatory
-ActorValue Property CrewReassignDisabled Auto Const mandatory
-RefCollectionAlias Property DismissedCrew Auto Const mandatory
-RefCollectionAlias Property DisembarkingCrew Auto Const mandatory
-Quest Property SQ_Crew Auto Const mandatory
-Activator Property COM_CQ_TxtReplace_QuestName_SamCoe Auto Const mandatory
-ObjectReference Property Commitment_SamCoe_Marker_RoundUp_Cora Auto Const mandatory
-ReferenceAlias Property Alias_CoeMainDoor Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Alias_CoraCoe.GetActorRef().MoveTo(Commitment_SamCoe_Marker_RoundUp_Cora, 0.0, 0.0, 0.0, True, False)
-  Alias_CoraCoe.GetActorRef().EvaluatePackage(False)
-  Game.GetPLayer().MoveTo(Commitment_SamCoe_Player_Start_Marker, 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(100)
-  Self.SetStage(150)
-EndFunction
+;BEGIN CODE
+;Setup
+Alias_CoraCoe.GetActorRef().MoveTo(Commitment_SamCoe_Marker_RoundUp_Cora)
+Alias_CoraCoe.GetActorRef().EvaluatePackage()
 
+Game.GetPLayer().MoveTo(Commitment_SamCoe_PLayer_Start_Marker)
+SetStage(100)
+SetStage(150)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  SQ_Companions.LockInCompanion(Alias_SamCoe.GetActorReference() as companionactorscript, True, None, COM_CQ_TxtReplace_QuestName_SamCoe)
-  Self.SetObjectiveDisplayed(100, True, False)
-  Alias_CoeMainDoor.GetRef().Lock(False, False, True)
-EndFunction
+;BEGIN CODE
+;"lock in" companion to prevent player dismissing them:
+SQ_Companions.LockInCompanion(Alias_SamCoe.GetActorReference() as CompanionActorScript, TextReplaceActivator = COM_CQ_TxtReplace_QuestName_SamCoe)
 
+SetObjectiveDisplayed(100)
+
+Alias_CoeMainDoor.GetRef().Lock(false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(150, True, False)
-  Alias_JacobCoe.GetActorRef().MoveTo(CommitmentCeremonyMarker_Jacob, 0.0, 0.0, 0.0, True, False)
-  Alias_JacobCoe.GetActorRef().EvaluatePackage(False)
-  Alias_EliasCartwright.GetActorRef().MoveTo(CommitmentCeremonyMarker_Elias, 0.0, 0.0, 0.0, True, False)
-  Alias_EliasCartwright.GetActorRef().EvaluatePackage(False)
-  Alias_LillianHart.GetActorRef().Disable(False)
-  Alias_LillianHart.GetActorRef().MoveTo(Commitment_SamCoe_Marker_RoundUp_Lillian, 0.0, 0.0, 0.0, True, False)
-  Alias_LillianHart.GetActorRef().EvaluatePackage(False)
-  Alias_CoraCoe.GetActorRef().MoveTo(Commitment_SamCoe_Marker_RoundUp_Cora, 0.0, 0.0, 0.0, True, False)
-  Alias_CoraCoe.GetActorRef().EvaluatePackage(False)
-  CommitmentCeremonyEnableMarker.Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(150)
 
+;Move everyone into position
+Alias_JacobCoe.GetActorRef().MoveTo(CommitmentCeremonyMarker_Jacob)
+Alias_JacobCoe.GetActorRef().EvaluatePackage()
+Alias_EliasCartwright.GetActorRef().MoveTo(CommitmentCeremonyMarker_Elias)
+Alias_EliasCartwright.GetActorRef().EvaluatePackage()
+Alias_LillianHart.GetActorRef().Disable()
+Alias_LillianHart.GetActorRef().MoveTo(Commitment_SamCoe_Marker_RoundUp_Lillian)
+Alias_LillianHart.GetActorRef().EvaluatePackage()
+Alias_CoraCoe.GetActorRef().MoveTo(Commitment_SamCoe_Marker_RoundUp_Cora)
+Alias_CoraCoe.GetActorRef().EvaluatePackage()
+
+;Enable Art for Ceremony in Coe Estate
+CommitmentCeremonyEnableMarker.Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(150, True)
-  Self.SetObjectiveDisplayed(300, True, False)
-  Self.SetObjectiveDisplayed(400, True, False)
-  Alias_LillianHart.GetActorRef().Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(150)
+SetObjectiveDisplayed(300)
+SetObjectiveDisplayed(400)
 
+Alias_LillianHart.GetActorRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(300, True)
-  Alias_CoraCoe.GetActorRef().EvaluatePackage(False)
-  If Self.GetStageDone(400)
-    Self.SetStage(500)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(300)
 
+Alias_CoraCoe.GetActorRef().EvaluatePackage()
+
+; If you've fetched both ladies, the quest proceeds
+if ( GetStageDone(400) )
+  SetStage(500)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0325_Item_00
 Function Fragment_Stage_0325_Item_00()
-  Commitment_SamCoe_0325_CoraSinclair_BarkScene.Start()
+;BEGIN CODE
+Commitment_SamCoe_0325_CoraSinclair_BarkScene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Self.SetObjectiveCompleted(400, True)
-  Alias_LillianHart.GetActorRef().EvaluatePackage(False)
-  If Self.GetStageDone(300)
-    Self.SetStage(500)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(400)
 
+Alias_LillianHart.GetActorRef().EvaluatePackage()
+
+; If you've fetched both ladies, the quest proceeds
+if ( GetStageDone(300) )
+  SetStage(500)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetObjectiveDisplayed(600, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(600)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0600_Item_00
 Function Fragment_Stage_0600_Item_00()
-  Self.SetObjectiveCompleted(600, True)
-  Self.SetObjectiveDisplayed(700, True, False)
-  Actor SamCoeRef = Alias_SamCoe.GetActorRef()
-  SQ_Followers.SetRoleInactive(SamCoeRef, True, False, True)
-  SamCoeRef.EvaluatePackage(False)
-  Game.GetPLayer().MoveTo(CommitmentCeremonyMarker_Player, 0.0, 0.0, 0.0, True, False)
-  SamCoeRef.MoveTo(CommitmentCeremonyMarker_Sam, 0.0, 0.0, 0.0, True, False)
-  Alias_LillianHart.GetActorRef().MoveTo(Commitment_OverrideMarker, 0.0, 0.0, 0.0, True, False)
-  Alias_CoraCoe.GetActorRef().MoveTo(Commitment_OverrideMarker, 0.0, 0.0, 0.0, True, False)
-  (SQ_Crew as sq_crewscript).SetRoleInactive(SamCoeRef, False, True, False)
-  DismissedCrew.RemoveRef(SamCoeRef as ObjectReference)
-  DisembarkingCrew.RemoveRef(SamCoeRef as ObjectReference)
-  SamCoeRef.SetValue(CrewReassignDisabled, 1.0)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(600)
+SetObjectiveDisplayed(700)
+Actor SamCoeRef = Alias_SamCoe.GetActorRef()
 
+;Release Sam from Follow
+SQ_Followers.SetRoleInactive(SamCoeRef)
+SamCoeRef.EvaluatePackage()
+
+;Move the player/Sam to their spots
+Game.GetPlayer().MoveTo(CommitmentCeremonyMarker_Player)
+SamCoeRef.MoveTo(CommitmentCeremonyMarker_Sam)
+
+;If Lillian and Cora don't make it, pull them here
+Alias_LillianHart.GetActorRef().MoveTo(Commitment_OverrideMarker)
+Alias_CoraCoe.GetActorRef().MoveTo(Commitment_OverrideMarker)
+
+(SQ_Crew as SQ_CrewScript).SetRoleInactive(ActorToUpdate=SamCoeREF, DisplayMessageIfChanged=False, AlsoSetUnavailable=True, AlsoDisplayUnavailableMessage=False)
+
+DismissedCrew.RemoveRef(SamCoeREF)
+DisembarkingCrew.RemoveRef(SamCoeREF)
+
+;Block reassignment of companion
+SamCoeRef.SetValue(CrewReassignDisabled, 1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0700_Item_00
 Function Fragment_Stage_0700_Item_00()
-  Self.SetObjectiveCompleted(700, True)
-  Self.SetObjectiveDisplayed(800, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(700)
+SetObjectiveDisplayed(800)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  Quest __temp = Self as Quest
-  com_commitmentquestscript kmyQuest = __temp as com_commitmentquestscript
-  Self.CompleteAllObjectives()
-  kmyQuest.MakeCommitted()
-  Actor SamCoeRef = Alias_SamCoe.GetActorReference()
-  SQ_Followers.SetRoleActive(SamCoeRef, True, True, 0.0, 0.0)
-  SQ_Companions.LockInCompanion(SamCoeRef as companionactorscript, False, None, None)
-  (SQ_Crew as sq_crewscript).SetRoleAvailable(SamCoeRef, False)
-  SamCoeRef.SetValue(CrewReassignDisabled, 0.0)
-EndFunction
+;BEGIN AUTOCAST TYPE com_commitmentquestscript
+Quest __temp = self as Quest
+com_commitmentquestscript kmyQuest = __temp as com_commitmentquestscript
+;END AUTOCAST
+;BEGIN CODE
+CompleteAllObjectives()
+kmyquest.MakeCommitted()
 
-Function Fragment_Stage_9000_Item_00()
-  Alias_LillianHart.GetActorRef().Disable(False)
-  CommitmentCeremonyEnableMarker.Disable(False)
-  Self.Stop()
+;Return Sarah to follow
+Actor SamCoeRef = Alias_SamCoe.GetActorReference()
+
+SQ_Followers.SetRoleActive(SamCoeRef)
+
+;"release the lock" companion to allow player dismissing them:
+SQ_Companions.LockInCompanion(SamCoeRef as CompanionActorScript, LockedIn = false)
+
+(SQ_Crew as SQ_CrewScript).SetRoleAvailable(ActorToUpdate=SamCoeRef, DisplayMessageIfChanged=False)
+;allow Sam to be re-assigned
+SamCoeRef.SetValue(CrewReassignDisabled, 0)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_9000_Item_00
+Function Fragment_Stage_9000_Item_00()
+;BEGIN CODE
+; Lillian disappears forever
+Alias_LillianHart.GetActorRef().Disable()
+
+;Revert art in Coe Estate
+CommitmentCeremonyEnableMarker.Disable()
+
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_SamCoe Auto Const Mandatory
+
+ReferenceAlias Property Alias_CoraCoe Auto Const Mandatory
+
+ReferenceAlias Property Alias_JacobCoe Auto Const Mandatory
+
+ReferenceAlias Property Alias_LillianHart Auto Const Mandatory
+
+ReferenceAlias Property Alias_AhnjongSinclair Auto Const Mandatory
+
+ReferenceAlias Property Alias_EliasCartwright Auto Const Mandatory
+
+Keyword Property Commitment_SamCoe_PreCeremony Auto Const Mandatory
+
+Keyword Property Commitment_SamCoe_RoundUp Auto Const Mandatory
+
+ActorValue Property Commitment_SamCoe_State Auto Const Mandatory
+
+ObjectReference Property CommitmentCeremonyMarker_Player Auto Const Mandatory
+
+Scene Property Commitment_SamCoe_0325_CoraSinclair_BarkScene Auto Const Mandatory
+
+sq_companionsscript Property SQ_Companions Auto Const Mandatory
+
+ObjectReference Property CommitmentCeremonyMarker_Jacob Auto Const Mandatory
+
+ObjectReference Property CommitmentCeremonyMarker_Elias Auto Const Mandatory
+
+ObjectReference Property Commitment_SamCoe_Marker_RoundUp_Lillian Auto Const Mandatory
+
+ObjectReference Property Commitment_OverrideMarker Auto Const Mandatory
+
+ObjectReference Property Commitment_SamCoe_Cora_Start_Marker Auto Const Mandatory
+
+ObjectReference Property Commitment_SamCoe_Player_Start_Marker Auto Const Mandatory
+
+ObjectReference Property CommitmentCeremonyMarker_Sam Auto Const Mandatory
+
+sq_followersscript Property SQ_Followers Auto Const Mandatory
+
+ObjectReference Property CommitmentCeremonyEnableMarker Auto Const Mandatory
+
+ActorValue Property CrewReassignDisabled Auto Const Mandatory
+
+RefCollectionAlias Property DismissedCrew Auto Const Mandatory
+
+RefCollectionAlias Property DisembarkingCrew Auto Const Mandatory
+
+Quest Property SQ_Crew Auto Const Mandatory
+
+Activator Property COM_CQ_TxtReplace_QuestName_SamCoe Auto Const Mandatory
+
+ObjectReference Property Commitment_SamCoe_Marker_RoundUp_Cora Auto Const Mandatory
+
+ReferenceAlias Property Alias_CoeMainDoor Auto Const Mandatory

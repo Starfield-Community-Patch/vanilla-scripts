@@ -1,51 +1,47 @@
-ScriptName AddPowerRequirement Extends ObjectReference Const
-{ Make this activator inaccessible if it does not have power. }
+Scriptname AddPowerRequirement extends ObjectReference Const
+{Make this activator inaccessible if it does not have power.}
 
-;-- Variables ---------------------------------------
+Keyword Property LinkToPowerSource Mandatory Const Auto
+Message Property PowerRequiredMessage Mandatory Const Auto
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard UpdatePowerGuard
-
-;-- Properties --------------------------------------
-Keyword Property LinkToPowerSource Auto Const mandatory
-Message Property PowerRequiredMessage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Guard UpdatePowerGuard ProtectsFunctionLogic
 
 Event OnCellLoad()
-  If Self.GetLinkedRef(LinkToPowerSource).IsPowered() == False
-    Self.BlockActivation(True, False)
-    Self.SetActivateTextOverride(PowerRequiredMessage)
-  EndIf
-  Self.RegisterForRemoteEvent(Self.GetLinkedRef(LinkToPowerSource) as ScriptObject, "OnPowerOn")
-  Self.RegisterForRemoteEvent(Self.GetLinkedRef(LinkToPowerSource) as ScriptObject, "OnPowerOff")
+    ;Set self to the correct powered/unpowered state on start based on the linked power source.
+    if(GetLinkedRef(LinkToPowerSource).IsPowered() == false)
+        BlockActivation()
+        SetActivateTextOverride(PowerRequiredMessage)
+    endif
+    RegisterForRemoteEvent(GetLinkedRef(LinkToPowerSource), "OnPowerOn")
+    RegisterForRemoteEvent(GetLinkedRef(LinkToPowerSource), "OnPowerOff")
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllEvents()
+    UnregisterForAllEvents()
 EndEvent
 
 Event ObjectReference.OnPowerOn(ObjectReference akSender, ObjectReference akPowerGenerator)
-  Self.StartTimer(0.300000012, 0)
+    StartTimer(0.3)
 EndEvent
 
 Event ObjectReference.OnPowerOff(ObjectReference akSender)
-  Self.StartTimer(0.300000012, 0)
+    StartTimer(0.3)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  Self.UpdatePowerState()
+Event OnTimer(int aiTimerID)
+    UpdatePowerState()
 EndEvent
 
 Function UpdatePowerState()
-  Guard UpdatePowerGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If Self.GetLinkedRef(LinkToPowerSource).IsPowered()
-      Self.SetActivateTextOverride(None)
-      Self.BlockActivation(False, False)
-    Else
-      Self.BlockActivation(True, False)
-      Self.SetActivateTextOverride(PowerRequiredMessage)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+    LockGuard UpdatePowerGuard
+        if(GetLinkedRef(LinkToPowerSource).IsPowered())
+            SetActivateTextOverride(None)
+            BlockActivation(false)
+        Else
+            BlockActivation()
+            SetActivateTextOverride(PowerRequiredMessage)
+        EndIf
+    EndLockGuard
 EndFunction
+
+

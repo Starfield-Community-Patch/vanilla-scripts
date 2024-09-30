@@ -1,21 +1,18 @@
-ScriptName TempRandomEnableScript Extends ObjectReference Const
-{ until we have this hooked up in code on LChars }
+Scriptname TempRandomEnableScript extends ObjectReference Const
+{until we have this hooked up in code on LChars}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property MinToEnable = 0 Auto Const
+int property MinToEnable = 0 auto Const
 { always enable at least this many }
 
-;-- Functions ---------------------------------------
-
 Event OnInit()
-  ObjectReference[] myChildren = Self.GetRefsLinkedToMe(None, None)
-  Int roll = Math.Max(MinToEnable as Float, Utility.RandomInt(0, myChildren.Length) as Float) as Int
-  Int I = 0
-  While I < roll
-    ObjectReference theChild = myChildren[I]
-    theChild.Enable(False)
-    I += 1
-  EndWhile
+	ObjectReference[] myChildren = GetRefsLinkedToMe(NONE)
+	int roll = Math.Max(MinToEnable, Utility.RandomInt(0, myChildren.Length)) as int
+	int i = 0
+	debug.trace(self + " OnInit: enabling " + roll + " actors")
+	while i < roll
+		ObjectReference theChild = myChildren[i]
+		debug.trace(self + " enabling " + theChild)
+		theChild.Enable()
+		i += 1
+	endWhile
 EndEvent

@@ -1,12 +1,14 @@
-ScriptName Fragments:Quests:QF_SQ_PlayerShip_000174A2 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SQ_PlayerShip_000174A2 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property Tutorial_NewHomeShip02 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Tutorial_NewHomeShip02.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+Tutorial_NewHomeShip02.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Message Property Tutorial_NewHomeShip02 Auto Const Mandatory

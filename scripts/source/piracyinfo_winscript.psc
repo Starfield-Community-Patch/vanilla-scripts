@@ -1,8 +1,7 @@
-ScriptName PiracyInfo_WinScript Extends TopicInfo Const
+Scriptname PiracyInfo_WinScript extends TopicInfo const
 
-;-- Functions ---------------------------------------
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  spaceshipreference shipRef = akSpeakerRef as spaceshipreference
-  (Self.GetOwningQuest() as dialoguegenericpiracyshipqscript).PiracySuccess(shipRef)
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    SpaceshipReference shipRef = akSpeakerRef as SpaceshipReference
+    debug.trace(self + " akSpeakerRef=" + akSpeakerRef + " shipRef=" + shipRef)
+    (GetOwningQuest() as DialogueGenericPiracyShipQScript).PiracySuccess(shipRef)
 EndEvent

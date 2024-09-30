@@ -1,7 +1,7 @@
-ScriptName LeveledSpell Extends Form Native hidden
+Scriptname LeveledSpell extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Adds the given count of the given form to the under the given level in this leveled list
+Function AddForm(Form apForm, int aiLevel) native
 
-Function AddForm(Form apForm, Int aiLevel) Native
-
-Function Revert() Native
+; Removes all script added forms from this leveled list
+Function Revert() native

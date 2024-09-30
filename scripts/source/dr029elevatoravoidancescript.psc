@@ -1,18 +1,19 @@
-ScriptName DR029ElevatorAvoidanceScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname DR029ElevatorAvoidanceScript extends ObjectReference Const
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    movingplatformmasterscript movingPlatform = Self.GetLinkedRef(None) as movingplatformmasterscript
-    If movingPlatform != None
-      If movingPlatform.IsInteriorDoorClosing()
-        Float doorOpenSeconds = movingPlatform.GetDoorOpenSeconds()
-        Utility.Wait(doorOpenSeconds)
-      EndIf
-      If movingPlatform.IsMoving() && movingPlatform.GetCurrentDirection() < 0
-        movingPlatform.CancelTravelAndReturnToOriginFloor()
-      EndIf
-    EndIf
-  EndIf
+    if(akActionRef == Game.GetPlayer())
+        MovingPlatformMasterScript movingPlatform = GetLinkedRef() as MovingPlatformMasterScript
+
+        if(movingPlatform != None)
+            if(movingPlatform.IsInteriorDoorClosing())
+                float doorOpenSeconds = movingPlatform.GetDoorOpenSeconds()
+
+                Utility.Wait(doorOpenSeconds)
+            endIf
+
+            if(movingPlatform.IsMoving() && movingPlatform.GetCurrentDirection() < 0)
+                movingPlatform.CancelTravelAndReturnToOriginFloor()
+            endIf
+        endIf
+    endIf
 EndEvent

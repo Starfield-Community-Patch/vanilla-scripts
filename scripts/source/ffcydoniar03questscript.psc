@@ -1,31 +1,32 @@
-ScriptName FFCydoniaR03QuestScript Extends Quest
+Scriptname FFCydoniaR03QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 ReferenceAlias Property BookAlias Auto
-ReferenceAlias Property BookMarker Auto Const mandatory
-ReferenceAlias Property Vendor Auto Const mandatory
-GlobalVariable Property FFCydoniaR03_BookNumber Auto Const mandatory
-FormList Property FFCydoniaR03_BookList Auto Const mandatory
+ReferenceAlias Property BookMarker Mandatory Const Auto
+ReferenceAlias Property Vendor Mandatory Const Auto
+GlobalVariable Property FFCydoniaR03_BookNumber Mandatory Const Auto
+FormList Property FFCydoniaR03_BookList Mandatory Const Auto
 
-;-- Functions ---------------------------------------
-
+;Remove the book from the player's inventory.
 Function RemoveBook()
-  ObjectReference myBook = BookAlias.GetRef()
-  Actor myPlayer = Game.GetPlayer()
-  If myPlayer.GetItemCount(myBook as Form) >= 1
-    myPlayer.RemoveItem(myBook as Form, 1, False, None)
-  EndIf
+    ObjectReference myBook = BookAlias.GetRef()
+    Actor myPlayer = Game.GetPlayer()
+    If myPlayer.GetItemCount(myBook) >= 1
+        myPlayer.RemoveItem(myBook)
+    EndIf
 EndFunction
 
+
+;Give the player a copy of the book as a reward
 Function BookReward()
-  Game.GetPlayer().AddItem(FFCydoniaR03_BookList.GetAt(FFCydoniaR03_BookNumber.GetValue() as Int - 1), 1, False)
+    Game.GetPlayer().AddItem(FFCydoniaR03_BookList.GetAt((FFCydoniaR03_BookNumber.GetValue() as Int) - 1))
 EndFunction
 
+
+;Create the correct book based on the FFCydoniaR03_BookNumber value and place it in the holding cell, then transfer it to the Vendor.
 Event OnQuestInit()
-  Int iBookNumberValue = FFCydoniaR03_BookNumber.GetValue() as Int
-  Form myBook = FFCydoniaR03_BookList.GetAt(iBookNumberValue - 1)
-  ObjectReference myBookRef = BookMarker.GetRef().PlaceAtMe(myBook, 1, False, False, True, None, BookAlias as Alias, True)
-  Vendor.GetRef().AddItem(myBookRef as Form, 1, False)
+    debug.trace(self + " OnQuestInit")
+    Int iBookNumberValue = FFCydoniaR03_BookNumber.GetValue() as Int
+    Form myBook = FFCydoniaR03_BookList.GetAt(iBookNumberValue - 1)
+    ObjectReference myBookRef = BookMarker.GetRef().PlaceAtMe(myBook, akAliasToFill = BookAlias)
+    Vendor.GetRef().AddItem(myBookRef)
 EndEvent

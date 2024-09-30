@@ -1,7 +1,7 @@
-ScriptName VisualEffect Extends Form Native hidden
+Scriptname VisualEffect extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Plays this visual effect on the specified object, for a certain length of time (negative for infinite) and possibly facing another object
+Function Play(ObjectReference akObject, float afTime = -1.0, ObjectReference akFacingObject = None) native
 
-Function Play(ObjectReference akObject, Float afTime, ObjectReference akFacingObject) Native
-
-Function Stop(ObjectReference akObject) Native
+; Stops this visual effect from playing in the specified object
+Function Stop(ObjectReference akObject) native

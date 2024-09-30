@@ -1,53 +1,58 @@
-ScriptName TestKurtArtifactTempleQuestScript Extends Quest
+Scriptname TestKurtArtifactTempleQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias property PlayerShip auto const mandatory
 
-;-- Properties --------------------------------------
-ReferenceAlias Property PlayerShip Auto Const mandatory
-LocationAlias Property PlanetWithTrait Auto Const mandatory
-Keyword Property LocTypeMajorOrbital Auto Const mandatory
-LocationAlias Property TempleLocation Auto Const mandatory
-Int Property LandingSetStage = 30 Auto Const
-Int Property PowerSetStage = 50 Auto Const
-ReferenceAlias Property TemplePowerTrigger Auto Const mandatory
+LocationAlias property PlanetWithTrait auto const mandatory
 
-;-- Functions ---------------------------------------
+Keyword property LocTypeMajorOrbital auto const mandatory
+
+LocationAlias property TempleLocation auto const mandatory
+
+Int Property LandingSetStage=30 Auto Const
+
+Int Property PowerSetStage=50 Auto Const
+
+ReferenceAlias Property TemplePowerTrigger Mandatory Const Auto
 
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnShipLanding")
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnExitShipInterior")
-  Self.RegisterForRemoteEvent(TemplePowerTrigger as ScriptObject, "OnAliasChanged")
+    RegisterForRemoteEvent(PlayerShip, "OnShipLanding")
+    RegisterForRemoteEvent(Game.GetPlayer(), "OnExitShipInterior")
+    RegisterForRemoteEvent(TemplePowerTrigger, "OnAliasChanged")
 EndEvent
 
-Event ReferenceAlias.OnShipLanding(ReferenceAlias akSource, Bool abComplete)
-  If abComplete
-    Self.RefillTemple()
-  EndIf
-EndEvent
+Event ReferenceAlias.OnShipLanding(ReferenceAlias akSource, bool abComplete)
+    ; watch for ship to land on target planet
+    if abComplete
+    	RefillTemple()
+    endif
+endEvent
 
-Function RefillTemple()
-  Location landingLocation = PlayerShip.GetRef().GetCurrentLocation()
-  Location planetLocation = PlanetWithTrait.GetLocation()
-  If landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
-    TempleLocation.RefillAlias()
-    TempleLocation.RefillDependentAliases()
-  EndIf
-EndFunction
+function RefillTemple()
+        Location landingLocation = PlayerShip.GetRef().GetCurrentLocation()
+        Location planetLocation = PlanetWithTrait.GetLocation()
+        debug.trace(self + " RefillTemple landingLocation=" + landingLocation + " planetLocation=" + planetLocation)
+        if landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
+            debug.trace(" target planet - refill templeLocation")
+            TempleLocation.RefillAlias()
+            TempleLocation.RefillDependentAliases()
+        endif
+endFunction
 
 Event Actor.OnExitShipInterior(Actor akSource, ObjectReference akShip)
-  Location landingLocation = akShip.GetCurrentLocation()
-  Location planetLocation = PlanetWithTrait.GetLocation()
-  If landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
-    Self.SetStage(LandingSetStage)
-  EndIf
+    Location landingLocation = akShip.GetCurrentLocation()
+    Location planetLocation = PlanetWithTrait.GetLocation()
+    if landingLocation.IsSameLocation(planetLocation, LocTypeMajorOrbital)
+        SetStage(LandingSetStage)
+    EndIf
 EndEvent
 
-Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, Bool abRemove)
-  Self.RegisterForCustomEvent((TemplePowerTrigger.GetRef() as sbpowercollectionactivatorscript) as ScriptObject, "sbpowercollectionactivatorscript_PowerAcquiredEvent")
+Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, bool abRemove)
+    ;when this alias fills, register for the custom event letting us know the player finished the puzzle
+    RegisterForCustomEvent((TemplePowerTrigger.GetRef() as SBPowerCollectionActivatorScript), "PowerAcquiredEvent")
 EndEvent
 
-Event SBPowerCollectionActivatorScript.PowerAcquiredEvent(sbpowercollectionactivatorscript akSender, Var[] akArgs)
-  If (akSender as ObjectReference == TemplePowerTrigger.GetRef()) && Self.GetStageDone(PowerSetStage) == False
-    Self.SetStage(PowerSetStage)
-  EndIf
+Event SBPowerCollectionActivatorScript.PowerAcquiredEvent(SBPowerCollectionActivatorScript akSender, Var[] akArgs)
+    If (akSender == TemplePowerTrigger.GetRef()) && (GetStageDone(PowerSetStage) == False)
+        SetStage(PowerSetStage)
+    EndIf
 EndEvent

@@ -1,94 +1,155 @@
-ScriptName Fragments:Quests:QF_OE_PredatorsAttackMiners_Script Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_OE_PredatorsAttackMiners_Script Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_PredatorGroup Auto Const mandatory
-ReferenceAlias Property Alias_Miner Auto Const mandatory
-ReferenceAlias Property Alias_WoundedMiner Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Alias_Miner.GetActorRef().EvaluatePackage(False)
-  Alias_WoundedMiner.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_Miner.GetActorRef().EvaluatePackage()
+Alias_WoundedMiner.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Alias_Miner.GetActorRef().EvaluatePackage(False)
-  Alias_WoundedMiner.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_Miner.GetActorRef().EvaluatePackage()
+Alias_WoundedMiner.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetStage(600)
-  Alias_Miner.GetActorRef().EvaluatePackage(False)
-  Alias_WoundedMiner.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+SetStage(600)
+Alias_Miner.GetActorRef().EvaluatePackage()
+Alias_WoundedMiner.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveDisplayed(600, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(600)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0600_Item_00
 Function Fragment_Stage_0600_Item_00()
-  Alias_PredatorGroup.EnableAll(False)
-  Alias_PredatorGroup.EvaluateAll()
-  If Self.GetStageDone(300)
-    Self.SetObjectiveDisplayed(600, True, False)
-  EndIf
-EndFunction
+;BEGIN CODE
+Alias_PredatorGroup.EnableAll()
+Alias_PredatorGroup.EvaluateAll()
 
+If GetStageDone(300)
+   SetObjectiveDisplayed(600)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0700_Item_00
 Function Fragment_Stage_0700_Item_00()
-  Self.SetObjectiveCompleted(600, True)
-  Alias_Miner.GetActorRef().EvaluatePackage(False)
-  Alias_WoundedMiner.GetActorRef().EvaluatePackage(False)
-  If !Self.GetStageDone(800)
-    Self.SetStage(900)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(600)
 
+Alias_Miner.GetActorRef().EvaluatePackage()
+Alias_WoundedMiner.GetActorRef().EvaluatePackage()
+
+If !GetStageDone(800)
+   SetStage(900)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  If !Self.GetStageDone(600)
-    Self.SetStage(600)
-  EndIf
-  If !Self.GetStageDone(990)
-    Self.SetStage(980)
-  EndIf
-EndFunction
+;BEGIN CODE
+If !GetStageDone(600)
+   SetStage(600)
+EndIf
 
+If !GetStageDone(990)
+   SetStage(980)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0825_Item_00
 Function Fragment_Stage_0825_Item_00()
-  If Self.IsObjectiveDisplayed(800)
-    Self.SetObjectiveSkipped(800)
-    Self.SetObjectiveDisplayed(825, True, False)
-  EndIf
+;BEGIN CODE
+If IsObjectiveDisplayed(800)
+   SetObjectiveSkipped(800)
+   SetObjectiveDisplayed(825)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0850_Item_00
 Function Fragment_Stage_0850_Item_00()
-  If !Self.GetStageDone(600)
-    Self.SetStage(600)
-  EndIf
+;BEGIN CODE
+If !GetStageDone(600)
+   SetStage(600)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
 Function Fragment_Stage_0900_Item_00()
-  If Self.GetStageDone(300)
-    Self.SetObjectiveDisplayed(900, True, False)
-  Else
-    Self.SetStage(990)
-  EndIf
+;BEGIN CODE
+If GetStageDone(300)
+   SetObjectiveDisplayed(900)
+Else
+   SetStage(990)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0950_Item_00
 Function Fragment_Stage_0950_Item_00()
-  Self.SetStage(990)
+;BEGIN CODE
+SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0980_Item_00
 Function Fragment_Stage_0980_Item_00()
-  Self.SetStage(999)
+;BEGIN CODE
+SetStage(999)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0990_Item_00
 Function Fragment_Stage_0990_Item_00()
-  Self.SetStage(999)
+;BEGIN CODE
+SetStage(999)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0999_Item_00
 Function Fragment_Stage_0999_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_PredatorGroup Auto Const Mandatory
+
+
+ReferenceAlias Property Alias_Miner Auto Const Mandatory
+
+ReferenceAlias Property Alias_WoundedMiner Auto Const Mandatory

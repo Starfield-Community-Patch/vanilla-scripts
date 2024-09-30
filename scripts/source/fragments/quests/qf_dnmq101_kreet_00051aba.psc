@@ -1,49 +1,94 @@
-ScriptName Fragments:Quests:QF_DNMQ101_Kreet_00051ABA Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DNMQ101_Kreet_00051ABA Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property ShelterPirates Auto Const
-ObjectReference Property LandingDockPirates Auto Const
-ObjectReference Property CafeteriaPirates Auto Const
-ObjectReference Property Lab1Pirates Auto Const
-ObjectReference Property Lab2Pirates Auto Const
-ObjectReference Property RoofPirates Auto Const
-ObjectReference Property RoofShipMarker Auto Const
-ReferenceAlias Property Alias_LandingShip Auto Const mandatory
-Quest Property MQ101 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  ; Empty function
+;BEGIN CODE
+;enable pirates at shelter
+;ShelterPirates.enable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  ; Empty function
+;BEGIN CODE
+;enable pirates coming out of base
+;LandingDockPirates.enable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  CafeteriaPirates.enable(False)
+;BEGIN CODE
+;enable cafeteria pirates
+cafeteriaPirates.enable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Lab1Pirates.enable(False)
+;BEGIN CODE
+;enable Lab 1 Pirates
+Lab1Pirates.enable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Lab2Pirates.enable(False)
+;BEGIN CODE
+;enable Lab 2 Pirates
+Lab2Pirates.enable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  RoofPirates.enable(False)
+;BEGIN CODE
+;enable roof Pirates
+RoofPirates.enable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0080_Item_00
 Function Fragment_Stage_0080_Item_00()
-  Alias_LandingShip.TryToEnable()
-  Self.SetStage(100)
+;BEGIN CODE
+;enable pirate ship if there's combat on the roof
+Alias_LandingShip.TryToEnable()
+SetStage(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.Stop()
+;BEGIN CODE
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ObjectReference Property ShelterPirates Auto Const
+
+ObjectReference Property LandingDockPirates Auto Const
+
+ObjectReference Property CafeteriaPirates Auto Const
+
+ObjectReference Property Lab1Pirates Auto Const
+
+ObjectReference Property Lab2Pirates Auto Const
+
+ObjectReference Property RoofPirates Auto Const
+
+ObjectReference Property RoofShipMarker Auto Const
+
+ReferenceAlias Property Alias_LandingShip Auto Const Mandatory
+
+Quest Property MQ101 Auto Const Mandatory

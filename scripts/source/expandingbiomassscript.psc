@@ -1,241 +1,289 @@
-ScriptName ExpandingBiomassScript Extends ObjectReference
+Scriptname ExpandingBiomassScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-ObjectReference[] actorsInAwarenessVolumes
+float property initialScaleMultiplier = 1.0 auto const
+float property minScaleMultiplier = 0.5 auto const
+float property maxScaleMultiplier = 2.0 auto const
+float property expandingSpeed = 0.01 auto const
+float property contractingSpeed = 0.01 auto const
+float property damageContractingSpeed = 0.05 auto const
+float property detectionDistance = 15.0 auto const
+Keyword property RL039_AwarenessVolume auto const
+Keyword property RL039_BlobTarget auto const
+
+float minScale
+float restingScale
+float maxScale
+
+bool shouldExpandToMax = false
+bool shouldReturnToRest = false
+bool shouldDamageContract = false
+float waitSeconds = 0.01
+float waitAfterDamageSeconds = 0.25
+float scaleReductionPerHit = 0.1
+int hitCount = 0
 ObjectReference[] awarenessVolumes
-Int detectedActorCount = 0
-Bool hasAwarenessVolumes = False
-Int hitCount = 0
-Float maxScale
-Float minScale
-Float restingScale
-Float scaleReductionPerHit = 0.100000001
-Bool shouldDamageContract = False
-Bool shouldExpandToMax = False
-Bool shouldReturnToRest = False
-Float waitAfterDamageSeconds = 0.25
-Float waitSeconds = 0.01
+bool hasAwarenessVolumes = false
+ObjectReference[] actorsInAwarenessVolumes
+int detectedActorCount = 0
 
-;-- Properties --------------------------------------
-Float Property initialScaleMultiplier = 1.0 Auto Const
-Float Property minScaleMultiplier = 0.5 Auto Const
-Float Property maxScaleMultiplier = 2.0 Auto Const
-Float Property expandingSpeed = 0.01 Auto Const
-Float Property contractingSpeed = 0.01 Auto Const
-Float Property damageContractingSpeed = 0.050000001 Auto Const
-Float Property detectionDistance = 15.0 Auto Const
-Keyword Property RL039_AwarenessVolume Auto Const
-Keyword Property RL039_BlobTarget Auto Const
+CustomEvent ContractBlobEvent
 
-;-- Functions ---------------------------------------
+event OnCellLoad()
+    RegisterForHitEvent(self)
+    RegisterForCustomEvent(self, "ContractBlobEvent")
 
-Event OnCellLoad()
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Self.RegisterForCustomEvent(Self as ScriptObject, "expandingbiomassscript_ContractBlobEvent")
-  restingScale = Self.GetScale()
-  minScale = restingScale * minScaleMultiplier
-  maxScale = restingScale * maxScaleMultiplier
-  Self.SetScale(restingScale * initialScaleMultiplier)
-  awarenessVolumes = Self.GetRefsLinkedToMe(RL039_AwarenessVolume, None)
-  If awarenessVolumes.Length > 0
-    hasAwarenessVolumes = True
-    actorsInAwarenessVolumes = new ObjectReference[0]
-    Int I = 0
-    While I < awarenessVolumes.Length
-      ObjectReference awarenessVolume = awarenessVolumes[I]
-      Self.RegisterForRemoteEvent(awarenessVolume as ScriptObject, "OnTriggerEnter")
-      Self.RegisterForRemoteEvent(awarenessVolume as ScriptObject, "OnTriggerLeave")
-      I += 1
-    EndWhile
-  Else
-    Self.RegisterForDistanceLessThanEvent(Game.GetPlayer() as ScriptObject, Self as ScriptObject, detectionDistance, 0)
-  EndIf
-  ObjectReference[] initialBlobTargets = Self.GetRefsLinkedToMe(RL039_BlobTarget, None)
-  If initialBlobTargets.Length > 0
-    Int i = 0
-    While i < initialBlobTargets.Length
-      ObjectReference initialBlobTarget = initialBlobTargets[i]
-      Float distance = Self.GetDistance(initialBlobTarget)
-      If distance < detectionDistance
-        Self.RegisterForDistanceGreaterThanEvent(initialBlobTarget as ScriptObject, Self as ScriptObject, detectionDistance, 0)
-        detectedActorCount += 1
-      Else
-        Self.RegisterForDistanceLessThanEvent(initialBlobTarget as ScriptObject, Self as ScriptObject, detectionDistance, 0)
-      EndIf
-      i += 1
-    EndWhile
-    If detectedActorCount > 0
-      shouldReturnToRest = False
-      Self.ExpandBlob()
+    ; set resting scale
+    restingScale = self.GetScale()
+    minScale = restingScale * minScaleMultiplier
+    maxScale = restingScale * maxScaleMultiplier
+
+    SetScale(restingScale * initialScaleMultiplier)
+
+    ; set up awareness volumes
+    awarenessVolumes = GetRefsLinkedToMe(RL039_AwarenessVolume)
+    if(awarenessVolumes.Length > 0)
+        hasAwarenessVolumes = true   
+
+        actorsInAwarenessVolumes = new ObjectReference[0]
+
+        int i = 0
+        while(i < awarenessVolumes.Length)
+            ObjectReference awarenessVolume = awarenessVolumes[i]
+
+            RegisterForRemoteEvent(awarenessVolume, "OnTriggerEnter")
+            RegisterForRemoteEvent(awarenessVolume, "OnTriggerLeave")
+            
+            i += 1
+        EndWhile     
+    Else
+        ; register for player distance events
+        RegisterForDistanceLessThanEvent(Game.GetPlayer(), self, detectionDistance)
+    endIf
+
+    ObjectReference[] initialBlobTargets = GetRefsLinkedToMe(RL039_BlobTarget)
+    if(initialBlobTargets.Length > 0)
+        int i = 0
+        while(i < initialBlobTargets.Length)
+            ObjectReference initialBlobTarget = initialBlobTargets[i]
+            float distance = GetDistance(initialBlobTarget)
+
+            if(distance < detectionDistance)
+                RegisterForDistanceGreaterThanEvent(initialBlobTarget, self, detectionDistance)
+                detectedActorCount += 1
+            Else
+                RegisterForDistanceLessThanEvent(initialBlobTarget, self, detectionDistance)
+            EndIf
+            
+            i += 1
+        EndWhile
+
+        if(detectedActorCount > 0)
+            shouldReturnToRest = false
+            ExpandBlob()
+        endIf
     EndIf
-  EndIf
-EndEvent
+endEvent
 
 Event ObjectReference.OnTriggerEnter(ObjectReference akSource, ObjectReference akActionRef)
-  If akActionRef is Actor
-    Int index = actorsInAwarenessVolumes.find(akActionRef, 0)
-    If index < 0
-      actorsInAwarenessVolumes.add(akActionRef, 1)
-      Float distance = Self.GetDistance(akActionRef)
-      If distance < detectionDistance
-        Self.DetectActor(akActionRef)
-      EndIf
-    EndIf
-  EndIf
+    if(akActionRef is Actor)
+        int index = actorsInAwarenessVolumes.Find(akActionRef)
+        
+        if(index < 0)
+            actorsInAwarenessVolumes.Add(akActionRef)
+
+            float distance = GetDistance(akActionRef)
+
+            if(distance < detectionDistance)
+                DetectActor(akActionRef)
+            EndIf
+        EndIf
+    endIf
 EndEvent
 
 Event ObjectReference.OnTriggerLeave(ObjectReference akSource, ObjectReference akActionRef)
-  If akActionRef is Actor
-    Int index = actorsInAwarenessVolumes.find(akActionRef, 0)
-    If index >= 0
-      actorsInAwarenessVolumes.remove(index, 1)
-      Self.UndetectActor(akActionRef, False)
-    EndIf
-  EndIf
+    if(akActionRef is Actor)
+        int index = actorsInAwarenessVolumes.Find(akActionRef)
+            
+        if(index >= 0)
+            actorsInAwarenessVolumes.Remove(index)
+
+            UndetectActor(akActionRef, false)
+        EndIf
+    EndIF
 EndEvent
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Self.DetectActor(akObj1)
-EndEvent
+event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+    DetectActor(akObj1)
+endEvent
 
-Event OnDistanceGreaterThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Self.UndetectActor(akObj1, True)
-EndEvent
+event OnDistanceGreaterThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+    UndetectActor(akObj1)
+endEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Self.TakeHits(1)
-EndEvent
+event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    RegisterForHitEvent(self)
+    
+    TakeHits(1)
+endEvent
 
-Function TakeHits(Int count)
-  hitCount += count
-  If !shouldDamageContract
-    Self.SendCustomEvent("expandingbiomassscript_ContractBlobEvent", None)
-  EndIf
-EndFunction
+function TakeHits(int count)
+    hitCount += count
+
+    if(!shouldDamageContract)
+        SendCustomEvent("ContractBlobEvent")
+    endIF
+endFunction
 
 Event ExpandingBiomassScript.ContractBlobEvent(ExpandingBiomassScript akSender, Var[] akArgs)
-  Self.ContractBlobOnDamage()
+    ContractBlobOnDamage()
 EndEvent
 
-Function DetectActor(ObjectReference akActor)
-  Self.RegisterForDistanceGreaterThanEvent(akActor as ScriptObject, Self as ScriptObject, detectionDistance, 0)
-  detectedActorCount += 1
-  If detectedActorCount == 1
-    shouldReturnToRest = False
-    Self.ExpandBlob()
-  EndIf
-EndFunction
+function DetectActor(ObjectReference akActor)
+    RegisterForDistanceGreaterThanEvent(akActor, self, detectionDistance)
+    
+    detectedActorCount += 1
 
-Function UndetectActor(ObjectReference akActor, Bool registerForDistanceEvents)
-  If registerForDistanceEvents
-    Self.RegisterForDistanceLessThanEvent(akActor as ScriptObject, Self as ScriptObject, detectionDistance, 0)
-  Else
-    Self.UnregisterForDistanceEvents(akActor as ScriptObject, Self as ScriptObject, -1)
-  EndIf
-  detectedActorCount -= 1
-  If detectedActorCount < 0
-    detectedActorCount == 0
-  EndIf
-  If detectedActorCount == 0
-    shouldExpandToMax = False
-    Self.ReturnToRest()
-  EndIf
-EndFunction
+    if(detectedActorCount == 1)
+        shouldReturnToRest = false
+        ExpandBlob()
+    endif
+endFunction
 
-Bool Function IsReferenceInAwarenessVolumes(ObjectReference reference)
-  Int I = 0
-  While I < awarenessVolumes.Length
-    ObjectReference awarenessVolume = awarenessVolumes[I]
-    If awarenessVolume.IsInTrigger(reference)
-      Return True
-    EndIf
-    I += 1
-  EndWhile
-  Return False
-EndFunction
-
-Function ExpandBlob()
-  shouldExpandToMax = True
-  While shouldExpandToMax && !shouldDamageContract
-    Float currentScale = Self.GetScale()
-    Float nextScale = currentScale + expandingSpeed
-    Bool expansionComplete = False
-    If nextScale > maxScale
-      nextScale = maxScale
-      expansionComplete = True
-    EndIf
-    Self.SetScale(nextScale)
-    If expansionComplete
-      shouldExpandToMax = False
+function UndetectActor(ObjectReference akActor, bool registerForDistanceEvents = true)
+    
+    if(registerForDistanceEvents)
+        RegisterForDistanceLessThanEvent(akActor, self, detectionDistance)
     Else
-      Utility.Wait(waitSeconds)
+        UnregisterForDistanceEvents(akActor, self)
     EndIf
-  EndWhile
-EndFunction
 
-Function ReturnToRest()
-  shouldReturnToRest = True
-  Float currentScale = Self.GetScale()
-  Float speed = expandingSpeed
-  Int direction = 1
-  If currentScale > restingScale
-    speed = -contractingSpeed
-    direction = -1
-  EndIf
-  While shouldReturnToRest && !shouldDamageContract
-    currentScale = Self.GetScale()
-    Float nextScale = currentScale + speed
-    Bool returnComplete = False
-    If direction == 1
-      If nextScale > restingScale
-        nextScale = restingScale
-        returnComplete = True
-      EndIf
-    ElseIf direction == -1
-      If nextScale < restingScale
-        nextScale = restingScale
-        returnComplete = True
-      EndIf
-    EndIf
-    Self.SetScale(nextScale)
-    If returnComplete
-      shouldReturnToRest = False
-    Else
-      Utility.Wait(waitSeconds)
-    EndIf
-  EndWhile
-EndFunction
+    detectedActorCount -= 1
 
-Function ContractBlobOnDamage()
-  shouldDamageContract = True
-  Bool minScaleReached = False
-  While hitCount > 0 && !minScaleReached
-    Float currentScale = Self.GetScale()
-    Float targetScale = Math.Clamp(currentScale - scaleReductionPerHit, minScale, currentScale)
-    Bool hitContractionComplete = False
-    While !hitContractionComplete
-      currentScale = Self.GetScale()
-      Float nextScale = Math.Clamp(currentScale - damageContractingSpeed, minScale, currentScale)
-      If nextScale == minScale
-        hitContractionComplete = True
-        minScaleReached = True
-      ElseIf nextScale == targetScale
-        hitContractionComplete = True
-      EndIf
-      Self.SetScale(nextScale)
-      If hitContractionComplete
-        hitCount -= 1
-      Else
-        Utility.Wait(waitSeconds)
-      EndIf
-    EndWhile
-  EndWhile
-  Utility.Wait(waitAfterDamageSeconds)
-  shouldDamageContract = False
-  If detectedActorCount > 0
-    Self.ExpandBlob()
-  ElseIf Self.GetScale() != restingScale
-    Self.ReturnToRest()
-  EndIf
-EndFunction
+    if(detectedActorCount < 0)
+        detectedActorCount == 0
+    endIf
+
+    if(detectedActorCount == 0)
+        shouldExpandToMax = false
+        ReturnToRest()
+    endif
+endFunction
+
+bool function IsReferenceInAwarenessVolumes(ObjectReference reference)
+    int i = 0
+    while(i < awarenessVolumes.Length)
+        ObjectReference awarenessVolume = awarenessVolumes[i]
+
+        if(awarenessVolume.IsInTrigger(reference))
+            return true
+        endIf
+
+        i += 1
+    endWhile
+
+    return false
+endFunction
+
+function ExpandBlob()
+    shouldExpandToMax = true
+
+    while(shouldExpandToMax && !shouldDamageContract)
+        float currentScale = self.GetScale()
+        float nextScale = currentScale + expandingSpeed
+        bool expansionComplete = false
+
+        if(nextScale > maxScale)
+            nextScale = maxScale
+            expansionComplete = true
+        endIf
+
+        self.SetScale(nextScale)
+
+        if(expansionComplete)
+            shouldExpandToMax = false
+        else
+            Utility.Wait(waitSeconds)
+        endIf
+    endWhile
+endFunction
+
+function ReturnToRest()
+    shouldReturnToRest = true
+
+    float currentScale = self.GetScale()
+
+    float speed = expandingSpeed
+    int direction = 1
+
+    if(currentScale > restingScale)
+        speed = -contractingSpeed
+        direction = -1
+    endIf
+
+    while(shouldReturnToRest && !shouldDamageContract)
+        currentScale = self.GetScale()
+        float nextScale = currentScale + speed
+        bool returnComplete = false
+
+        if(direction == 1)
+            if(nextScale > restingScale)
+                nextScale = restingScale
+                returnComplete = true
+            endIf
+        elseif (direction == -1)
+            if(nextScale < restingScale)
+                nextScale = restingScale
+                returnComplete = true
+            endIf
+        endIf
+
+        self.SetScale(nextScale)
+
+        if(returnComplete)
+            shouldReturnToRest = false
+        else
+            Utility.Wait(waitSeconds)
+        endIf
+    endWhile
+endFunction
+
+function ContractBlobOnDamage()
+    shouldDamageContract = true
+    bool minScaleReached = false
+
+    while(hitCount > 0 && !minScaleReached)
+        float currentScale = self.GetScale()
+        float targetScale = Math.Clamp(currentScale - scaleReductionPerHit, minScale, currentScale)
+        bool hitContractionComplete = false
+        
+        while(!hitContractionComplete)
+            currentScale = self.GetScale()
+            float nextScale = Math.Clamp(currentScale - damageContractingSpeed, minScale, currentScale)
+
+            if(nextScale == minScale)
+                hitContractionComplete = true
+                minScaleReached = true
+            elseif (nextScale == targetScale)
+                hitContractionComplete = true
+            endIf
+
+            self.SetScale(nextScale)
+
+            if(hitContractionComplete)
+                hitCount -= 1
+            else
+                Utility.Wait(waitSeconds)
+            endIf
+        endWhile
+    endWhile
+
+    Utility.Wait(waitAfterDamageSeconds)
+
+    shouldDamageContract = false
+
+    if(detectedActorCount > 0)
+        ExpandBlob()
+    elseif(self.GetScale() != restingScale)
+        ReturnToRest()
+    endIf
+endFunction

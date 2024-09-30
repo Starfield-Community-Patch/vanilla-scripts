@@ -1,150 +1,248 @@
-ScriptName Fragments:Quests:QF_RIR07_0017AA9A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_RIR07_0017AA9A Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property RIR07_Bribe Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-ReferenceAlias Property Alias_RivalExecutive Auto Const mandatory
-ReferenceAlias Property Alias_MasakoOfficeQS Auto Const mandatory
-Quest Property LC044 Auto Const mandatory
-Faction Property RyujinIndustriesFaction Auto Const mandatory
-Perk Property FactionRyujinIndustriesPerk Auto Const mandatory
-Perk Property Manipulation Auto Const mandatory
-Perk Property Crippling Auto Const mandatory
-Perk Property Intimidation Auto Const mandatory
-Perk Property SniperCertification Auto Const mandatory
-GlobalVariable Property RI08_MasakoRemainedCEO Auto Const mandatory
-ReferenceAlias Property Alias_Masako Auto Const mandatory
-ReferenceAlias Property Alias_QuestGiver Auto Const mandatory
-ReferenceAlias Property Alias_Ularu Auto Const mandatory
-ReferenceAlias Property Alias_UlaruOfficeQS Auto Const mandatory
-Quest Property RI_Support Auto Const mandatory
-GlobalVariable Property RI_LastChosenRadiant Auto Const mandatory
-LocationAlias Property Alias_ChosenLocation Auto Const mandatory
-Keyword Property LocTypeStarStation Auto Const mandatory
-Location Property CityNeonLocation Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-ReferenceAlias Property Alias_ChosenLocation_MapMarker Auto Const mandatory
-Quest Property RI_RadiantPointerQuest Auto Const mandatory
-GlobalVariable Property RIR07_RadiantCount Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  LC044.SetStage(1000)
-  Actor PlayerRef = Game.GetPlayer()
-  PlayerRef.AddToFaction(RyujinIndustriesFaction)
-  PlayerRef.AddPerk(FactionRyujinIndustriesPerk, False)
-  PlayerRef.AddPerk(Manipulation, False)
-  PlayerRef.AddPerk(Crippling, False)
-  PlayerRef.AddPerk(Intimidation, False)
-  PlayerRef.AddPerk(SniperCertification, False)
-  PlayerRef.AddItem(Credits as Form, 10000, False)
-EndFunction
+;BEGIN CODE
+; Unlock elevator doors
+LC044.SetStage(1000)
 
+; Add player to faction and add perks
+Actor PlayerRef = Game.GetPlayer()
+PlayerRef.AddToFaction(RyujinIndustriesFaction)
+PlayerRef.AddPerk(FactionRyujinIndustriesPerk)
+PlayerRef.AddPerk(Manipulation)
+PlayerRef.AddPerk(Crippling)
+PlayerRef.AddPerk(Intimidation)
+PlayerRef.AddPerk(SniperCertification)
+
+; Add credits for bribe options
+PlayerRef.AddItem(Credits, 10000)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  RI08_MasakoRemainedCEO.SetValue(1.0)
-  Game.GetPlayer().MoveTo(Alias_MasakoOfficeQS.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(0)
-  Self.SetStage(10)
+;BEGIN CODE
+RI08_MasakoRemainedCEO.SetValue(1)
+Game.GetPlayer().MoveTo(Alias_MasakoOfficeQS.GetRef())
+SetStage(0)
+SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  RI08_MasakoRemainedCEO.SetValue(0.0)
-  Game.GetPlayer().MoveTo(Alias_UlaruOfficeQS.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(0)
-  Self.SetStage(10)
+;BEGIN CODE
+RI08_MasakoRemainedCEO.SetValue(0)
+Game.GetPlayer().MoveTo(Alias_UlaruOfficeQS.GetRef())
+SetStage(0)
+SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0003_Item_00
 Function Fragment_Stage_0003_Item_00()
-  Self.SetStage(0)
-  Self.SetStage(200)
-  Utility.Wait(10.0)
+;BEGIN CODE
+SetStage(0)
+SetStage(200)
+Utility.Wait(10)
+Debug.ExecuteConsole("MoveToQT RIR07")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0004_Item_00
 Function Fragment_Stage_0004_Item_00()
-  RI08_MasakoRemainedCEO.SetValue(1.0)
-  Game.GetPlayer().MoveTo(Alias_MasakoOfficeQS.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(0)
-  Self.SetStage(300)
+;BEGIN CODE
+RI08_MasakoRemainedCEO.SetValue(1)
+Game.GetPlayer().MoveTo(Alias_MasakoOfficeQS.GetRef())
+SetStage(0)
+SetStage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  RI08_MasakoRemainedCEO.SetValue(0.0)
-  Game.GetPlayer().MoveTo(Alias_UlaruOfficeQS.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(0)
-  Self.SetStage(300)
+;BEGIN CODE
+RI08_MasakoRemainedCEO.SetValue(0)
+Game.GetPlayer().MoveTo(Alias_UlaruOfficeQS.GetRef())
+SetStage(0)
+SetStage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  If RI08_MasakoRemainedCEO.GetValue() == 0.0
-    Alias_QuestGiver.ForceRefTo(Alias_Ularu.GetRef())
-  Else
-    Alias_QuestGiver.ForceRefTo(Alias_Masako.GetRef())
-    RI08_MasakoRemainedCEO.SetValue(1.0)
-  EndIf
+;BEGIN CODE
+If RI08_MasakoRemainedCEO.GetValue() == 0
+     Alias_QuestGiver.ForceRefTo(Alias_Ularu.GetRef())
+Else
+     Alias_QuestGiver.ForceRefTo(Alias_Masako.GetRef())
+     RI08_MasakoRemainedCEO.SetValue(1)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetActive(True)
-  Self.SetObjectiveDisplayed(100, True, False)
-  If RI_RadiantPointerQuest.IsRunning()
-    RI_RadiantPointerQuest.SetStage(10000)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetActive()
+SetObjectiveDisplayed(100)
 
+; If pointer quest is running for radiants, setstage to stop it.
+If RI_RadiantPointerQuest.IsRunning()
+     RI_RadiantPointerQuest.SetStage(10000)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Location ChosenLocation = Alias_ChosenLocation.GetLocation()
-  If ChosenLocation != CityNeonLocation && !CityNeonLocation.IsChild(ChosenLocation)
-    Self.SetObjectiveDisplayed(150, True, False)
-    If ChosenLocation.HasKeyword(LocTypeStarStation)
-      Self.SetStage(155)
-    EndIf
-    Alias_ChosenLocation_MapMarker.GetRef().SetMarkerVisibleOnStarMap(True)
-    Alias_ChosenLocation_MapMarker.GetRef().AddToMapScanned(False)
-  Else
-    Self.SetStage(200)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(100)
 
+Location ChosenLocation = Alias_ChosenLocation.GetLocation()
+
+If (ChosenLocation != CityNeonLocation) && !(CityNeonLocation.IsChild(ChosenLocation))
+     SetObjectiveDisplayed(150)     
+     If ChosenLocation.HasKeyword(LocTypeStarstation)
+          SetStage(155)
+     EndIf
+     Alias_ChosenLocation_MapMarker.GetRef().SetMarkerVisibleOnStarMap()
+     Alias_ChosenLocation_MapMarker.GetRef().AddToMapScanned()
+Else
+     SetStage(200)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  If Self.IsObjectiveDisplayed(150)
-    Self.SetObjectiveCompleted(150, True)
-  EndIf
-  Self.SetObjectiveDisplayed(200, True, False)
-  Alias_RivalExecutive.TryToEnable()
-EndFunction
+;BEGIN CODE
+If IsObjectiveDisplayed(150)
+     SetObjectiveCompleted(150)
+EndIf
+SetObjectiveDisplayed(200)
 
+Alias_RivalExecutive.TryToEnable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, RIR07_Bribe.GetValueInt(), False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Credits, RIR07_Bribe.GetValueInt())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0270_Item_00
 Function Fragment_Stage_0270_Item_00()
-  If RI08_MasakoRemainedCEO.GetValue() == 1.0
-    Self.SetObjectiveFailed(200, True)
-  Else
-    Self.SetObjectiveCompleted(200, True)
-  EndIf
-  Self.SetStage(300)
-EndFunction
+;BEGIN CODE
+If RI08_MasakoRemainedCEO.GetValue() == 1
+     SetObjectiveFailed(200)
+Else
+     SetObjectiveCompleted(200)
+EndIf
 
+SetStage(300)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(300, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_10000_Item_00
 Function Fragment_Stage_10000_Item_00()
-  Self.SetObjectiveCompleted(300, True)
-  (RI_Support as ri_radiantsupportquestscript).ResetMBCount()
-  RI_LastChosenRadiant.SetValue(3.0)
-  RIR07_RadiantCount.SetValue(RIR07_RadiantCount.GetValue() + 1.0)
-  Self.Stop()
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(300)
 
-Function Fragment_Stage_9000_Item_00()
-  Quest __temp = Self as Quest
-  ri_crimetrackingquestscript kmyQuest = __temp as ri_crimetrackingquestscript
-  kmyQuest.AddFinalValues()
+(RI_Support as RI_RadiantSupportQuestScript).ResetMBCount()
+RI_LastChosenRadiant.SetValue(3)
+RIR07_RadiantCount.SetValue(RIR07_RadiantCount.GetValue() + 1)
+
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_9000_Item_00
+Function Fragment_Stage_9000_Item_00()
+;BEGIN AUTOCAST TYPE ri_crimetrackingquestscript
+Quest __temp = self as Quest
+ri_crimetrackingquestscript kmyQuest = __temp as ri_crimetrackingquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.AddFinalValues()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property RIR07_Bribe Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+ReferenceAlias Property Alias_RivalExecutive Auto Const Mandatory
+
+ReferenceAlias Property Alias_MasakoOfficeQS Auto Const Mandatory
+
+Quest Property LC044 Auto Const Mandatory
+
+Faction Property RyujinIndustriesFaction Auto Const Mandatory
+
+Perk Property FactionRyujinIndustriesPerk Auto Const Mandatory
+
+Perk Property Manipulation Auto Const Mandatory
+
+Perk Property Crippling Auto Const Mandatory
+
+Perk Property Intimidation Auto Const Mandatory
+
+Perk Property SniperCertification Auto Const Mandatory
+
+GlobalVariable Property RI08_MasakoRemainedCEO Auto Const Mandatory
+
+ReferenceAlias Property Alias_Masako Auto Const Mandatory
+
+ReferenceAlias Property Alias_QuestGiver Auto Const Mandatory
+
+ReferenceAlias Property Alias_Ularu Auto Const Mandatory
+
+ReferenceAlias Property Alias_UlaruOfficeQS Auto Const Mandatory
+
+Quest Property RI_Support Auto Const Mandatory
+
+GlobalVariable Property RI_LastChosenRadiant Auto Const Mandatory
+
+LocationAlias Property Alias_ChosenLocation Auto Const Mandatory
+
+Keyword Property LocTypeStarStation Auto Const Mandatory
+
+Location Property CityNeonLocation Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+ReferenceAlias Property Alias_ChosenLocation_MapMarker Auto Const Mandatory
+
+Quest Property RI_RadiantPointerQuest Auto Const Mandatory
+
+GlobalVariable Property RIR07_RadiantCount Auto Const Mandatory

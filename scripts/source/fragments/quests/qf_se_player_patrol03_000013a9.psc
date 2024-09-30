@@ -1,17 +1,20 @@
-ScriptName Fragments:Quests:QF_SE_Player_Patrol03_000013A9 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_Patrol03_000013A9 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_Patrollers Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Utility.wait(11.0)
-  (Alias_Patrollers.GetAt(0) as spaceshipreference).EnableWithGravJumpNoWait()
-  Utility.wait(Utility.randomfloat(0.200000003, 3.900000095))
-  (Alias_Patrollers.GetAt(1) as spaceshipreference).EnableWithGravJumpNoWait()
-  Utility.wait(Utility.randomfloat(0.200000003, 3.900000095))
-  (Alias_Patrollers.GetAt(2) as spaceshipreference).EnableWithGravJumpNoWait()
+;BEGIN CODE
+utility.wait(11)
+
+(Alias_Patrollers.GetAt(0) as SpaceshipReference).EnableWithGravJumpNoWait()
+utility.wait(utility.randomfloat(0.2,3.9))
+(Alias_Patrollers.GetAt(1) as SpaceshipReference).EnableWithGravJumpNoWait()
+utility.wait(utility.randomfloat(0.2,3.9))
+(Alias_Patrollers.GetAt(2) as SpaceshipReference).EnableWithGravJumpNoWait()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_Patrollers Auto Const Mandatory

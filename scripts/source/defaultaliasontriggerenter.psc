@@ -1,48 +1,50 @@
-ScriptName DefaultAliasOnTriggerEnter Extends DefaultAlias default
-{ Sets stage when THIS Alias entered.
+Scriptname DefaultAliasOnTriggerEnter extends DefaultAlias Default
+{Sets stage when THIS Alias entered.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is the reference triggering THIS Alias.
-<LocationToCheck> is the current location of THIS Alias. }
+<LocationToCheck> is the current location of THIS Alias.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Bool Property DeleteWhenTriggeredSuccessfully = True Auto Const
-  { If true (default), delete THIS object when triggered successfully }
+	Bool Property DeleteWhenTriggeredSuccessfully = true Auto Const
+	{If true (default), delete THIS object when triggered successfully}
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
 Event OnAliasInit()
-  SkipBusyState = True
-  If PrereqStage > -1
-    Self.RegisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
-  EndIf
+	SkipBusyState = true ;we need to process all trigger events
+	if PrereqStage > -1
+		; if we have a prereq stage, need to handle that stage being set with target in trigger
+		RegisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
+	endif
 EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akActionRef, Self.TryToGetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnTriggerEnter() akActionRef: " + akActionRef, ShowTraces)
+
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akActionRef, LocationToCheck = TryToGetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnTriggerEnter() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent
 
-Event Quest.OnStageSet(Quest akSource, Int auiStageID, Int auiItemID)
-  If auiStageID == PrereqStage
-    ObjectReference myTrigger = Self.GetRef()
-    If myTrigger
-      ObjectReference[] refs = myTrigger.GetAllRefsInTrigger()
-      Int I = 0
-      While I < refs.Length
-        Self.OnTriggerEnter(refs[I])
-        I += 1
-      EndWhile
-    EndIf
-  EndIf
+Event Quest.OnStageSet(Quest akSource, int auiStageID, int auiItemID)
+	; if this is a prereq stage, need to check all refs in the trigger
+	if auiStageID == PrereqStage
+		ObjectReference myTrigger = GetRef()
+		if myTrigger
+			ObjectReference[] refs = myTrigger.GetAllRefsInTrigger()
+			int i = 0
+			while i < refs.Length
+				OnTriggerEnter(refs[i])
+				i += 1
+			EndWhile
+		endif
+	endif
 EndEvent
 
-Function DoSpecificThing(defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams, ObjectReference RefToDoThingWith, Bool LastRefToDoThingWith)
-  If DeleteWhenTriggeredSuccessfully && LastRefToDoThingWith
-    Self.TryToDelete()
-  EndIf
+;Reimplementing Parent's empty function
+;CHILDREN SCRIPTS RE-IMPLEMENTING THIS SHOULD CALL THE PARENT VERSION
+Function DoSpecificThing(DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams, ObjectReference RefToDoThingWith = None, bool LastRefToDoThingWith = true)
+	if DeleteWhenTriggeredSuccessfully && LastRefToDoThingWith
+		TryToDelete()
+	endif
 EndFunction

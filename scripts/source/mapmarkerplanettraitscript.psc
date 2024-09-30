@@ -1,67 +1,83 @@
-ScriptName MapMarkerPlanetTraitScript Extends ObjectReference
+Scriptname MapMarkerPlanetTraitScript extends ObjectReference
 { temp script for showing message about a planet trait when this location is entered }
 
-;-- Variables ---------------------------------------
-Bool TraitOverrideInitDone = False
-
-;-- Properties --------------------------------------
-sq_parentscript Property SQ_Parent Auto Const mandatory
+SQ_ParentScript property SQ_Parent auto const mandatory
 { use to get planet trait data }
-Int Property DiscoveryTimerID = 1 Auto Const
-Float Property DiscoveryTimeSeconds = 0.5 Auto Const
+
+int property DiscoveryTimerID = 1 auto Const
+float property DiscoveryTimeSeconds = 0.5 auto const
 { how long after discovery to show the message }
-Keyword Property LocationTraitOverride Auto hidden
+
+Keyword property LocationTraitOverride auto hidden
 { set by HandleTraitEnabling, if this map marker has any trait enable linked refs
     if this is set, use this trait instead of looking for a trait keyword on the Location }
 
-;-- Functions ---------------------------------------
+bool TraitOverrideInitDone = false
 
 Event OnLoad()
-  If TraitOverrideInitDone == False
-    Self.HandleTraitEnabling()
-  EndIf
-  sq_parentscript:planettraitdata theData = SQ_Parent.GetPlanetTraitData(Self as ObjectReference)
-  If theData
-    Location traitLocation = Self.GetCurrentLocation()
-    planet planetToCheck = Self.GetCurrentPlanet()
-    If planetToCheck.IsTraitKnown(theData.PlanetTrait)
-      traitLocation.SetExplored(True)
-    Else
-      Int scanCountNeeded = traitLocation.GetRefTypeAliveCount(SQ_Parent.PlanetTraitScanTargetLocRef)
-      traitLocation.SetValue(SQ_Parent.PlanetTraitLocationScanCountRequired, scanCountNeeded as Float)
-    EndIf
-  EndIf
+    if TraitOverrideInitDone == false
+        HandleTraitEnabling()
+    endif
+	; get planet trait data
+	SQ_ParentScript:PlanetTraitData theData = SQ_Parent.GetPlanetTraitData(self)
+    if theData
+        Location traitLocation = GetCurrentLocation()    
+        Planet planetToCheck = GetCurrentPlanet()
+   		if planetToCheck.IsTraitKnown(theData.PlanetTrait)
+            ; update location name immediately
+            traitLocation.SetExplored()
+        Else
+            int scanCountNeeded = traitLocation.GetRefTypeAliveCount(SQ_Parent.PlanetTraitScanTargetLocRef)
+            ; set needed count on location
+            debug.trace(self + " trait location " + traitLocation + ": setting PlanetTraitLocationScanCountRequired=" + scanCountNeeded )
+            traitLocation.SetValue(SQ_Parent.PlanetTraitLocationScanCountRequired, scanCountNeeded)
+        EndIf
+    endif
 EndEvent
 
 Event OnMapMarkerDiscovered()
-  Self.StartTimer(DiscoveryTimeSeconds, DiscoveryTimerID)
+    debug.trace(self + " OnMapMarkerDiscovered")
+    ; run short timer before showing message
+    StartTimer(DiscoveryTimeSeconds, DiscoveryTimerID)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == DiscoveryTimerID
-    SQ_Parent.DiscoverMatchingPlanetTraits(Self as ObjectReference, False)
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == DiscoveryTimerID
+        ; show explore message
+        SQ_Parent.DiscoverMatchingPlanetTraits(self, false)
+    endif
 EndEvent
 
+; Currently in a rough state since it was used for a simple prototype. Will require a pass if we decide to fully use this system.
 Function HandleTraitEnabling()
-  If TraitOverrideInitDone == False
-    If LocationTraitOverride == None
-      Keyword[] matchingTraits = new Keyword[0]
-      Keyword[] planetTraits = Self.GetCurrentPlanet().GetKeywordTypeList(SQ_Parent.KeywordType_PlanetTrait)
-      Int planetTraitsIndex = 0
-      While planetTraitsIndex < planetTraits.Length
-        Keyword currentKeyword = planetTraits[planetTraitsIndex]
-        If Self.GetRefsLinkedToMe(currentKeyword, None).Length > 0
-          matchingTraits.add(currentKeyword, 1)
+    if TraitOverrideInitDone == false
+        If (LocationTraitOverride == NONE)
+            Keyword[] matchingTraits = new Keyword[0]
+            Keyword[] planetTraits = GetCurrentPlanet().GetKeywordTypeList(SQ_Parent.KeywordType_PlanetTrait)
+            debug.Trace(self + "|HandleTraitEnabling| This Planets Traits" + planetTraits)
+
+            int planetTraitsIndex = 0
+            While (planetTraitsIndex < planetTraits.length)
+                Keyword currentKeyword = planetTraits[planetTraitsIndex]
+                If GetRefsLinkedToMe(currentKeyword).Length > 0
+                    matchingTraits.Add(currentKeyword)
+                    debug.Trace(self + "|HandleTraitEnabling| This Overlay also includes Keyword: " + currentKeyword)
+                Else
+                    debug.Trace(self + "|HandleTraitEnabling| This Overlay does NOT include Keyword: " + currentKeyword)
+                EndIf
+                planetTraitsIndex += 1
+            EndWhile
+
+            debug.Trace(self + "|HandleTraitEnabling| Matching Traits with this Planet" + matchingTraits)
+
+            If (matchingTraits.Length > 0)
+                int traitToEnable = Utility.RandomInt(0, matchingTraits.Length-1)
+                LocationTraitOverride = matchingTraits[traitToEnable]
+
+                debug.Trace(self + "|HandleTraitEnabling| Picked trait to enable: " + LocationTraitOverride)
+                GetRefsLinkedToMe(LocationTraitOverride)[0].EnableNoWait()
+            EndIf
         EndIf
-        planetTraitsIndex += 1
-      EndWhile
-      If matchingTraits.Length > 0
-        Int traitToEnable = Utility.RandomInt(0, matchingTraits.Length - 1)
-        LocationTraitOverride = matchingTraits[traitToEnable]
-        Self.GetRefsLinkedToMe(LocationTraitOverride, None)[0].EnableNoWait(False)
-      EndIf
     EndIf
-  EndIf
-  TraitOverrideInitDone = True
+    TraitOverrideInitDone = true
 EndFunction

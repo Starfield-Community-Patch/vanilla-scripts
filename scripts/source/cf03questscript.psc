@@ -1,18 +1,15 @@
-ScriptName CF03QuestScript Extends Quest
+Scriptname CF03QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet Auto Const
-
-;-- Functions ---------------------------------------
-
+;Fires after player completes Stage 180 (find's Kryx's Cell)
+; Wait 2 minutes of game time until popping a direct QT to the lamp
 Function WaitQT()
-  Self.StartTimer(120.0, 1)
+    StartTimer(120, 1)
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == 1
-    Self.SetStage(StageToSet)
-  EndIf
+Event OnTimer(int aiTimerID)
+    If aiTimerID == 1
+        SetStage(StageToSet)
+    EndIf
 EndEvent
+
+Int Property StageToSet Auto Const

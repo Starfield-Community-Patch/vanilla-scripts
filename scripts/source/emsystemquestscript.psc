@@ -1,65 +1,70 @@
-ScriptName EMSystemQuestScript Extends Quest hidden
+Scriptname EMSystemQuestScript extends Quest Hidden
 
-;-- Variables ---------------------------------------
-Int ActorsActive
-Int ActorsTotal
+Int EncountersTotal
+Int EncountersLoaded
 Int EncountersActive
 Int EncountersInactive
-Int EncountersLoaded
-Int EncountersTotal
+Int ActorsTotal
+Int ActorsActive
 
-;-- Functions ---------------------------------------
 
 Function IncrementTotal()
-  EncountersTotal += 1
+	EncountersTotal += 1
 EndFunction
 
 Function DecrementTotal()
-  EncountersTotal -= 1
+	EncountersTotal -= 1
 EndFunction
 
+
+
 Function IncrementActive()
-  EncountersActive += 1
+	EncountersActive += 1
 EndFunction
 
 Function DecrementActive()
-  EncountersActive -= 1
+	EncountersActive -= 1
 EndFunction
+
 
 Function UpdateInactive()
-  EncountersInactive = EncountersTotal - EncountersActive
+	EncountersInactive = (EncountersTotal - EncountersActive)
 EndFunction
 
+
+
 Function IncrementLoaded()
-  EncountersLoaded += 1
+	EncountersLoaded += 1
 EndFunction
 
 Function DecrementLoaded()
-  EncountersLoaded -= 1
+	EncountersLoaded -= 1
 EndFunction
 
-Function AddToActorsActive(Int AmountToAdd)
-  ActorsActive += AmountToAdd
+
+
+Function AddToActorsActive(int AmountToAdd)
+	ActorsActive = ActorsActive + AmountToAdd
 EndFunction
 
-Function SubtractFromActorsActive(Int AmounttoSubtract)
-  ActorsActive -= AmounttoSubtract
+Function SubtractFromActorsActive(int AmounttoSubtract)
+	ActorsActive = ActorsActive - AmounttoSubtract
 EndFunction
 
-Function AddToActorsTotal(Int AmountToAdd)
-  ActorsTotal += AmountToAdd
+Function AddToActorsTotal(int AmountToAdd)
+	ActorsTotal = ActorsTotal + AmountToAdd
 EndFunction
 
-Function SubtractFromActorsTotal(Int AmounttoSubtract)
-  ActorsTotal -= AmounttoSubtract
+Function SubtractFromActorsTotal(int AmounttoSubtract)
+	ActorsTotal = ActorsTotal - AmounttoSubtract
 EndFunction
 
-Function UpdateActorsTotal(Int AmounttoSubtract, Int AmountToAdd)
-  ActorsTotal -= AmounttoSubtract
-  ActorsTotal += AmountToAdd
+Function UpdateActorsTotal(int AmountToSubtract, int AmountToAdd)
+	ActorsTotal = ActorsTotal - AmounttoSubtract
+	ActorsTotal = ActorsTotal + AmountToAdd
 EndFunction
 
-Function UpdateActorsActive(Int AmounttoSubtract, Int AmountToAdd)
-  ActorsActive -= AmounttoSubtract
-  ActorsActive += AmountToAdd
+Function UpdateActorsActive(int AmountToSubtract, int AmountToAdd)
+	ActorsActive = ActorsActive - AmounttoSubtract
+	ActorsActive = ActorsActive + AmountToAdd
 EndFunction

@@ -1,32 +1,35 @@
-ScriptName UC04_SoldierValueTopicInfoScript Extends TopicInfo
+Scriptname UC04_SoldierValueTopicInfoScript extends TopicInfo
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property FireTeamMarine Mandatory Const Auto
+{Ref alias for the standard Fire Team Marine}
 
-;-- Properties --------------------------------------
-ReferenceAlias Property FireTeamMarine Auto Const mandatory
-{ Ref alias for the standard Fire Team Marine }
-ReferenceAlias Property FireTeamMarineCaptain Auto Const mandatory
-{ Ref alias for the Fire Team Marine Captain }
-ActorValue Property UC04_SoldierPackageValue Auto Const mandatory
-{ Actor value used to manage the team's behavior }
-Int Property ActivityValue Auto Const mandatory
-{ What value this topic should set on the marines }
-Weapon Property WeaponToEquip Auto Const
-{ If the soldier needs to equip a different weapon, have them do so here }
+ReferenceAlias Property FireTeamMarineCaptain Mandatory Const Auto
+{Ref alias for the Fire Team Marine Captain}
 
-;-- Functions ---------------------------------------
+ActorValue Property UC04_SoldierPackageValue Mandatory Const Auto
+{Actor value used to manage the team's behavior}
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  Actor MarineCaptain = FireTeamMarineCaptain.GetActorRef()
-  Actor Marine = FireTeamMarine.GetActorRef()
-  Marine.SetValue(UC04_SoldierPackageValue, ActivityValue as Float)
-  MarineCaptain.SetValue(UC04_SoldierPackageValue, ActivityValue as Float)
-  If WeaponToEquip != None && !MarineCaptain.IsEquipped(WeaponToEquip as Form)
-    MarineCaptain.EquipItem(WeaponToEquip as Form, False, False)
-  EndIf
-  If WeaponToEquip != None && !Marine.IsEquipped(WeaponToEquip as Form)
-    Marine.EquipItem(WeaponToEquip as Form, False, False)
-  EndIf
-  Marine.EvaluatePackage(False)
-  MarineCaptain.EvaluatePackage(False)
+int Property ActivityValue Mandatory Const Auto
+{What value this topic should set on the marines}
+
+Weapon Property WeaponToEquip Const Auto
+{If the soldier needs to equip a different weapon, have them do so here}
+
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    Actor MarineCaptain = FireTeamMarineCaptain.GetActorRef()
+    Actor Marine = FireTeamMarine.GetActorRef()
+
+    Marine.SetValue(UC04_SoldierPackageValue, ActivityValue)
+    MarineCaptain.SetValue(UC04_SoldierPackageValue, ActivityValue)
+
+    if WeaponToEquip != none && !MarineCaptain.IsEquipped(WeaponToEquip)
+        MarineCaptain.EquipItem(WeaponToEquip)
+    endif
+
+    if WeaponToEquip != none && !Marine.IsEquipped(WeaponToEquip)
+        Marine.EquipItem(WeaponToEquip)
+    endif
+
+    Marine.EvaluatePackage()
+    MarineCaptain.EvaluatePackage()
 EndEvent

@@ -1,1 +1,1 @@
-ScriptName Projectile Extends Form Native hidden
+Scriptname Projectile extends Form Native Hidden

@@ -1,5 +1,5 @@
-ScriptName QuestDebuggerScript Extends Quest
-{ You can call the following on this Quest:
+Scriptname QuestDebuggerScript extends Quest
+{You can call the following on this Quest:
 Function SetDebugStage(int DebugStage, bool FastFowarding = false)
 Function SetActorValueOnPlayer(ActorValue ActorValueToSet, float ValueToSetTo)
 Function MoveToDebugStageMarker(int DebugStage)
@@ -7,240 +7,317 @@ Function MoveToLatestDebugStageMarker()
 Function MoveToNextDebugStageMarker()
 
 In server console like:
-CQF <QuestEditorID> FunctionName Param1 Param2 etc. }
+CQF <QuestEditorID> FunctionName Param1 Param2 etc.
+}
 
-;-- Structs -----------------------------------------
 Struct DebugStageDatum
-  Int Stage
-  Bool TriggerOnStandardStageSet = False
-  { IDefault: False. If true, setting the actual quest stage will also cause this DebugStage to trigger.
-	Use this for stages that are only ever "Debug stages" and not "real" stages }
-  ObjectReference RefToMoveTo
-  { reference to move player to }
-  ReferenceAlias RefAliasToMoveTo
-  { if RefToMoveTo is none, it will try to move the player to this RefAlias }
-  ReferenceAlias RefAliasToKill
-  { kill this ReferenceAlias }
-  RefCollectionAlias RefColToKill
-  { kills everything in this refcol to the player }
-  Form FormToAdd
-  { add this for to player }
-  ReferenceAlias AliasRefToAdd1
-  { add this reference to the player }
-  ReferenceAlias AliasRefToAdd2
-  { add this reference to the player }
-  RefCollectionAlias RefColToAdd
-  { adds everything in this refcol to the player }
-  ActorValue ActorValueToSet
-  { set this actorvalue on player }
-  Float ValueToSetTo
-  { set actor value to this value }
-  Scene SceneToStopWhenFastForwarding
-  { stop scene instances of this scene when fast forwarding THROUGH this stage }
-  Bool SetStageOnFastForward = True
-  { if true (default), if fastforwarding past this stage, do this along the way }
-  Bool RefToMoveToOnFastForward = False
-  { if true, if fastforwarding past this stage, do this along the way }
-  Bool RefToKillOnFastForward = False
-  { if true, if fastforwarding past this stage, do this along the way }
-  Bool AddToPlayerOnFastForward = True
-  { if true (default), if fastforwarding past this stage, do this along the way }
-  Bool SetActorValueOnFastForward = True
-  { if true (default), if fastforwarding past this stage, do this along the way }
+	int Stage
+	
+	bool TriggerOnStandardStageSet = false
+	{IDefault: False. If true, setting the actual quest stage will also cause this DebugStage to trigger.
+	Use this for stages that are only ever "Debug stages" and not "real" stages}
+	
+	ObjectReference RefToMoveTo
+	{reference to move player to}
+	ReferenceAlias RefAliasToMoveTo
+	{if RefToMoveTo is none, it will try to move the player to this RefAlias}
+	ReferenceAlias RefAliasToKill
+	{kill this ReferenceAlias}
+	RefCollectionAlias RefColToKill
+	{kills everything in this refcol to the player}
+	form FormToAdd
+	{add this for to player}
+	ReferenceAlias AliasRefToAdd1
+	{add this reference to the player}
+	ReferenceAlias AliasRefToAdd2
+	{add this reference to the player}
+	RefCollectionAlias RefColToAdd
+	{adds everything in this refcol to the player}
+	ActorValue ActorValueToSet
+	{set this actorvalue on player}
+	float ValueToSetTo
+	{set actor value to this value}
+
+	Scene SceneToStopWhenFastForwarding
+	{stop scene instances of this scene when fast forwarding THROUGH this stage}
+
+	bool SetStageOnFastForward = true
+	{if true (default), if fastforwarding past this stage, do this along the way}
+	bool RefToMoveToOnFastForward = false
+	{if true, if fastforwarding past this stage, do this along the way}
+	bool RefToKillOnFastForward = false
+	{if true, if fastforwarding past this stage, do this along the way}
+	bool AddToPlayerOnFastForward = true
+	{if true (default), if fastforwarding past this stage, do this along the way}
+	bool SetActorValueOnFastForward = true
+	{if true (default), if fastforwarding past this stage, do this along the way}
 EndStruct
 
+DebugStageDatum[] Property DebugStageData Auto Const Mandatory
+{THESE MUST BE DEFINED IN SEQUENTIAL ORDER}
 
-;-- Variables ---------------------------------------
 Actor PlayerRef
 
-;-- Properties --------------------------------------
-questdebuggerscript:debugstagedatum[] Property DebugStageData Auto Const mandatory
-{ THESE MUST BE DEFINED IN SEQUENTIAL ORDER }
-
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  PlayerRef = Game.GetPlayer()
+	PlayerRef = Game.GetPlayer()
 EndEvent
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  questdebuggerscript:debugstagedatum[] matchingDebugStages = DebugStageData.GetMatchingStructs("Stage", auiStageID, 0, -1) ;*** WARNING: Experimental syntax, may be incorrect: GetMatchingStructs 
-  Int I = 0
-  While I < matchingDebugStages.Length
-    questdebuggerscript:debugstagedatum currentDebugStageDatum = matchingDebugStages[I]
-    If currentDebugStageDatum.TriggerOnStandardStageSet
-      Self._SetDebugStageDatum(currentDebugStageDatum, False)
-    EndIf
-    I += 1
-  EndWhile
+Event OnStageSet(int auiStageID, int auiItemID)
+	DebugStageDatum[] matchingDebugStages = DebugStageData.GetAllMatchingStructs("Stage", auiStageID)
+
+	int i = 0
+	While (i < matchingDebugStages.length)
+		DebugStageDatum currentDebugStageDatum = matchingDebugStages[i]
+		
+		if currentDebugStageDatum.TriggerOnStandardStageSet
+			_SetDebugStageDatum(currentDebugStageDatum, FastFowardedThru = false)
+		endif
+
+		i += 1
+	EndWhile
+
 EndEvent
 
-Function SetDebugStage(Int DebugStage, Bool FastFowarding)
-  Bool SetSpecifiedStage = False
-  If FastFowarding == False
-    questdebuggerscript:debugstagedatum foundDatum = Self._GetDebugStageDatum(DebugStage)
-    If foundDatum
-      Self._SetDebugStageDatum(foundDatum, False)
-      SetSpecifiedStage = True
-    EndIf
-  Else
-    Int I = 0
-    While I < DebugStageData.Length && DebugStageData[I].Stage <= DebugStage
-      If DebugStageData[I].Stage == DebugStage
-        Self._SetDebugStageDatum(DebugStageData[I], False)
-        SetSpecifiedStage = True
-      Else
-        Self._SetDebugStageDatum(DebugStageData[I], True)
-      EndIf
-      I += 1
-    EndWhile
-  EndIf
-  If SetSpecifiedStage == False
-    Self.SetStage(DebugStage)
-  EndIf
+Function SetDebugStage(int DebugStage, bool FastFowarding = false)
+	Trace(self, "SetDebugStage() DebugStage: " + DebugStage + ", FastFowarding: " + FastFowarding)
+
+	bool SetSpecifiedStage
+
+	if FastFowarding == false
+		DebugStageDatum foundDatum = _GetDebugStageDatum(DebugStage)
+		if foundDatum
+			_SetDebugStageDatum(foundDatum, FastFowardedThru = false)
+			SetSpecifiedStage = true
+		endif
+
+	else ;FastFowarding, loop through previous
+		int i = 0
+		While (i < DebugStageData.length && DebugStageData[i].Stage <= DebugStage)
+			if DebugStageData[i].stage == DebugStage
+				_SetDebugStageDatum(DebugStageData[i], FastFowardedThru = false)
+				SetSpecifiedStage = true
+			else ;we are fast forwarding through this stage
+				_SetDebugStageDatum(DebugStageData[i], FastFowardedThru = true)
+			endif
+			i += 1
+		EndWhile
+	endif
+
+	if SetSpecifiedStage == false
+		Trace(self, "SetDebugStage() didn't find StageDatum, but will attempt to set stage on quest anyway.", 1)
+		SetStage(DebugStage)
+	endif
+
 EndFunction
 
-Function _SetDebugStageDatum(questdebuggerscript:debugstagedatum DebugStageDatumToSet, Bool FastFowardedThru)
-  If FastFowardedThru == False || DebugStageDatumToSet.SetStageOnFastForward
-    Self.SetStage(DebugStageDatumToSet.Stage)
-  EndIf
-  If FastFowardedThru == False || DebugStageDatumToSet.RefToMoveToOnFastForward
-    If DebugStageDatumToSet.RefToMoveTo
-      PlayerRef.MoveTo(DebugStageDatumToSet.RefToMoveTo, 0.0, 0.0, 0.0, True, False)
-    ElseIf DebugStageDatumToSet.RefAliasToMoveTo
-      PlayerRef.MoveTo(DebugStageDatumToSet.RefAliasToMoveTo.GetReference(), 0.0, 0.0, 0.0, True, False)
-    EndIf
-  EndIf
-  If FastFowardedThru == False || DebugStageDatumToSet.RefToKillOnFastForward
-    If DebugStageDatumToSet.RefAliasToKill
-      DebugStageDatumToSet.RefAliasToKill.TryToKill(None)
-    EndIf
-    If DebugStageDatumToSet.RefColToKill.GetCount() > 0
-      DebugStageDatumToSet.RefColToKill.KillAll(None)
-    EndIf
-  EndIf
-  If FastFowardedThru == False || DebugStageDatumToSet.AddToPlayerOnFastForward
-    If DebugStageDatumToSet.FormToAdd
-      PlayerRef.AddItem(DebugStageDatumToSet.FormToAdd, 1, False)
-    EndIf
-    If DebugStageDatumToSet.AliasRefToAdd1
-      Self.AddRefAliasToPlayer(DebugStageDatumToSet.AliasRefToAdd1)
-    EndIf
-    If DebugStageDatumToSet.AliasRefToAdd2
-      Self.AddRefAliasToPlayer(DebugStageDatumToSet.AliasRefToAdd2)
-    EndIf
-    If DebugStageDatumToSet.RefColToAdd
-      ObjectReference[] itemsToAdd = DebugStageDatumToSet.RefColToAdd.GetArray()
-      Int I = 0
-      While I < itemsToAdd.Length
-        PlayerRef.AddItem(itemsToAdd[I] as Form, 1, False)
-        I += 1
-      EndWhile
-    EndIf
-  EndIf
-  If FastFowardedThru == False || DebugStageDatumToSet.SetActorValueOnFastForward
-    If DebugStageDatumToSet.ActorValueToSet
-      PlayerRef.SetValue(DebugStageDatumToSet.ActorValueToSet, DebugStageDatumToSet.ValueToSetTo)
-    EndIf
-  EndIf
-  If FastFowardedThru && DebugStageDatumToSet.SceneToStopWhenFastForwarding as Bool
-    DebugStageDatumToSet.SceneToStopWhenFastForwarding.Stop()
-  EndIf
+Function _SetDebugStageDatum(DebugStageDatum DebugStageDatumToSet, bool FastFowardedThru = false)
+	Trace(self, "_SetDebugStageDatum(): " + DebugStageDatumToSet)
+
+	if FastFowardedThru == false || DebugStageDatumToSet.SetStageOnFastForward
+		Trace(self, "_SetDebugStageDatum() setting stage: " + DebugStageDatumToSet.Stage)
+		SetStage(DebugStageDatumToSet.Stage)
+	endif
+
+	if FastFowardedThru == false || DebugStageDatumToSet.RefToMoveToOnFastForward
+		if DebugStageDatumToSet.RefToMoveTo
+			PlayerRef.MoveTo(DebugStageDatumToSet.RefToMoveTo)
+		elseif DebugStageDatumToSet.RefAliasToMoveTo
+			PlayerRef.MoveTo(DebugStageDatumToSet.RefAliasToMoveTo.GetReference())
+		endif
+	endif
+
+	if FastFowardedThru == false || DebugStageDatumToSet.RefToKillOnFastForward
+		if DebugStageDatumToSet.RefAliasToKill
+			DebugStageDatumToSet.RefAliasToKill.TryToKill()
+		endif
+		if DebugStageDatumToSet.RefColToKill.GetCount() > 0
+			DebugStageDatumToSet.RefColToKill.KillAll()
+		endif
+
+	endif
+
+	if FastFowardedThru == false || DebugStageDatumToSet.AddToPlayerOnFastForward
+		if DebugStageDatumToSet.FormToAdd
+			PlayerRef.AddItem(DebugStageDatumToSet.FormToAdd)
+		endif
+
+		if DebugStageDatumToSet.AliasRefToAdd1
+			AddRefAliasToPlayer(DebugStageDatumToSet.AliasRefToAdd1)
+		endif
+
+		if DebugStageDatumToSet.AliasRefToAdd2
+			AddRefAliasToPlayer(DebugStageDatumToSet.AliasRefToAdd2)
+		endif
+
+		if DebugStageDatumToSet.RefColToAdd
+			ObjectReference[] itemsToAdd = DebugStageDatumToSet.RefColToAdd.GetArray()
+			int i = 0
+			While (i < itemsToAdd.length)
+				playerRef.AddItem(itemsToAdd[i])
+				i += 1
+			EndWhile
+		endif
+
+	endif
+
+	if FastFowardedThru == false || DebugStageDatumToSet.SetActorValueOnFastForward
+		if DebugStageDatumToSet.ActorValueToSet
+			PlayerRef.SetValue(DebugStageDatumToSet.ActorValueToSet, DebugStageDatumToSet.ValueToSetTo)
+		endif
+	endif
+
+	if FastFowardedThru && DebugStageDatumToSet.SceneToStopWhenFastForwarding
+		DebugStageDatumToSet.SceneToStopWhenFastForwarding.Stop()
+	endif
+
 EndFunction
 
-Int Function GetNextDebugStage()
-  questdebuggerscript:debugstagedatum nextDatum = Self._GetNextDebugStageDatum()
-  If nextDatum
-    Return nextDatum.Stage
-  Else
-    Return -1
-  EndIf
+int Function GetNextDebugStage()
+	DebugStageDatum nextDatum = _GetNextDebugStageDatum()
+
+	if nextDatum
+		Trace(self, "GetNextDebugStage() returning " + nextDatum.Stage)
+		return nextDatum.Stage
+	else
+		Trace(self, "SetNextDebugStage() could not find a next DebugStageDatum, returning -1")
+		return -1
+	endif
+
 EndFunction
 
-questdebuggerscript:debugstagedatum Function _GetDebugStageDatum(Int StageToFind)
-  Int iFound = DebugStageData.findstruct("Stage", StageToFind, 0)
-  If iFound > -1
-    Return DebugStageData[iFound]
-  EndIf
-  Return None
+DebugStageDatum Function _GetDebugStageDatum(int StageToFind)
+	int iFound = DebugStageData.FindStruct("Stage", StageToFind)
+	if iFound > -1
+		return DebugStageData[iFound]
+	endif
+
+	return None
 EndFunction
 
-questdebuggerscript:debugstagedatum Function _GetLatestDebugStageDatum()
-  questdebuggerscript:debugstagedatum latestDatum = None
-  Int I = Self._GetLatestDebugStageDatumIndex()
-  If I > -1
-    latestDatum = DebugStageData[I]
-  EndIf
-  Return latestDatum
+DebugStageDatum Function _GetLatestDebugStageDatum()
+	DebugStageDatum latestDatum = None
+
+	int i = _GetLatestDebugStageDatumIndex()
+
+	if i > -1
+		latestDatum = DebugStageData[i]
+	endif
+
+	Trace(self, "_GetLatestDebugStageDatum() latestDatum:" + latestDatum)
+
+	return latestDatum
 EndFunction
 
-Int Function _GetLatestDebugStageDatumIndex()
-  Int index = -1
-  Int I = 0
-  While I < DebugStageData.Length
-    If Self.GetStageDone(DebugStageData[I].Stage)
-      index = I
-      I = DebugStageData.Length
-    EndIf
-    I += 1
-  EndWhile
-  Return index
+int Function _GetLatestDebugStageDatumIndex()
+	int index = -1
+
+	int i = 0
+	While (i < DebugStageData.length)
+		if GetStageDone(DebugStageData[i].Stage)
+			index = i
+			i = DebugStageData.length
+		endif
+		i += 1
+	EndWhile
+
+	Trace(self, "_GetLatestDebugStageDatum() index:" + index + ", DebugStageData[i]: " + DebugStageData[i])
+
+	return index
 EndFunction
 
-questdebuggerscript:debugstagedatum Function _GetNextDebugStageDatum()
-  Int iLatest = Self._GetLatestDebugStageDatumIndex()
-  Int iNext = 0
-  If iLatest > -1
-    iNext = iLatest + 1
-  Else
-    iNext = 0
-  EndIf
-  If iNext <= DebugStageData.Length
-    Return DebugStageData[iNext]
-  EndIf
-  Return None
+DebugStageDatum Function _GetNextDebugStageDatum()
+	int iLatest = _GetLatestDebugStageDatumIndex()
+	int iNext
+	if iLatest > -1
+		iNext = iLatest + 1
+	else
+		;assume none have been set yet, so the first is next
+		iNext = 0
+	endif
+
+	Trace(self, "_GetNextDebugStageDatum() iLatest: " + iLatest)
+	Trace(self, "_GetNextDebugStageDatum() iNext: " + iNext)
+	Trace(self, "_GetNextDebugStageDatum() DebugStageData.length: " + DebugStageData.length)
+
+	if iNext <= DebugStageData.length
+		Trace(self, "_GetNextDebugStageDatum() returning: " + DebugStageData[iNext])
+		RETURN DebugStageData[iNext]
+	endif
+
+	Trace(self, "_GetNextDebugStageDatum() couldn't find a next DebugStageDatum!!!", 1)
+	RETURN none
+
 EndFunction
 
-Function MoveToDebugStageMarker(Int DebugStage)
-  questdebuggerscript:debugstagedatum datumToUse = Self._GetDebugStageDatum(DebugStage)
-  Self._MoveToDatumRefToMoveTo(datumToUse)
+
+
+Function MoveToDebugStageMarker(int DebugStage)
+	Trace(self, "MoveToDebugStageMarker() DebugStage: " + DebugStage)
+
+	DebugStageDatum datumToUse = _GetDebugStageDatum(DebugStage)
+	Trace(self, "MoveToDebugStageMarker() datumToUse: " + datumToUse)
+
+	_MoveToDatumRefToMoveTo(datumToUse)
+
 EndFunction
 
 Function MoveToLatestDebugStageMarker()
-  questdebuggerscript:debugstagedatum datumToUse = Self._GetLatestDebugStageDatum()
-  Self._MoveToDatumRefToMoveTo(datumToUse)
+	Trace(self, "MoveToLatestDebugStageMarker()")
+
+	DebugStageDatum datumToUse = _GetLatestDebugStageDatum()
+	Trace(self, "MoveToLatestDebugStageMarker() datumToUse: " + datumToUse)
+
+	_MoveToDatumRefToMoveTo(datumToUse)
 EndFunction
 
 Function MoveToNextDebugStageMarker()
-  questdebuggerscript:debugstagedatum datumToUse = Self._GetNextDebugStageDatum()
-  Self._MoveToDatumRefToMoveTo(datumToUse)
+	Trace(self, "MoveToNextDebugStageMarker()")
+
+	DebugStageDatum datumToUse = _GetNextDebugStageDatum()
+	Trace(self, "MoveToNextDebugStageMarker() datumToUse: " + datumToUse)
+
+	_MoveToDatumRefToMoveTo(datumToUse)
 EndFunction
 
-Function _MoveToDatumRefToMoveTo(questdebuggerscript:debugstagedatum datumToUse)
-  ObjectReference RefToMoveTo = None
-  If datumToUse
-    If datumToUse.RefToMoveTo
-      RefToMoveTo = datumToUse.RefToMoveTo
-    ElseIf datumToUse.RefAliasToMoveTo
-      RefToMoveTo = datumToUse.RefAliasToMoveTo.GetReference()
-    EndIf
-    If RefToMoveTo
-      PlayerRef.MoveTo(RefToMoveTo, 0.0, 0.0, 0.0, True, False)
-    ElseIf RefToMoveTo
-      PlayerRef.MoveTo(RefToMoveTo, 0.0, 0.0, 0.0, True, False)
-    EndIf
-  EndIf
+Function _MoveToDatumRefToMoveTo(DebugStageDatum DatumToUse)
+	ObjectReference refToMoveTo
+
+	if datumToUse
+		if datumToUse.RefToMoveTo
+			refToMoveTo = datumToUse.RefToMoveTo
+		elseif datumToUse.RefAliasToMoveTo
+			refToMoveTo = datumToUse.RefAliasToMoveTo.GetReference()
+		endif
+
+		if refToMoveTo
+			Trace(self, "_MoveToDatumRefToMoveTo() refToMoveTo" + refToMoveTo)
+			PlayerRef.MoveTo(refToMoveTo)
+		elseif refToMoveTo
+			PlayerRef.MoveTo(refToMoveTo)
+		else
+			Trace(self, "_MoveToDatumRefToMoveTo() could not find a refToMoveTo")
+		endif
+	else
+		Trace(self, "_MoveToDatumRefToMoveTo() could not find a datumToUse")
+	endif
 EndFunction
 
 Function AddRefAliasToPlayer(ReferenceAlias AliasRefToAdd)
-  ObjectReference refToAdd = AliasRefToAdd.GetReference()
-  PlayerRef.AddItem(refToAdd as Form, 1, False)
+	ObjectReference refToAdd = AliasRefToAdd.GetReference()
+	Trace(self, "AddRefAliasToPlayer() adding " + refToAdd)
+	PlayerRef.AddItem(refToAdd)
+
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String DejaSubChannel, Bool bShowNormalTrace)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, "default", DejaSubChannel, aiSeverity, bShowNormalTrace, False, False, True)
-EndFunction
 
-Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String DejaSubChannel, Bool bShowNormalTrace)
-  Game.warning(CallingObject as String + asTextToPrint)
+;************************************************************************************
+;**************************	 CUSTOM TRACE LOG & WARNING ****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string DejaSubChannel = "Debug", bool bShowNormalTrace = false) debugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, "Default", DejaSubChannel, aiSeverity, bShowNormalTrace)
+endFunction
+
+Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string DejaSubChannel = "Debug", bool bShowNormalTrace = false) BetaOnly
+	Game.Warning(CallingObject + asTextToPrint)
+	Trace(CallingObject, "WARNING!!!: "  + asTextToPrint, aiSeverity, DejaSubChannel, bShowNormalTrace)
 EndFunction

@@ -1,140 +1,165 @@
-ScriptName SQ_AlarmScript Extends Quest conditional
+Scriptname SQ_AlarmScript extends Quest Conditional
 
-;-- Variables ---------------------------------------
-Bool alarmTriggered = False conditional
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard AlarmTriggeredLock
-Guard triggerAlarmLock
-
-;-- Properties --------------------------------------
-ReferenceAlias Property AlarmNPC Auto Const mandatory
+ReferenceAlias property AlarmNPC auto const mandatory
 { NPC that will try to trigger an alarm }
-ReferenceAlias Property Alarm Auto Const mandatory
+
+ReferenceAlias property Alarm auto const mandatory
 { alarm that NPC will try to reach }
-RefCollectionAlias Property Alarms Auto Const mandatory
+
+RefCollectionAlias property Alarms auto const mandatory
 { collection of all alarms }
-RefCollectionAlias Property AlarmNPCs Auto Const mandatory
+
+RefCollectionAlias property AlarmNPCs auto const mandatory
 { collection of NPCs who could trigger an alarm }
-RefCollectionAlias Property AlarmCameras Auto Const mandatory
+
+RefCollectionAlias property AlarmCameras auto const mandatory
 { collection of security cameras who could trigger an alarm }
-ActorValue Property SQ_Alarmed Auto Const mandatory
+
+ActorValue property SQ_Alarmed auto const mandatory
 { actor value to set on alarmed NPCs }
-ActorValue Property Suspicious Auto Const mandatory
+
+ActorValue property Suspicious auto const mandatory
 { actor value to set on alarmed NPCs }
-Scene Property SQ_AlarmScene Auto Const mandatory
+
+Scene property SQ_AlarmScene auto const mandatory
 { scene to start when an NPC wants to trigger an alarm }
-sq_parentscript Property SQ_Parent Auto Const mandatory
+
+SQ_ParentScript property SQ_Parent auto const mandatory
 { for custom events }
 
-;-- Functions ---------------------------------------
+bool alarmTriggered = false conditional
 
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(AlarmNPCs as ScriptObject, "OnCombatStateChanged")
-  Self.RegisterForRemoteEvent(AlarmNPCs as ScriptObject, "OnUnload")
-  Self.RegisterForRemoteEvent(Alarms as ScriptObject, "OnOpen")
-  Self.RegisterForRemoteEvent(Alarms as ScriptObject, "OnClose")
-  Self.RegisterForRemoteEvent(AlarmCameras as ScriptObject, "OnCombatStateChanged")
-  Self.RegisterForRemoteEvent(AlarmCameras as ScriptObject, "OnUnload")
+    debug.trace(self + " OnQuestInit")
+    ; register for alarm NPCs
+    RegisterForRemoteEvent(AlarmNPCs, "OnCombatStateChanged")
+    RegisterForRemoteEvent(AlarmNPCs, "OnUnload")
+    RegisterForRemoteEvent(Alarms, "OnOpen")
+    RegisterForRemoteEvent(Alarms, "OnClose")
+    RegisterForRemoteEvent(AlarmCameras, "OnCombatStateChanged")
+    RegisterForRemoteEvent(AlarmCameras, "OnUnload")
 EndEvent
 
 Event OnQuestStarted()
-  Int I = 0
-  While I < Alarms.GetCount()
-    sq_alarmactivatorscript theAlarm = Alarms.GetAt(I) as sq_alarmactivatorscript
-    If theAlarm
-      theAlarm.myAlarmQuest = Self
-    EndIf
-    I += 1
-  EndWhile
+    ; let all alarms know what their quest is
+    int i = 0
+    while i < Alarms.GetCount()
+        SQ_AlarmActivatorScript theAlarm = Alarms.GetAt(i) as SQ_AlarmActivatorScript
+        if theAlarm
+            theAlarm.myAlarmQuest = self
+        endif
+        i += 1
+    EndWhile
 EndEvent
 
-Function TriggerAlarmAttempt(Actor alarmActor)
-  Guard triggerAlarmLock ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If (alarmActor as Bool && alarmTriggered == False) && SQ_AlarmScene.IsPlaying() == False
-      AlarmNPC.ForceRefTo(alarmActor as ObjectReference)
-      Alarm.ClearAndRefillAlias()
-      SQ_AlarmScene.Start()
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Guard triggerAlarmLock ProtectsFunctionLogic
+function TriggerAlarmAttempt(Actor alarmActor)
+    LockGuard triggerAlarmLock
+        if alarmActor && alarmTriggered == false && SQ_AlarmScene.IsPlaying() == false
+            debug.trace(self + " TriggerAlarmAttempt for " + alarmActor)
+            AlarmNPC.ForceRefTo(alarmActor)
+            Alarm.ClearAndRefillAlias()
+            debug.trace(self + "  Alarm=" + Alarm.GetRef())
+            SQ_AlarmScene.Start()
+        endif
+    EndLockGuard
 EndFunction
 
-Function TriggerCameraAlarm(Actor alarmCamera)
-  Guard triggerAlarmLock ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If alarmCamera as Bool && alarmTriggered == False
-      SQ_AlarmScene.Stop()
-      AlarmNPC.ForceRefTo(alarmCamera as ObjectReference)
-      Alarm.ClearAndRefillAlias()
-      Self.SetAlarmed(True)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+function TriggerCameraAlarm(Actor alarmCamera)
+    LockGuard triggerAlarmLock
+        if alarmCamera && alarmTriggered == false
+            debug.trace(self + " TriggerCameraAlarm for " + alarmCamera)
+            SQ_AlarmScene.Stop()
+            AlarmNPC.ForceRefTo(alarmCamera)
+            Alarm.ClearAndRefillAlias()
+            debug.trace(self + "  Alarm=" + Alarm.GetRef())
+            SetAlarmed(true)
+        endif
+    EndLockGuard
+
 EndFunction
 
-Function SetAlarmed(Bool bAlarmed)
-  Guard AlarmTriggeredLock ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If bAlarmed != alarmTriggered
-      alarmTriggered = bAlarmed
-      If bAlarmed
-        SQ_Parent.SendAlarmTriggeredOnEvent(Alarm.GetRef(), AlarmNPC.GetActorRef(), Self)
-      Else
-        SQ_Parent.SendAlarmTriggeredOffEvent(Alarm.GetRef(), Self)
-      EndIf
-      Int I = 0
-      While I < AlarmNPCs.GetCount()
-        Actor theActor = AlarmNPCs.GetActorAt(I)
-        If theActor
-          theActor.SetValue(SQ_Alarmed, (bAlarmed as Int) as Float)
-          If bAlarmed && theActor.GetValue(Suspicious) < 1.0
-            theActor.SetValue(Suspicious, 1.0)
-          EndIf
-          theActor.EvaluatePackage(False)
-        EndIf
-        I += 1
-      EndWhile
-      I = 0
-      While I < Alarms.GetCount()
-        sq_alarmactivatorscript theAlarm = Alarms.GetAt(I) as sq_alarmactivatorscript
-        If theAlarm
-          theAlarm.SetOpen(bAlarmed)
-        EndIf
-        I += 1
-      EndWhile
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+Guard AlarmTriggeredLock ProtectsFunctionLogic
+
+function SetAlarmed(bool bAlarmed = true)
+    debug.trace(self + " SetAlarmed " + bAlarmed)
+    LockGuard AlarmTriggeredLock
+        ; no need to do this if we're already in the state
+        if bAlarmed != alarmTriggered
+            alarmTriggered = bAlarmed
+            debug.trace(self + " changing state to alarmTriggered=" + alarmTriggered)
+            
+            if bAlarmed
+                SQ_Parent.SendAlarmTriggeredOnEvent(Alarm.GetRef(), AlarmNPC.GetActorRef(), self)
+            Else
+                SQ_Parent.SendAlarmTriggeredOffEvent(Alarm.GetRef(), self)
+            endif
+            int i = 0
+            while i < AlarmNPCs.GetCount()
+                actor theActor = AlarmNPCs.GetActorAt(i)
+                if theActor
+                    theActor.SetValue(SQ_Alarmed, bAlarmed as int)
+                    if bAlarmed && theActor.GetValue(Suspicious) < 1
+                        theActor.SetValue(Suspicious, 1)
+                    endif
+                    theActor.EvaluatePackage()
+                endif
+                i += 1
+            endWhile
+            ; update all Alarms to new state
+            i = 0
+            while i < Alarms.GetCount()
+                SQ_AlarmActivatorScript theAlarm = Alarms.GetAt(i) as SQ_AlarmActivatorScript
+                if theAlarm
+                    theAlarm.SetOpen(bAlarmed)
+                endif
+                i += 1
+            EndWhile
+        Else
+            debug.trace(self + " alarmTriggered=" + alarmTriggered + " - no need to do anything")
+        endif
+    EndLockGuard
+endFunction
 
 Event RefCollectionAlias.OnOpen(RefCollectionAlias akCollection, ObjectReference akSenderRef, ObjectReference akActionRef)
-  Self.SetAlarmed(True)
-EndEvent
+    debug.Trace(self + " OnOpen " + akSenderRef + " by " + akActionRef)
+    SetAlarmed(true)
+endEvent
 
-Event RefCollectionAlias.OnCombatStateChanged(RefCollectionAlias akCollection, ObjectReference akSenderRef, ObjectReference akTarget, Int aeCombatState)
-  If aeCombatState == 1
-    If akCollection == AlarmNPCs
-      Self.TriggerAlarmAttempt(akSenderRef as Actor)
-    ElseIf akCollection == AlarmCameras
-      Self.TriggerCameraAlarm(akSenderRef as Actor)
-    EndIf
-  EndIf
-EndEvent
+Event RefCollectionAlias.OnCombatStateChanged(RefCollectionAlias akCollection, ObjectReference akSenderRef, ObjectReference akTarget, int aeCombatState)
+    debug.trace(self + " OnCombatStateChanged akCollection=" + akCollection + " akSenderRef=" + akSenderRef + " " + aeCombatState)
+    ; if actor is in direct combat, start the alarm scene
+    if aeCombatState == 1
+        if akCollection == AlarmNPCs
+            TriggerAlarmAttempt(akSenderRef as Actor)
+        elseif akCollection == AlarmCameras
+            TriggerCameraAlarm(akSenderRef as Actor)
+        endif
+    endif
+endEvent
 
 Event RefCollectionAlias.OnUnload(RefCollectionAlias akCollection, ObjectReference akSenderRef)
-  Self.CheckForShutdown()
-EndEvent
+    debug.trace(self + " OnUnload " + akSenderRef)
+    CheckForShutdown()
+endEvent
 
-Function CheckForShutdown()
-  If Self.IsRunning()
-    Int deadorunloaded = AlarmNPCs.GetCountDeadOr3DUnloaded() + AlarmCameras.GetCountDeadOr3DUnloaded()
-    Int total = AlarmNPCs.GetCount() + AlarmCameras.GetCount()
-    If deadorunloaded >= total
-      Self.SetAlarmed(False)
-      Self.Stop()
-    Else
-      Self.StartTimer(10.0, 0)
-    EndIf
-  EndIf
+function CheckForShutdown()
+    if IsRunning()
+        int deadorunloaded = AlarmNPCs.GetCountDeadOr3DUnloaded() + AlarmCameras.GetCountDeadOr3DUnloaded()
+        int total = AlarmNPCs.GetCount() + AlarmCameras.GetCount()
+        debug.trace(self + " CheckForShutdown dead/unloaded=" + deadorunloaded + " total=" + total)
+        ; check if whole collection is unloaded - if so, stop quest
+        if deadorunloaded >= total
+            debug.trace(self + " All alarm NPCs dead or unloaded - stopping")
+            SetAlarmed(false)
+            Stop()
+        Else
+            ; run timer to check again after a while
+            StartTimer(10.0)
+        endif
+    endif
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  Self.CheckForShutdown()
-EndEvent
+Event OnTimer(int aiTimerID)
+    CheckForShutdown()
+endEvent

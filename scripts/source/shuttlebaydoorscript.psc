@@ -1,22 +1,20 @@
-ScriptName ShuttleBayDoorScript Extends ObjectReference
-{ Script on the Shuttle Bay Doors. Handles opening and closing the doors in response to events from the ShuttleBayDoorManagerScript object. }
-
-;-- Functions ---------------------------------------
+Scriptname ShuttleBayDoorScript extends ObjectReference
+{Script on the Shuttle Bay Doors. Handles opening and closing the doors in response to events from the ShuttleBayDoorManagerScript object.}
 
 Event OnLoad()
-  shuttlebaydoormanagerscript myManager = Self.GetLinkedRef(None) as shuttlebaydoormanagerscript
-  If myManager == None
-    
-  Else
-    Self.RegisterForCustomEvent(myManager as ScriptObject, "shuttlebaydoormanagerscript_OpenShuttleBayDoorsEvent")
-    Self.RegisterForCustomEvent(myManager as ScriptObject, "shuttlebaydoormanagerscript_CloseShuttleBayDoorsEvent")
-  EndIf
+	ShuttleBayDoorManagerScript myManager = GetLinkedRef() as ShuttleBayDoorManagerScript
+	if (myManager == None)
+		Debug.Trace("ERROR: ShuttleBayDoorScript " + Self + " is missing its manager object.", 2)
+	Else
+		RegisterForCustomEvent(myManager, "OpenShuttleBayDoorsEvent")
+		RegisterForCustomEvent(myManager, "CloseShuttleBayDoorsEvent")
+	EndIf
 EndEvent
 
-Event ShuttleBayDoorManagerScript.OpenShuttleBayDoorsEvent(shuttlebaydoormanagerscript akSender, Var[] akArgs)
-  Self.PlayAnimation("StateA_Play")
+Event ShuttleBayDoorManagerScript.OpenShuttleBayDoorsEvent(ShuttleBayDoorManagerScript akSender, Var[] akArgs)
+	PlayAnimation("StateA_Play")
 EndEvent
 
-Event ShuttleBayDoorManagerScript.CloseShuttleBayDoorsEvent(shuttlebaydoormanagerscript akSender, Var[] akArgs)
-  Self.PlayAnimation("StateB_Play")
+Event ShuttleBayDoorManagerScript.CloseShuttleBayDoorsEvent(ShuttleBayDoorManagerScript akSender, Var[] akArgs)
+	PlayAnimation("StateB_Play")
 EndEvent

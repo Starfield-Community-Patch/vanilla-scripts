@@ -1,37 +1,41 @@
-ScriptName Crew_EliteCrewQuestScript Extends Crew_RecruitQuestScript
-
-;-- Functions ---------------------------------------
+Scriptname Crew_EliteCrewQuestScript extends Crew_RecruitQuestScript
 
 Event OnQuestInit()
-  CrewMemberRef = Alias_CrewMember.GetActorReference()
-  If Game.GetPlayer().HasPerk(Trait_Taskmaster)
-    Self.SetCostMultAndUpdateCost(CostMult_Taskmaster)
-  Else
-    Self.UpdateCost()
-  EndIf
+	CrewMemberRef = Alias_CrewMember.GetActorReference()
+	Trace(self, "OnQuestInit() CrewMemberRef: " + CrewMemberRef)
+	if Game.GetPlayer().HasPerk(Trait_Taskmaster)
+		SetCostMultAndUpdateCost(CostMult_Taskmaster)
+	else
+		UpdateCost()
+	endif
 EndEvent
 
 Function PickupSceneEnded()
-  SQ_Crew.SetEliteCrewActive(CrewMemberRef)
+	Trace(self, "PickupSceneEnded()")
+	SQ_Crew.SetEliteCrewActive(CrewMemberRef)
 EndFunction
 
 Function DismissSceneEnded()
-  SQ_Crew.SetEliteCrewInActive(CrewMemberRef, False)
+	Trace(self, "DismissSceneEnded()")
+	SQ_Crew.SetEliteCrewInActive(CrewMemberRef)
 EndFunction
 
 Function WaitSceneEnded()
-  SQ_Followers.CommandWait(CrewMemberRef, None)
+	Trace(self, "WaitSceneEnded()... calling SQ_Followers.CommandWait() CrewMemberRef: " + CrewMemberRef)
+	SQ_Followers.CommandWait(CrewMemberRef)
 EndFunction
 
 Function FollowSceneEnded()
-  SQ_Followers.CommandFollow(CrewMemberRef)
+	Trace(self, "FollowSceneEnded()... calling SQ_Followers.CommandFollow() CrewMemberRef: " + CrewMemberRef)
+	SQ_Followers.CommandFollow(CrewMemberRef)
 EndFunction
 
 Function GiveItemSceneEnded()
-  (CrewMemberRef as com_crew_giveitemactorscript).GiveItems()
+	(CrewMemberRef as COM_CREW_GiveItemActorScript).GiveItems()
 EndFunction
 
 Function StartBackstoryTimer()
-  Float expiry = Utility.ExpiryDay(SQ_Crew.Crew_Elite_BackstoryFollowup_CooldownDays.GetValue(), None, -1.0, -1.0)
-  CrewMemberRef.SetValue(SQ_Crew.Crew_Elite_BackstoryFollowup_Day, expiry)
+	float expiry = Utility.ExpiryDay(SQ_Crew.Crew_Elite_BackstoryFollowup_CooldownDays.GetValue())
+	CrewMemberRef.SetValue(SQ_Crew.Crew_Elite_BackstoryFollowup_Day, expiry)
 EndFunction
+

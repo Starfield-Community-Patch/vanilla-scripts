@@ -1,12 +1,8 @@
-ScriptName MQ101OutpostBeaconScript Extends ObjectReference Const
+Scriptname MQ101OutpostBeaconScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property OutpostBeaconMessage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message property OutpostBeaconMessage auto const mandatory
 
 Event OnInit()
-  OutpostBeaconMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+	debug.trace(self + " OnInit")
+	OutpostBeaconMessage.Show()
 EndEvent

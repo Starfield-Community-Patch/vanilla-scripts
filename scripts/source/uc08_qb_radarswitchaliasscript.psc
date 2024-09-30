@@ -1,24 +1,23 @@
-ScriptName UC08_QB_RadarSwitchAliasScript Extends ReferenceAlias
+Scriptname UC08_QB_RadarSwitchAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+int Property PrereqStage = 160 Const Auto
+{Don't trigger this behavior unless this stage is set}
 
-;-- Properties --------------------------------------
-Int Property PrereqStage = 160 Auto Const
-{ Don't trigger this behavior unless this stage is set }
-Int Property ShutdownStage = 900 Auto Const
-{ If this stage has been set, the Queen's down and we don't need to do any more with this }
-RefCollectionAlias Property SupportCollection Auto Const mandatory
-{ The collection holding the support creatures spawned in by this switch }
-RefCollectionAlias Property SupportMorphCollection Auto Const mandatory
-{ The collection of morphs associated with this switch }
+int Property ShutdownStage = 900 Const Auto
+{If this stage has been set, the Queen's down and we don't need to do any more with this}
 
-;-- Functions ---------------------------------------
+RefCollectionAlias Property SupportCollection Mandatory Const Auto
+{The collection holding the support creatures spawned in by this switch}
+
+RefCollectionAlias Property SupportMorphCollection Mandatory Const Auto
+{The collection of morphs associated with this switch}
 
 Event OnActivate(ObjectReference akActionRef)
-  uc08_queenbattle_questscript OQ = Self.GetOwningQuest() as uc08_queenbattle_questscript
-  If OQ.GetStageDone(PrereqStage) && !OQ.GetStageDone(ShutdownStage)
-    Self.Clear()
-    ObjectReference BroadcastREF = Self.GetRef().GetLinkedRef(None)
-    OQ.TriggerRadarBlast(BroadcastREF, SupportMorphCollection, SupportCollection)
-  EndIf
+    UC08_QueenBattle_QuestScript OQ = GetOwningQuest() as UC08_QueenBattle_QuestScript
+
+    if OQ.GetStageDone(PrereqStage) && !OQ.GetStageDone(ShutdownStage)
+        Clear()
+        ObjectReference BroadcastREF = GetRef().GetLinkedRef()
+        OQ.TriggerRadarBlast(BroadcastREF, SupportMorphCollection, SupportCollection)
+    endif
 EndEvent

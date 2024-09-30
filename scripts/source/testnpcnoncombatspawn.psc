@@ -1,24 +1,22 @@
-ScriptName TestNPCNonCombatSpawn Extends ObjectReference Const
+Scriptname TestNPCNonCombatSpawn extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property SpawnController auto const Mandatory
 
-;-- Properties --------------------------------------
-ObjectReference Property SpawnController Auto Const mandatory
-Bool Property SpawnOnLoad = False Auto Const
-Int Property GroupSize = 1 Auto Const
-{ Number of NPCs to spawn per group }
-ObjectReference Property LinkRefHub Auto Const mandatory
-{ Contains the linked references chain to the spawners, which in turn has the references to the patrols }
+bool Property SpawnOnLoad = false auto const
 
-;-- Functions ---------------------------------------
+int Property GroupSize = 1 auto const
+{Number of NPCs to spawn per group}
+
+ObjectReference Property LinkRefHub auto const Mandatory
+{Contains the linked references chain to the spawners, which in turn has the references to the patrols}
 
 Event OnLoad()
-  If SpawnOnLoad
-    Utility.Wait(1.0)
-    (SpawnController as testnpcarenascript).SpawnNonCombatActors(GroupSize, LinkRefHub)
-  EndIf
+	if (SpawnOnLoad)
+		Utility.Wait(1) ; Give an extra moment to process all the NPC spawns in each group.
+		(SpawnController as TestNPCArenaScript).SpawnNonCombatActors(GroupSize, LinkRefHub)
+	endif
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  (SpawnController as testnpcarenascript).SpawnNonCombatActors(GroupSize, LinkRefHub)
+	(SpawnController as TestNPCArenaScript).SpawnNonCombatActors(GroupSize, LinkRefHub)
 EndEvent

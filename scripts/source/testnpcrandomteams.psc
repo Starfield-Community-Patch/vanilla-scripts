@@ -1,27 +1,26 @@
-ScriptName TestNPCRandomTeams Extends ObjectReference Const
+Scriptname TestNPCRandomTeams extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property SpawnController auto const
+{Either fill this with the spawn controller, or use a default linkedRef to the spawn controller}
 
-;-- Properties --------------------------------------
-ObjectReference Property SpawnController Auto Const
-{ Either fill this with the spawn controller, or use a default linkedRef to the spawn controller }
-Bool Property instantSpawn = False Auto Const
-{ If true, will randomize and spawn NPCs with a single activation }
-Bool Property onlyRedTeam = False Auto Const
-Int Property teamSizeMinimum = -1 Auto Const
-Int Property teamSizeMaximum = -1 Auto Const
+bool Property instantSpawn = false auto const
+{If true, will randomize and spawn NPCs with a single activation}
 
-;-- Functions ---------------------------------------
+bool Property onlyRedTeam = false auto const
+
+int Property teamSizeMinimum = -1 auto const
+
+int Property teamSizeMaximum = -1 auto const
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference SpawnControllerFromLink = Self.GetLinkedRef(None)
-  If SpawnControllerFromLink
-    If teamSizeMaximum > -1 && teamSizeMinimum > -1
-      (SpawnControllerFromLink as testnpcarenascript).SetRandomTeams(instantSpawn, onlyRedTeam, Self as ObjectReference, teamSizeMinimum, teamSizeMaximum)
-    Else
-      (SpawnControllerFromLink as testnpcarenascript).SetRandomTeams(instantSpawn, onlyRedTeam, Self as ObjectReference, 3, 6)
-    EndIf
-  ElseIf SpawnController
-    (SpawnController as testnpcarenascript).SetRandomTeams(instantSpawn, onlyRedTeam, Self as ObjectReference, 3, 6)
-  EndIf
+    ObjectReference SpawnControllerFromLink = self.GetLinkedRef()
+    if(SpawnControllerFromLink)
+        if(teamSizeMaximum > -1 && teamSizeMinimum > -1)
+            (SpawnControllerFromLink as TestNPCArenaScript).SetRandomTeams(instantSpawn, onlyRedTeam, self, teamSizeMinimum, teamSizeMaximum)
+        else
+            (SpawnControllerFromLink as TestNPCArenaScript).SetRandomTeams(instantSpawn, onlyRedTeam, self)
+        endif
+    elseif(SpawnController)
+        (SpawnController as TestNPCArenaScript).SetRandomTeams(instantSpawn, onlyRedTeam, self)
+    endif
 EndEvent

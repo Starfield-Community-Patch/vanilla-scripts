@@ -1,48 +1,49 @@
-ScriptName CF06CombatDetectionScript Extends ObjectReference
+Scriptname CF06CombatDetectionScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool stageIsSet = False
-Int stageToSet = 195
+Quest property CF06 auto Const
+Location property LC0939Location auto const
+Faction property RobotSecurityFaction auto Const
+Faction property RobotJanitorFaction auto Const
 
-;-- Properties --------------------------------------
-Quest Property CF06 Auto Const
-Location Property LC0939Location Auto Const
-Faction Property RobotSecurityFaction Auto Const
-Faction Property RobotJanitorFaction Auto Const
-
-;-- Functions ---------------------------------------
+bool stageIsSet = false
+int stageToSet = 195
 
 Event OnCellLoad()
-  Actor player = Game.GetPlayer()
-  Self.RegisterForRemoteEvent(player as ScriptObject, "OnKill")
+    Actor player = Game.GetPlayer()
+
+    RegisterForRemoteEvent(player, "OnKill")
 EndEvent
 
 Event OnCellDetach()
-  If !stageIsSet
-    Self.UnregisterForKillEvents()
-  EndIf
+    if(!stageIsSet)
+        UnregisterForKillEvents()
+    endIf
 EndEvent
 
 Event Actor.OnKill(Actor akSender, ObjectReference akVictim)
-  If akSender.GetCurrentLocation() == LC0939Location
-    Actor victimActor = akVictim as Actor
-    If victimActor != None
-      Bool victimIsInRobotSecurityFaction = victimActor.IsInFaction(RobotSecurityFaction)
-      Bool victimIsInRobotJanitorFaction = False
-      If !victimIsInRobotSecurityFaction && !victimIsInRobotJanitorFaction
-        Self.SetCombatStage()
-        Self.UnregisterForKillEvents()
-      EndIf
-    EndIf
-  EndIf
+    if(akSender.GetCurrentLocation() == LC0939Location)
+        Actor victimActor = akVictim as Actor
+
+        if(victimActor != NONE)
+            bool victimIsInRobotSecurityFaction = victimActor.IsInFaction(RobotSecurityFaction)
+            bool victimIsInRobotJanitorFaction = false ;;victimActor.IsInFaction(RobotJanitorFaction)
+
+            if(!victimIsInRobotSecurityFaction && !victimIsInRobotJanitorFaction)
+                SetCombatStage()
+                UnregisterForKillEvents()
+            endIf
+        endIf
+    endIf
 EndEvent
 
-Function SetCombatStage()
-  CF06.SetStage(stageToSet)
-  stageIsSet = True
-EndFunction
+function SetCombatStage()
+    CF06.SetStage(stageToSet)
 
-Function UnregisterForKillEvents()
-  Actor player = Game.GetPlayer()
-  Self.UnregisterForRemoteEvent(player as ScriptObject, "OnKill")
-EndFunction
+    stageIsSet = true
+endFunction
+
+function UnregisterForKillEvents()
+    Actor player = Game.GetPlayer()
+
+    UnregisterForRemoteEvent(player, "OnKill")
+endFunction

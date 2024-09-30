@@ -1,14 +1,18 @@
-ScriptName Fragments:TopicInfos:TIF_SE_KMK01dupe_01001B60 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_SE_KMK01dupe_01001B60 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Potion Property ShipRepairKit Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  sescript kmyQuest = Self.GetOwningQuest() as sescript
-  kmyQuest.RemoveItemFromPlayerOrShip(ShipRepairKit as Form, 1, 10, True)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN AUTOCAST TYPE SEScript
+SEScript kmyQuest = GetOwningQuest() as SEScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.RemoveItemFromPlayerOrShip(ShipRepairKit, 1, 10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Potion Property ShipRepairKit Auto Const Mandatory

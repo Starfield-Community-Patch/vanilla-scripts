@@ -1,53 +1,55 @@
-ScriptName DR009_MalfunctioningPlatformScript Extends ObjectReference
+Scriptname DR009_MalfunctioningPlatformScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+float property MovementSpeed auto Const
+float property MinWaitSeconds auto Const
+float property MaxWaitSeconds auto Const
+WwiseEvent property TravelSoundEvent auto Const
+
+int waitTimerID = 0
+int travelSoundEventInstanceID = -1
+
 ObjectReference[] travelPositions
-Int travelSoundEventInstanceID = -1
-Int waitTimerID = 0
 
-;-- Properties --------------------------------------
-Float Property MovementSpeed Auto Const
-Float Property MinWaitSeconds Auto Const
-Float Property MaxWaitSeconds Auto Const
-wwiseevent Property TravelSoundEvent Auto Const
+event OnCellLoad()
+    travelPositions = GetLinkedRefChain()
 
-;-- Functions ---------------------------------------
+    TravelToRandomPosition()
+endEvent
 
-Event OnCellLoad()
-  travelPositions = Self.GetLinkedRefChain(None, 100)
-  Self.TravelToRandomPosition()
-EndEvent
-
-Event OnUnload()
-  If travelSoundEventInstanceID != -1 && TravelSoundEvent != None
-    wwiseevent.StopInstance(travelSoundEventInstanceID)
-  EndIf
-EndEvent
+event OnUnload()
+	if(travelSoundEventInstanceID != -1 && TravelSoundEvent != NONE)
+        WwiseEvent.StopInstance(travelSoundEventInstanceID)
+    EndIf
+endEvent
 
 Event OnTranslationComplete()
-  If TravelSoundEvent != None
-    wwiseevent.StopInstance(travelSoundEventInstanceID)
-    travelSoundEventInstanceID = -1
-  EndIf
-  Self.WaitRandomSeconds()
+    if(TravelSoundEvent != NONE)
+        WwiseEvent.StopInstance(travelSoundEventInstanceID)
+        travelSoundEventInstanceID = -1
+    endIf
+
+    WaitRandomSeconds()
 EndEvent
 
-Function TravelToRandomPosition()
-  Int travelPostionIndex = Utility.RandomInt(0, travelPositions.Length - 1)
-  ObjectReference travelPosition = travelPositions[travelPostionIndex]
-  Self.TranslateToRef(travelPosition, MovementSpeed, 0.0)
-  If travelSoundEventInstanceID == -1 && TravelSoundEvent != None
-    travelSoundEventInstanceID = TravelSoundEvent.Play(Self as ObjectReference, None, None)
-  EndIf
-EndFunction
+function TravelToRandomPosition()
+    int travelPostionIndex = Utility.RandomInt(0, travelPositions.Length - 1)
+    ObjectReference travelPosition = travelPositions[travelPostionIndex]
 
-Function WaitRandomSeconds()
-  Float waitSeconds = Utility.RandomFloat(MinWaitSeconds, MaxWaitSeconds)
-  Self.StartTimer(waitSeconds, waitTimerID)
-EndFunction
+    self.TranslateToRef(travelPosition, MovementSpeed)
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == waitTimerID
-    Self.TravelToRandomPosition()
-  EndIf
-EndEvent
+    if(travelSoundEventInstanceID == -1 && TravelSoundEvent != NONE)
+        travelSoundEventInstanceID = TravelSoundEvent.Play(self)
+    endIf
+endFunction
+
+function WaitRandomSeconds()
+    float waitSeconds = Utility.RandomFloat(MinWaitSeconds, MaxWaitSeconds)
+
+    StartTimer(waitSeconds, waitTimerID)
+endFunction
+
+event OnTimer(int aiTimerID)
+	if(aiTimerID == waitTimerID)
+        TravelToRandomPosition()
+	endIf
+endEvent

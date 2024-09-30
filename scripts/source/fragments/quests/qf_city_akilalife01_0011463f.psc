@@ -1,82 +1,154 @@
-ScriptName Fragments:Quests:QF_City_AkilaLife01_0011463F Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_AkilaLife01_0011463F Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_AnnieWilcox Auto Const mandatory
-ReferenceAlias Property Alias_EmilyCartwright Auto Const mandatory
-Scene Property City_AkilaLife01_050_KidTalk Auto Const mandatory
-ObjectReference Property AkilaLife01_StartMarker Auto Const mandatory
-Keyword Property AkilaLife01_Keyword Auto Const mandatory
-ReferenceAlias Property Alias_Thief Auto Const mandatory
-ReferenceAlias Property Alias_Security Auto Const mandatory
-Scene Property City_AkilaLife01_200b_SecurityShowsUp Auto Const mandatory
-Scene Property City_AkilaLife01_175_GuardBarks Auto Const mandatory
-ReferenceAlias Property Alias_EmmaWilcox Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Game.GetPlayer().MoveTo(AkilaLife01_StartMarker, 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+; Teleport the player to right area
+Game.GetPlayer().MoveTo(AkilaLife01_StartMarker)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  ObjectReference oTarg = Alias_AnnieWilcox.GetActorRef() as ObjectReference
-  oTarg.MoveTo(oTarg.GetLinkedRef(AkilaLife01_Keyword), 0.0, 0.0, 0.0, True, False)
-  oTarg = Alias_EmilyCartwright.GetActorRef() as ObjectReference
-  oTarg.MoveTo(oTarg.GetLinkedRef(AkilaLife01_Keyword), 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+; Move the girls to their start location
+ObjectReference oTarg = Alias_AnnieWilcox.GetActorRef()
+oTarg.MoveTo(oTarg.GetLinkedRef(AkilaLife01_Keyword))
 
+oTarg = Alias_EmilyCartwright.GetActorRef()
+oTarg.MoveTo(oTarg.GetLinkedRef(AkilaLife01_Keyword))
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  City_AkilaLife01_050_KidTalk.Start()
+;BEGIN CODE
+City_AkilaLife01_050_KidTalk.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0075_Item_00
 Function Fragment_Stage_0075_Item_00()
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(150, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(150)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.SetObjectiveCompleted(150, True)
-  Self.SetObjectiveDisplayed(200, True, False)
-  Actor ThiefRef = Alias_Thief.GetActorRef()
-  ThiefRef.Enable(False)
-  ThiefRef.EvaluatePackage(False)
-  ThiefRef.AllowBleedoutDialogue(True)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(150)
+SetObjectiveDisplayed(200)
 
+; Spawn the thief and have him sneak
+Actor ThiefRef = Alias_Thief.GetActorRef()
+
+ThiefRef.Enable()
+ThiefRef.EvaluatePackage()
+ThiefRef.AllowBleedoutDialogue(true)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0160_Item_00
 Function Fragment_Stage_0160_Item_00()
-  Utility.wait(0.300000012)
-  Alias_Thief.GetActorReference().StopCombat()
+;BEGIN CODE
+utility.wait(0.3)
+Alias_Thief.GetActorReference().StopCombat()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0175_Item_00
 Function Fragment_Stage_0175_Item_00()
-  City_AkilaLife01_200b_SecurityShowsUp.Start()
+;BEGIN CODE
+; Start up her scene
+City_AkilaLife01_200b_SecurityShowsUp.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Alias_Security.GetActorRef().Enable(False)
-  Alias_Security.GetActorRef().EvaluatePackage(False)
-  City_AkilaLife01_175_GuardBarks.Start()
-  Alias_AnnieWilcox.GetRef().MoveTo(Alias_EmmaWilcox.GetRef(), 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+; Spawn security
+Alias_Security.GetActorRef().Enable()
+Alias_Security.GetActorRef().EvaluatePackage()
 
+; Start up her scene
+City_AkilaLife01_175_GuardBarks.Start()
+
+; Move Annie to her mother
+Alias_AnnieWilcox.GetRef().MoveTo(Alias_EmmaWilcox.GetRef())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(300, True, False)
-  Alias_Thief.GetActorRef().EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(300)
 
+; Make the thief stop crouching
+Alias_Thief.GetActorRef().EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Self.CompleteAllObjectives()
-  Alias_Thief.GetActorRef().Disable(False)
-  Self.SetStage(9000)
-EndFunction
+;BEGIN CODE
+CompleteAllObjectives()
 
-Function Fragment_Stage_9000_Item_00()
-  Self.Stop()
+; Disable the thief
+Alias_Thief.GetActorRef().Disable()
+
+SetStage(9000)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_9000_Item_00
+Function Fragment_Stage_9000_Item_00()
+;BEGIN CODE
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_AnnieWilcox Auto Const Mandatory
+
+ReferenceAlias Property Alias_EmilyCartwright Auto Const Mandatory
+
+Scene Property City_AkilaLife01_050_KidTalk Auto Const Mandatory
+
+ObjectReference Property AkilaLife01_StartMarker Auto Const Mandatory
+
+Keyword Property AkilaLife01_Keyword Auto Const Mandatory
+
+ReferenceAlias Property Alias_Thief Auto Const Mandatory
+
+ReferenceAlias Property Alias_Security Auto Const Mandatory
+
+Scene Property City_AkilaLife01_200b_SecurityShowsUp Auto Const Mandatory
+
+Scene Property City_AkilaLife01_175_GuardBarks Auto Const Mandatory
+
+ReferenceAlias Property Alias_EmmaWilcox Auto Const Mandatory

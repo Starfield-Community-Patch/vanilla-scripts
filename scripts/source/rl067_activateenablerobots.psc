@@ -1,28 +1,41 @@
-ScriptName RL067_ActivateEnableRobots Extends ObjectReference
+Scriptname RL067_ActivateEnableRobots extends ObjectReference
 
-;-- Variables ---------------------------------------
+Actor[] Property SpawnedRobot Mandatory Auto
+Bool Property DoEnable Mandatory Auto
+Bool Property DoAggro Mandatory Auto
 
-;-- Properties --------------------------------------
-Actor[] Property SpawnedRobot Auto mandatory
-Bool Property DoEnable Auto mandatory
-Bool Property DoAggro Auto mandatory
 Faction Property PirateFaction Auto Const
 Faction Property PirateEnemyFaction Auto Const
 
-;-- Functions ---------------------------------------
 
-Event OnActivate(ObjectReference akActionRef)
-  Utility.wait(2.0)
-  Int index = 0
-  While index < SpawnedRobot.Length
-    If DoEnable == True
-      SpawnedRobot[index].Enable(False)
-    EndIf
-    If DoAggro == True
-      SpawnedRobot[index].SetValue(Game.GetAggressionAV(), 2.0)
-      SpawnedRobot[index].RemoveFromFaction(PirateFaction)
-      SpawnedRobot[index].AddToFaction(PirateEnemyFaction)
-    EndIf
-    index += 1
-  EndWhile
+
+
+
+
+
+
+
+ Event OnActivate(ObjectReference akActionRef)
+    Utility.wait(2.0)
+      int index = 0
+        While (index < SpawnedRobot.Length)
+
+            if(DoEnable == True)
+                SpawnedRobot[index].Enable()
+            EndIf
+            If(DoAggro == True)
+                SpawnedRobot[index].SetValue( Game.GetAggressionAV(), 2)
+                SpawnedRobot[index].RemoveFromFaction(PirateFaction)
+                SpawnedRobot[index].AddToFaction(PirateEnemyFaction)
+            EndIf
+      
+            index += 1
+        EndWhile
 EndEvent
+
+
+
+
+  
+  
+      

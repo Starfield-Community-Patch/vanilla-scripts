@@ -1,72 +1,69 @@
-ScriptName OutpostContainerScript Extends ObjectReference
-{ put this on containers that we want to update linked containers when the player modifies inventory }
-
-;-- Functions ---------------------------------------
+Scriptname OutpostContainerScript extends ObjectReference
+{put this on containers that we want to update linked containers when the player modifies inventory}
 
 Event OnLoad()
-  Self.RegisterForEvents(True)
+    RegisterForEvents(true)
 EndEvent
 
 Event OnUnload()
-  Self.RegisterForEvents(False)
+    RegisterForEvents(false)
 EndEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akReference)
-  Self.RegisterForEvents(False)
+    RegisterForEvents(false)
 EndEvent
 
-Function RegisterForEvents(Bool bRegister)
-  If bRegister
-    Self.RegisterForMenuOpenCloseEvent("ContainerMenu")
-    Self.AddInventoryEventFilter(None)
-    Self.gotoState("ready")
-  Else
-    Self.UnregisterForMenuOpenCloseEvent("ContainerMenu")
-    Self.RemoveAllInventoryEventFilters()
-  EndIf
-EndFunction
+auto State ready
+    Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+        if akSourceContainer == Game.GetPlayer()
+            GotoState("busy")
+            debug.trace(self + " OnItemAdded akSourceContainer=" + akSourceContainer + " aiTransferReason=" + aiTransferReason)
+            MoveContainerContentToUnfilledContainers()
+            GotoState("ready")
+        endif
+    EndEvent
 
-;-- State -------------------------------------------
-State busy
+    Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+        if akDestContainer == Game.GetPlayer()
+            GotoState("busy")
+            debug.trace(self + " OnItemRemoved akDestContainer=" + akDestContainer + " aiTransferReason=" + aiTransferReason)
+            MoveContainerContentToUnfilledContainers()
+            GotoState("ready")
+        endif
+    EndEvent
 
-  Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-    ; Empty function
-  EndEvent
-
-  Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-    ; Empty function
-  EndEvent
-
-  Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-    If abOpening == False
-      Self.MoveContainerContentToUnfilledContainers()
-      Self.gotoState("ready")
-    EndIf
-  EndEvent
+    Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+        if abOpening
+            debug.trace(self + " OnMenuOpenCloseEvent asMenuName=" + asMenuName)
+            GotoState("busy")
+        endif
+    endEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State ready
+state busy
+    Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+        if abOpening == false
+            debug.trace(self + " OnMenuOpenCloseEvent asMenuName=" + asMenuName)
+            MoveContainerContentToUnfilledContainers()
+            gotoState("ready")
+        endif
+    endEvent
+    Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+        ; do nothing
+    EndEvent
 
-  Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-    If akDestContainer == Game.GetPlayer() as ObjectReference
-      Self.gotoState("busy")
-      Self.MoveContainerContentToUnfilledContainers()
-      Self.gotoState("ready")
-    EndIf
-  EndEvent
-
-  Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-    If abOpening
-      Self.gotoState("busy")
-    EndIf
-  EndEvent
-
-  Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-    If akSourceContainer == Game.GetPlayer() as ObjectReference
-      Self.gotoState("busy")
-      Self.MoveContainerContentToUnfilledContainers()
-      Self.gotoState("ready")
-    EndIf
-  EndEvent
+    Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+        ; do nothing
+    EndEvent
 EndState
+
+function RegisterForEvents(bool bRegister)
+    if bRegister
+        RegisterForMenuOpenCloseEvent("ContainerMenu")
+        AddInventoryEventFilter(NONE)
+        gotoState("ready")
+    Else
+        UnregisterForMenuOpenCloseEvent("ContainerMenu")
+        RemoveAllInventoryEventFilters()
+    EndIf
+endFunction

@@ -1,37 +1,40 @@
-ScriptName Gang03_Script Extends Quest
+Scriptname Gang03_Script extends Quest
 
-;-- Variables ---------------------------------------
+int Function HangOutsCleared()
 
-;-- Properties --------------------------------------
-GlobalVariable Property Gang03_HangoutsCleared Auto Const mandatory
-ObjectReference Property Gang03_FinaleEntranceMarker Auto Const mandatory
-Faction Property PlayerFaction Auto Const mandatory
+    int nCleared = 0
 
-;-- Functions ---------------------------------------
+    ; Counting the hangouts cleared
+    if ( GetStageDone(400) )
+        nCleared += 1
+    endif
+    if ( GetStageDone(500) )
+        nCleared += 1
+    endif
+    if ( GetStageDone(600) )
+        nCleared += 1
+    endif
 
-Int Function HangOutsCleared()
-  Int nCleared = 0
-  If Self.GetStageDone(400)
-    nCleared += 1
-  EndIf
-  If Self.GetStageDone(500)
-    nCleared += 1
-  EndIf
-  If Self.GetStageDone(600)
-    nCleared += 1
-  EndIf
-  Gang03_HangoutsCleared.SetValue(nCleared as Float)
-  Self.UpdateCurrentInstanceGlobal(Gang03_HangoutsCleared)
-  Self.SetObjectiveDisplayed(700, True, True)
-  If nCleared >= 3
-    Self.SetStage(700)
-  EndIf
+    ; Update the global and refresh the objective text
+    Gang03_HangoutsCleared.SetValue(nCleared)
+    UpdateCurrentInstanceGlobal(Gang03_HangoutsCleared)
+    SetObjectiveDisplayed(700, true, true)    
+
+    ; Cleared all Hangouts
+    if ( nCleared >= 3 )
+        SetStage(700)
+    endif
+
 EndFunction
 
 Function MoveStriker(Actor aStriker)
-  ObjectReference oTarg = Gang03_FinaleEntranceMarker
-  aStriker.Disable(True)
-  aStriker.MoveTo(oTarg, 0.0, 0.0, 0.0, True, False)
-  aStriker.RemoveFromFaction(PlayerFaction)
-  aStriker.Enable(True)
+    ObjectReference oTarg = Gang03_FinaleEntranceMarker    
+    aStriker.Disable(TRUE)
+    aStriker.MoveTo(oTarg)
+    aStriker.RemoveFromFaction(PlayerFaction)    
+    aStriker.Enable(TRUE)
 EndFunction
+
+GlobalVariable Property Gang03_HangoutsCleared Auto Const Mandatory
+ObjectReference Property Gang03_FinaleEntranceMarker Mandatory Const Auto
+Faction Property PlayerFaction Mandatory Const Auto

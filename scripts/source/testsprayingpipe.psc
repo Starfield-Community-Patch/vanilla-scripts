@@ -1,29 +1,37 @@
-ScriptName TestSprayingPipe Extends ObjectReference Const
+Scriptname TestSprayingPipe extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Weapon Property UnarmedHuman Auto Const
-Form Property FireMed01 Auto Const
-Hazard Property ENV_GasVentHazard_ToxicGas_Small Auto Const
-
-;-- Functions ---------------------------------------
+Form Property FireMed01 Const Auto
+Hazard Property ENV_GasVentHazard_ToxicGas_Small Const Auto
 
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndIf
+	if Is3DLoaded()
+		RegisterForHitEvent(self)
+	EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If abBashAttack || (akSource == UnarmedHuman as Form)
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Else
-    Self.PlaceAtMe(FireMed01, 1, False, False, True, None, None, True)
-    Self.GetLinkedRef(None).Enable(False)
-  EndIf
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+    debug.trace(self + " On Hit registered")
+    ; Check for the weapon type somehow.
+    debug.trace(self + " Source = " + akSource)
+    debug.trace(self + " Bash Attack = " + abBashAttack)
+    debug.trace(self + " Aggressor = " + akAggressor)
+    debug.trace(self + " Projectile = " + akProjectile)
+
+    if(abBashAttack || akSource == UnarmedHuman as Form)
+        debug.trace(self + " bash attack registered.")
+        ;Checking for Bash Attack does not seem to work.
+        RegisterForHitEvent(self)
+    Else    
+        self.PlaceAtMe(FireMed01)
+        ;self.PlaceAtMe(ENV_GasVentHazard_ToxicGas_Small)
+        self.GetLinkedRef().Enable()
+    EndIf
+
+
 EndEvent

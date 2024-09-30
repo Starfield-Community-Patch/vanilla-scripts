@@ -1,29 +1,26 @@
-ScriptName DR023StorageRoomDoorScript Extends ObjectReference
+Scriptname DR023StorageRoomDoorScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+;This is a temp script to handle a door that will hopefully become a real door GEN-325227
 
-;-- Properties --------------------------------------
-ObjectReference Property DR023_DoorLeftRotationHelper Auto Const mandatory
-ObjectReference Property DR023_DoorRightRotationHelper Auto Const mandatory
+ObjectReference Property DR023_DoorLeftRotationHelper Mandatory Const Auto
+ObjectReference Property DR023_DoorRightRotationHelper Mandatory Const Auto
 
-;-- State -------------------------------------------
-State Done
+Auto State Waiting
+   Event OnActivate(ObjectReference akActionRef)
+        GotoState("Done")
+        DR023_DoorLeftRotationHelper.SetAnimationVariableFloat("Position", 0.25)
+        DR023_DoorLeftRotationHelper.SetAnimationVariableFloat("Speed", 0.1)
+        DR023_DoorLeftRotationHelper.PlayAnimation("Rotate_Short")
 
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
+        DR023_DoorRightRotationHelper.SetAnimationVariableFloat("Position", 0.25)
+        DR023_DoorRightRotationHelper.SetAnimationVariableFloat("Speed", 0.1)
+        DR023_DoorRightRotationHelper.PlayAnimation("Rotate_Short")        
+    EndEvent 
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.GotoState("Done")
-    DR023_DoorLeftRotationHelper.SetAnimationVariableFloat("Position", 0.25)
-    DR023_DoorLeftRotationHelper.SetAnimationVariableFloat("Speed", 0.100000001)
-    DR023_DoorLeftRotationHelper.PlayAnimation("Rotate_Short")
-    DR023_DoorRightRotationHelper.SetAnimationVariableFloat("Position", 0.25)
-    DR023_DoorRightRotationHelper.SetAnimationVariableFloat("Speed", 0.100000001)
-    DR023_DoorRightRotationHelper.PlayAnimation("Rotate_Short")
-  EndEvent
+State Done
+	Event OnActivate(ObjectReference akActionRef)
+        ;Do Nothing
+    EndEvent
 EndState

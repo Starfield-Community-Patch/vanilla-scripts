@@ -1,15 +1,10 @@
-ScriptName MQTutorialQuestPlayerScript Extends ReferenceAlias
+Scriptname MQTutorialQuestPlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property PlayerShip Auto Const mandatory
-Int Property EnterPlayerShipStage = 10 Auto Const
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property PlayerShip Mandatory Const Auto
+Int Property EnterPlayerShipStage=10 Const Auto
 
 Event OnEnterShipInterior(ObjectReference akShip)
-  If akShip == PlayerShip.GetRef()
-    Self.GetOwningQuest().SetStage(EnterPlayerShipStage)
-  EndIf
+    If (akShip == PlayerShip.GetRef())
+        GetOwningQuest().SetStage(EnterPlayerShipStage)
+    EndIf
 EndEvent

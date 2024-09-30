@@ -1,27 +1,26 @@
-ScriptName FloraOnHarvestScript Extends ObjectReference Const
-{ set a global or quest stage when flora is harvested }
+Scriptname FloraOnHarvestScript extends ObjectReference Const
+{set a global or quest stage when flora is harvested}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property GlobalToSet Auto Const
+GlobalVariable property GlobalToSet auto const
 { optional: global to set when flora is harvested }
-Float Property ValueToSet = 1.0 Auto Const
+
+float property ValueToSet = 1.0 auto const
 { value to set GlobalToSet to }
-Quest Property QuestToSetStage Auto Const
+
+Quest property QuestToSetStage auto Const
 { optional: quest to set a stage on when flora is harvested }
-Int Property StageToSet = -1 Auto Const
+
+int property StageToSet = -1 auto const
 { stage to set on QuestToSetStage }
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If GlobalToSet as Bool && GlobalToSet.GetValue() != ValueToSet
-      GlobalToSet.SetValue(ValueToSet)
-    EndIf
-    If (QuestToSetStage as Bool && StageToSet > -1) && QuestToSetStage.GetStageDone(StageToSet) == False
-      QuestToSetStage.SetStage(StageToSet)
-    EndIf
-  EndIf
+    if akActionRef == Game.GetPlayer()
+        if GlobalToSet && GlobalToSet.GetValue() != ValueToSet
+            GlobalToSet.SetValue(ValueToSet)
+        endif
+
+        if QuestToSetStage && StageToSet > -1 && QuestToSetStage.GetStageDone(StageToSet) == false
+            QuestToSetStage.SetStage(StageToSet)
+        endif
+    endif
 EndEvent

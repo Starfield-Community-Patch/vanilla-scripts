@@ -1,58 +1,67 @@
-ScriptName UC06_CompanionWaitScript Extends ReferenceAlias Const
+Scriptname UC06_CompanionWaitScript extends ReferenceAlias Const
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property Alias_WaitHereMarker Mandatory Const Auto
 
-;-- Properties --------------------------------------
+SQ_FollowersScript Property SQ_Followers Mandatory Const Auto
+
+Keyword Property WaitTriggerKeyword Mandatory Const Auto
+
+ReferenceAlias Property Alias_ResumeTrigger Mandatory Const Auto
+
+RefCollectionAlias Property Alias_WaitingCompanions Mandatory Const Auto
+
 Group CompanionResponseMarkup
-  Bool Property PlayCompanionResponseScene = False Auto Const
-  Scene Property CompanionResponseScene Auto Const
-  Quest Property CompanionResponsePrereqQuest Auto Const
-  Int Property CompanionResponsePrereqStage Auto Const
-  ReferenceAlias Property Companion Auto Const
+    bool Property PlayCompanionResponseScene = false Const Auto
+
+    Scene Property CompanionResponseScene Const Auto
+
+    Quest Property CompanionResponsePrereqQuest Const Auto
+
+    int Property CompanionResponsePrereqStage Const Auto
+
+    ReferenceAlias Property Companion Const Auto
 EndGroup
 
-ReferenceAlias Property Alias_WaitHereMarker Auto Const mandatory
-sq_followersscript Property SQ_Followers Auto Const mandatory
-Keyword Property WaitTriggerKeyword Auto Const mandatory
-ReferenceAlias Property Alias_ResumeTrigger Auto Const mandatory
-RefCollectionAlias Property Alias_WaitingCompanions Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
 Event OnTriggerEnter(ObjectReference akActionRef)
-  ObjectReference myTrigger = Self.GetRef()
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    If myTrigger.HasKeyword(WaitTriggerKeyword)
-      Actor[] ActorsNewlyToldToWaitAtMyRef = SQ_Followers.AllFollowersWait(Alias_WaitHereMarker.GetRef(), True, False)
-      Int I = 0
-      While I < ActorsNewlyToldToWaitAtMyRef.Length
-        Alias_WaitingCompanions.AddRef(ActorsNewlyToldToWaitAtMyRef[I] as ObjectReference)
-        I += 1
-      EndWhile
-      Alias_ResumeTrigger.GetRef().EnableNoWait(False)
-      If PlayCompanionResponseScene && CompanionResponsePrereqQuest.GetStageDone(CompanionResponsePrereqStage) && Companion.GetRef() != None
-        CompanionResponseScene.Start()
-      EndIf
-    Else
-      Actor[] ActorsToFollowMyRef = Alias_WaitingCompanions.GetActorArray()
-      If ActorsToFollowMyRef[0] != None
-        SQ_Followers.AllFollowersFollow(ActorsToFollowMyRef)
-        Alias_WaitingCompanions.RemoveAll()
-      EndIf
-      myTrigger.DisableNoWait(False)
-    EndIf
-  EndIf
+    ObjectReference myTrigger = GetRef()
+    if akActionRef == Game.GetPlayer() 
+
+    ;WaitTriggerKeyword is applied to the alias data. The script will know which function to use depending on whether the keyword is applied
+
+        if myTrigger.HasKeyword(WaitTriggerKeyword)
+            Actor[] ActorsNewlyToldToWaitAtMyRef = SQ_Followers.AllFollowersWait(Alias_WaitHereMarker.GetRef())
+                int i = 0
+                While i < ActorsNewlyToldToWaitAtMyRef.Length
+                    Alias_WaitingCompanions.AddRef(ActorsNewlyToldToWaitAtMyRef[i])
+                    i += 1
+                endWhile
+            Alias_ResumeTrigger.GetRef().EnableNoWait()
+
+            ;If there's a scene that's supposed to play when the player enters this trigger...
+            if PlayCompanionResponseScene && CompanionResponsePrereqQuest.GetStageDone(CompanionResponsePrereqStage) && Companion.GetRef() != none
+                CompanionResponseScene.Start()
+            endif
+        else
+            Actor[] ActorsToFollowMyRef = Alias_WaitingCompanions.GetActorArray() 
+                if ActorsToFollowMyRef[0] != None           
+                    SQ_Followers.AllFollowersFollow(ActorsToFollowMyRef)
+                    Alias_WaitingCompanions.RemoveAll()
+                endif
+            myTrigger.DisableNoWait()
+        endif
+    endif
 EndEvent
 
 Event OnCellDetach()
-  Actor[] ActorsToFollowMyRef = Alias_WaitingCompanions.GetActorArray()
-  If ActorsToFollowMyRef[0] != None
-    SQ_Followers.TeleportFollowers(Game.GetPlayer() as ObjectReference, ActorsToFollowMyRef, True, True, False, False, False)
-    SQ_Followers.AllFollowersFollow(ActorsToFollowMyRef)
-    Alias_WaitingCompanions.RemoveAll()
-  EndIf
-  ObjectReference myTrigger = Self.GetRef()
-  If !myTrigger.HasKeyword(WaitTriggerKeyword) && myTrigger.IsEnabled()
-    myTrigger.DisableNoWait(False)
-  EndIf
-EndEvent
+    ;Support for player fast traveling away without picking up their companion
+    Actor[] ActorsToFollowMyRef = Alias_WaitingCompanions.GetActorArray() 
+        if ActorsToFollowMyRef[0] != None  
+            SQ_Followers.TeleportFollowers(Game.GetPlayer(), SpecificFollowersToTeleport = ActorsToFollowMyRef)         
+            SQ_Followers.AllFollowersFollow(ActorsToFollowMyRef)
+            Alias_WaitingCompanions.RemoveAll()
+        endif
+        ObjectReference myTrigger = GetRef()
+        if !myTrigger.HasKeyword(WaitTriggerKeyword) && myTrigger.IsEnabled()
+            myTrigger.DisableNoWait()
+        endif
+endEvent

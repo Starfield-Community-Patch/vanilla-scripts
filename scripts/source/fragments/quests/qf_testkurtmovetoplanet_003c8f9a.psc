@@ -1,12 +1,15 @@
-ScriptName Fragments:Quests:QF_TestKurtMoveToPlanet_003C8F9A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TestKurtMoveToPlanet_003C8F9A Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Marker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Game.GetPlayer().MoveTo(Alias_Marker.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+Game.GetPlayer().MoveTo(Alias_Marker.GetRef())
+;Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Marker Auto Const Mandatory

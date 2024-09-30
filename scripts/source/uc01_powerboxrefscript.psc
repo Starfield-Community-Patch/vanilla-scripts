@@ -1,42 +1,49 @@
-ScriptName UC01_PowerboxRefScript Extends ObjectReference Const
+Scriptname UC01_PowerboxRefScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+int Property TargetDestructionState = 1 Const Auto
+{If the object has switched to this state, disable its linked ref}
 
-;-- Properties --------------------------------------
-Int Property TargetDestructionState = 1 Auto Const
-{ If the object has switched to this state, disable its linked ref }
-Keyword Property UC01_LaserGrid_SecondaryToggle_Keyword Auto Const mandatory
-{ Keyword for if this powerbox has a secondary toggle }
-Bool Property ChainDisable = False Auto Const
-{ If true, this object is attached to a chain of markers and should turn all of them off }
-Int Property StageToSet = -1 Auto Const
-{ Is there a stage to set on UC01 once this change has been triggered? }
-Int Property ShutDownStage = 401 Auto Const
-{ If this stage has been set, don't set the "StageToSet" when this blows }
-Quest Property UC01 Auto Const mandatory
-{ UC01 quest object }
+Keyword Property UC01_LaserGrid_SecondaryToggle_Keyword Mandatory Const Auto
+{Keyword for if this powerbox has a secondary toggle}
 
-;-- Functions ---------------------------------------
+bool Property ChainDisable = false Const Auto
+{If true, this object is attached to a chain of markers and should turn all of them off}
 
-Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-  If aiCurrentStage == TargetDestructionState
-    If ChainDisable
-      ObjectReference currLink = Self.GetLinkedRef(None)
-      currLink.Disable(False)
-      currLink.DisableLinkChain(None, False)
-    Else
-      Self.GetLinkedRef(None).Disable(False)
-      ObjectReference SecondaryLink = Self.GetLinkedRef(UC01_LaserGrid_SecondaryToggle_Keyword)
-      If SecondaryLink != None
-        SecondaryLink.Disable(False)
-      EndIf
-    EndIf
-    If StageToSet >= 0 && !UC01.GetStageDone(ShutDownStage)
-      UC01.SetStage(StageToSet)
-    EndIf
-  EndIf
+int Property StageToSet = -1 Const Auto
+{Is there a stage to set on UC01 once this change has been triggered?}
+
+int Property ShutDownStage = 401 Const Auto
+{If this stage has been set, don't set the "StageToSet" when this blows}
+
+Quest Property UC01 Mandatory Const Auto
+{UC01 quest object}
+
+Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+trace(self, "Old Destruction Stage: " + aiOldStage + ". New Dest Stage: " + aiCurrentStage + ". Target Stage: " + TargetDestructionState)
+    if aiCurrentStage == TargetDestructionState
+
+        if ChainDisable
+            ObjectReference currLink = GetLinkedRef()
+            currLink.Disable()
+            currLink.DisableLinkChain()
+        else
+            GetLinkedRef().Disable()
+
+            ObjectReference SecondaryLink = GetLinkedRef(UC01_LaserGrid_SecondaryToggle_Keyword)
+            if SecondaryLink != none
+                SecondaryLink.Disable()
+            endif
+        endif
+
+        if StageToSet >= 0 && !UC01.GetStageDone(ShutDownStage)
+            UC01.SetStage(StageToSet)
+        endif
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC01", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

@@ -1,26 +1,24 @@
-ScriptName TestDarylTriggerScript Extends ObjectReference Const
+Scriptname TestDarylTriggerScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property EnemySpawnPoint Mandatory Const Auto
+ObjectReference Property EnemySpawnButton Mandatory Const Auto
+ActorBase Property EnemyToSpawn Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ObjectReference Property EnemySpawnPoint Auto Const mandatory
-ObjectReference Property EnemySpawnButton Auto Const mandatory
-ActorBase Property EnemyToSpawn Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Event OnLoad()
+    debug.Trace(self + "|OnLoad(): Started")
+    RegisterForRemoteEvent(EnemySpawnButton, "OnActivate")
+EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  ; Empty function
+    debug.Trace(self + "|OnTriggerEnter(): Started") 
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  ; Empty function
+    debug.Trace(self + "|OnTriggerLeave(): Started") 
 EndEvent
 
-Event OnLoad()
-  Self.RegisterForRemoteEvent(EnemySpawnButton as ScriptObject, "OnActivate")
-EndEvent
 
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  EnemySpawnPoint.PlaceActorAtMe(EnemyToSpawn, 4, None, False, False, True, None, True)
+    debug.Trace(self + "|OnActivate(): Started")
+    EnemySpawnPoint.PlaceActorAtMe(EnemyToSpawn)
 EndEvent

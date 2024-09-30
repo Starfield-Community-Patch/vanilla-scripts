@@ -1,43 +1,47 @@
-ScriptName Hope01_ChangeLocation_Script Extends Quest Const
+Scriptname Hope01_ChangeLocation_Script extends Quest Const
 
-;-- Variables ---------------------------------------
+Location Property AkilaCityLocation Auto Const Mandatory
+Keyword Property Contraband Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Group FailQuest
-  sq_parentscript Property SQ_Parent Auto Const mandatory
-  Int Property Hope01_StageRequired = 100 Auto Const
-  Int Property Hope01_StageToSet = 8900 Auto Const
+group FailQuest
+    SQ_ParentScript property SQ_Parent auto const mandatory
+
+    int property Hope01_StageRequired = 100 auto const
+    int Property Hope01_StageToSet = 8900 auto const
 EndGroup
 
-Location Property AkilaCityLocation Auto Const mandatory
-Keyword Property Contraband Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const
-
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-EndEvent
+	; Register for events
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+endEvent
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  Actor aPlayer = Game.GetPlayer()
-  If akSender == aPlayer && akNewLoc == AkilaCityLocation && Self.GetStageDone(100)
-    If Game.GetPlayer().GetItemCount(Contraband as Form) > 0 || PlayerShip.GetReference().GetItemCount(Contraband as Form) > 0
-      Self.SetStage(300)
-    EndIf
-  EndIf
+    debug.trace("Hope01: " + self + " OnLocationChange " + akSender + " akOldLoc=" + akOldLoc + " akNewLoc=" + akNewLoc)
+	; Did the player go to Akila City? Do they have the quest?
+    Actor aPlayer = Game.GetPlayer()
+	if akSender == aPlayer && akNewLoc == AkilaCityLocation && GetStageDone(100)
+        ; TODO: Need to check to see if they have the Sensor Jammer installed
+        if (Game.GetPlayer().GetItemCount(Contraband) > 0 ) || PlayerShip.GetReference().GetItemCount(Contraband) > 0
+            ; If the player has gotten to Akila City with contraband, including on their ship. success!
+            SetStage(300)
+        EndIf
+	endif
 EndEvent
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  If auiStageID == Hope01_StageRequired
-    Self.RegisterForCustomEvent(SQ_Parent as ScriptObject, "sq_parentscript_SQ_ContrabandConfiscated")
-  ElseIf auiStageID == Hope01_StageToSet
-    Self.UnregisterForCustomEvent(SQ_Parent as ScriptObject, "sq_parentscript_SQ_ContrabandConfiscated")
-  EndIf
+Event OnStageSet(int auiStageID, int auiItemID)
+    if auiStageID == Hope01_StageRequired
+		RegisterForCustomEvent(SQ_Parent, "SQ_ContrabandConfiscated")
+    elseif auiStageID == Hope01_StageToSet
+		UnregisterForCustomEvent(SQ_Parent, "SQ_ContrabandConfiscated")
+    endif
 EndEvent
 
-Event SQ_ParentScript.SQ_ContrabandConfiscated(sq_parentscript akSource, Var[] akArgs)
-  If Self.GetStageDone(Hope01_StageRequired) && Self.GetStageDone(Hope01_StageToSet) == False
-    Self.SetStage(Hope01_StageToSet)
-  EndIf
+Event SQ_ParentScript.SQ_ContrabandConfiscated(SQ_ParentScript akSource, Var[] akArgs)
+    debug.trace(self + " SQ_ContrabandConfiscated")
+	; If you are losing your contraband, then Hope01 fails
+	if GetStageDone(Hope01_StageRequired) && GetStageDone(Hope01_StageToSet) == false
+		SetStage(Hope01_StageToSet)
+	endif 
 EndEvent
+
+ReferenceAlias Property PlayerShip Auto Const

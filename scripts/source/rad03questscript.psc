@@ -1,47 +1,52 @@
-ScriptName RAD03QuestScript Extends Quest
+Scriptname RAD03QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Int Property EndQuestStage = 1000 Const Auto
 
-;-- Properties --------------------------------------
-Int Property EndQuestStage = 1000 Auto Const
-missionparentscript Property MissionParent Auto Const mandatory
-missionquestscript[] Property CargoMissions Auto Const
-missionparentscript Property MB_Parent Auto Const mandatory
-LocationAlias Property Alias_MissionBoardLoc Auto Const mandatory
+MissionParentScript Property MissionParent Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+MissionQuestScript[] property CargoMissions auto const
+
+MissionParentScript property MB_Parent auto const mandatory
+
+LocationAlias property Alias_MissionBoardLoc auto const mandatory
 
 Event OnQuestInit()
-  Actor myPlayer = Game.GetPlayer()
-  Self.RegisterForCustomEvent(MissionParent as ScriptObject, "missionparentscript_MissionAccepted")
+    Actor myPlayer = Game.GetPlayer()
+    RegisterForCustomEvent(MissionParent, "MissionAccepted")
 EndEvent
 
 Event OnQuestStarted()
-  If Self.CheckForActiveCargoMissions()
-    Self.SetStage(EndQuestStage)
-  Else
-    Location missionLoc = Alias_MissionBoardLoc.GetLocation()
-    MB_Parent.ResetMissions(True, False, missionLoc, True)
-  EndIf
+    if CheckForActiveCargoMissions()
+        ; complete quest
+        SetStage(EndQuestStage)
+    else
+        Location missionLoc = Alias_MissionBoardLoc.GetLocation()
+        ; reset missions
+        MB_Parent.ResetMissions(true, false, missionLoc, true)
+    endif
 EndEvent
 
-Bool Function CheckForActiveCargoMissions()
-  Bool foundActiveMission = False
-  Int I = 0
-  While I < CargoMissions.Length && foundActiveMission == False
-    missionquestscript theMission = CargoMissions[I]
-    If theMission.PlayerAcceptedQuest && theMission.PlayerCompletedQuest == False && theMission.PlayerFailedQuest == False
-      foundActiveMission = True
-    EndIf
-    I += 1
-  EndWhile
-  Return foundActiveMission
+bool Function CheckForActiveCargoMissions()
+    bool foundActiveMission = false
+    int i = 0
+    while i < CargoMissions.Length && foundActiveMission == false
+        MissionQuestScript theMission = CargoMissions[i]
+        ; if player has an active cargo mission, complete quest
+        if theMission.PlayerAcceptedQuest && theMission.PlayerCompletedQuest == false && theMission.PlayerFailedQuest == false
+            foundActiveMission = true
+        endif
+        i += 1
+    endWhile
+    return foundActiveMission
 EndFunction
 
-Event MissionParentScript.MissionAccepted(missionparentscript akSender, Var[] akArgs)
-  missionquestscript acceptedQuest = akArgs[0] as missionquestscript
-  If acceptedQuest as Bool && acceptedQuest.MissionType == 1
-    Self.UnregisterForCustomEvent(MissionParent as ScriptObject, "missionparentscript_MissionAccepted")
-    Self.SetStage(EndQuestStage)
-  EndIf
+
+;When the MissionQuestscript used for Mission Board Quests sends an event saying the player has accepted the mission, it will set the stage to complete the objective and end the quest.
+Event MissionParentScript.MissionAccepted(MissionParentScript akSender, Var[] akArgs)
+    MissionQuestScript acceptedQuest = akArgs[0] as MissionQuestScript
+    ;MissionType == 0 for Bounty, 1 for Cargo
+    If acceptedQuest && acceptedQuest.MissionType == 1
+        UnregisterForCustomEvent(MissionParent, "MissionAccepted")
+        SetStage(EndQuestStage)
+    EndIf
 EndEvent

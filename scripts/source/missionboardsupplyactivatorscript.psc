@@ -1,37 +1,53 @@
-ScriptName MissionBoardSupplyActivatorScript Extends ReferenceAlias
+Scriptname MissionBoardSupplyActivatorScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+SQ_OutpostCargoLinkScript property SQ_OutpostCargoLink auto const mandatory
 
-;-- Properties --------------------------------------
-sq_outpostcargolinkscript Property SQ_OutpostCargoLink Auto Const mandatory
-Keyword Property LinkOutpostCargoLink Auto Const mandatory
+keyword property LinkOutpostCargoLink auto const mandatory
 { keyword to find linked ref of my cargo link }
-Keyword Property OutpostCargoLinkFueledKeyword Auto Const mandatory
+
+keyword property OutpostCargoLinkFueledKeyword auto const mandatory
 { keyword to find fueled cargo links }
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  missionquestscript myQuest = Self.GetOwningQuest() as missionquestscript
-  If myQuest.PlayerAcceptedQuest
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      ObjectReference myCargoLink = Self.GetRef().GetLinkedRef(LinkOutpostCargoLink)
-      If myCargoLink
-        Self.RegisterForRemoteEvent(myCargoLink as ScriptObject, "OnWorkshopCargoLinkChanged")
-        myCargoLink.ShowWorkshopTargetMenu(True, None, True, OutpostCargoLinkFueledKeyword)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+    MissionQuestScript myQuest = GetOwningQuest() as MissionQuestScript
+    if myQuest.PlayerAcceptedQuest
+        if akActionRef == Game.GetPlayer()
+            ObjectReference myCargoLink = GetRef().GetLinkedRef(LinkOutpostCargoLink)
+            Trace(Self, " OnActivate: myCargoLink=" + myCargoLink)
+            if myCargoLink
+                ; register for link change event
+                RegisterForRemoteEvent(myCargoLink, "OnWorkshopCargoLinkChanged")
+                ; open cargo link menu
+                myCargoLink.ShowWorkshopTargetMenu(abIncludeSameSystem = true, akSameSystemRequiredKeyword = None, abIncludeIntersystem = true, akIntersystemRequiredKeyword = OutpostCargoLinkFueledKeyword)
+            endif
+        endif
+    endif
+endEvent
 
 Event ObjectReference.OnWorkshopCargoLinkChanged(ObjectReference akSource, ObjectReference akOldTarget, ObjectReference akNewTarget)
-  If akNewTarget == None
-    (Self.GetOwningQuest() as missionsupplyscript).CargoLinkCleared()
-  ElseIf akNewTarget != akOldTarget
-    (Self.GetOwningQuest() as missionsupplyscript).CargoLinkEstablished(akNewTarget)
-  EndIf
-EndEvent
+    Trace(Self, " OnWorkshopCargoLinkChanged akOldTarget=" + akOldTarget + " akNewTarget=" + akNewTarget)
+    if akNewTarget == None
+        ; update quest
+        (GetOwningQuest() as MissionSupplyScript).CargoLinkCleared()
+    elseif akNewTarget != akOldTarget
+        ; update quest
+        (GetOwningQuest() as MissionSupplyScript).CargoLinkEstablished(akNewTarget)
+    endif
+endEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akActionRef)
-  (Self.GetOwningQuest() as missionsupplyscript).CargoLinkCleared()
-EndEvent
+    ; update quest
+    (GetOwningQuest() as MissionSupplyScript).CargoLinkCleared()
+endEvent
+
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Missions",  string SubLogName = "Supply", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Missions",  string SubLogName = "Supply", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+EndFunction

@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueUCFactionNewAtla_000066B0 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueUCFactionNewAtla_000066B0 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property UCR03 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  UCR03.Start()
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+UCR03.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property UCR03 Auto Const Mandatory

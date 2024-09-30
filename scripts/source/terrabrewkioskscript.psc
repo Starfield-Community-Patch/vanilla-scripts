@@ -1,14 +1,10 @@
-ScriptName TerraBrewKioskScript Extends ObjectReference Const
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
+Scriptname TerraBrewKioskScript extends ObjectReference Const
 Actor Property Vendor1 Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Vendor1.ShowBarterMenu()
-  EndIf
+  if akActionRef == Game.GetPlayer()
+	;Debug.Notification("I am being activated")
+	Vendor1.ShowBarterMenu()
+  endif
 EndEvent
+

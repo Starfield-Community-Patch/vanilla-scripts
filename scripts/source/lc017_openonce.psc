@@ -1,14 +1,9 @@
-ScriptName LC017_OpenOnce Extends ObjectReference Const
+Scriptname LC017_OpenOnce extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkToPowerSource Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Keyword Property LinkToPowerSource Mandatory Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  If Self.GetLinkedRef(LinkToPowerSource).IsPowered()
-    Self.GetLinkedRef(None).SetOpen(True)
-  EndIf
+    if(GetLinkedRef(LinkToPowerSource).IsPowered())
+        GetLinkedRef().SetOpen()
+    EndIf
 EndEvent

@@ -1,23 +1,22 @@
-ScriptName MQ305PlayerShipAliasScript Extends ReferenceAlias
+Scriptname MQ305PlayerShipAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property Armillary Mandatory Const Auto
+ActorValue Property SpaceshipGravJumpPower Mandatory Const Auto
+GlobalVariable Property MQArmillaryCompleteGlobal Mandatory Const Auto
+Scene Property MQ305_000_GravJumpUnity Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ReferenceAlias Property Armillary Auto Const mandatory
-ActorValue Property SpaceshipGravJumpPower Auto Const mandatory
-GlobalVariable Property MQArmillaryCompleteGlobal Auto Const mandatory
-Scene Property MQ305_000_GravJumpUnity Auto Const mandatory
+Event OnShipSystemPowerChange(ActorValue akSystem,bool abAddPower,bool abDamageRelated)
 
-;-- Functions ---------------------------------------
+    ;check if the player manually adds power to the grav-drive
+    If akSystem == (SpaceshipGravJumpPower) && (abAddPower) && (abDamageRelated==False)
+        ;if this ship is the same ship that the Armillary is in and the Armillary is complete, then go to the Unity
+        ObjectReference ArmillaryREF = Armillary.GetRef()
+        Int iArmillaryComplete = MQArmillaryCompleteGlobal.GetValueInt()
+        ObjectReference ArmillaryShipREF = ArmillaryREF.GetCurrentShipRef()
+        SpaceshipReference MyShipREF = Self.GetShipReference()
 
-Event OnShipSystemPowerChange(ActorValue akSystem, Bool abAddPower, Bool abDamageRelated)
-  If akSystem == SpaceshipGravJumpPower && abAddPower && abDamageRelated == False
-    ObjectReference ArmillaryREF = Armillary.GetRef()
-    Int iArmillaryComplete = MQArmillaryCompleteGlobal.GetValueInt()
-    ObjectReference ArmillaryShipREF = ArmillaryREF.GetCurrentShipRef() as ObjectReference
-    spaceshipreference MyShipREF = Self.GetShipReference()
-    If (ArmillaryShipREF == MyShipREF as ObjectReference) && iArmillaryComplete >= 1 && MyShipREF.IsInSpace()
-      MQ305_000_GravJumpUnity.Start()
+        If (ArmillaryShipREF == MyShipREF) && (iArmillaryComplete >= 1) && (MyShipREF.IsInSpace())
+            MQ305_000_GravJumpUnity.Start()
+        EndIf
     EndIf
-  EndIf
 EndEvent

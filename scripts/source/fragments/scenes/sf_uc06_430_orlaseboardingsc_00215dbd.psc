@@ -1,9 +1,15 @@
-ScriptName Fragments:Scenes:SF_UC06_430_OrlaseBoardingSc_00215DBD Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_UC06_430_OrlaseBoardingSc_00215DBD Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  Quest pQuest = Self.GetOwningQuest()
-  pQuest.SetStage(440)
-  pQuest.SetStage(441)
+;BEGIN CODE
+Quest pQuest = GetOwningQuest()
+
+pQuest.SetStage(440)
+pQuest.SetStage(441)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

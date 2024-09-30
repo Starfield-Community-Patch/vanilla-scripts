@@ -1,87 +1,104 @@
-ScriptName Rad01_MoveRefsQuestScript Extends Quest
-
-;-- Structs -----------------------------------------
-Struct EnableStateDatum
-  ReferenceAlias AliasToSetEnableState
-  Bool ShouldBeEnabled
-EndStruct
+Scriptname Rad01_MoveRefsQuestScript extends Quest
 
 Struct ForceAliasDatum
-  Alias SourceAlias
-  Alias TargetAlias
+	Alias SourceAlias
+	Alias TargetAlias
 EndStruct
 
 Struct MoveToDatum
-  ReferenceAlias AliasToMove
-  ReferenceAlias AliasToMoveTo
-EndStruct
+	ReferenceAlias AliasToMove
+	ReferenceAlias AliasToMoveTo
+endstruct
+
+Struct EnableStateDatum
+	ReferenceAlias AliasToSetEnableState
+	bool ShouldBeEnabled
+endstruct
 
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-rad01_moverefsquestscript:forcealiasdatum[] Property ForceAliasData Auto Const mandatory
-rad01_moverefsquestscript:movetodatum[] Property MoveToData Auto Const mandatory
-rad01_moverefsquestscript:enablestatedatum[] Property EnableStateData Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ForceAliasDatum[] Property ForceAliasData Mandatory Const Auto
+MoveToDatum[] Property MoveToData Mandatory Const Auto
+EnableStateDatum[] Property EnableStateData Mandatory Const Auto
 
 Event OnQuestInit()
-  Self.ForceAliases()
-  Self.MoveAliases()
-  Self.EnableDisableAliases()
+	Trace(self, "OnQuestInit() ")
+
+	ForceAliases()
+	MoveAliases()
+	EnableDisableAliases()
+
+
+
 EndEvent
 
 Function ForceAliases()
-  Int I = 0
-  While I < ForceAliasData.Length
-    rad01_moverefsquestscript:forcealiasdatum currentDatum = ForceAliasData[I]
-    Bool copied = currentDatum.SourceAlias.CopyIntoAlias(currentDatum.TargetAlias, True, True)
-    If copied == False
-      
-    EndIf
-    I += 1
-  EndWhile
+	Trace(self, "ForceAliases() ")
+	int i = 0
+	While (i < ForceAliasData.length)
+		ForceAliasDatum currentDatum = ForceAliasData[i]
+		Trace(self, "ForceAliases() currentDatum: " + currentDatum)
+
+		bool copied = currentDatum.SourceAlias.CopyIntoAlias(currentDatum.TargetAlias)
+		if copied == false
+			Warning(self, "OnQuestInit() CopyIntoAlias() failed!!! currentDatum: " + currentDatum)
+		endif
+
+		i += 1
+	EndWhile
 EndFunction
 
 Function MoveAliases()
-  Int I = 0
-  I = 0
-  While I < MoveToData.Length
-    rad01_moverefsquestscript:movetodatum currentDatum = MoveToData[I]
-    ObjectReference refToMove = currentDatum.AliasToMove.GetReference()
-    ObjectReference refToMoveTo = currentDatum.AliasToMoveTo.GetReference()
-    If refToMove as Bool && refToMoveTo as Bool
-      refToMove.MoveTo(refToMoveTo, 0.0, 0.0, 0.0, True, False)
-    EndIf
-    Actor ActorToMove = refToMove as Actor
-    If ActorToMove
-      If refToMoveTo.GetBaseObject() is Furniture
-        ActorToMove.SnapIntoInteraction(refToMoveTo)
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
+	Trace(self, "MoveAliases() ")
+	int i
+	i = 0
+	While (i < MoveToData.length)
+		MoveToDatum currentDatum = MoveToData[i]
+		Trace(self, "MoveAliases() currentDatum: " + currentDatum)
+
+		ObjectReference refToMove = currentDatum.AliasToMove.GetReference()
+		ObjectReference refToMoveTo = currentDatum.AliasToMoveTo.GetReference()
+
+		if refToMove && refToMoveTo
+			refToMove.MoveTo(refToMoveTo)
+		else
+			Warning(self, "MoveAliases() can't move, missing ref. refToMove: " + refToMove + ", refToMoveTo: " + refToMoveTo)
+		endif
+
+		;snap into furniture if we are moving an actor to furniture
+		Actor ActorToMove = refToMove as Actor
+		if ActorToMove
+			if  refToMoveTo.GetBaseObject() is Furniture	
+				ActorToMove.SnapIntoInteraction(refToMoveTo)
+			endif
+		endif
+
+		i += 1
+	EndWhile
 EndFunction
 
 Function EnableDisableAliases()
-  Int I = 0
-  While I < EnableStateData.Length
-    rad01_moverefsquestscript:enablestatedatum currentDatum = EnableStateData[I]
-    If currentDatum.ShouldBeEnabled
-      currentDatum.AliasToSetEnableState.TryToEnableNoWait()
-    Else
-      currentDatum.AliasToSetEnableState.TryToDisableNoWait()
-    EndIf
-    I += 1
-  EndWhile
+	Trace(self, "EnableDisableAliases() ")
+	int i = 0
+	While (i < EnableStateData.length)
+		EnableStateDatum currentDatum = EnableStateData[i]
+		Trace(self, "EnableDisableAliases() currentDatum: " + currentDatum)
+
+		if currentDatum.ShouldBeEnabled
+			currentDatum.AliasToSetEnableState.TryToEnableNoWait()
+		else
+			currentDatum.AliasToSetEnableState.TryToDisableNoWait()
+		endif
+		i += 1
+	EndWhile
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Rad01",  string SubLogName = "Rad01_MoveRefsQuestScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Rad01",  string SubLogName = "Rad01_MoveRefsQuestScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

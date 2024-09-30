@@ -1,1 +1,1 @@
-ScriptName Door Extends Form Native hidden
+Scriptname Door extends Form Native Hidden

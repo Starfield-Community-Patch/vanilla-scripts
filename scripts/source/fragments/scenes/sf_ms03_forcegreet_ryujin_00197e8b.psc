@@ -1,23 +1,34 @@
-ScriptName Fragments:Scenes:SF_MS03_Forcegreet_Ryujin_00197E8B Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MS03_Forcegreet_Ryujin_00197E8B Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property Juno00 Auto Const
-ObjectReference Property JunoDoor Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  Game.StopDialogueCamera(False, False)
+;BEGIN CODE
+Game.StopDialogueCamera()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  Juno00.PlayAnimation("Play01")
+;BEGIN CODE
+Juno00.PlayAnimation("Play01")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_01_End
 Function Fragment_Phase_01_End()
-  JunoDoor.SetOpen(False)
-  JunoDoor.Lock(True, False, True)
-  JunoDoor.SetLockLevel(254)
+;BEGIN CODE
+JunoDoor.SetOpen(false)
+JunoDoor.Lock(true)
+JunoDoor.SetLockLevel(254)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ObjectReference Property Juno00 Auto Const
+
+ObjectReference Property JunoDoor Auto Const

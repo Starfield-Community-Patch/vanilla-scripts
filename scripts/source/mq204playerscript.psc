@@ -1,34 +1,33 @@
-ScriptName MQ204PlayerScript Extends ReferenceAlias
+Scriptname MQ204PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-Int EyePathRunToShipPrereq = 480
-Int EyePathRunToShipStage = 490
-Int NewAtlantisToShipPrereqStage = 110
+ReferenceAlias Property PlayerShip Auto Const Mandatory
 Int NewAtlantisToShipStage = 135
+Int NewAtlantisToShipPrereqStage = 110
 
-;-- Properties --------------------------------------
-ReferenceAlias Property PlayerShip Auto Const mandatory
-Int Property BuildArmillaryPrereqStage = 510 Auto Const
-Int Property BuildArmillaryStage = 620 Auto Const
-Int Property EyePathPostRescuedEyeStage = 455 Auto Const
-Int Property EyePathPostRescuedEyePrereq = 450 Auto Const
-ActorValue Property MQArmillaryShipBuilderCheck Auto Const mandatory
-Keyword Property ShipTypeStarborn Auto Const mandatory
+Int EyePathRunToShipStage = 490
+Int EyePathRunToShipPrereq = 480
 
-;-- Functions ---------------------------------------
+Int Property BuildArmillaryPrereqStage = 510 Const Auto
+Int Property BuildArmillaryStage = 620 Const Auto
+
+Int Property EyePathPostRescuedEyeStage = 455 Const Auto
+Int Property EyePathPostRescuedEyePrereq = 450 Const Auto
+
+ActorValue Property MQArmillaryShipBuilderCheck Mandatory Const Auto
+Keyword Property ShipTypeStarborn Mandatory Const Auto
 
 Event OnEnterShipInterior(ObjectReference akShip)
-  Quest myMQ204 = Self.GetOwningQuest()
-  spaceshipreference PlayerShipREF = PlayerShip.GetShipReference()
-  If akShip == PlayerShipREF as ObjectReference
-    If myMQ204.GetStageDone(NewAtlantisToShipPrereqStage)
-      myMQ204.SetStage(NewAtlantisToShipStage)
+    Quest myMQ204 = GetOwningQuest()
+    SpaceshipReference PlayerShipREF = PlayerShip.GetShipReference()
+    If akShip == PlayerShipREF
+        If myMQ204.GetStageDone(NewAtlantisToShipPrereqStage)
+            myMQ204.SetStage(NewAtlantisToShipStage)
+        EndIf
+        If myMQ204.GetStageDone(EyePathRunToShipPrereq)
+            myMQ204.SetStage(EyePathRunToShipStage)
+        EndIf
+        If myMQ204.GetStageDone(EyePathPostRescuedEyePrereq)
+            myMQ204.SetStage(EyePathPostRescuedEyeStage)
+        EndIf
     EndIf
-    If myMQ204.GetStageDone(EyePathRunToShipPrereq)
-      myMQ204.SetStage(EyePathRunToShipStage)
-    EndIf
-    If myMQ204.GetStageDone(EyePathPostRescuedEyePrereq)
-      myMQ204.SetStage(EyePathPostRescuedEyeStage)
-    EndIf
-  EndIf
 EndEvent

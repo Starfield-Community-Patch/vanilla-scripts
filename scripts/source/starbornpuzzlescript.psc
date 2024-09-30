@@ -1,118 +1,116 @@
-ScriptName StarbornPuzzleScript Extends ObjectReference
+Scriptname StarbornPuzzleScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+ObjectReference Property FirstPositionMarker Mandatory Const Auto
+ObjectReference Property SecondPositionMarker Mandatory Const Auto
+ObjectReference Property ThirdPositionMarker Mandatory Const Auto
+ObjectReference Property FourthPositionMarker Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ObjectReference Property FirstPositionMarker Auto Const mandatory
-ObjectReference Property SecondPositionMarker Auto Const mandatory
-ObjectReference Property ThirdPositionMarker Auto Const mandatory
-ObjectReference Property FourthPositionMarker Auto Const mandatory
-ObjectReference Property Ring Auto Const mandatory
-ObjectReference Property OtherRing1 Auto Const mandatory
-ObjectReference Property OtherRing2 Auto Const mandatory
-ObjectReference Property mySoundMarker Auto Const mandatory
-ObjectReference Property MasterDummy Auto Const mandatory
-wwiseevent Property sTurning Auto Const mandatory
-Int Property iCurrentPosition = 1 Auto
+ObjectReference Property Ring Mandatory Const Auto
+ObjectReference Property OtherRing1 Mandatory Const Auto
+ObjectReference Property OtherRing2 Mandatory Const Auto
+ObjectReference Property mySoundMarker Mandatory Const Auto
+ObjectReference Property MasterDummy Mandatory Const Auto
 
-;-- Functions ---------------------------------------
+WwiseEvent Property sTurning Mandatory Const Auto
+
+int Property iCurrentPosition = 1 Auto
+
+auto State FirstPosition
+    Event OnActivate(ObjectReference akActionRef)
+        iCurrentPosition = 2
+        GotoState("Waiting")
+        ;ShrinkOtherRings()
+        Ring.TranslateToRef(SecondPositionMarker, 20.0, 20)
+        Shake()
+        sTurning.Play(mySoundMarker)
+        utility.Wait(4.5)
+        ;GrowOtherRings()
+        GotoState("SecondPosition")
+    EndEvent
+EndState
+State SecondPosition
+    Event OnActivate(ObjectReference akActionRef)
+        iCurrentPosition = 3
+        GotoState("Waiting")
+        ;ShrinkOtherRings()
+        Ring.TranslateToRef(ThirdPositionMarker, 20.0, 20)
+        Shake()
+        sTurning.Play(mySoundMarker)
+        utility.Wait(4.5)
+        ;GrowOtherRings()
+        GotoState("ThirdPosition")
+    EndEvent   
+EndState
+State ThirdPosition
+    Event OnActivate(ObjectReference akActionRef)
+        iCurrentPosition = 4
+        GotoState("Waiting")
+        ;ShrinkOtherRings()
+        Ring.TranslateToRef(FourthPositionMarker, 20.0, 20)
+        Shake()
+        sTurning.Play(mySoundMarker)
+        utility.Wait(4.5)
+        ;GrowOtherRings()
+        GotoState("FourthPosition")
+    EndEvent 
+EndState
+State FourthPosition
+    Event OnActivate(ObjectReference akActionRef)
+        iCurrentPosition = 1
+        GotoState("Waiting")
+        ;ShrinkOtherRings()
+        Ring.TranslateToRef(FirstPositionMarker, 20.0, 20)
+        Shake()
+        sTurning.Play(mySoundMarker)
+        utility.Wait(4.5)
+        ;GrowOtherRings()
+        GotoState("FirstPosition")
+    EndEvent 
+EndState
+
+State Waiting
+    ;do nothing
+EndState
 
 Function Shake()
-  Game.ShakeCamera(None, 0.200000003, 3.0)
+    Game.ShakeCamera(none, 0.2, 3)
+;	Game.ShakeController(0.2, 0.2, 3)
 EndFunction
 
 Function ShrinkOtherRings()
-  OtherRing1.SetScale(0.980000019)
-  OtherRing2.SetScale(0.980000019)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.959999979)
-  OtherRing2.SetScale(0.959999979)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.939999998)
-  OtherRing2.SetScale(0.939999998)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.920000017)
-  OtherRing2.SetScale(0.920000017)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.899999976)
-  OtherRing2.SetScale(0.899999976)
-  Utility.Wait(0.050000001)
+    OtherRing1.SetScale(0.98)
+    OtherRing2.SetScale(0.98)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.96)
+    OtherRing2.SetScale(0.96)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.94)
+    OtherRing2.SetScale(0.94)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.92)
+    OtherRing2.SetScale(0.92)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.9)
+    OtherRing2.SetScale(0.9)
+    utility.Wait(0.05)
 EndFunction
 
 Function GrowOtherRings()
-  OtherRing1.SetScale(0.920000017)
-  OtherRing2.SetScale(0.920000017)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.939999998)
-  OtherRing2.SetScale(0.939999998)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.959999979)
-  OtherRing2.SetScale(0.959999979)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(0.980000019)
-  OtherRing2.SetScale(0.980000019)
-  Utility.Wait(0.050000001)
-  OtherRing1.SetScale(1.0)
-  OtherRing2.SetScale(1.0)
-  Utility.Wait(0.050000001)
+    OtherRing1.SetScale(0.92)
+    OtherRing2.SetScale(0.92)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.94)
+    OtherRing2.SetScale(0.94)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.96)
+    OtherRing2.SetScale(0.96)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(0.98)
+    OtherRing2.SetScale(0.98)
+    utility.Wait(0.05)
+    OtherRing1.SetScale(1)
+    OtherRing2.SetScale(1)
+    utility.Wait(0.05)
 EndFunction
 
-;-- State -------------------------------------------
-Auto State FirstPosition
 
-  Event OnActivate(ObjectReference akActionRef)
-    iCurrentPosition = 2
-    Self.GotoState("Waiting")
-    Ring.TranslateToRef(SecondPositionMarker, 20.0, 20.0)
-    Self.Shake()
-    sTurning.Play(mySoundMarker, None, None)
-    Utility.Wait(4.5)
-    Self.GotoState("SecondPosition")
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-State FourthPosition
-
-  Event OnActivate(ObjectReference akActionRef)
-    iCurrentPosition = 1
-    Self.GotoState("Waiting")
-    Ring.TranslateToRef(FirstPositionMarker, 20.0, 20.0)
-    Self.Shake()
-    sTurning.Play(mySoundMarker, None, None)
-    Utility.Wait(4.5)
-    Self.GotoState("FirstPosition")
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-State SecondPosition
-
-  Event OnActivate(ObjectReference akActionRef)
-    iCurrentPosition = 3
-    Self.GotoState("Waiting")
-    Ring.TranslateToRef(ThirdPositionMarker, 20.0, 20.0)
-    Self.Shake()
-    sTurning.Play(mySoundMarker, None, None)
-    Utility.Wait(4.5)
-    Self.GotoState("ThirdPosition")
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-State ThirdPosition
-
-  Event OnActivate(ObjectReference akActionRef)
-    iCurrentPosition = 4
-    Self.GotoState("Waiting")
-    Ring.TranslateToRef(FourthPositionMarker, 20.0, 20.0)
-    Self.Shake()
-    sTurning.Play(mySoundMarker, None, None)
-    Utility.Wait(4.5)
-    Self.GotoState("FourthPosition")
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-State Waiting
-EndState

@@ -1,87 +1,104 @@
-ScriptName FFNewHomesteadR04MiscQuestScript Extends Quest
+Scriptname FFNewHomesteadR04MiscQuestScript extends Quest
 
-;-- Structs -----------------------------------------
-Struct IceSetupDatum
-  ReferenceAlias IceMarkerAlias
-  { The Ice Marker Alias }
-  ReferenceAlias IceAlias
-  { The Ice Alias }
-  ReferenceAlias TurbineAlias
-  { The Turbine Alias }
-EndStruct
+ActorValue Property ProduceUses Mandatory Const Auto
+Keyword Property LinkCustom01 Mandatory Const Auto
+ReferenceAlias[] Property AllIceRefs Mandatory Const Auto
+RefCollectionAlias Property LightEnableMarkers Mandatory Const Auto
+RefCollectionAlias Property AllTurbines Mandatory Const Auto
 
-
-;-- Variables ---------------------------------------
 Bool bQuestactive = False
 
-;-- Properties --------------------------------------
-ActorValue Property ProduceUses Auto Const mandatory
-Keyword Property LinkCustom01 Auto Const mandatory
-ReferenceAlias[] Property AllIceRefs Auto Const mandatory
-RefCollectionAlias Property LightEnableMarkers Auto Const mandatory
-RefCollectionAlias Property AllTurbines Auto Const mandatory
-ffnewhomesteadr04miscquestscript:icesetupdatum[] Property IceSetupData Auto Const
+struct IceSetupDatum
+	ReferenceAlias IceMarkerAlias
+	{The Ice Marker Alias}
+
+    ReferenceAlias IceAlias
+	{The Ice Alias}
+
+	ReferenceAlias TurbineAlias
+	{The Turbine Alias}
+endStruct
+
+IceSetupDatum[] property IceSetupData auto Const
 { array of data for ice/Markers/turbines }
 
-;-- Functions ---------------------------------------
 
+
+;Register all the active ice refs so that we can tell if the player clears them. Also, check to see if the player has already cleared any ice already.
 Function RegisterIce()
-  Self.ResetTurbines()
-  Self.SetupBrokenTurbines()
-  Int I = 0
-  Int iCount = AllIceRefs.Length
-  While I < iCount
-    ObjectReference myIce = AllIceRefs[I].GetRef()
-    Self.RegisterForActorValueLessThanEvent(myIce, ProduceUses, 1.0)
-    If myIce.GetValue(ProduceUses) < 1.0
-      Self.IceIsCleared(myIce, ProduceUses)
-    EndIf
-    I += 1
-  EndWhile
+    ;Reset the turbines to their default working state
+    ResetTurbines()
+    ;Setup the broken turbines
+    SetupBrokenTurbines()
+
+    Int i
+    Int iCount = AllIceRefs.Length
+
+    While i < iCount
+        ObjectReference myIce = AllIceRefs[i].GetRef()
+        ;If there are any issues with the ProduceUses value, see GEN-331086
+        RegisterForActorValueLessThanEvent(myIce, ProduceUses, 1)
+        If myIce.GetValue(ProduceUses) < 1
+            IceIsCleared(myIce, ProduceUses)
+        EndIf
+        i+=1
+    EndWhile
 EndFunction
 
+;Reset the turbines to their default working state
 Function ResetTurbines()
-  Int I = 0
-  Int iCount = AllTurbines.GetCount()
-  While I < iCount
-    ObjectReference myTurbine = AllTurbines.GetAt(I)
-    myTurbine.PlayAnimation("StateB_Idle")
-    I += 1
-  EndWhile
+    Int i
+    Int iCount = AllTurbines.GetCount()
+    While i < iCount
+	    ObjectReference myTurbine = AllTurbines.GetAt(i)
+	    myTurbine.PlayAnimation("StateB_Idle")
+	    i += 1
+    EndWhile
 EndFunction
 
+;The turbines which are linked to ice on them will be put in their "broken" state.
 Function SetupBrokenTurbines()
-  Int I = 0
-  Int iLength = IceSetupData.Length
-  While I < iLength
-    ObjectReference myMarker = IceSetupData[I].IceMarkerAlias.GetRef()
-    ObjectReference myLinkedTurbine = myMarker.GetLinkedRef(None)
-    If myLinkedTurbine != None
-      IceSetupData[I].TurbineAlias.ForceRefTo(myLinkedTurbine)
-      myLinkedTurbine.PlayAnimation("StateC_Play")
-    EndIf
-    I += 1
-  EndWhile
+    Int i
+    Int iLength = IceSetupData.Length
+    While i < iLength
+        ObjectReference myMarker = IceSetupData[i].IceMarkerAlias.GetRef()
+       
+        ObjectReference myLinkedTurbine = myMarker.GetLinkedRef()
+        If myLinkedTurbine != None
+            IceSetupData[i].TurbineAlias.ForceRefTo(myLinkedTurbine)
+            myLinkedTurbine.PlayAnimation("StateC_Play")
+        EndIf
+
+        i += 1
+    EndWhile
 EndFunction
+
+
 
 Function ChangeMiscBool()
-  bQuestactive = True
+    bQuestActive = True
 EndFunction
 
+
+;When the player clears the ice, put the turbine into its normal spinning animation.
 Function IceIsCleared(ObjectReference akObjRef, ActorValue akActorValue)
-  If bQuestactive == False
-    ObjectReference myLinkedTurbine = akObjRef.GetLinkedRef(LinkCustom01)
-    If myLinkedTurbine != None
-      myLinkedTurbine.PlayAnimation("Play01")
+    If bQuestActive == False
+        Debug.Trace("The actor value" + akActorValue + " on " + akObjRef + " has changed to " + akObjRef.GetValue(akActorValue))
+        ObjectReference myLinkedTurbine = akObjRef.GetLinkedRef(LinkCustom01)
+        If myLinkedTurbine != None
+            myLinkedTurbine.PlayAnimation("Play01")
+        EndIf
+        akObjRef.Disable()
     EndIf
-    akObjRef.Disable(False)
-  EndIf
 EndFunction
 
+
+;When the quest starts, Register all the active Ice refs. Also, Enable the Flickering Light EnableMarkers so that the lights start to flicker.
 Event OnQuestInit()
-  LightEnableMarkers.EnableAll(False)
+    LightEnableMarkers.EnableAll()
 EndEvent
 
+
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  Self.IceIsCleared(akObjRef, akActorValue)
+    IceIsCleared(akObjRef, akActorValue)
 EndEvent

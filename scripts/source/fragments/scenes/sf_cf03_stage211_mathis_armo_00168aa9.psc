@@ -1,24 +1,35 @@
-ScriptName Fragments:Scenes:SF_CF03_Stage211_Mathis_Armo_00168AA9 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_CF03_Stage211_Mathis_Armo_00168AA9 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_CF03_ArmoryWeaponCase Auto Const
-ReferenceAlias Property Alias_CF03_ArmoryWeaponCaseCollision Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  ObjectReference weaponCase = Alias_CF03_ArmoryWeaponCase.GetRef()
-  weaponCase.BlockActivation(True, True)
+;BEGIN CODE
+ObjectReference weaponCase = Alias_CF03_ArmoryWeaponCase.GetRef()
+weaponCase.BlockActivation(True, True)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_03_Begin
 Function Fragment_Phase_03_Begin()
-  ObjectReference weaponCase = Alias_CF03_ArmoryWeaponCase.GetRef()
-  weaponCase.Unlock(False)
-  weaponCase.SetOpen(True)
+;BEGIN CODE
+ObjectReference weaponCase = Alias_CF03_ArmoryWeaponCase.GetRef()
+weaponCase.Unlock()
+weaponCase.SetOpen(True)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_05_Begin
 Function Fragment_Phase_05_Begin()
-  Self.GetOwningQuest().SetStageNoWait(213)
+;BEGIN CODE
+GetOwningQuest().SetStageNoWait(213)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_CF03_ArmoryWeaponCase Auto Const
+
+ReferenceAlias Property Alias_CF03_ArmoryWeaponCaseCollision Auto Const

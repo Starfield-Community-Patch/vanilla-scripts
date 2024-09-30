@@ -1,124 +1,209 @@
-ScriptName Fragments:Quests:QF_City_NewAtlantis_Z_Partin_000D5430 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_NewAtlantis_Z_Partin_000D5430 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property CreditGlobal Auto Const mandatory
-Book Property UC_NA_Z_PartingGift_Book Auto Const mandatory
-ReferenceAlias Property Alias_Letter Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-ReferenceAlias Property Alias_Trigger Auto Const mandatory
-ReferenceAlias Property Alias_Zawadi Auto Const mandatory
-ReferenceAlias Property Alias_Hadiyah Auto Const mandatory
-ReferenceAlias Property Alias_Chair Auto Const mandatory
-Scene Property City_NewAtlantis_Z_PartingGift_ZawadiHaddie Auto Const mandatory
-ReferenceAlias Property Alias_Couch Auto Const mandatory
-ReferenceAlias Property Alias_Railing60 Auto Const mandatory
-ActorBase Property UC_CY_HaddieGustavsson Auto Const mandatory
-ActorBase Property UC_NA_Zawadi Auto Const mandatory
-ReferenceAlias Property Alias_Railing90z Auto Const mandatory
-ReferenceAlias Property Alias_Railing90h Auto Const mandatory
-ObjectReference Property XmarkerHaddie Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Game.GetPlayer().MoveTo(Alias_Zawadi.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+Game.GetPlayer().MoveTo(Alias_Zawadi.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  City_NewAtlantis_Z_PartingGift_ZawadiHaddie.Start()
-  Alias_Trigger.GetRef().DisableNoWait(False)
+;BEGIN CODE
+City_NewAtlantis_Z_PartingGift_ZawadiHaddie.Start()
+Alias_Trigger.GetRef().DisableNoWait()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0004_Item_00
 Function Fragment_Stage_0004_Item_00()
-  If !Self.GetStageDone(30)
-    Self.SetObjectiveFailed(10, True)
-    Self.SetStage(6)
-  EndIf
+;BEGIN CODE
+if !GetStageDone(30)
+    SetObjectiveFailed(10)
+    SetStage(6)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0007_Item_00
 Function Fragment_Stage_0007_Item_00()
-  Alias_Hadiyah.GetRef().DisableNoWait(False)
-  Alias_Zawadi.GetRef().DisableNoWait(False)
-  Self.Stop()
+;BEGIN CODE
+Alias_Hadiyah.GetRef().DisableNoWait()
+Alias_Zawadi.GetRef().DisableNoWait()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  ObjectReference PlayerRef = Game.GetPlayer() as ObjectReference
-  ObjectReference QuestItem = PlayerRef.PlaceAtMe(UC_NA_Z_PartingGift_Book as Form, 1, False, False, True, None, None, True)
-  PlayerRef.AddItem(Credits as Form, 1000, False)
-  Alias_Letter.ForceRefTo(QuestItem)
-  PlayerRef.AddItem(QuestItem as Form, 1, False)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+ObjectReference PlayerRef = Game.GetPlayer()
+ObjectReference QuestItem = PlayerRef.PlaceAtMe(UC_NA_Z_PartingGift_Book)
+
+PlayerRef.AddItem(Credits, 1000)
+Alias_Letter.ForceRefTo(QuestItem)
+PlayerRef.AddItem(QuestItem)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Game.GetPlayer().RemoveItem(UC_NA_Z_PartingGift_Book as Form, 1, False, None)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+Game.GetPlayer().RemoveItem(UC_NA_Z_PartingGift_Book)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0039_Item_00
 Function Fragment_Stage_0039_Item_00()
-  If !Self.GetStageDone(2)
-    Self.SetStage(2)
-  EndIf
+;BEGIN CODE
+if !GetStageDone(2)
+    SetStage(2)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Actor ZawadiRef = Alias_Zawadi.GetActorRef()
-  Actor HadiRef = Alias_Hadiyah.GetActorRef()
-  ZawadiRef.MoveTo(Alias_Chair.GetRef(), 0.0, 0.0, 0.0, True, False)
-  ZawadiRef.EvaluatePackage(False)
-  HadiRef.MoveTo(XmarkerHaddie, 0.0, 0.0, 0.0, True, False)
-  HadiRef.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+Actor ZawadiRef = Alias_Zawadi.GetActorRef()
+Actor HadiRef = Alias_Hadiyah.GetActorRef()
 
+ZawadiRef.Moveto(Alias_Chair.GetRef())
+ZawadiRef.EvaluatePackage()
+
+HadiRef.MoveTo(XmarkerHaddie)
+HadiRef.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0055_Item_00
 Function Fragment_Stage_0055_Item_00()
-  City_NewAtlantis_Z_PartingGift_ZawadiHaddie.Start()
+;BEGIN CODE
+City_NewAtlantis_Z_PartingGift_ZawadiHaddie.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  ObjectReference HaddieRef = Alias_Hadiyah.GetRef()
-  ObjectReference ZawadiRef = Alias_Zawadi.GetRef()
-  ObjectReference HRailRef = Alias_Railing60.GetRef()
-  ObjectReference ZRailRef = Alias_Couch.GetRef()
-  HRailRef.SetActorOwner(UC_CY_HaddieGustavsson, False)
-  ZRailRef.SetActorOwner(UC_NA_Zawadi, False)
-  ZawadiRef.MoveTo(ZRailRef, 0.0, 0.0, 0.0, True, False)
-  HaddieRef.MoveTo(HRailRef, 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+ObjectReference HaddieRef = Alias_Hadiyah.GetRef()
+ObjectReference ZawadiRef = Alias_Zawadi.GetRef()
+ObjectReference HRailRef = Alias_Railing60.GetRef()
+ObjectReference ZRailRef = Alias_Couch.GetRef()
 
+HRailRef.SetActorOwner(UC_CY_HaddieGustavsson)
+ZRailRef.SetActorOwner(UC_NA_Zawadi)
+
+ZawadiRef.MoveTo(ZRailRef)
+HaddieRef.MoveTo(HRailRef)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  ObjectReference HRailRef = Alias_Railing60.GetRef()
-  ObjectReference ZRailRef = Alias_Couch.GetRef()
-  HRailRef.SetActorOwner(None, False)
-  ZRailRef.SetActorOwner(None, False)
-EndFunction
+;BEGIN CODE
+ObjectReference HRailRef = Alias_Railing60.GetRef()
+ObjectReference ZRailRef = Alias_Couch.GetRef()
 
+HRailRef.SetActorOwner(None)
+ZRailRef.SetActorOwner(None)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0075_Item_00
 Function Fragment_Stage_0075_Item_00()
-  City_NewAtlantis_Z_PartingGift_ZawadiHaddie.Start()
+;BEGIN CODE
+City_NewAtlantis_Z_PartingGift_ZawadiHaddie.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0080_Item_00
 Function Fragment_Stage_0080_Item_00()
-  ObjectReference HaddieRef = Alias_Hadiyah.GetRef()
-  ObjectReference ZawadiRef = Alias_Zawadi.GetRef()
-  ObjectReference HRailRef = Alias_Railing90h.GetRef()
-  ObjectReference ZRailRef = Alias_Railing90z.GetRef()
-  ZawadiRef.MoveTo(ZRailRef, 0.0, 0.0, 0.0, True, False)
-  HaddieRef.MoveTo(HRailRef, 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+ObjectReference HaddieRef = Alias_Hadiyah.GetRef()
+ObjectReference ZawadiRef = Alias_Zawadi.GetRef()
+ObjectReference HRailRef = Alias_Railing90h.GetRef()
+ObjectReference ZRailRef = Alias_Railing90z.GetRef()
 
+ZawadiRef.MoveTo(ZRailRef)
+HaddieRef.MoveTo(HRailRef)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Alias_Zawadi.GetRef().DisableNoWait(False)
-  Alias_Zawadi.GetRef().Delete()
+;BEGIN CODE
+Alias_Zawadi.GetRef().DisableNoWait()
+Alias_Zawadi.GetRef().Delete()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.Stop()
+;BEGIN CODE
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.SetObjectiveSkipped(10)
-  Self.SetObjectiveSkipped(20)
-  Self.Stop()
+;BEGIN CODE
+SetObjectiveSkipped(10)
+SetObjectiveSkipped(20)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property CreditGlobal Auto Const Mandatory
+
+Book Property UC_NA_Z_PartingGift_Book Auto Const Mandatory
+
+ReferenceAlias Property Alias_Letter Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+ReferenceAlias Property Alias_Trigger Auto Const Mandatory
+
+ReferenceAlias Property Alias_Zawadi Auto Const Mandatory
+
+ReferenceAlias Property Alias_Hadiyah Auto Const Mandatory
+
+ReferenceAlias Property Alias_Chair Auto Const Mandatory
+
+Scene Property City_NewAtlantis_Z_PartingGift_ZawadiHaddie Auto Const Mandatory
+
+ReferenceAlias Property Alias_Couch Auto Const Mandatory
+
+ReferenceAlias Property Alias_Railing60 Auto Const Mandatory
+
+ActorBase Property UC_CY_HaddieGustavsson Auto Const Mandatory
+
+ActorBase Property UC_NA_Zawadi Auto Const Mandatory
+
+ReferenceAlias Property Alias_Railing90z Auto Const Mandatory
+
+ReferenceAlias Property Alias_Railing90h Auto Const Mandatory
+
+ObjectReference Property XmarkerHaddie Auto Const Mandatory

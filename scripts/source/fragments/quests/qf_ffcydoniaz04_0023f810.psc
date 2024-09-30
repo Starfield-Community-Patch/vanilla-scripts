@@ -1,36 +1,54 @@
-ScriptName Fragments:Quests:QF_FFCydoniaZ04_0023F810 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFCydoniaZ04_0023F810 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property StackOfDrawings Auto Const mandatory
-Quest Property FFCydoniaZ04Misc Auto Const mandatory
-RefCollectionAlias Property Alias_Walls Auto Const mandatory
-Quest Property FFCydoniaZ04Posters Auto Const mandatory
-Message Property FFCydoniaR04_SpaceFrogRecipe_MSG Auto Const mandatory
-ActorValue Property FFCydoniaZ04_ForeknowledgeAV Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  If FFCydoniaZ04Misc.IsRunning()
-    FFCydoniaZ04Misc.SetStage(1000)
-  EndIf
-  Alias_Walls.EnableAll(False)
-  Self.SetObjectiveDisplayed(100, True, False)
-  Game.GetPlayer().AddItem(StackOfDrawings.GetRef() as Form, 1, False)
-EndFunction
+;BEGIN CODE
+;Complete the Misc Pointer Quest if it's still running.
+If FFCydoniaZ04Misc.IsRunning()
+	FFCydoniaZ04Misc.SetStage(1000)
+EndIf
 
+Alias_Walls.EnableAll()
+
+SetObjectiveDisplayed(100)
+Game.GetPlayer().AddItem(StackOfDrawings.GetRef())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Game.GetPlayer().RemoveItem(StackOfDrawings.GetRef() as Form, 1, False, None)
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(200, True, False)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(StackOfDrawings.GetRef())
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  Game.GetPlayer().SetValue(FFCydoniaZ04_ForeknowledgeAV, 1.0)
-  FFCydoniaZ04Posters.Start()
-  FFCydoniaR04_SpaceFrogRecipe_MSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Game.GetPlayer().SetValue(FFCydoniaZ04_ForeknowledgeAV, 1)
+FFCydoniaZ04Posters.Start()
+FFCydoniaR04_SpaceFrogRecipe_MSG.Show()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property StackOfDrawings Auto Const Mandatory
+
+Quest Property FFCydoniaZ04Misc Auto Const Mandatory
+
+RefCollectionAlias Property Alias_Walls Auto Const Mandatory
+
+Quest Property FFCydoniaZ04Posters Auto Const Mandatory
+
+Message Property FFCydoniaR04_SpaceFrogRecipe_MSG Auto Const Mandatory
+
+ActorValue Property FFCydoniaZ04_ForeknowledgeAV Auto Const Mandatory

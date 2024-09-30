@@ -1,1 +1,1 @@
-ScriptName Action Extends Form Native hidden
+Scriptname Action extends Form Native Hidden

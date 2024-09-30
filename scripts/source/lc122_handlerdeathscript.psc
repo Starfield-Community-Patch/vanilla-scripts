@@ -1,10 +1,8 @@
-ScriptName LC122_HandlerDeathScript Extends Actor Const
-
-;-- Functions ---------------------------------------
+Scriptname LC122_HandlerDeathScript extends Actor Const
 
 Event OnDeath(ObjectReference akKiller)
-  If akKiller == Game.GetPlayer() as ObjectReference
-    ObjectReference enableMarker = Self.GetLinkedRef(None)
-    enableMarker.Disable(False)
-  EndIf
-EndEvent
+  if (akKiller == Game.GetPlayer())
+	ObjectReference enableMarker = GetLinkedRef()
+	enableMarker.Disable()
+  endIf
+endEvent

@@ -1,16 +1,18 @@
-ScriptName TestGym_FXSeq_Control Extends ObjectReference
-{ Runs an FX Seq on activate }
+Scriptname TestGym_FXSeq_Control extends ObjectReference 
+{Runs an FX Seq on activate}
 
-;-- Variables ---------------------------------------
+ObjectReference Property P_TestGym_FXSeq_ScriptControl Auto Const Mandatory
+;String Property SeqName = "TestScriptControl" Auto 
+String Property SeqName = "TestImodSeq" Auto 
 
-;-- Properties --------------------------------------
-ObjectReference Property P_TestGym_FXSeq_ScriptControl Auto Const mandatory
-String Property SeqName = "TestImodSeq" Auto
 
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  P_TestGym_FXSeq_ScriptControl.StartSequence(SeqName, True, 1.0)
-  Utility.Wait(5.0)
-  P_TestGym_FXSeq_ScriptControl.StopSequence(SeqName)
+ 	 Debug.Trace("Playing seq " + SeqName )
+
+	P_TestGym_FXSeq_ScriptControl.StartSequence(SeqName, true)
+	Utility.Wait(5)                                 ; wait while the sequence is playing.
+	P_TestGym_FXSeq_ScriptControl.StopSequence(SeqName)
 EndEvent
+
+

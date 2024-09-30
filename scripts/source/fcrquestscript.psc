@@ -1,17 +1,16 @@
-ScriptName FCRQuestScript Extends Quest
+Scriptname FCRQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+GlobalVariable Property FCRMissionCounter Auto Const Mandatory
+Quest Property FCR01 Auto Const Mandatory
 
-;-- Properties --------------------------------------
-GlobalVariable Property FCRMissionCounter Auto Const mandatory
-Quest Property FCR01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+; Called when a FC radiant mission is complete
 Function FCRMissionComplete()
-  FCRMissionCounter.Mod(1.0)
-  If FCRMissionCounter.GetValue() >= 3.0 && !FCR01.IsRunning()
-    FCR01.Start()
-    FCRMissionCounter.SetValue(0.0)
-  EndIf
+    FCRMissionCounter.Mod(1)    ; Increment the counter
+
+    ; Every three missions you do - you get a chance to kill a Crime Boss
+    if ( FCRMissionCounter.GetValue() >= 3 && !FCR01.IsRunning() )
+        FCR01.Start()                       ; Then start up "One Riot, One Ranger"
+        FCRMissionCounter.SetValue(0)       ; And reset the counter to 0
+    EndIf
 EndFunction
+

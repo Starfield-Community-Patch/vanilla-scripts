@@ -1,21 +1,31 @@
-ScriptName Fragments:Quests:QF_RAD03_0021710A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_RAD03_0021710A Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property Alias_MissionBoardLoc Auto Const mandatory
-Keyword Property Mission_LocationPriorityCargoMission Auto Const mandatory
-missionparentscript Property MB_Parent Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  rad03questscript kmyQuest = __temp as rad03questscript
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN AUTOCAST TYPE RAD03QuestScript
+Quest __temp = self as Quest
+RAD03QuestScript kmyQuest = __temp as RAD03QuestScript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+LocationAlias Property Alias_MissionBoardLoc Auto Const Mandatory
+
+Keyword Property Mission_LocationPriorityCargoMission Auto Const Mandatory
+
+missionparentscript Property MB_Parent Auto Const Mandatory

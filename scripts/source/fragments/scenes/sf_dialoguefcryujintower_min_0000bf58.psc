@@ -1,18 +1,25 @@
-ScriptName Fragments:Scenes:SF_DialogueFCRyujinTower_Min_0000BF58 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_DialogueFCRyujinTower_Min_0000BF58 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property LC044_DRONEDemoRunning Auto Const mandatory
-ReferenceAlias Property DemoMiniBot Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  DemoMiniBot.GetActorRef().SetUnconscious(False)
+;BEGIN CODE
+DemoMiniBot.GetActorRef().SetUnconscious(False)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  LC044_DRONEDemoRunning.SetValue(0.0)
-  DemoMiniBot.GetActorRef().SetUnconscious(True)
+;BEGIN CODE
+LC044_DRONEDemoRunning.SetValue(0)
+DemoMiniBot.GetActorRef().SetUnconscious(True)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property LC044_DRONEDemoRunning Auto Const Mandatory
+
+ReferenceAlias Property DemoMiniBot Auto Const

@@ -1,7 +1,5 @@
-ScriptName UC01_ShipSim_TargetDeathScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname UC01_ShipSim_TargetDeathScript extends ReferenceAlias
 
 Event OnDeath(ObjectReference akKiller)
-  (Self.GetOwningQuest() as uc01_shipsimulationquestscript).EnemyDefeated()
+       (GetOwningQuest() as UC01_ShipSimulationQuestScript).EnemyDefeated()
 EndEvent

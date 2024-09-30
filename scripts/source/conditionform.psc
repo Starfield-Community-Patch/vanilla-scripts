@@ -1,5 +1,4 @@
-ScriptName ConditionForm Extends Form Native hidden
+Scriptname ConditionForm extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Bool Function IsTrue(ObjectReference akRefObject, ObjectReference akTargetObject) Native
+; IsTrue this condition function on on a refobject and target object returns true if the condition is true
+bool Function IsTrue(ObjectReference akRefObject = None, ObjectReference akTargetObject = None) native

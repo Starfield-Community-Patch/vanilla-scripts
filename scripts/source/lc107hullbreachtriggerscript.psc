@@ -1,50 +1,43 @@
-ScriptName LC107HullBreachTriggerScript Extends ObjectReference
-{ Script for the Hull Breach Triggers in LC107. }
+Scriptname LC107HullBreachTriggerScript extends ObjectReference
+{Script for the Hull Breach Triggers in LC107.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group TriggerProperties
-  Float Property MinTimeBeforeSubsequentBreach Auto Const
-  Float Property MaxTimeBeforeSubsequentBreach Auto Const
+	float property MinTimeBeforeSubsequentBreach Auto Const
+	float property MaxTimeBeforeSubsequentBreach Auto Const
 EndGroup
 
 
-;-- Functions ---------------------------------------
+Auto State Waiting
+	Event OnTriggerEnter(ObjectReference akTriggerRef)
+		TriggerBreaches()
+	EndEvent
 
-Function TriggerBreaches()
-  ; Empty function
-EndFunction
+	Function TriggerBreaches()
+		GoToState("Done")
+		LC107HullBreachScript[] linkedBreaches = GetLinkedRefChain() as LC107HullBreachScript[]
+		Var[] akArgs = new Var[1]
+		akArgs[0] = False
+		float delayBeforeNextBreach = 0
 
-;-- State -------------------------------------------
+		int i = 0
+		While (i < linkedBreaches.Length)
+			if (delayBeforeNextBreach > 0)
+				Utility.Wait(delayBeforeNextBreach)
+			EndIf
+			if (linkedBreaches[i] != None)
+				linkedBreaches[i].CallFunctionNoWait("TriggerBreach", akArgs)
+				if (MinTimeBeforeSubsequentBreach > 0)
+					delayBeforeNextBreach = Utility.RandomFloat(MinTimeBeforeSubsequentBreach, MaxTimeBeforeSubsequentBreach)
+				EndIf
+			EndIf
+			i = i + 1
+		EndWhile
+	EndFunction
+EndState
+
 State Done
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
 
-  Function TriggerBreaches()
-    Self.GoToState("Done")
-    lc107hullbreachscript[] linkedBreaches = Self.GetLinkedRefChain(None, 100) as lc107hullbreachscript[]
-    Var[] akArgs = new Var[1]
-    akArgs[0] = False as Var
-    Float delayBeforeNextBreach = 0.0
-    Int I = 0
-    While I < linkedBreaches.Length
-      If delayBeforeNextBreach > 0.0
-        Utility.Wait(delayBeforeNextBreach)
-      EndIf
-      If linkedBreaches[I] != None
-        linkedBreaches[I].CallFunctionNoWait("TriggerBreach", akArgs)
-        If MinTimeBeforeSubsequentBreach > 0.0
-          delayBeforeNextBreach = Utility.RandomFloat(MinTimeBeforeSubsequentBreach, MaxTimeBeforeSubsequentBreach)
-        EndIf
-      EndIf
-      I += 1
-    EndWhile
-  EndFunction
-
-  Event OnTriggerEnter(ObjectReference akTriggerRef)
-    Self.TriggerBreaches()
-  EndEvent
-EndState
+Function TriggerBreaches()
+EndFunction

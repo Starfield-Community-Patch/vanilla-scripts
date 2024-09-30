@@ -1,18 +1,14 @@
-ScriptName DefaultAddToInstalledContentMenu Extends Quest
-{ A default script to add messages to the in-game Installed Content Menu. }
+Scriptname DefaultAddToInstalledContentMenu extends Quest  
+{A default script to add messages to the in-game Installed Content Menu.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property TheMessage Auto
+Message property TheMessage auto
 { The message to add to the Installed Content Menu. }
-FormList Property HelpManualInstalledContent Auto
+
+FormList property HelpManualInstalledContent auto
 { Auto-Fill }
 
-;-- Functions ---------------------------------------
-
 Event OnInit()
-  If HelpManualInstalledContent.Find(TheMessage as Form) < 0
-    HelpManualInstalledContent.AddForm(TheMessage as Form)
-  EndIf
-EndEvent
+    if HelpManualInstalledContent.Find(TheMessage) < 0
+        HelpManualInstalledContent.AddForm(TheMessage)
+    endif
+endEvent

@@ -1,16 +1,20 @@
-ScriptName Fragments:TopicInfos:TIF_CREW_EliteCrew_BettyHows_0004B4A9 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_CREW_EliteCrew_BettyHows_0004B4A9 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property BettyQuest Auto Const
-MiscObject Property Credits Auto Const
-GlobalVariable Property NPCDemandMoney_Medium Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  BettyQuest.SetStage(700)
-  Game.GetPlayer().RemoveItem(Credits as Form, NPCDemandMoney_Medium.GetValueInt(), False, None)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+BettyQuest.SetStage(700)
+Game.GetPlayer().RemoveItem(Credits, NPCDemandMoney_Medium.GetValueInt())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property BettyQuest Auto Const
+
+MiscObject Property Credits Auto Const
+
+GlobalVariable Property NPCDemandMoney_Medium Auto Const Mandatory

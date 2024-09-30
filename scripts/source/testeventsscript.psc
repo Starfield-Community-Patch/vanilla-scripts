@@ -1,31 +1,30 @@
-ScriptName TestEventsScript Extends ObjectReference
-{ sends out traces for several events }
+Scriptname TestEventsScript extends ObjectReference  
+{sends out traces for several events}
+import debug
 
-;-- Variables ---------------------------------------
 Actor Player
 
-;-- Functions ---------------------------------------
-
-Event OnCellAttach()
-  ; Empty function
-EndEvent
-
-Event OnCellDetach()
-  ; Empty function
-EndEvent
-
-Event OnTriggerEnter(ObjectReference akActionRef)
-  ; Empty function
-EndEvent
-
-Event OnTriggerLeave(ObjectReference akActionRef)
-  ; Empty function
-EndEvent
+Event OnLoad()
+	trace("========EVENT OnLoad: "+self+" ===========")
+	Player = game.GetPlayer()
+endEvent
 
 Event OnUnLoad()
-  ; Empty function
-EndEvent
+	trace("========EVENT OnUnLoad===========")
+endEvent
 
-Event OnLoad()
-  Player = Game.GetPlayer()
-EndEvent
+Event OnCellAttach()
+	trace("========EVENT OnCellAttach===========")
+endEvent
+
+Event OnCellDetach()
+	trace("========EVENT OnCellDetach===========")
+endEvent
+
+Event OnTriggerEnter(ObjectReference akActionRef)
+	trace("========EVENT OnTriggerEnter: "+akActionRef+" ===========")
+endEvent
+
+Event OnTriggerLeave(ObjectReference akActionRef)
+	trace("========EVENT OnTriggerLeave: "+akActionRef+" ===========")
+endEvent

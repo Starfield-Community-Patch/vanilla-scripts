@@ -1,15 +1,12 @@
-ScriptName Crew_LeadershipScript Extends Actor Const
-{ Attach this script to any actor with the Cew_Leadership perk }
+Scriptname Crew_LeadershipScript extends Actor Const
+{Attach this script to any actor with the Cew_Leadership perk}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property CrewSlotCost Auto Const mandatory
+ActorValue property CrewSlotCost auto const mandatory
 { will be set to CrewSlotCostValue on this actor OnInit }
-Int Property CrewSlotCostValue = -1 Auto Const
 
-;-- Functions ---------------------------------------
+int property CrewSlotCostValue = -1 auto Const
 
 Event OnInit()
-  Self.ModValue(CrewSlotCost, CrewSlotCostValue as Float)
+    ModValue(CrewSlotCost, CrewSlotCostValue)
 EndEvent
+

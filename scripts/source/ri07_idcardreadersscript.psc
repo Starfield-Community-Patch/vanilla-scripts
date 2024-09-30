@@ -1,21 +1,19 @@
-ScriptName RI07_IDCardReadersScript Extends RefCollectionAlias
+Scriptname RI07_IDCardReadersScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property iStageToSet Auto Const mandatory
-Int Property iPreReqStage Auto Const mandatory
-Int Property iTurnOffStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property iStageToSet Auto Const Mandatory
+Int Property iPreReqStage Auto Const Mandatory
+Int Property iTurnOffStage Auto Const Mandatory
 
 Event OnLoad(ObjectReference akSenderRef)
-  Self.RegisterForCustomEvent((akSenderRef as idcardreader) as ScriptObject, "idcardreader_IDReaderActivatedFailure")
+    RegisterForCustomEvent(akSenderRef as IDCardReader, "IDReaderActivatedFailure")
 EndEvent
 
-Event IDCardReader.IDReaderActivatedFailure(idcardreader akSender, Var[] kargs)
-  Quest CurrentQuest = Self.GetOwningQuest()
-  If CurrentQuest.GetStageDone(iPreReqStage) && !CurrentQuest.GetStageDone(iTurnOffStage)
-    CurrentQuest.SetStage(iStageToSet)
-  EndIf
+Event IDCardReader.IDReaderActivatedFailure(IDCardReader akSender, Var[] kargs)
+    
+    Quest CurrentQuest = GetOwningQuest()
+
+    If CurrentQuest.GetStageDone(iPreReqStage) && !CurrentQuest.GetStageDone(iTurnOffStage)
+        CurrentQuest.SetStage(iStageToSet)
+    EndIf
+
 EndEvent

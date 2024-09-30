@@ -1,22 +1,16 @@
-ScriptName OE_KT_FoodGiftFilter Extends ReferenceAlias
+Scriptname OE_KT_FoodGiftFilter extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  FormList Property ItemFilter Auto Const mandatory
-  Int Property StageToSet Auto Const mandatory
+    FormList Property ItemFilter Auto Const Mandatory
+    Int Property StageToSet Auto Const Mandatory
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnAliasInit()
-  Self.AddInventoryEventFilter(ItemFilter as Form)
+	AddInventoryEventFilter(ItemFilter)
 EndEvent
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If akSourceContainer == Game.GetPlayer() as ObjectReference
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+        if akSourceContainer == Game.GetPlayer()
+            GetOwningQuest().SetStage(StageToSet)
+        endif
 EndEvent

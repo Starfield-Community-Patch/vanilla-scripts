@@ -1,7 +1,4 @@
-ScriptName MissionBoardSupplyMarkerScript Extends ObjectReference
+Scriptname MissionBoardSupplyMarkerScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-resource Property myResource Auto hidden
+Resource property myResource auto hidden
 { set by quest }

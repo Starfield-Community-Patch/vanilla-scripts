@@ -1,34 +1,34 @@
-ScriptName City_AkilaLife05Script Extends Quest
+Scriptname City_AkilaLife05Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property ProduceUses Auto Const mandatory
+ActorValue Property ProduceUses Auto Const Mandatory
 Int Property RockCurrent Auto
 Int Property RockTotal Auto
-GlobalVariable Property AkilaLife05_RocksCurrent Auto Const mandatory
+GlobalVariable Property AkilaLife05_RocksCurrent Auto Const Mandatory
 RefCollectionAlias Property RocksCollection Auto Const
 
-;-- Functions ---------------------------------------
-
 Function RegisterRocks()
-  Int I = 0
-  Int iCount = RocksCollection.GetCount()
-  While I < iCount
-    Self.RegisterForActorValueLessThanEvent(RocksCollection.GetAt(I), ProduceUses, 1.0)
-    I += 1
-  EndWhile
+    ; The rocks are flora - and the way to track to see if they've been disabled is via registering an actor value event
+    Int i
+    Int iCount = RocksCollection.GetCount()
+    Debug.Trace("Starting registering rocks.")
+    While i < iCount
+        Debug.Trace("Rock added: " + RocksCollection.GetAt(i) )
+        RegisterForActorValueLessThanEvent(RocksCollection.GetAt(i), ProduceUses, 1)
+        i+=1
+    EndWhile    
 EndFunction
 
 Event OnQuestStarted()
-  Self.RegisterRocks()
+
+    RegisterRocks()
+
 EndEvent
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  akObjRef.Disable(False)
-  RockCurrent += 1
-  Self.ModObjectiveGlobal(1.0, AkilaLife05_RocksCurrent, 300, -1.0, True, True, True, False)
-  If RockCurrent >= RockTotal
-    Self.SetStage(300)
-  EndIf
+    akObjRef.Disable()
+    RockCurrent += 1
+    ModObjectiveGlobal(1, AkilaLife05_RocksCurrent, 300)
+    If RockCurrent >= RockTotal
+        SetStage(300)
+    EndIf
 EndEvent

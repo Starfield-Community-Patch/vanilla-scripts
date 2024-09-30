@@ -1,17 +1,22 @@
-ScriptName sq_outpostcreatestarstationscript Extends Quest
+Scriptname SQ_OutpostCreateStarstationScript extends Quest
 
-;-- Variables ---------------------------------------
+LocationAlias property planetLocation auto const mandatory
 
-;-- Properties --------------------------------------
-LocationAlias Property planetLocation Auto Const mandatory
-ReferenceAlias Property CreatedOrbitalMarker Auto Const mandatory
-ReferenceAlias Property CreatedOrbitalPatrolStart Auto Const mandatory
-ReferenceAlias Property CreatedOrbitalMapMarker Auto Const mandatory
-ReferenceAlias Property Starstation Auto Const mandatory
-RefCollectionAlias Property Ships Auto Const mandatory
+ReferenceAlias property CreatedOrbitalMarker auto const mandatory
 
-;-- Functions ---------------------------------------
+ReferenceAlias property CreatedOrbitalPatrolStart auto const mandatory
+
+ReferenceAlias property CreatedOrbitalMapMarker auto const mandatory
+
+ReferenceAlias property Starstation auto const mandatory
+
+RefCollectionAlias property Ships auto const mandatory
 
 Event OnQuestInit()
-  ; Empty function
+    debug.trace(self + " planetLocation=" + planetLocation.GetLocation())
+    debug.trace(self + " CreatedOrbitalMarker=" + CreatedOrbitalMarker.GetRef())
+    debug.trace(self + " CreatedOrbitalPatrolStart=" + CreatedOrbitalPatrolStart.GetRef())
+    debug.trace(self + " CreatedOrbitalMapMarker=" + CreatedOrbitalMapMarker.GetRef())
+    debug.trace(self + " Starstation=" + Starstation.GetRef())
 EndEvent
+

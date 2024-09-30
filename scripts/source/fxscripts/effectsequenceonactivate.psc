@@ -1,17 +1,14 @@
-ScriptName FXScripts:EffectSequenceOnActivate Extends ObjectReference Const default
-{ For any activator that you want to play a single animation each time it's activated. }
+Scriptname FXScripts:EffectSequenceOnActivate extends ObjectReference Default Const
+{For any activator that you want to play a single animation each time it's activated.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Required_Properties
-  String Property SequenceName = "Play01" Auto Const
-  { Effect Sequence to play when this is activated. }
+
+	string property SequenceName = "Play01" auto const
+	{Effect Sequence to play when this is activated.}
+
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  Self.playAnimation(SequenceName)
+	    playAnimation(SequenceName)
 EndEvent

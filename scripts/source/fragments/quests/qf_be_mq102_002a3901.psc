@@ -1,17 +1,20 @@
-ScriptName Fragments:Quests:QF_BE_MQ102_002A3901 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_BE_MQ102_002A3901 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Moara Auto Const mandatory
-ReferenceAlias Property Alias_CaptiveMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Actor MoaraREF = Alias_Moara.GetActorRef()
-  MoaraREF.Disable(False)
-  MoaraREF.EvaluatePackage(False)
-  MoaraREF.Moveto(Alias_CaptiveMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  MoaraREF.Enable(False)
+;BEGIN CODE
+Actor MoaraREF = Alias_Moara.GetActorRef()
+MoaraREF.Disable()
+MoaraREF.EvaluatePackage()
+MoaraREF.Moveto(Alias_CaptiveMarker.GetRef())
+MoaraREF.Enable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Moara Auto Const Mandatory
+
+ReferenceAlias Property Alias_CaptiveMarker Auto Const Mandatory

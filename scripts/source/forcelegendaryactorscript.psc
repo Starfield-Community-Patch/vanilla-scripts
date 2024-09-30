@@ -1,18 +1,13 @@
-ScriptName ForceLegendaryActorScript Extends Actor Const
+Scriptname ForceLegendaryActorScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-legendaryaliasquestscript Property LegendaryAliasQuest Auto Const mandatory
-
-;-- Functions ---------------------------------------
+LegendaryAliasQuestScript Property LegendaryAliasQuest Mandatory Const Auto
 
 Event OnLoad()
-  If Self.IsDead() == False
-    LegendaryAliasQuest.MakeLegendary(Self as Actor)
-  EndIf
+	if IsDead() == false
+		LegendaryAliasQuest.MakeLegendary(self)
+	endif
 EndEvent
 
 Event OnDeath(ObjectReference akKiller)
-  LegendaryAliasQuest.RemoveLegendary(Self as Actor)
+	LegendaryAliasQuest.RemoveLegendary(self)
 EndEvent

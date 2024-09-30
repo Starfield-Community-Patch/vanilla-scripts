@@ -1,7 +1,5 @@
-ScriptName LC133MarcoStarshipScript Extends SpaceshipReference
-
-;-- Functions ---------------------------------------
+Scriptname LC133MarcoStarshipScript extends SpaceshipReference
 
 Event OnLoad()
-  (Self as SpaceshipReference).SetExteriorLoadDoorInaccessible(False)
+    (self as SpaceshipReference).SetExteriorLoadDoorInaccessible(False)
 EndEvent

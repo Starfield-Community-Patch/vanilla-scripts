@@ -1,26 +1,39 @@
-ScriptName RL002PheremoneScript Extends ActiveMagicEffect
+Scriptname RL002PheremoneScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
-Faction Property FactionName Auto Const mandatory
-Float Property duration Auto Const
-ImageSpaceModifier Property ImageSpaceEnd Auto Const
-ImageSpaceModifier Property ImageSpaceStart Auto Const
+Faction Property FactionName Auto Const Mandatory
 
-;-- Functions ---------------------------------------
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
+EVENT OnEffectStart(Objectreference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
   akCaster.AddToFaction(FactionName)
   akCaster.StopCombat()
-  ImageSpaceStart.Apply(1.0)
-  Utility.Wait(15.0)
-  Utility.Wait(5.0)
-  ImageSpaceStart.Remove()
-  ImageSpaceEnd.Apply(1.0)
-  akCaster.RemoveFromFaction(FactionName)
-EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
+ Debug.Notification("start")
+ ImageSpaceStart.Apply()
+
+Utility.Wait(15)
+Debug.Notification("EFFECT ENDING SOON")
+Debug.Notification("EFFECT ENDING SOON")
+Debug.Notification("EFFECT ENDING SOON")
+
+
+Utility.Wait(5)
+
+
+   Debug.Notification("end")
+ ImageSpaceStart.Remove()
+  ImageSpaceEnd.Apply()
   akCaster.RemoveFromFaction(FactionName)
-EndEvent
+ENDEVENT
+
+
+
+EVENT OnEffectFinish(Objectreference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+   Debug.Notification("end")
+  akCaster.RemoveFromFaction(FactionName)
+ENDEVENT
+Float Property duration Auto Const
+
+ImageSpaceModifier Property ImageSpaceEnd Auto Const
+
+ImageSpaceModifier Property ImageSpaceStart Auto Const

@@ -1,32 +1,30 @@
-ScriptName DefaultAliasSetGroupFaction Extends ReferenceAlias default
-{ sets a group faction on the aliased actor }
+Scriptname DefaultAliasSetGroupFaction extends ReferenceAlias default
+{sets a group faction on the aliased actor}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Group Debug_Properties
-  Bool Property ShowTraces = False Auto Const
-  { (Default: false) If true, will trace to log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives. }
-EndGroup
-
-Faction Property GroupFaction Auto Const mandatory
+Faction Property GroupFaction Mandatory Const Auto
 { group faction to set on the aliased actor }
 
-;-- Functions ---------------------------------------
+Group Debug_Properties
+    Bool Property ShowTraces = false Auto Const
+    {(Default: false) If true, will trace to log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives.}
+EndGroup
 
 Event OnAliasInit()
-  Self.SetGroupFaction()
+	DefaultScriptFunctions.Trace(self, "OnAliasInit()", ShowTraces)
+    SetGroupFaction()
 EndEvent
 
-Event OnAliasChanged(ObjectReference akObject, Bool abRemove)
-  If abRemove == False
-    Self.SetGroupFaction()
-  EndIf
+Event OnAliasChanged(ObjectReference akObject, bool abRemove)
+	DefaultScriptFunctions.Trace(self, "OnAliasChanged() akObject=" + akObject + " abRemove=" + abRemove, ShowTraces)
+    if abRemove == false
+        SetGroupFaction()
+    endif
 EndEvent
 
 Function SetGroupFaction()
-  Actor actorRef = Self.GetActorReference()
-  If actorRef
-    actorRef.SetGroupFaction(GroupFaction)
-  EndIf
-EndFunction
+    Actor actorRef = GetActorReference()
+    if actorRef
+    	DefaultScriptFunctions.Trace(self, "SetGroupFaction() setting group faction " + GroupFaction + " on " + actorRef, ShowTraces)
+        actorRef.SetGroupFaction(GroupFaction)
+    endif
+endFunction

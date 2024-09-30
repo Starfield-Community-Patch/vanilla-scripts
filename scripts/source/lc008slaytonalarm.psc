@@ -1,24 +1,33 @@
-ScriptName LC008SlaytonAlarm Extends SecuritySystemScript Const
+Scriptname LC008SlaytonAlarm extends SecuritySystemScript Const
 
-;-- Variables ---------------------------------------
+Keyword Property LinkCustom02 Const Auto
+{Link chain to all the Security Gates}
 
-;-- Properties --------------------------------------
-Keyword Property LinkCustom02 Auto Const
-{ Link chain to all the Security Gates }
-Keyword Property LinkCustom03 Auto Const
-{ Link to alarm klaxon sound }
-Float Property AlarmSoundDuration = 10.0 Auto Const
-{ Desired duration of the alarm sound }
+Keyword Property LinkCustom03 Const Auto
+{Link to alarm klaxon sound}
 
-;-- Functions ---------------------------------------
+Float Property AlarmSoundDuration = 10.0 Const Auto
+{Desired duration of the alarm sound}
 
-Event OnTimer(Int aiTimerID)
-  ; Empty function
+Event SQ_ParentScript.SQ_AlarmTriggeredOn(SQ_ParentScript source, Var[] akArgs)
+    Location alarmLocation = akArgs[0] as Location
+    if alarmLocation == MyLocation
+        ;Close Gates
+        ;ObjectReference[] gates = GetLinkedRefChain(LinkCustom02)
+        ;int index = 0
+        ;While (index < gates.Length)
+        ;    gates[index].setopen(false)
+        ;    index += 1
+        ;EndWhile
+        ;Make alarm noises
+        Debug.Trace("Alarm Sound Started")
+        ;GetLinkedRef(LinkCustom03).Enable()
+        StartTimer(AlarmSoundDuration)
+    endif
 EndEvent
 
-Event SQ_ParentScript.SQ_AlarmTriggeredOn(sq_parentscript source, Var[] akArgs)
-  Location alarmLocation = akArgs[0] as Location
-  If alarmLocation == MyLocation
-    Self.StartTimer(AlarmSoundDuration, 0)
-  EndIf
+Event OnTimer(int aiTimerID)
+    ;GetLinkedRef(LinkCustom03).Disable()
+    debug.Trace("Alarm Sound Stopped")
 EndEvent
+

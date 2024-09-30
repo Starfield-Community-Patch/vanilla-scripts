@@ -1,27 +1,35 @@
-ScriptName TestNPCCycleFaction Extends ObjectReference Const
+Scriptname TestNPCCycleFaction extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+int Property teamFactionToChange = 1 auto Const
+{1. Red, 2. Blue}
 
-;-- Properties --------------------------------------
-Int Property teamFactionToChange = 1 Auto Const
-{ 1. Red, 2. Blue }
-FormList Property AllFactionFormList Auto Const mandatory
-{ Form List of FormLists, for complete list of factions }
+FormList Property AllFactionFormList auto mandatory	const	
+{Form List of FormLists, for complete list of factions}	
 
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference SpawnControllerFromLink = Self.GetLinkedRef(None)
-  If SpawnControllerFromLink
-    FormList oldFactionList = (SpawnControllerFromLink as testnpcarenascript).GetFactionFormList(teamFactionToChange)
-    Int currentIndex = AllFactionFormList.Find(oldFactionList as Form)
-    Int newIndex = 0
-    If currentIndex >= 0
-      If currentIndex != AllFactionFormList.GetSize() - 1
-        newIndex = currentIndex + 1
-      EndIf
-      FormList newFactionList = AllFactionFormList.GetAt(newIndex) as FormList
-      (SpawnControllerFromLink as testnpcarenascript).SetFactionToSpawn(newFactionList, teamFactionToChange)
-    EndIf
-  EndIf
+    ObjectReference SpawnControllerFromLink = self.GetLinkedRef()
+    if(SpawnControllerFromLink)
+        ;Get the current faction for the Red Team
+        FormList oldFactionList = (SpawnControllerFromLink as TestNPCArenaScript).GetFactionFormList(teamFactionToChange)
+        
+        ;Get the index of the current faction from the all factions list
+        int currentIndex = AllFactionFormList.Find(oldFactionList as Form)
+
+        ;Find the next faction in the allFactions list
+        int newIndex = 0
+        if(currentIndex >= 0)
+            if(currentIndex != (AllFactionFormList.GetSize() -1))
+                newIndex = currentIndex +1
+            endif
+            ;Get the faction from all factions list at the new index
+            FormList newFactionList = (AllFactionFormList.GetAt(newIndex) as FormList)
+
+            ;Set the faction for the team.
+            (SpawnControllerFromLink as TestNPCArenaScript).SetFactionToSpawn(newFactionList, teamFactionToChange)
+        else
+            ;Warning No Form found in AllFactionsList 
+        endif   
+    endif
 EndEvent
+

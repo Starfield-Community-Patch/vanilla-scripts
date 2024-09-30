@@ -1,139 +1,164 @@
-ScriptName ShipLiftActivator Extends ObjectReference conditional
-{ Handles raising and lowering of ship interior lift }
+Scriptname ShipLiftActivator extends ObjectReference Conditional
+{Handles raising and lowering of ship interior lift}
 
-;-- Variables ---------------------------------------
-ObjectReference player
+import debug
+import utility
 
-;-- Properties --------------------------------------
 Group AnimationName_Properties
-  String Property raiseAnim = "Stage2" Auto
-  { Animation to play when raising }
-  String Property lowerAnim = "Stage1" Auto
-  { Animation to play when lowering }
-  String Property raiseEvent = "TransitionComplete" Auto
-  { Raise event name - waits for this event before considering itself "raised" }
-  String Property lowerEvent = "TransitionComplete" Auto
-  { Lower event name - waits for this event before considering itself "lowered" }
-  String Property startRaiseAnim = "Stage2" Auto
-  { OnLoad calls this if the object starts in the raised state }
+	string property raiseAnim = "Stage2" auto
+	{Animation to play when raising}
+
+	string property lowerAnim = "Stage1" auto
+	{Animation to play when lowering}
+
+	string property raiseEvent = "TransitionComplete" auto
+	{Raise event name - waits for this event before considering itself "raised"}
+
+	string property lowerEvent = "TransitionComplete" auto
+	{Lower event name - waits for this event before considering itself "lowered"}
+
+	string property startRaiseAnim = "Stage2" auto
+	{OnLoad calls this if the object starts in the raised state}
 EndGroup
 
 Group Optional_Properties
-  Bool Property isRaised = False Auto conditional
-  { Set to TRUE to start raised. }
-  Bool Property doOnce = False Auto
-  { Set to TRUE to raise/lower on first trigger only. }
-  Bool Property shouldSetDefaultState = True Auto Const
-  { Should this use SetDefaultState? Set to False only for Activators with identical raise/lower events. }
-  Bool Property AllowInterrupt = False Auto
-  { Allow interrupts while animation? Default: FALSE }
-  Bool Property InvertCollision = False Auto
-  { Typically this will be False (DEFAULT).  The References LinkRef'd Chained with the TwoStateCollisionKeyword will typically be 
-	Disabled onOpen, and Enabled on Close.  If you want that functionality inverted set this to TRUE }
+	bool property isRaised = FALSE auto conditional
+	{Set to TRUE to start raised.}
+
+	bool property doOnce = FALSE auto
+	{Set to TRUE to raise/lower on first trigger only.}
+
+	bool property shouldSetDefaultState = TRUE auto const
+	{Should this use SetDefaultState? Set to False only for Activators with identical raise/lower events.}
+
+	bool property AllowInterrupt = FALSE auto
+	{Allow interrupts while animation? Default: FALSE}
+
+	bool property InvertCollision = FALSE auto
+	{Typically this will be False (DEFAULT).  The References LinkRef'd Chained with the TwoStateCollisionKeyword will typically be 
+	Disabled onOpen, and Enabled on Close.  If you want that functionality inverted set this to TRUE}
 EndGroup
+
 
 Group Autofill_Properties
-  Keyword Property TwoStateCollisionKeyword Auto
-  { Keword to link to the collision you want to enable/disable based on this activators raised/lowered state. }
+	keyword property TwoStateCollisionKeyword auto
+	{Keword to link to the collision you want to enable/disable based on this activators raised/lowered state.}
 EndGroup
 
-Bool Property isAnimating = False Auto conditional hidden
-{ Is the ramp currently animating from one state to another? }
-Bool Property shouldRaiseNext = True Auto conditional hidden
-{ Used for SetRaiseNoWait. Should we raise when the timer fires? }
-Int Property myState = 1 Auto conditional hidden
-{ true when static or animating
+
+bool property isAnimating = false auto Hidden conditional
+{Is the ramp currently animating from one state to another?}
+
+bool property shouldRaiseNext = true auto Hidden conditional
+{Used for SetRaiseNoWait. Should we raise when the timer fires?}
+
+int property myState = 1 auto hidden conditional
+{true when static or animating
  0 == raise or raising
- 1 == lower or lowering }
+ 1 == lower or lowering}
 
-;-- Functions ---------------------------------------
+ObjectReference player
 
-Event OnLoad()
-  player = Game.GetPlayer() as ObjectReference
-  If shouldSetDefaultState
-    Self.SetDefaultState()
-  EndIf
-EndEvent
+EVENT OnLoad()
+	player = game.GetPlayer()
+	if (shouldSetDefaultState)
+		SetDefaultState()
+	EndIf
+endEVENT
 
 Event OnReset()
-  If shouldSetDefaultState
-    Self.SetDefaultState()
-  EndIf
+	if (shouldSetDefaultState)
+		SetDefaultState()
+	EndIf
 EndEvent
 
+;This has to be handled as a function, since OnLoad and OnReset can fire in either order, and we can't handle competing animation calls.
 Function SetDefaultState()
-  If isRaised
-    Self.playAnimationandWait(startRaiseAnim, raiseEvent)
-    If InvertCollision == False
-      Self.DisableLinkChain(TwoStateCollisionKeyword, False)
-    Else
-      Self.EnableLinkChain(TwoStateCollisionKeyword, False)
-    EndIf
-    myState = 0
-  Else
-    Self.playAnimationandWait(lowerAnim, lowerEvent)
-    If InvertCollision == False
-      Self.EnableLinkChain(TwoStateCollisionKeyword, False)
-    Else
-      Self.DisableLinkChain(TwoStateCollisionKeyword, False)
-    EndIf
-    myState = 1
-  EndIf
+	if (isRaised)
+		playAnimationandWait(startRaiseAnim, raiseEvent)
+
+		if (InvertCollision == FALSE)
+			trace(self + " Disabling Collision")
+			DisableLinkChain(TwoStateCollisionKeyword)
+		else
+			trace(self + " Enabling Collision")
+			EnableLinkChain(TwoStateCollisionKeyword)
+		endif
+
+		myState = 0
+	Else
+		playAnimationandWait(lowerAnim, lowerEvent)
+		
+		if (InvertCollision == FALSE)
+			trace(self + " Enabling Collision")
+			EnableLinkChain(TwoStateCollisionKeyword)
+		else
+			trace(self + " Disabling Collision")
+			DisableLinkChain(TwoStateCollisionKeyword)
+		endif
+
+		myState = 1
+	EndIf
 EndFunction
 
-Function SetRaiseNoWait(Bool adRaise)
-  shouldRaiseNext = adRaise
-  Self.StartTimer(0.0, 0)
-EndFunction
+auto STATE waiting	; waiting to be activated
+	EVENT onActivate (objectReference triggerRef)
+		if(triggerRef == player)
+			SetRaise(!isRaised)
+			if(doOnce)
+				gotoState("done")
+			endif
+		endif
+	endEVENT
+endState
 
-Event OnTimer(Int timerID)
-  Self.SetRaise(shouldRaiseNext)
-EndEvent
+STATE busy
+	; This is the state when I'm busy animating
+		EVENT onActivate (objectReference triggerRef)
+			if AllowInterrupt == TRUE
+				; send the activation
+				SetRaise(!isRaised)
+			else
+				; block activation
+				trace (self + " Busy")
+			endif
+		endEVENT
 
-Function SetRaise(Bool adRaise)
-  While Self.getState() == "busy"
-    Utility.wait(1.0)
-  EndWhile
-  isAnimating = True
-  Self.gotoState("busy")
-  If adRaise
-    Self.playAnimationandWait(raiseAnim, raiseEvent)
-    isRaised = True
-  Else
-    Self.playAnimationandWait(lowerAnim, lowerEvent)
-    isRaised = False
-  EndIf
-  Self.gotoState("waiting")
-  isAnimating = False
-EndFunction
+endSTATE
 
-;-- State -------------------------------------------
-State busy
+STATE done
+	EVENT onActivate (objectReference triggerRef)
+		;Do nothing
+	endEVENT
+endSTATE
 
-  Event onActivate(ObjectReference triggerRef)
-    If AllowInterrupt == True
-      Self.SetRaise(!isRaised)
-    EndIf
-  EndEvent
-EndState
+function SetRaiseNoWait(bool adRaise = true)
+     shouldRaiseNext = adRaise
+     StartTimer(0)
+endFunction
 
-;-- State -------------------------------------------
-State done
+event OnTimer(int timerID)
+     SetRaise(shouldRaiseNext)
+endEvent
 
-  Event onActivate(ObjectReference triggerRef)
-    ; Empty function
-  EndEvent
-EndState
+function SetRaise(bool adRaise = true)
+	;if busy, wait to finish
+	while getState() == "busy"
+		wait(1)
+	endWhile
 
-;-- State -------------------------------------------
-Auto State waiting
+	isAnimating = true
+	gotoState ("busy")
+	if adRaise
+		;Lift wants to raise, so raise it
+		playAnimationandWait(raiseAnim, raiseEvent) ; Animate Up
+		isRaised = TRUE
+	else
+		;ramp wants to lower, so lower it
+		playAnimationandWait(lowerAnim, lowerEvent) ; Animate Closed
+		isRaised = FALSE
+	endif
 
-  Event onActivate(ObjectReference triggerRef)
-    If triggerRef == player
-      Self.SetRaise(!isRaised)
-      If doOnce
-        Self.gotoState("done")
-      EndIf
-    EndIf
-  EndEvent
-EndState
+	gotoState("waiting")
+	isAnimating = false
+endFunction

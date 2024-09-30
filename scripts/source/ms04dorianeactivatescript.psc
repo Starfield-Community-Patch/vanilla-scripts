@@ -1,12 +1,9 @@
-ScriptName MS04DorianeActivateScript Extends ObjectReference Const
+Scriptname MS04DorianeActivateScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Scene Property sceneToPlay Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  sceneToPlay.Start()
+
+    sceneToPlay.Start()
+
 EndEvent

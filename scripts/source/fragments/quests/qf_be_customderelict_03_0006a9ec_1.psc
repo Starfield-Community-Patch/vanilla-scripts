@@ -1,13 +1,16 @@
-ScriptName Fragments:Quests:QF_BE_CustomDerelict_03_0006A9EC_1 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_BE_CustomDerelict_03_0006A9EC_1 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property Alias_EnemyShipInteriorLocation Auto Const mandatory
-Keyword Property LocTypeBEDerelict Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Alias_EnemyShipInteriorLocation.GetLocation().AddKeyword(LocTypeBEDerelict)
+;BEGIN CODE
+Alias_EnemyShipInteriorLocation.GetLocation().AddKeyword(LocTypeBEDerelict)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+LocationAlias Property Alias_EnemyShipInteriorLocation Auto Const Mandatory
+
+Keyword Property LocTypeBEDerelict Auto Const Mandatory

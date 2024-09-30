@@ -1,48 +1,50 @@
-ScriptName UC03_PlayerAliasScript Extends ReferenceAlias
+Scriptname UC03_PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group StagesAndIndices
-  Int Property BloodstoneHuntStage = 810 Auto Const
-  { Once this stage is set, start tracking the player's collection of Bloodstone }
-  Int Property CompletionStage = 820 Auto Const
-  { Stage to set once the player's got enough Bloodstone }
+    int Property BloodstoneHuntStage = 810 Const Auto
+    {Once this stage is set, start tracking the player's collection of Bloodstone}
+
+    int Property CompletionStage = 820 Const Auto
+    {Stage to set once the player's got enough Bloodstone}
 EndGroup
 
 Group Objects
-  MiscObject Property InorgUniqueBloodstone Auto Const mandatory
-  { Bloodstone misc object }
+    MiscObject Property InorgUniqueBloodstone Mandatory Const Auto
+    {Bloodstone misc object}
 EndGroup
 
 Group Aliases
-  ReferenceAlias Property HematiteQuestItem Auto Const mandatory
-  { Holding alias for the Hematite misc object the player acquires }
+    ReferenceAlias Property HematiteQuestItem Mandatory Const Auto
+    {Holding alias for the Hematite misc object the player acquires}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnAliasInit()
-  Self.RegisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
+    trace(self, "Player alias init'ed.")
+    RegisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
 EndEvent
 
 Function RegisterPlayerForBloodstoneCollection()
-  Self.AddInventoryEventFilter(InorgUniqueBloodstone as Form)
+    AddInventoryEventFilter(InorgUniqueBloodstone)
+    trace(self, "Player registered for inventory events.")
 EndFunction
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If akBaseItem == InorgUniqueBloodstone as Form
-    Quest myInst = Self.GetOwningQuest()
-    Game.GetPlayer().RemoveItem(InorgUniqueBloodstone as Form, 1, True, None)
-    Game.GetPlayer().AddAliasedItem(InorgUniqueBloodstone as Form, HematiteQuestItem as Alias, 1, True)
-    Self.RemoveInventoryEventFilter(InorgUniqueBloodstone as Form)
-    If myInst.GetStageDone(BloodstoneHuntStage)
-      myInst.SetStage(CompletionStage)
-    EndIf
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    trace(self, "Inventory event received. Base item: " + akBaseItem + ". Count: " + aiItemCount + " Ref: " +akItemReference)
+    if akBaseItem == InorgUniqueBloodstone
+        Quest myInst = GetOwningQuest()
+        trace(self, "Checking owning quest: " + myInst)
+        Game.GetPlayer().RemoveItem(InorgUniqueBloodstone, abSilent = true)
+        Game.GetPlayer().AddAliasedItem(InorgUniqueBloodstone, HematiteQuestItem, abSilent = true)
+        RemoveInventoryEventFilter(InorgUniqueBloodstone)
+        if myInst.GetStageDone(BloodstoneHuntStage)
+            myInst.SetStage(CompletionStage)
+        endif
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC03", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

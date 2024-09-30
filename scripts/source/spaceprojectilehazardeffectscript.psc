@@ -1,12 +1,7 @@
-ScriptName SpaceProjectileHazardEffectScript Extends ActiveMagicEffect
+Scriptname SpaceProjectileHazardEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Spell property Debug_SpaceProjectileSpell Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Spell Property Debug_SpaceProjectileSpell Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akTarget.AddSpell(Debug_SpaceProjectileSpell, False)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	akTarget.AddSpell(Debug_SpaceProjectileSpell, False)
 EndEvent

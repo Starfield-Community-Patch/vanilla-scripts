@@ -1,6 +1,3 @@
-ScriptName Rad05Script Extends Quest
+Scriptname Rad05Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Int Property nInstanceVariable01 Auto

@@ -1,76 +1,135 @@
-ScriptName Fragments:Quests:QF_City_NewAtlantis_Z_Primar_00115CC3 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_City_NewAtlantis_Z_Primar_00115CC3 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property ReliableCare Auto Const
-Quest Property SuspiciousActivities Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Self.SetObjectiveDisplayed(20, True, False)
-  Self.SetObjectiveDisplayed(40, True, False)
-  Self.SetObjectiveDisplayed(60, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(20)
+SetObjectiveDisplayed(40)
+SetObjectiveDisplayed(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(20, True, False)
-  Self.SetObjectiveDisplayed(40, True, False)
-  Self.SetObjectiveDisplayed(60, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(20)
+SetObjectiveDisplayed(40)
+SetObjectiveDisplayed(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  If Self.GetStageDone(60) == True && Self.GetStageDone(80) == True
-    Self.SetStage(110)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(20)
 
+if(GetStageDone(60) == 1 && GetStageDone(80) == 1)
+
+SetStage(110)
+
+endIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  SuspiciousActivities.SetStage(0)
-  Self.SetStage(30)
-EndFunction
+;BEGIN CODE
+SuspiciousActivities.SetStage(0)
 
+SetStage(30)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0045_Item_00
 Function Fragment_Stage_0045_Item_00()
-  SuspiciousActivities.SetStage(1)
-  Self.SetStage(30)
-EndFunction
+;BEGIN CODE
+SuspiciousActivities.SetStage(1)
 
+SetStage(30)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Self.SetObjectiveCompleted(40, True)
-  If Self.GetStageDone(30) == True && Self.GetStageDone(80) == True
-    Self.SetStage(110)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(40)
 
+if(GetStageDone(30) == 1 && GetStageDone(80) == 1)
+
+SetStage(110)
+
+endIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0070_Item_00
 Function Fragment_Stage_0070_Item_00()
-  ReliableCare.SetStage(10)
-  Self.SetStage(60)
+;BEGIN CODE
+ReliableCare.SetStage(10)
+SetStage(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0075_Item_00
 Function Fragment_Stage_0075_Item_00()
-  ReliableCare.SetStage(1)
-  Self.SetStage(60)
+;BEGIN CODE
+ReliableCare.SetStage(1)
+SetStage(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0080_Item_00
 Function Fragment_Stage_0080_Item_00()
-  Self.SetObjectiveCompleted(60, True)
-  If Self.GetStageDone(30) == True && Self.GetStageDone(60) == True
-    Self.SetStage(110)
-  EndIf
-  Self.SetStage(90)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(60)
 
+if(GetStageDone(30) == 1 && GetStageDone(60) == 1)
+
+SetStage(110)
+
+endIf
+
+SetStage(90)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0090_Item_00
 Function Fragment_Stage_0090_Item_00()
-  Self.SetStage(80)
+;BEGIN CODE
+SetStage(80)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  Self.SetObjectiveDisplayed(80, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(80)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property ReliableCare Auto Const
+
+Quest Property SuspiciousActivities Auto Const

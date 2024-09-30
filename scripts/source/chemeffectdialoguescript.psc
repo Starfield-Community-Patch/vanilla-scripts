@@ -1,15 +1,10 @@
-ScriptName ChemEffectDialogueScript Extends ActiveMagicEffect
+Scriptname ChemEffectDialogueScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Keyword Property PlayerConsumeChem Auto Mandatory
 
-;-- Properties --------------------------------------
-Keyword Property PlayerConsumeChem Auto mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor PlayerREF = Game.GetPlayer()
-  If akTarget == PlayerREF as ObjectReference
-    PlayerREF.SayCustom(PlayerConsumeChem, None, False, None)
-  EndIf
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	Actor PlayerREF = Game.GetPlayer()
+	If akTarget == PlayerREF
+		PlayerREF.SayCustom(PlayerConsumeChem)
+	EndIf
 EndEvent

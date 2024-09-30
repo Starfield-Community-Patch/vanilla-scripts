@@ -1,7 +1,7 @@
-ScriptName TestPathingQuestShipAliasScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname TestPathingQuestShipAliasScript extends ReferenceAlias
 
 Event OnAliasInit()
-  Self.GetShipRef().SetExteriorLoadDoorInaccessible(False)
+
+	Self.GetShipRef().SetExteriorLoadDoorInaccessible(False)
+
 EndEvent

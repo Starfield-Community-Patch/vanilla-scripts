@@ -1,22 +1,25 @@
-ScriptName Test_MakeAllFollowersTeleportScript Extends ObjectReference
+Scriptname Test_MakeAllFollowersTeleportScript extends ObjectReference 
 
-;-- Variables ---------------------------------------
-Bool toggle
+SQ_FollowersScript Property SQ_Followers Mandatory Const Auto
+bool Property SkipWaitingFollowersObjective = false Auto
+bool Property IncludeWaitingFollowers = true Auto
 
-;-- Properties --------------------------------------
-sq_followersscript Property SQ_Followers Auto Const mandatory
-Bool Property SkipWaitingFollowersObjective = False Auto
-Bool Property IncludeWaitingFollowers = True Auto
+bool toggle
 
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  Actor[] teleportedFollowers = None
-  If toggle == False
-    teleportedFollowers = SQ_Followers.TeleportFollowers(Self.GetLinkedRef(None), None, True, IncludeWaitingFollowers, False, True, SkipWaitingFollowersObjective)
-    toggle = True
-  ElseIf toggle == True
-    SQ_Followers.TeleportFollowers(Game.GetPlayer() as ObjectReference, teleportedFollowers, True, True, False, False, False)
-    toggle = False
-  EndIf
+	
+	Actor[] teleportedFollowers
+
+	if toggle == false
+	;Teleport non-waiting followers, then make them wait
+		teleportedFollowers = SQ_Followers.TeleportFollowers(GetLinkedRef(), IncludeFollowingFollowers = true, IncludeWaitingFollowers = IncludeWaitingFollowers, StartFollowingAfterTeleport = false, StartWaitingAfterTeleport = true, SkipWaitingFollowersObjective = SkipWaitingFollowersObjective)
+		toggle = true
+
+	elseif toggle == true
+		;Teleport them back:
+		SQ_Followers.TeleportFollowers(Game.GetPlayer(), teleportedFollowers)
+		toggle = false
+
+	endif
 EndEvent

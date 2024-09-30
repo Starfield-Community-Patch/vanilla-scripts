@@ -1,1 +1,1 @@
-ScriptName DefaultStartSceneOnEnterTrigger Extends ObjectReference Const conditional
+Scriptname DefaultStartSceneOnEnterTrigger extends ObjectReference Conditional Const

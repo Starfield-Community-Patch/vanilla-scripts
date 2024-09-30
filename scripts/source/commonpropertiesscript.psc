@@ -1,83 +1,97 @@
-ScriptName CommonPropertiesScript Extends Quest Const
-{ Access these properties like this from any script without having set up any properties:
-Game.GetCommonProperties().PropertyName }
+Scriptname CommonPropertiesScript extends Quest const
+{Access these properties like this from any script without having set up any properties:
+Game.GetCommonProperties().PropertyName}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Keywords
-  Keyword Property ActorTypeNPC Auto Const mandatory
-  Keyword Property ActorTypeSuperMutant Auto Const mandatory
-  Keyword Property WeaponTypeMelee1H Auto Const mandatory
-  Keyword Property WeaponTypeMelee2H Auto Const mandatory
-  Keyword Property WeaponTypeUnarmed Auto Const mandatory
-  Keyword Property AnimArchetypeConfident Auto Const mandatory
-  Keyword Property AnimArchetypeDepressed Auto Const mandatory
-  Keyword Property AnimArchetypeElderly Auto Const mandatory
-  Keyword Property AnimArchetypeFriendly Auto Const mandatory
-  Keyword Property AnimArchetypeIrritated Auto Const mandatory
-  Keyword Property AnimArchetypeNervous Auto Const mandatory
-  Keyword Property CA__CustomEvent_Generous Auto Const mandatory
-  Keyword Property CA__CustomEvent_Mean Auto Const mandatory
-  Keyword Property CA__CustomEvent_Nice Auto Const mandatory
-  Keyword Property CA__CustomEvent_Peaceful Auto Const mandatory
-  Keyword Property CA__CustomEvent_PeacefulFailed Auto Const mandatory
-  Keyword Property CA__CustomEvent_Selfish Auto Const mandatory
-  Keyword Property CA__CustomEvent_Violent Auto Const mandatory
-  Keyword Property CA__Event_DonateItem Auto Const mandatory
-  Keyword Property CA__Event_ReceiveReward Auto Const mandatory
-  Keyword Property CA__Event_SpeechForMoreCaps Auto Const mandatory
-  Keyword Property CA__Event_Murder Auto Const mandatory
-  Keyword Property DogAnimArchetypeAgitated Auto Const mandatory
-  Keyword Property DogAnimArchetypeAlert Auto Const mandatory
-  Keyword Property DogAnimArchetypePlayful Auto Const mandatory
-  Keyword Property LocTypeSettlement Auto Const mandatory
-  Keyword Property LocTypeWorkshopSettlement Auto Const mandatory
+
+keyword Property ActorTypeNPC const auto mandatory
+keyword Property ActorTypeSuperMutant const auto mandatory
+
+keyword Property WeaponTypeMelee1H const auto mandatory
+keyword Property WeaponTypeMelee2H const auto mandatory
+keyword Property WeaponTypeUnarmed const auto mandatory
+
+keyword Property AnimArchetypeConfident const auto mandatory
+keyword Property AnimArchetypeDepressed const auto mandatory
+keyword Property AnimArchetypeElderly const auto mandatory
+keyword Property AnimArchetypeFriendly const auto mandatory
+keyword Property AnimArchetypeIrritated const auto mandatory
+keyword Property AnimArchetypeNervous const auto mandatory
+
+keyword Property CA__CustomEvent_Generous const auto mandatory
+keyword Property CA__CustomEvent_Mean const auto mandatory
+keyword Property CA__CustomEvent_Nice const auto mandatory
+keyword Property CA__CustomEvent_Peaceful const auto mandatory
+keyword Property CA__CustomEvent_PeacefulFailed const auto mandatory
+keyword Property CA__CustomEvent_Selfish const auto mandatory
+keyword Property CA__CustomEvent_Violent const auto mandatory
+keyword Property CA__Event_DonateItem const auto mandatory
+keyword Property CA__Event_ReceiveReward const auto mandatory
+keyword Property CA__Event_SpeechForMoreCaps const auto mandatory
+keyword Property CA__Event_Murder const auto mandatory
+
+keyword Property DogAnimArchetypeAgitated const auto mandatory
+keyword Property DogAnimArchetypeAlert const auto mandatory
+keyword Property DogAnimArchetypePlayful const auto mandatory
+
+keyword Property LocTypeSettlement const auto mandatory
+keyword Property LocTypeWorkshopSettlement const auto mandatory
+
 EndGroup
 
 Group Actors
-  Actor Property DogmeatRef Auto Const mandatory
-  Actor Property CaitRef Auto Const mandatory
-  Actor Property CodsworthRef Auto Const mandatory
-  Actor Property CurieRef Auto Const mandatory
-  Actor Property DanseRef Auto Const mandatory
-  Actor Property DeaconRef Auto Const mandatory
-  Actor Property HancockRef Auto Const mandatory
-  Actor Property MacCreadyRef Auto Const mandatory
-  Actor Property PiperRef Auto Const mandatory
-  Actor Property PrestonRef Auto Const mandatory
-  Actor Property StrongRef Auto Const mandatory
-  Actor Property ValentineRef Auto Const mandatory
-  Actor Property X688Ref Auto Const mandatory
+Actor Property DogmeatRef const auto mandatory
+Actor Property CaitRef const auto mandatory
+Actor Property CodsworthRef const auto mandatory
+Actor Property CurieRef const auto mandatory
+Actor Property DanseRef const auto mandatory
+Actor Property DeaconRef const auto mandatory
+Actor Property HancockRef const auto mandatory
+Actor Property MacCreadyRef const auto mandatory
+Actor Property PiperRef const auto mandatory
+Actor Property PrestonRef const auto mandatory
+Actor Property StrongRef const auto mandatory
+Actor Property ValentineRef const auto mandatory
+Actor Property X688Ref const auto mandatory
+
 EndGroup
 
 Group ActorValues
-  ActorValue Property CA_Affinity Auto Const mandatory
-  ActorValue Property CA_CurrentThreshold Auto Const mandatory
-  ActorValue Property FollowerDistance Auto Const mandatory
-  ActorValue Property FollowerStance Auto Const mandatory
-  ActorValue Property FollowerStanceAllowCombatOverride Auto Const mandatory
-  ActorValue Property FollowerState Auto Const mandatory
-  ActorValue Property IdleChatterTimeMax Auto Const mandatory
-  ActorValue Property IdleChatterTimeMin Auto Const mandatory
-  ActorValue Property LeftAttackCondition Auto Const mandatory
-  ActorValue Property LeftMobilityCondition Auto Const mandatory
-  ActorValue Property PerceptionCondition Auto Const mandatory
-  ActorValue Property RightAttackCondition Auto Const mandatory
-  ActorValue Property RightMobilityCondition Auto Const mandatory
+
+ActorValue property CA_Affinity auto mandatory const
+ActorValue property CA_CurrentThreshold auto mandatory const
+
+ActorValue property FollowerDistance auto mandatory const
+ActorValue property FollowerStance auto mandatory const
+ActorValue property FollowerStanceAllowCombatOverride auto mandatory const
+ActorValue property FollowerState auto mandatory const
+
+ActorValue Property IdleChatterTimeMax const auto mandatory
+ActorValue Property IdleChatterTimeMin const auto mandatory
+
+ActorValue Property LeftAttackCondition auto mandatory const
+ActorValue Property LeftMobilityCondition auto mandatory const
+ActorValue Property PerceptionCondition auto mandatory const
+ActorValue Property RightAttackCondition auto mandatory const
+ActorValue Property RightMobilityCondition auto mandatory const
+
 EndGroup
 
-Group Aliases
-  ReferenceAlias Property DogmeatCompanion Auto Const mandatory
-  { DogmeatCompanion in Followers quest }
+group Aliases
+
+ReferenceAlias Property DogmeatCompanion const auto mandatory
+{DogmeatCompanion in Followers quest}
+
 EndGroup
 
 Group Factions
-  Faction Property PlayerFaction Auto Const mandatory
-  Faction Property CurrentCompanionFaction Auto Const mandatory
+Faction Property PlayerFaction const auto mandatory
+Faction Property CurrentCompanionFaction const auto mandatory
+
 EndGroup
 
 Group Races
-  Race Property DogmeatRace Auto Const
-EndGroup
 
+Race Property DogmeatRace const auto
+
+EndGroup

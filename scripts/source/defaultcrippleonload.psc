@@ -1,37 +1,31 @@
-ScriptName DefaultCrippleOnLoad Extends ObjectReference Const
-{ Cripples both left and right mobility of a reference OnLoad() }
+Scriptname DefaultCrippleOnLoad extends ObjectReference Const
+{Cripples both left and right mobility of a reference OnLoad()}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill_Properties
-  ActorValue Property LeftMobilityCondition Auto Const
-  ActorValue Property RightMobilityCondition Auto Const
-  ActorValue Property LeftAttackCondition Auto Const
-  ActorValue Property RightAttackCondition Auto Const
+ActorValue Property LeftMobilityCondition Auto Const
+ActorValue Property RightMobilityCondition Auto Const
+ActorValue Property LeftAttackCondition Auto Const
+ActorValue Property RightAttackCondition Auto Const
 EndGroup
 
 Group CrippleData
-  Bool Property LeftLeg = True Auto Const
-  Bool Property RightLeg = True Auto Const
-  Bool Property LeftArm = False Auto Const
-  Bool Property RightArm = False Auto Const
+bool property LeftLeg = TRUE auto const
+bool property RightLeg = TRUE auto const
+bool property LeftArm= FALSE auto const
+bool property RightArm = FALSE auto const
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  If LeftLeg
-    Self.DamageValue(LeftMobilityCondition, 100.0)
-  EndIf
-  If RightLeg
-    Self.DamageValue(RightMobilityCondition, 100.0)
-  EndIf
-  If LeftArm
-    Self.DamageValue(LeftAttackCondition, 100.0)
-  EndIf
-  If RightArm
-    Self.DamageValue(LeftAttackCondition, 100.0)
-  EndIf
+	if LeftLeg
+		self.DamageValue(LeftMobilityCondition, 100)
+	endif
+	if RightLeg
+		self.DamageValue(RightMobilityCondition, 100)
+	endif
+	if LeftArm
+		self.DamageValue(LeftAttackCondition, 100)
+	endif
+	if RightArm
+		self.DamageValue(LeftAttackCondition, 100)
+	endif
 EndEvent

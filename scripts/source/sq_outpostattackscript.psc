@@ -1,121 +1,140 @@
-ScriptName SQ_OutpostAttackScript Extends Quest
+Scriptname SQ_OutpostAttackScript extends Quest
 
-;-- Variables ---------------------------------------
+REParentScript Property RE_Parent Auto const mandatory 
 
-;-- Properties --------------------------------------
-reparentscript Property RE_Parent Auto Const mandatory
-ReferenceAlias Property OutpostBeacon Auto Const mandatory
+ReferenceAlias property OutpostBeacon auto const mandatory 
 { outpost beacon that we're attacking }
-ReferenceAlias Property AttackTarget Auto Const mandatory
+
+ReferenceAlias property AttackTarget auto const mandatory 
 { created marker in case outpost is removed while quest is running }
-ReferenceAlias Property Trigger Auto Const mandatory
+
+ReferenceAlias property Trigger auto const mandatory 
 { trigger in landing location - may not always exist if location isn't an OE location }
-RefCollectionAlias Property Attackers Auto Const mandatory
+
+RefCollectionAlias property Attackers auto const mandatory
 { attackers will spawn into this collection }
-Keyword Property LocTypeMajorOrbital Auto Const mandatory
-ActorValue Property OutpostLastAttackTimestamp Auto Const mandatory
+
+Keyword property LocTypeMajorOrbital auto const Mandatory
+
+ActorValue property OutpostLastAttackTimestamp auto const mandatory
 { used to timestamp last outpost attack }
-Bool Property IsAttackStarted = False Auto hidden
-Bool Property CountsAsAttack = True Auto Const
-{ if true, this is counted as an outpost attack - planet is stamped when this starts so another attack isn't triggered during the cooldown 
-    if false, don't treat this as a normal attack (no timestamp) }
 
-;-- Functions ---------------------------------------
+bool property IsAttackStarted = false auto hidden ; set to true when attack is considered started
 
-Function HandleAttackerLocationChange(ObjectReference akSenderRef, Location akOldLoc, Location akNewLoc)
-  ; Empty function
-EndFunction
-
-Function HandleAttackersSpawning()
-  ; Empty function
-EndFunction
-
-Function HandleQuestShutdown()
-  ; Empty function
-EndFunction
-
-Function HandleQuestStarted()
-  ; Empty function
-EndFunction
-
-Function HandleStartAttack()
-  ; Empty function
-EndFunction
+bool property CountsAsAttack = true auto Const
+{ 
+    if true, this is counted as an outpost attack - planet is stamped when this starts so another attack isn't triggered during the cooldown 
+    if false, don't treat this as a normal attack (no timestamp)
+}
 
 Event OnQuestInit()
-  Self.DisableTrigger(True)
-  defaultgroupspawnquestscript myDefaultGroupQuest = (Self as Quest) as defaultgroupspawnquestscript
-  If myDefaultGroupQuest
-    Self.RegisterForCustomEvent(myDefaultGroupQuest as ScriptObject, "defaultgroupspawnquestscript_SpawnEvent")
-  EndIf
-  Self.RegisterForRemoteEvent(Attackers as ScriptObject, "OnLocationChange")
+    DisableTrigger(true)
+
+	;register for spawn event
+	DefaultGroupSpawnQuestScript myDefaultGroupQuest = (self as quest) as DefaultGroupSpawnQuestScript
+    if myDefaultGroupQuest
+	    RegisterForCustomEvent(myDefaultGroupQuest, "SpawnEvent")
+    endif
+
+    ; register for change location event
+    RegisterForRemoteEvent(Attackers, "OnLocationChange")
 EndEvent
 
 Event OnQuestStarted()
-  Self.HandleQuestStarted()
-  Self.RegisterForCustomEvent(RE_Parent as ScriptObject, "reparentscript_RECheckForCleanup")
-  Self.TimestampAttack()
+    debug.trace(self + " OnQuestStarted")
+    HandleQuestStarted()
+    RegisterForCustomEvent(RE_Parent, "RECheckForCleanup")
+    TimestampAttack()
 EndEvent
+
+Function HandleQuestStarted()
+    ; override on child scripts
+EndFunction
 
 Event OnQuestShutdown()
-  Self.DisableTrigger(False)
-  Self.HandleQuestShutdown()
+    DisableTrigger(false)
+    HandleQuestShutdown()
 EndEvent
 
-Function TimestampAttack()
-  If CountsAsAttack
-    ObjectReference outpostRef = OutpostBeacon.GetRef()
-    If outpostRef
-      Location outpostLocation = outpostRef.GetCurrentLocation()
-      Location[] parentLocations = outpostLocation.GetParentLocations(LocTypeMajorOrbital)
-      If parentLocations
-        Location myPlanet = parentLocations[0]
-        myPlanet.SetValue(OutpostLastAttackTimestamp, Utility.GetCurrentGameTime())
-      EndIf
-    EndIf
-  EndIf
+Function HandleQuestShutdown()
+    ; override on child scripts
 EndFunction
 
-Function StartAttack(Bool bSetAttackTimestamp)
-  IsAttackStarted = True
-  If bSetAttackTimestamp
-    Self.TimestampAttack()
-  EndIf
-  Self.HandleStartAttack()
+function TimestampAttack()
+    if CountsAsAttack
+        ; timestamp the attack on this planet
+        ObjectReference outpostRef = OutpostBeacon.GetRef()
+        if outpostRef
+            Location outpostLocation = outpostRef.GetCurrentLocation()
+            Location[] parentLocations = outpostLocation.GetParentLocations(LocTypeMajorOrbital)
+            if parentLocations
+                Location myPlanet = parentLocations[0]
+                myPlanet.SetValue(OutpostLastAttackTimestamp, Utility.GetCurrentGameTime())
+            endif
+        endif
+    endif
 EndFunction
 
-Function DisableTrigger(Bool bDisable)
-  ObjectReference triggerRef = Trigger.GetRef()
-  If triggerRef
-    If bDisable
-      triggerRef.DisableNoWait(False)
-    Else
-      triggerRef.EnableNoWait(False)
-    EndIf
-  EndIf
+function StartAttack(bool bSetAttackTimestamp=true)
+    debug.trace(self + " StartAttack")
+    IsAttackStarted = true
+    if bSetAttackTimestamp
+        TimestampAttack()
+    endif
+    HandleStartAttack()
 EndFunction
 
-Event DefaultGroupSpawnQuestScript.SpawnEvent(defaultgroupspawnquestscript akSender, Var[] akArgs)
-  Self.HandleAttackersSpawning()
+function HandleStartAttack()
+    ; override on extending scripts
+endFunction
+
+function DisableTrigger(bool bDisable)
+    ObjectReference triggerRef = Trigger.GetRef()
+    if triggerRef
+        if bDisable
+            triggerRef.DisableNoWait()
+        Else
+            triggerRef.EnableNoWait()
+        endif
+    endif
+EndFunction
+
+Event DefaultGroupSpawnQuestScript.SpawnEvent(DefaultGroupSpawnQuestScript akSender, var[] akArgs)
+	debug.trace(self + "SpawnEvent received")
+    HandleAttackersSpawning()
 EndEvent
 
-Event REParentScript.RECheckForCleanup(reparentscript akSender, Var[] akArgs)
-  Self.CheckForCleanup()
+Function HandleAttackersSpawning()
+    ; override on child scripts
+endFunction
+
+;sent by REParentScript but ultimately originating in RETriggerScript
+Event REParentScript.RECheckForCleanup(REParentScript akSender, Var[] akArgs)
+	debug.trace(self + " received RECheckForCleanup event")
+	CheckForCleanup()
 EndEvent
 
 Event RefCollectionAlias.OnLocationChange(RefCollectionAlias akSource, ObjectReference akSenderRef, Location akOldLoc, Location akNewLoc)
-  Self.HandleAttackerLocationChange(akSenderRef, akOldLoc, akNewLoc)
+    HandleAttackerLocationChange(akSenderRef, akOldLoc, akNewLoc)
 EndEvent
 
-Function CheckForCleanup()
-  Bool shouldShutDown = False
-  ObjectReference attackTargetRef = AttackTarget.GetRef()
-  If Attackers.GetCountDead() == Attackers.GetCount()
-    shouldShutDown = True
-  ElseIf attackTargetRef as Bool && attackTargetRef.GetCurrentPlanet() != Game.GetPlayer().GetCurrentPlanet()
-    shouldShutDown = True
-  EndIf
-  If shouldShutDown
-    Self.Stop()
-  EndIf
+Function HandleAttackerLocationChange(ObjectReference akSenderRef, Location akOldLoc, Location akNewLoc)
+    ; override on child scripts
+EndFunction
+
+function CheckForCleanup()
+	bool shouldShutDown = false
+    
+    ObjectReference attackTargetRef = attackTarget.GetRef()
+
+    if Attackers.GetCountDead() == Attackers.GetCount()
+        debug.trace(self + " attackers are all dead: stopping quest")
+        shouldShutDown = true
+    elseif attackTargetRef && attackTargetRef.GetCurrentPlanet() != Game.GetPlayer().GetCurrentPlanet()
+        debug.trace(self + " player on a different planet: stopping quest")
+        shouldShutDown = true
+    endif
+    if shouldShutDown
+        Stop()
+    endif
 EndFunction

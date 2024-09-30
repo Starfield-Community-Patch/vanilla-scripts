@@ -1,19 +1,17 @@
-ScriptName TestNPCMoveSpeed Extends ObjectReference
+Scriptname TestNPCMoveSpeed extends ObjectReference
 
-;-- Variables ---------------------------------------
-Int I = 0
+ObjectReference Property SpawnController auto const Mandatory
 
-;-- Properties --------------------------------------
-ObjectReference Property SpawnController Auto Const mandatory
-Keyword[] Property DestinationLocationKeywords Auto Const mandatory
+Keyword[] Property DestinationLocationKeywords auto const Mandatory
 
-;-- Functions ---------------------------------------
+int i = 0
 
 Event OnActivate(ObjectReference akActionRef)
-  If I < DestinationLocationKeywords.Length - 1
-    I += 1
-  Else
-    I = 0
-  EndIf
-  (SpawnController as testnpcarenascript).SetPatrolSpeed(DestinationLocationKeywords[I])
+	;Keyword previousKeyword = DestinationLocationKeywords[DestinationKeywordsIndex]
+	if(i < DestinationLocationKeywords.length -1)
+		i += 1
+	Else
+		i = 0
+	endif
+	(SpawnController as TestNPCArenaScript).SetPatrolSpeed(DestinationLocationKeywords[i])
 EndEvent

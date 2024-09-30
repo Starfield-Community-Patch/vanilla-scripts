@@ -1,12 +1,7 @@
-ScriptName TestActivatorTeleportDoor Extends ObjectReference Const
+Scriptname TestActivatorTeleportDoor extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property TeleportTargetRef Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ObjectReference Property TeleportTargetRef Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  akActionRef.moveto(TeleportTargetRef, 0.0, 0.0, 0.0, True, False)
+	akActionRef.moveto(TeleportTargetRef)
 EndEvent
