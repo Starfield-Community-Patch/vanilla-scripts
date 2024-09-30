@@ -1,23 +1,21 @@
-ScriptName UC04_ToggleHallScreens Extends Quest
+Scriptname UC04_ToggleHallScreens extends Quest
 
-;-- Variables ---------------------------------------
+RefCollectionAlias Property MinisterHall_Screens Mandatory Const Auto
+{Collection that contains all the screens in the Minister's Hall}
 
-;-- Properties --------------------------------------
-RefCollectionAlias Property MinisterHall_Screens Auto Const mandatory
-{ Collection that contains all the screens in the Minister's Hall }
+Function UpdateHallScreens(bool bTurnOn = true)
+    int i = 0
+    int iCount = MinisterHall_Screens.GetCount()
 
-;-- Functions ---------------------------------------
+    While (i < iCount)
+        ObjectReference currACT = MinisterHall_Screens.GetAt(i)
 
-Function UpdateHallScreens(Bool bTurnOn)
-  Int I = 0
-  Int iCount = MinisterHall_Screens.GetCount()
-  While I < iCount
-    ObjectReference currACT = MinisterHall_Screens.GetAt(I)
-    If bTurnOn
-      currACT.PlayAnimation("Stage01_Start")
-    Else
-      currACT.PlayAnimation("Stage01_Stop")
-    EndIf
-    I += 1
-  EndWhile
+        if bTurnOn
+            currACT.PlayAnimation("Stage01_Start")
+        else
+            currACT.PlayAnimation("Stage01_Stop")
+        endif
+        
+        i += 1
+    EndWhile
 EndFunction

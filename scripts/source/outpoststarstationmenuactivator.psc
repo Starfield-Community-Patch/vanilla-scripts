@@ -1,37 +1,39 @@
-ScriptName OutpostStarstationMenuActivator Extends ObjectReference
+Scriptname OutpostStarstationMenuActivator extends ObjectReference
 
-;-- Variables ---------------------------------------
-outpoststarstationactorscript myVendor
+Message Property OutpostStarstationMessage auto const mandatory
+{ message box listing options}
 
-;-- Properties --------------------------------------
-Message Property OutpostStarstationMessage Auto Const mandatory
-{ message box listing options }
-ActorBase Property OutpostStarstationVendor Auto Const mandatory
+ActorBase property OutpostStarstationVendor auto const mandatory
 { vendor to create when built }
 
-;-- Functions ---------------------------------------
+OutpostStarstationActorScript myVendor
 
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  myVendor = Self.PlaceAtMe(OutpostStarstationVendor as Form, 1, False, True, True, None, None, True) as outpoststarstationactorscript
-  myVendor.Initialize(Self.GetLinkedRef(None))
+    debug.trace(self + " OnWorkshopObjectPlaced")
+    ; create vendor
+    myVendor = PlaceAtMe(OutpostStarstationVendor, abInitiallyDisabled=true) as OutpostStarstationActorScript
+    ; link to landing marker and reinitialize
+    myVendor.Initialize(GetLinkedRef())
 EndEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akReference)
-  If myVendor
-    myVendor.Cleanup()
-    myVendor.Delete()
-    myVendor = None
-  EndIf
+    debug.trace(self + " OnWorkshopObjectRemoved")
+    if myVendor
+        myVendor.Cleanup()
+        myVendor.Delete()
+        myVendor = NONE
+    EndIf
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    outpoststarstationactorscript theShipServicesActor = myVendor
-    If theShipServicesActor
-      Int messageIndex = OutpostStarstationMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      If messageIndex == 0
-        theShipServicesActor.ModifyStarstation()
-      EndIf
-    EndIf
-  EndIf
+    debug.trace(self + " OnActivate " + akActionRef)
+    if akActionRef == Game.GetPlayer()
+        OutpostStarstationActorScript theShipServicesActor = myVendor as OutpostStarstationActorScript
+        if theShipServicesActor
+            int messageIndex = OutpostStarstationMessage.Show()
+            if messageIndex == 0
+                theShipServicesActor.ModifyStarstation()
+            endif
+        endif
+    endif
 EndEvent

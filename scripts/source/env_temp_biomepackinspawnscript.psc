@@ -1,23 +1,28 @@
-ScriptName ENV_Temp_BiomePackinSpawnScript Extends ObjectReference Const
-{ This is a temporary script until Biome Markers can place Packins directly }
+Scriptname ENV_Temp_BiomePackinSpawnScript extends ObjectReference const
+{This is a temporary script until Biome Markers can place Packins directly}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-String Property PackinEditorID Auto Const mandatory
-
-;-- Functions ---------------------------------------
+string Property PackinEditorID Mandatory Const Auto 
 
 Event OnInit()
-  String refHexFormID = Utility.IntToHex(Self.GetFormID())
-  String consoleCommand = refHexFormID + ".placeatme " + PackinEditorID
+	
+	string refHexFormID = Utility.IntToHex(GetFormID())
+
+	string consoleCommand = refHexFormID + ".placeatme " + PackinEditorID
+
+	Trace(self, "OnInit() consoleCommand: " + consoleCommand)
+
+	Debug.ExecuteConsole(consoleCommand)
+
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "ENV_Temp_BiomePackinSpawnScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly Protected
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "ENV_Temp_BiomePackinSpawnScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly Protected
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

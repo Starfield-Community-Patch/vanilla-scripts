@@ -1,12 +1,7 @@
-ScriptName TestSendStoryEventOnLoad Extends ObjectReference Const
+Scriptname TestSendStoryEventOnLoad extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property StoryEventKeyword Auto Const
-
-;-- Functions ---------------------------------------
+Keyword Property StoryEventKeyword auto Const
 
 Event OnLoad()
-  StoryEventKeyword.SendStoryEventAndWait(Self.GetCurrentLocation(), Self as ObjectReference, Self.GetLinkedRef(None), 0, 0)
-EndEvent
+    StoryEventKeyword.SendStoryEventAndWait(GetCurrentLocation(), self, GetLinkedRef())
+endEvent

@@ -1,15 +1,10 @@
-ScriptName UC08_AnomalyAliasScript Extends ReferenceAlias
+Scriptname UC08_AnomalyAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet = 528 Auto Const
-{ Stage to set when the "OnDying" event for this NPC is triggered }
-
-;-- Functions ---------------------------------------
+int Property StageToSet = 528 Const Auto
+{Stage to set when the "OnDying" event for this NPC is triggered}
 
 Event OnDying(ObjectReference akKiller)
-  If !Self.GetOwningQuest().GetStageDone(StageToSet)
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
+    if !GetOwningQuest().GetStageDone(StageToSet)
+        GetOwningQuest().SetStage(StageToSet)
+    endif
 EndEvent

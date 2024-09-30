@@ -1,19 +1,15 @@
-ScriptName UC09SceneTriggerAliasScript Extends ReferenceAlias
+Scriptname UC09SceneTriggerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+int Property PreReqStage = 310 Auto Const
+{Only check this trigger once this stage is set}
 
-;-- Properties --------------------------------------
-Int Property PreReqStage = 310 Auto Const
-{ Only check this trigger once this stage is set }
-ReferenceAlias Property Abello Auto Const mandatory
-{ Ref alias for President Abello }
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property Abello Mandatory Const Auto
+{Ref alias for President Abello}
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Quest OQ = Self.GetOwningQuest()
-  Actor PlayACT = Game.GetPlayer()
-  If OQ.GetStageDone(PreReqStage) && (akActionRef == Game.GetPlayer() as ObjectReference)
-    Abello.GetActorRef().Activate(PlayACT as ObjectReference, False)
-  EndIf
+    Quest OQ = GetOwningQuest()
+    Actor PlayACT = Game.GetPlayer()
+    if OQ.GetStageDone(PreReqStage) && akActionRef == Game.GetPlayer()
+        Abello.GetActorRef().Activate(PlayACT)
+    endif 
 EndEvent

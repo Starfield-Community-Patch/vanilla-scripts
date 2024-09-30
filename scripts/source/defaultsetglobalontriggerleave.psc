@@ -1,18 +1,15 @@
-ScriptName DefaultSetGlobalOnTriggerLeave Extends ObjectReference Const
-{ Set a global to a specific value when this trigger is left by the player. }
+Scriptname DefaultSetGlobalOnTriggerLeave extends ObjectReference Const
+{Set a global to a specific value when this trigger is left by the player.}
 
-;-- Variables ---------------------------------------
+GlobalVariable Property GlobalToSet const auto
+{The Global we want to set to NumToSetGlobalTo}
 
-;-- Properties --------------------------------------
-GlobalVariable Property GlobalToSet Auto Const
-{ The Global we want to set to NumToSetGlobalTo }
-Float Property NumToSetGlobalTo Auto Const
-{ The number we want to set GlobalToSet to. }
-
-;-- Functions ---------------------------------------
+Float Property NumToSetGlobalTo const auto
+{The number we want to set GlobalToSet to.}
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    GlobalToSet.SetValue(NumToSetGlobalTo)
-  EndIf
+    if akActionRef == Game.GetPlayer()
+    	GlobalToSet.SetValue(NumToSetGlobalTo)
+    	;debug.Trace(GlobalToSet + " set to " + GlobalToSet.GetValue())
+    endif
 EndEvent

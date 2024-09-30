@@ -1,75 +1,91 @@
-ScriptName SQ_Airlock_QuestScript Extends Quest
-{ handles adding/removing actors to a ref collection meaning they are "inside" an airlocked location.Achievements_TrackedStatsScript }
+Scriptname SQ_Airlock_QuestScript extends Quest ;can't be const, used as variable elsewhere
+{handles adding/removing actors to a ref collection meaning they are "inside" an airlocked location.Achievements_TrackedStatsScript}
 
-;-- Variables ---------------------------------------
-Bool registeredForOnPlayerTeleportEvent
-Bool registeredForPlayerEvent
-
-;-- Properties --------------------------------------
 Group Autofill
-  RefCollectionAlias Property Alias_InsideActors Auto Const mandatory
+    RefCollectionAlias Property Alias_InsideActors Mandatory Const Auto
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnQuestStarted()
-  ; Empty function
+    Trace(self, "OnInit() ")
 EndEvent
 
+bool registeredForPlayerEvent
+bool registeredForOnPlayerTeleportEvent
+
+;doing this so we can fix existing saves
 Function RegisterForOnPlayerFollowerWarp()
-  registeredForPlayerEvent = True
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerFollowerWarp")
+    Trace(self, "RegisterForOnPlayerFollowerWarp() ")
+    registeredForPlayerEvent = true
+
+    RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerFollowerWarp")
 EndFunction
 
 Function RegisterForOnPlayerTeleport()
-  registeredForOnPlayerTeleportEvent = True
-  Self.RegisterForPlayerTeleport()
+    Trace(self, "RegisterForOnPlayerTeleport() ")
+    registeredForOnPlayerTeleportEvent = true
+    
+    RegisterForPlayerTeleport()
 EndFunction
 
 Event Actor.OnPlayerFollowerWarp(Actor akSender, ObjectReference akFollower)
-  If Alias_InsideActors.Find(Game.GetPlayer() as ObjectReference) < 0
-    Alias_InsideActors.RemoveRef(akFollower)
-  EndIf
+    Trace(self, "OnPlayerFollowerWarp() akFollower: " + akFollower)
+
+    ;check to see if the player is outside, if so assume they made it outside and might have warped past the airlock
+    if Alias_InsideActors.Find(Game.GetPlayer()) < 0 ;not found
+        Trace(self, "OnPlayerFollowerWarp() player not in Alias_InsideActors, will remove warping follower as well. akFollower: " + akFollower)
+        Alias_InsideActors.RemoveRef(akFollower)
+    endif
 EndEvent
 
 Event OnPlayerTeleport()
-  Self.RemoveActorFromInsideActorsAlias(Game.GetPlayer())
+    ;remove player from Alias_InsideActors if they teleport
+    Trace(self, "OnPlayerTeleport(): Player teleported.")
+    RemoveActorFromInsideActorsAlias(Game.GetPlayer())
 EndEvent
 
-Function SetActorInside(Actor ActorToSet, Bool SetInside)
-  If SetInside
-    Alias_InsideActors.AddRef(ActorToSet as ObjectReference)
-  Else
-    Alias_InsideActors.RemoveRef(ActorToSet as ObjectReference)
-  EndIf
-  If registeredForPlayerEvent == False
-    Self.RegisterForOnPlayerFollowerWarp()
-  EndIf
-  If registeredForOnPlayerTeleportEvent == False
-    Self.RegisterForOnPlayerTeleport()
-  EndIf
+Function SetActorInside(Actor ActorToSet, bool SetInside = true)
+    Trace(self, "SetActorInside() ActorToSet: " + ActorToSet + ", SetInside: " + SetInside)
+
+    if SetInside
+        Alias_InsideActors.AddRef(ActorToSet)
+    else
+        Alias_InsideActors.RemoveRef(ActorToSet)
+    endif
+
+    if registeredForPlayerEvent == false
+        RegisterForOnPlayerFollowerWarp()
+    endif
+
+    if registeredForOnPlayerTeleportEvent == false
+        RegisterForOnPlayerTeleport()
+    endif
+
+    ;REMINDER: actors are also removed from alias when they unload vis the SQ_AirlockAliasScript
 EndFunction
 
-Function SetActorsInside(Actor[] ActorsToSet, Bool SetInside)
-  Int I = 0
-  While I < ActorsToSet.Length
-    If ActorsToSet[I]
-      Self.SetActorInside(ActorsToSet[I], SetInside)
-    EndIf
-    I += 1
-  EndWhile
+Function SetActorsInside(Actor[] ActorsToSet, bool SetInside = true)
+    int i = 0
+    While (i < ActorsToSet.length)
+        if ActorsToSet[i] ;could be none if casting array of refs to actors before passing in
+            SetActorInside(ActorsToSet[i], SetInside)
+        endif
+        i += 1
+    EndWhile
 EndFunction
 
+;called in Update4 patch quest to apply airlock fast travel fix
 Function RemoveActorFromInsideActorsAlias(Actor akActor)
-  Alias_InsideActors.RemoveRef(akActor as ObjectReference)
+    Alias_InsideActors.RemoveRef(akActor)
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Airlock",  string SubLogName = "QuestScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Airlock",  string SubLogName = "QuestScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

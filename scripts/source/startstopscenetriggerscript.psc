@@ -1,70 +1,71 @@
-ScriptName StartStopSceneTriggerScript Extends ObjectReference Const
-{ A trigger which will start or stop a scene on actor enter or exit. }
+Scriptname StartStopSceneTriggerScript extends ObjectReference Const
+{A trigger which will start or stop a scene on actor enter or exit.}
 
-;-- Variables ---------------------------------------
+scene property sceneToStartOnEnter auto const
+{Okay to leave blank - we'll just skip it if so}
+scene property sceneToStartOnExit auto const
+{Okay to leave blank - we'll just skip it if so}
+scene property sceneToStopOnEnter auto const
+{Okay to leave blank - we'll just skip it if so}
+scene property sceneToStopOnExit auto const
+{Okay to leave blank - we'll just skip it if so}
+quest property questToCheck auto const
+{only used if a pre-req stage is specified.}
+int property preRequisiteStage auto const
+{if specified, scenes will only be started/stopped if this stage is done}
+bool property bDisableAfterEnter = TRUE auto const
+bool property bDisableAfterExit = TRUE auto const
 
-;-- Properties --------------------------------------
-Scene Property sceneToStartOnEnter Auto Const
-{ Okay to leave blank - we'll just skip it if so }
-Scene Property sceneToStartOnExit Auto Const
-{ Okay to leave blank - we'll just skip it if so }
-Scene Property sceneToStopOnEnter Auto Const
-{ Okay to leave blank - we'll just skip it if so }
-Scene Property sceneToStopOnExit Auto Const
-{ Okay to leave blank - we'll just skip it if so }
-Quest Property questToCheck Auto Const
-{ only used if a pre-req stage is specified. }
-Int Property preRequisiteStage Auto Const
-{ if specified, scenes will only be started/stopped if this stage is done }
-Bool Property bDisableAfterEnter = True Auto Const
-Bool Property bDisableAfterExit = True Auto Const
+EVENT OnTriggerLeave(ObjectReference akActionRef)
+	if akActionRef == game.getPlayer() && (sceneToStopOnExit || sceneToStartOnExit)    	
+		bool bDoWork = FALSE
+		if preRequisiteStage
+			; a pre-req stage is set!
+			if questToCheck.getStageDone(preRequisiteStage)
+				bDoWork = TRUE
+			endif
+		else
+			;no stage was setF
+			bDoWork = TRUE
+		endif
 
-;-- Functions ---------------------------------------
-
-Event OnTriggerLeave(ObjectReference akActionRef)
-  If (akActionRef == Game.getPlayer() as ObjectReference) && (sceneToStopOnExit as Bool || sceneToStartOnExit as Bool)
-    Bool bDoWork = False
-    If preRequisiteStage
-      If questToCheck.getStageDone(preRequisiteStage)
-        bDoWork = True
-      EndIf
-    Else
-      bDoWork = True
-    EndIf
-    If bDoWork
-      If sceneToStopOnExit
-        sceneToStopOnExit.stop()
-      EndIf
-      If sceneToStartOnExit
-        sceneToStartOnExit.start()
-      EndIf
-      If bDisableAfterExit
-        Self.disable(False)
-      EndIf
-    EndIf
-  EndIf
+		if bDoWork
+			if sceneToStopOnExit
+				sceneToStopOnExit.stop()
+			endif
+			if sceneToStartOnExit
+				sceneToStartOnExit.start()
+			endif
+			if bDisableAfterExit
+				self.disable()
+			endif
+		endif
+	endif
 EndEvent
 
-Event OnTriggerEnter(ObjectReference akActionRef)
-  If (akActionRef == Game.getPlayer() as ObjectReference) && (sceneToStopOnEnter as Bool || sceneToStartOnEnter as Bool)
-    Bool bDoWork = False
-    If preRequisiteStage
-      If questToCheck.getStageDone(preRequisiteStage)
-        bDoWork = True
-      EndIf
-    Else
-      bDoWork = True
-    EndIf
-    If bDoWork
-      If sceneToStopOnEnter
-        sceneToStopOnEnter.stop()
-      EndIf
-      If sceneToStartOnEnter
-        sceneToStartOnEnter.start()
-      EndIf
-      If bDisableAfterEnter
-        Self.disable(False)
-      EndIf
-    EndIf
-  EndIf
+EVENT OnTriggerEnter(ObjectReference akActionRef)
+    if akActionRef == game.getPlayer() && (sceneToStoponEnter || sceneToStartonEnter)
+    	bool bDoWork = FALSE
+		if preRequisiteStage
+			; a pre-req stage is set!
+			if questToCheck.getStageDone(preRequisiteStage)
+				bDoWork = TRUE
+			endif
+		else
+			;no stage was set
+			bDoWork = TRUE
+		endif
+
+		if bDoWork
+			if sceneToStoponEnter
+				sceneToStoponEnter.stop()
+			endif
+			if sceneToStartonEnter
+				sceneToStartonEnter.start()
+			endif
+			if bDisableAfterEnter
+				self.disable()
+			endif
+		endif
+	endif
 EndEvent

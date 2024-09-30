@@ -1,72 +1,95 @@
-ScriptName TestDynamicTerminalScript Extends TerminalMenu
+Scriptname TestDynamicTerminalScript extends TerminalMenu
 
-;-- Variables ---------------------------------------
-Int maxEntriesCurrent01 = 6
-Int maxEntriesCurrent02 = 6
-Int maxEntriesInit = 6
-Int maxIndex = 4
-Int minEntries = 2
-Int minIndex = 1
+TerminalMenu property TestDynamicTerminalMenu auto const
+
+TerminalMenu property TestDynamicTerminalMenu02 auto const
+
+TerminalMenu property TestKurtDynamicTerminalItem auto const
+
+TerminalMenu property TestKurtDynamicTerminalItem02 auto const
+
+TerminalMenu property TestDeskop auto const
+
+GlobalVariable[] property TextReplacementGlobals auto const
+
+Form property TextReplacementForm auto Const
+
+int minIndex = 1 ; starting index of dynamic entries on TestDynamicTerminal
+int maxIndex = 4 ; ending index of dynamic entries
+
+int startingItemID = 0
+
 ObjectReference myTerminalRef
-Int startingItemID = 0
 
-;-- Properties --------------------------------------
-TerminalMenu Property TestDynamicTerminalMenu Auto Const
-TerminalMenu Property TestDynamicTerminalMenu02 Auto Const
-TerminalMenu Property TestKurtDynamicTerminalItem Auto Const
-TerminalMenu Property TestKurtDynamicTerminalItem02 Auto Const
-TerminalMenu Property TestDeskop Auto Const
-GlobalVariable[] Property TextReplacementGlobals Auto Const
-Form Property TextReplacementForm Auto Const
+int minEntries = 2
+int maxEntriesCurrent01 = 6
+int maxEntriesCurrent02 = 6
+int maxEntriesInit = 6
 
-;-- Functions ---------------------------------------
-
+;/
+Event OnLoad()
+    InitEntries()
+endEvent
+/;
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  akTerminalRef.AddTextReplacementData("MiscItem01", TextReplacementForm)
-  Int itemValue = TextReplacementForm.GetGoldValue()
-  akTerminalRef.AddTextReplacementValue("MiscItem01Value", itemValue as Float)
+    debug.trace(self + "OnTerminalMenuEnter akTerminalBase=" + akTerminalBase + " akTerminalRef=" + akTerminalRef)
+    ; init text replacement
+    akTerminalRef.AddTextReplacementData("MiscItem01", TextReplacementForm)   
+    int itemValue = TextReplacementForm.GetGoldValue() 
+    akTerminalRef.AddTextReplacementValue("MiscItem01Value", itemValue)   
+
 EndEvent
 
-Function InitEntries(TerminalMenu terminalToInit, Bool decrementEntries)
-  terminalToInit.ClearDynamicMenuItems(myTerminalRef)
-  Int maxEntriesCurrent = maxEntriesInit
-  If decrementEntries
-    If TestDynamicTerminalMenu
-      maxEntriesCurrent01 += -1
-      maxEntriesCurrent = maxEntriesCurrent01
+Function InitEntries(TerminalMenu terminalToInit, bool decrementEntries = false)
+    terminalToInit.ClearDynamicMenuItems(myTerminalRef)
+
+    int maxEntriesCurrent = maxEntriesInit
+
+    if decrementEntries
+        if TestDynamicTerminalMenu
+            maxEntriesCurrent01 += -1
+            maxEntriesCurrent = maxEntriesCurrent01
+        Else
+            maxEntriesCurrent02 += -1
+            maxEntriesCurrent = maxEntriesCurrent02
+        endif
     Else
-      maxEntriesCurrent02 += -1
-      maxEntriesCurrent = maxEntriesCurrent02
+        maxEntriesCurrent = utility.RandomInt(minEntries, maxEntriesInit)
+        if TestDynamicTerminalMenu
+            maxEntriesCurrent01 = maxEntriesCurrent
+        Else
+            maxEntriesCurrent02 = maxEntriesCurrent
+        endif
     EndIf
-  Else
-    maxEntriesCurrent = Utility.RandomInt(minEntries, maxEntriesInit)
-    If TestDynamicTerminalMenu
-      maxEntriesCurrent01 = maxEntriesCurrent
-    Else
-      maxEntriesCurrent02 = maxEntriesCurrent
-    EndIf
-  EndIf
-  maxEntriesCurrent = Math.Max(minEntries as Float, maxEntriesCurrent as Float) as Int
-  Int I = 0
-  While I < maxEntriesCurrent
-    Int index = Utility.RandomInt(minIndex, maxIndex)
-    Int itemID = I + startingItemID
-    TextReplacementGlobals[0].SetValue(itemID as Float)
-    terminalToInit.AddDynamicMenuItem(myTerminalRef, index, itemID, TextReplacementGlobals as Form[])
-    I += 1
-  EndWhile
+
+    maxEntriesCurrent = Math.Max(minEntries, maxEntriesCurrent) as int
+
+    ; initialize dynamic entries
+    debug.trace(self + "entryCount=" + maxEntriesCurrent)
+    int i = 0
+    while i < maxEntriesCurrent
+    	; pick dynamic entry to add
+    	int index = utility.RandomInt(minIndex, maxIndex)
+        int itemID = i + startingItemID
+	    debug.trace(self + "  aiItemID " + itemID + ": use template index " + index)
+        TextReplacementGlobals[0].SetValue(itemID)
+	    terminalToInit.AddDynamicMenuItem(myTerminalRef, index, itemID, TextReplacementGlobals as Form[])
+    	i += 1
+    endWhile
 EndFunction
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  myTerminalRef = akTerminalRef
-  akTerminalRef.AddTextReplacementData("TerminalMenu", TestDynamicTerminalMenu02 as Form)
-  If akTerminalBase == TestDeskop && auiMenuItemID == 0
-    Self.InitEntries(TestDynamicTerminalMenu, False)
-  ElseIf akTerminalBase == TestDeskop && auiMenuItemID == 3
-    Self.InitEntries(TestDynamicTerminalMenu02, False)
-  ElseIf akTerminalBase == TestKurtDynamicTerminalItem && auiMenuItemID == 1
-    Self.InitEntries(TestDynamicTerminalMenu, True)
-  ElseIf akTerminalBase == TestKurtDynamicTerminalItem02 && auiMenuItemID == 1
-    Self.InitEntries(TestDynamicTerminalMenu02, True)
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + "OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalMenuBase=" + akTerminalBase)
+    myTerminalRef = akTerminalRef
+    ; test this
+    akTerminalRef.AddTextReplacementData("TerminalMenu", TestDynamicTerminalMenu02)
+    if akTerminalBase == TestDeskop && auiMenuItemID == 0
+        InitEntries(TestDynamicTerminalMenu)
+    elseif akTerminalBase == TestDeskop && auiMenuItemID == 3
+        InitEntries(TestDynamicTerminalMenu02)
+    elseif akTerminalBase == TestKurtDynamicTerminalItem && auiMenuItemID == 1
+        InitEntries(TestDynamicTerminalMenu, true)
+    elseif akTerminalBase == TestKurtDynamicTerminalItem02 && auiMenuItemID == 1
+        InitEntries(TestDynamicTerminalMenu02, true)
+    endif
 EndEvent

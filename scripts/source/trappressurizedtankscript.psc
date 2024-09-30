@@ -1,57 +1,55 @@
-ScriptName TrapPressurizedTankScript Extends ObjectReference
-{ Script that handles the pressurized tank trap }
+Scriptname TrapPressurizedTankScript extends ObjectReference
+{Script that handles the pressurized tank trap}
 
-;-- Variables ---------------------------------------
+group TrapPressurizedTankData
+    Float property randomAngleRange = 45.0 auto const
+    {Random range for force applied during boost. 0 = fly straight.}
+    Float property flyForce = 50.0 auto const
+    {magnitude of the impluse applied on direction modification}
+    Float Property impulsePeriod = 1.0 Const Auto
+endGroup
 
-;-- Properties --------------------------------------
-Group TrapPressurizedTankData
-  Float Property randomAngleRange = 45.0 Auto Const
-  { Random range for force applied during boost. 0 = fly straight. }
-  Float Property flyForce = 50.0 Auto Const
-  { magnitude of the impluse applied on direction modification }
-  Float Property impulsePeriod = 1.0 Auto Const
-EndGroup
+group Audio
+    WwiseEvent Property WwiseEvent_TRP_PressurizedTank_AirRelease Mandatory Const Auto
+endGroup
 
-Group Audio
-  wwiseevent Property WwiseEvent_TRP_PressurizedTank_AirRelease Auto Const mandatory
-EndGroup
-
-
-;-- State -------------------------------------------
-State DestroyedState
+auto State IdleState
+    Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+        Debug.Trace("Out destruction stage changed from " + aiOldStage + " to " + aiCurrentStage)
+        GotoState("FlyingState")
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
 State FlyingState
+    Event OnBeginState(string asOldState)
+        StartTimer(impulsePeriod)
+        WwiseEvent_TRP_PressurizedTank_AirRelease.Play(self)
+    EndEvent
 
-  Event OnDestroyed(ObjectReference akDestroyer)
-    Self.GotoState("DestroyedState")
-  EndEvent
+    Event OnTimer(int aiTimerID)
+        ;Determine impulse direction and apply impulse
+        float eulerAngleX = self.getAngleX()+Utility.RandomFloat(-1*randomAngleRange, randomAngleRange)
+        float eulerAngleY = self.getAngleY()+Utility.RandomFloat(-1*randomAngleRange, randomAngleRange)
 
-  Event OnTimer(Int aiTimerID)
-    Float eulerAngleX = Self.getAngleX() + Utility.RandomFloat(-1.0 * randomAngleRange, randomAngleRange)
-    Float eulerAngleY = Self.getAngleY() + Utility.RandomFloat(-1.0 * randomAngleRange, randomAngleRange)
-    Float cosX = Math.cos(eulerAngleX)
-    Float cosY = Math.cos(eulerAngleY)
-    Float sinX = Math.sin(eulerAngleX)
-    Float sinY = Math.sin(eulerAngleY)
-    Float angleX = sinY
-    Float angleY = -sinX * cosY
-    Float angleZ = cosX * cosY
-    Self.ApplyHavokImpulse(angleX, angleY, angleZ, flyForce)
-    Self.StartTimer(impulsePeriod, 0)
-  EndEvent
+        float cosX = math.cos(eulerAngleX)
+        float cosY = math.cos(eulerAngleY)
 
-  Event OnBeginState(String asOldState)
-    Self.StartTimer(impulsePeriod, 0)
-    WwiseEvent_TRP_PressurizedTank_AirRelease.Play(Self as ObjectReference, None, None)
-  EndEvent
+        float sinX = math.sin(eulerAngleX)
+        float sinY = math.sin(eulerAngleY)
+
+        float angleX = sinY
+        float angleY = -sinX * cosY
+        float angleZ = cosX * cosY
+
+        self.ApplyHavokImpulse(angleX, angleY, angleZ, flyForce)
+        StartTimer(impulsePeriod)
+    EndEvent
+
+    Event OnDestroyed(ObjectReference akDestroyer)
+        GotoState("DestroyedState")
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State IdleState
+State DestroyedState
 
-  Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-    Self.GotoState("FlyingState")
-  EndEvent
 EndState

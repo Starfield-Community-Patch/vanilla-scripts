@@ -1,134 +1,164 @@
-ScriptName SBPowerCollectionActivatorScript Extends ObjectReference
-{ This is on the spherical activator in the very center of the rings.
+Scriptname SBPowerCollectionActivatorScript extends ObjectReference
+{
+This is on the spherical activator in the very center of the rings.
 It gets enabled when the puzzle is solved. 
-It handles the FX sequence for the player getting the appropriate power (or ranks it up if they already have the power) if they have the necessary artifact, gives xp, and a permanent health boost. }
+It handles the FX sequence for the player getting the appropriate power (or ranks it up if they already have the power) if they have the necessary artifact, gives xp, and a permanent health boost.
+}
 
-;-- Variables ---------------------------------------
+group effectsData
+    ImageSpaceModifier Property MQ207CShiftFadeHoldImod Mandatory Const Auto
+    ImageSpaceModifier Property MQ207CShiftFadeInImod Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Group effectsData
-  ImageSpaceModifier Property MQ207CShiftFadeHoldImod Auto Const mandatory
-  ImageSpaceModifier Property MQ207CShiftFadeInImod Auto Const mandatory
-  Explosion Property PowerExplosion Auto Const mandatory
-  EffectShader Property StarbornPuzzle_PlayerFXS Auto Const mandatory
+    Explosion Property PowerExplosion Mandatory Const Auto
+
+    EffectShader property StarbornPuzzle_PlayerFXS auto const mandatory
 EndGroup
 
-Group soundData
-  wwiseevent Property wPowerAbsorbFXEvent Auto Const mandatory
-  MusicType Property mPowerAbsorbStinger Auto Const mandatory
+group soundData
+    WwiseEvent Property wPowerAbsorbFXEvent Mandatory Const Auto
+
+    MusicType Property mPowerAbsorbStinger Mandatory Const Auto
 EndGroup
 
-Group keywords
-  Keyword Property SBExplosionMarkerKeyword Auto Const mandatory
-  Keyword Property SBRingsPuzzleKeyword Auto Const mandatory
-  Keyword Property SBPlayerMoveToMarkerKeyword Auto Const mandatory
-  Keyword Property BQ01_Keyword_BarrettTempleMarkerLink Auto Const
-  Keyword Property BQ01_Keyword_BarrettPowerMarkerLink Auto Const
-  Keyword Property BQ01_Keyword_TempleLocation Auto Const
-  Keyword Property SBTempleCompanionMarkerLinkKeyword Auto Const
-  Keyword Property SBAbsorbPowerFurnKeyword Auto Const mandatory
+group keywords
+    Keyword Property SBExplosionMarkerKeyword Mandatory Const Auto
+    Keyword Property SBRingsPuzzleKeyword Mandatory Const Auto
+    Keyword Property SBPlayerMoveToMarkerKeyword Mandatory Const Auto
+
+    Keyword Property BQ01_Keyword_BarrettTempleMarkerLink Const Auto
+    Keyword Property BQ01_Keyword_BarrettPowerMarkerLink  Const Auto
+    Keyword Property BQ01_Keyword_TempleLocation Const Auto
+    Keyword Property SBTempleCompanionMarkerLinkKeyword Const Auto
+    Keyword Property SBAbsorbPowerFurnKeyword Mandatory Const Auto
+endGroup
+
+group specialHandling
+	SQ_FollowersScript property SQ_Followers Auto Const Mandatory
+
+    ReferenceAlias Property Barrett Const Auto
+    Quest Property BarrettQuest Const Auto
+    int property BarrettQuestTempleStagePrereq = 8500 const auto
+    Int Property BarrettQuestTempleStage = 8501 Const Auto
 EndGroup
 
-Group specialHandling
-  sq_followersscript Property SQ_Followers Auto Const mandatory
-  ReferenceAlias Property Barrett Auto Const
-  Quest Property BarrettQuest Auto Const
-  Int Property BarrettQuestTempleStagePrereq = 8500 Auto Const
-  Int Property BarrettQuestTempleStage = 8501 Auto Const
+group powerReward
+    Idle Property IdlePowerUp_Start Mandatory Const Auto
+    Idle Property IdlePowerUp_Stop Mandatory Const Auto
+
+    Message Property PlayerHealthIncreaseMessage Mandatory Const Auto
+
+    GlobalVariable Property StarbornPuzzleXP Mandatory Const Auto
+
+    ActorValue Property HealthAV Mandatory Const Auto
+
+    GlobalVariable Property SBPowerHealthBonus Mandatory Const Auto
+    { how much is added to the player's health for solving the puzzle }
+    
+    Spell Property RankUpPerk Auto
+    string Property sVisionBink Auto
+    WwiseEvent Property WwiseEvent_AMBArtifactVision Auto
 EndGroup
 
-Group powerReward
-  Idle Property IdlePowerUp_Start Auto Const mandatory
-  Idle Property IdlePowerUp_Stop Auto Const mandatory
-  Message Property PlayerHealthIncreaseMessage Auto Const mandatory
-  GlobalVariable Property StarbornPuzzleXP Auto Const mandatory
-  ActorValue Property HealthAV Auto Const mandatory
-  GlobalVariable Property SBPowerHealthBonus Auto Const mandatory
-  { how much is added to the player's health for solving the puzzle }
-  Spell Property RankUpPerk Auto
-  String Property sVisionBink Auto
-  wwiseevent Property WwiseEvent_AMBArtifactVision Auto
+group quests
+    Quest Property QuestToCheck Const Auto
+    { optional - if provided and StageToSet > -1, this quest stage will be set when the power sequence is done }
+    Int Property StageToSet = -1 Const Auto
 EndGroup
 
-Group quests
-  Quest Property QuestToCheck Auto Const
-  { optional - if provided and StageToSet > -1, this quest stage will be set when the power sequence is done }
-  Int Property StageToSet = -1 Auto Const
-EndGroup
+CustomEvent PowerAcquiredEvent
 
+Auto State WaitingForPlayer
+    Event OnTriggerEnter(ObjectReference akActionRef)
+        if akActionRef == Game.GetPlayer()
+            GotoState("HasBeenTriggered")
+            PlayerPowerSequence()
+        endif
+    EndEvent
+EndState
 
-;-- Functions ---------------------------------------
+State HasBeenTriggered
+    Event OnTriggerEnter(ObjectReference akActionRef)
+        ;do nothing
+    EndEvent
+EndState
 
 Function PlayerPowerSequence()
-  Bool bBarrettQuestActive = False
-  If Self.GetCurrentLocation().HasKeyword(BQ01_Keyword_TempleLocation)
-    bBarrettQuestActive = True
-  EndIf
-  ObjectReference puzzleRef = Self.GetLinkedRef(SBRingsPuzzleKeyword)
-  Actor playerRef = Game.GetPlayer()
-  inputenablelayer myLayer = inputenablelayer.Create()
-  myLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
-  ObjectReference absorbPowerFurnitureRef = Self.GetLinkedRef(SBAbsorbPowerFurnKeyword)
-  If absorbPowerFurnitureRef
-    absorbPowerFurnitureRef.Activate(playerRef as ObjectReference, False)
-  EndIf
-  StarbornPuzzle_PlayerFXS.Play(playerRef as ObjectReference, -1.0)
-  Int instancePowerFX = wPowerAbsorbFXEvent.Play(playerRef as ObjectReference, None, None)
-  puzzleRef.PlayAnimationAndWait("Stage1", "Stage2")
-  WwiseEvent_AMBArtifactVision.Play(playerRef as ObjectReference, None, None)
-  Game.PlayBinkNoWait(sVisionBink, False, False, False, True, False, True)
-  playerRef.MoveTo(Self.GetLinkedRef(SBPlayerMoveToMarkerKeyword), 0.0, 0.0, 0.0, True, False)
-  StarbornPuzzle_PlayerFXS.Stop(playerRef as ObjectReference)
-  If bBarrettQuestActive
-    Barrett.TryToMoveTo(Self.GetLinkedRef(BQ01_Keyword_BarrettTempleMarkerLink))
-  Else
-    SQ_Followers.TeleportFollowers(Self.GetLinkedRef(SBTempleCompanionMarkerLinkKeyword), None, True, True, False, False, False)
-  EndIf
-  playerRef.WaitFor3DLoad()
-  Utility.Wait(3.0)
-  myLayer.EnablePlayerControls(True, True, True, True, True, True, True, True, True, True, True)
-  Self.PlayerReceivePower()
-  If bBarrettQuestActive
-    BarrettQuest.SetStage(BarrettQuestTempleStage)
-  EndIf
-  If QuestToCheck as Bool && StageToSet > -1
-    QuestToCheck.SetStage(StageToSet)
-  EndIf
+    debug.trace(self + "PlayerPowerSequence START")
+    ;check if we're doing this in Barrett's Companion Quest
+    Bool bBarrettQuestActive = False
+    If GetCurrentLocation().HasKeyword(BQ01_Keyword_TempleLocation)
+        bBarrettQuestActive = true
+    EndIf
+
+    ObjectReference puzzleRef = GetLinkedRef(SBRingsPuzzleKeyword)
+    Actor playerRef = Game.GetPlayer()
+
+    InputEnableLayer myLayer = InputEnableLayer.Create()
+    myLayer.DisablePlayerControls()
+    ; put player in furniture
+    ObjectReference absorbPowerFurnitureRef = GetLinkedRef(SBAbsorbPowerFurnKeyword)
+    debug.trace(self + "    put player in furniture " + absorbPowerFurnitureRef)
+    if absorbPowerFurnitureRef
+        absorbPowerFurnitureRef.Activate(PlayerREF) ;put player in furniture
+    endif
+    ; put effect on player
+    StarbornPuzzle_PlayerFXS.Play(playerRef)
+    int instancePowerFX = wPowerAbsorbFXEvent.Play(playerRef)
+    ;mPowerAbsorbStinger.Add()
+
+    ; play puzzle animation and wait for it to complete
+    debug.trace(self + "    play animation start")
+    puzzleRef.PlayAnimationAndWait("Stage1", "Stage2")
+    debug.trace(self + "    play animation done")
+
+    ; done - move player to exterior and remove effect
+    ;mPowerAbsorbStinger.Remove()
+    WwiseEvent_AMBArtifactVision.Play(playerRef)
+    Game.PlayBinkNoWait(sVisionBink, abMuteAudio=False, abMuteMusic=False, aPlayDuringLoadingScreen=True)
+    PlayerREF.MoveTo(GetLinkedRef(SBPlayerMoveToMarkerKeyword))
+    StarbornPuzzle_PlayerFXS.Stop(playerRef)
+
+    If bBarrettQuestActive
+        Barrett.TryToMoveTo(GetLinkedRef(BQ01_Keyword_BarrettTempleMarkerLink)) ;also move Barrett if we're on his companion quest
+    Else
+        ;move current followers
+        SQ_Followers.TeleportFollowers(GetLinkedRef(SBTempleCompanionMarkerLinkKeyword))
+    EndIf
+
+    PlayerREF.WaitFor3DLoad() ;wait for the player to load into the next cell
+    Utility.Wait(3.0) ;give the fader a couple seconds
+
+    myLayer.EnablePlayerControls()
+    PlayerReceivePower()
+
+    ;if Barrett's quest is active we need to update it
+    If bBarrettQuestActive
+        BarrettQuest.SetStage(BarrettQuestTempleStage)
+    EndIf
+
+    ;update quest once receive power sequence is done
+    if QuestToCheck && StageToSet > -1
+        QuestToCheck.SetStage(StageToSet)
+    endif
 EndFunction
 
 Function PlayerReceivePower()
-  Actor playerRef = Game.GetPlayer()
-  Int iXPIncrease = StarbornPuzzleXP.GetValueInt()
-  RankUpPerk.Cast(playerRef as ObjectReference, playerRef as ObjectReference)
-  Utility.Wait(0.200000003)
-  playerRef.ModValue(HealthAV, SBPowerHealthBonus.GetValueInt() as Float)
-  Utility.Wait(0.200000003)
-  Game.RewardPlayerXP(iXPIncrease, False)
-  Utility.Wait(1.0)
-  Self.SendCustomEvent("sbpowercollectionactivatorscript_PowerAcquiredEvent", None)
+    Actor playerRef = Game.GetPlayer()
+    int iXPIncrease = StarbornPuzzleXP.GetValueInt()
+
+    RankUpPerk.Cast(playerRef, playerRef) ;give player the relevant power
+    Utility.Wait(0.2)
+    playerRef.ModValue(HealthAV, SBPowerHealthBonus.GetValueInt())
+    Utility.Wait(0.2)
+    Game.RewardPlayerXP(iXPIncrease)
+    Utility.Wait(1.0)
+
+    ;notify any scripts listening for the power to be acquired
+    SendCustomEvent("PowerAcquiredEvent")
 EndFunction
 
-Function UpdatePowerProperties(Spell newRankUpPerk, String newVisionBink, wwiseevent newArtifactVision)
-  RankUpPerk = newRankUpPerk
-  sVisionBink = newVisionBink
-  WwiseEvent_AMBArtifactVision = newArtifactVision
-EndFunction
-
-;-- State -------------------------------------------
-State HasBeenTriggered
-
-  Event OnTriggerEnter(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForPlayer
-
-  Event OnTriggerEnter(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      Self.GotoState("HasBeenTriggered")
-      Self.PlayerPowerSequence()
-    EndIf
-  EndEvent
-EndState
+Function UpdatePowerProperties(Spell newRankUpPerk, String newVisionBink, WwiseEvent newArtifactVision)
+    RankUpPerk = newRankUpPerk
+    sVisionBink = newVisionBink
+    WwiseEvent_AMBArtifactVision = newArtifactVision
+endFunction

@@ -1,39 +1,72 @@
-ScriptName Fragments:Quests:QF_TestObjectivesSide01_00644F0A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TestObjectivesSide01_00644F0A Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetObjectiveDisplayed(40, True, False)
-  Self.SetObjectiveDisplayed(50, True, False)
-  Self.SetObjectiveDisplayed(60, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(40)
+SetObjectiveDisplayed(50)
+SetObjectiveDisplayed(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0051_Item_00
 Function Fragment_Stage_0051_Item_00()
-  Self.SetObjectiveCompleted(40, True)
+;BEGIN CODE
+SetObjectiveCompleted(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0052_Item_00
 Function Fragment_Stage_0052_Item_00()
-  Self.SetObjectiveCompleted(50, True)
+;BEGIN CODE
+SetObjectiveCompleted(50)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0053_Item_00
 Function Fragment_Stage_0053_Item_00()
-  Self.SetObjectiveCompleted(60, True)
+;BEGIN CODE
+SetObjectiveCompleted(60)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.CompleteAllObjectives()
+;BEGIN CODE
+CompleteAllObjectives()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

@@ -1,12 +1,14 @@
-ScriptName Fragments:Quests:QF_SQ_ShipTechniciansTakeoff_000913BF Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SQ_ShipTechniciansTakeoff_000913BF Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_ShipTechnicians Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Alias_ShipTechnicians.EvaluateAll()
+;BEGIN CODE
+Alias_ShipTechnicians.EvaluateAll()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_ShipTechnicians Auto Const Mandatory

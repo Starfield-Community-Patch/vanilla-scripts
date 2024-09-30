@@ -1,35 +1,28 @@
-ScriptName MQ_TutorialPlayerScript Extends ReferenceAlias
+Scriptname MQ_TutorialPlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Keyword Property Contraband Mandatory Const Auto
+Message Property Tutorial_ContrabandMSGBox Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property Contraband Auto Const mandatory
-Message Property Tutorial_ContrabandMSGBox Auto Const mandatory
+Auto State WaitingForPlayer
+    Event OnAliasInit()
+        AddInventoryEventFilter(Contraband)
+    EndEvent
 
-;-- State -------------------------------------------
-State HasBeenTriggered
-
-  Event OnAliasInit()
-    ; Empty function
-  EndEvent
-
-  Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-    ; Empty function
-  EndEvent
+    Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+        If akBaseItem.HasKeyword(Contraband)
+            GotoState("HasBeenTriggered")
+            Tutorial_ContrabandMSGBox.Show()
+            RemoveAllInventoryEventFilters()
+        EndIf
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State WaitingForPlayer
+state HasBeenTriggered
+    Event OnAliasInit()
+        ;do nothing
+    EndEvent
 
-  Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-    If akBaseItem.HasKeyword(Contraband)
-      Self.GotoState("HasBeenTriggered")
-      Tutorial_ContrabandMSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.RemoveAllInventoryEventFilters()
-    EndIf
-  EndEvent
-
-  Event OnAliasInit()
-    Self.AddInventoryEventFilter(Contraband as Form)
-  EndEvent
+    Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+        ;do nothing
+    EndEvent
 EndState

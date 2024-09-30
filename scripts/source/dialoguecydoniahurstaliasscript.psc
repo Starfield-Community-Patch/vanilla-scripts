@@ -1,19 +1,14 @@
-ScriptName DialogueCydoniaHurstAliasScript Extends ReferenceAlias
-{ Used when the player has turned in evidence against Hurst to make him disable the next time they leave }
+Scriptname DialogueCydoniaHurstAliasScript extends ReferenceAlias
+{Used when the player has turned in evidence against Hurst to make him disable the next time they leave}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StagePrereq = 510 Auto Const
-Int Property RedTapeStagePrereq = 900 Auto Const
-Quest Property City_CY_RedTape02 Auto Const mandatory
-GlobalVariable Property CY_HurstGone Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property StagePrereq = 510 Const Auto
+Int Property RedTapeStagePrereq = 900 Const Auto
+Quest Property City_CY_RedTape02 Mandatory Const Auto
+GlobalVariable Property CY_HurstGone Mandatory Const Auto
 
 Event OnLoad()
-  If Self.GetOwningQuest().GetStageDone(StagePrereq) && City_CY_RedTape02.GetStageDone(RedTapeStagePrereq)
-    Self.GetRef().Disable(False)
-    CY_HurstGone.SetValue(1.0)
-  EndIf
+    If GetOwningQuest().GetStageDone(StagePrereq) && City_CY_RedTape02.GetStageDone(RedTapeStagePrereq)
+        GetRef().Disable()
+        CY_HurstGone.SetValue(1)
+    EndIf
 EndEvent

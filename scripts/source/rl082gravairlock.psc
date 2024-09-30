@@ -1,51 +1,59 @@
-ScriptName RL082GravAirlock Extends TerminalMenu
-{ Script to handle interaction with Zero G airlock in level RL083 }
+Scriptname RL082GravAirlock extends TerminalMenu
+{Script to handle interaction with Zero G airlock in level RL083}
 
-;-- Variables ---------------------------------------
-ObjectReference AirlockDoor01
-ObjectReference AirlockDoor02
-ObjectReference[] LinkedRefs
-
-;-- Properties --------------------------------------
 Cell Property RL082TAWarehouse01 Auto Const
-Keyword Property LinkCustom01 Auto Const mandatory
-Keyword Property LinkCustom02 Auto Const mandatory
-Int Property menuItemID_01 = 1 Auto Const
-Int Property menuItemID_02 = 2 Auto Const
+Keyword property LinkCustom01 auto const mandatory
+Keyword property LinkCustom02 auto const mandatory
 
-;-- Functions ---------------------------------------
+ObjectReference[] LinkedRefs
+;Objects to aplly impulse havok
+ObjectReference  AirlockDoor01
+;Door to Zero G cell
+ObjectReference  AirlockDoor02
+;Door in current normal G cell;
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  Self.HandleMenuItem(auiMenuItemID)
-  LinkedRefs = akTerminalRef.GetLinkedRefChain(None, 100)
-  AirlockDoor01 = akTerminalRef.GetLinkedRef(LinkCustom01)
-  AirlockDoor02 = akTerminalRef.GetLinkedRef(LinkCustom02)
+;enums
+int property menuItemID_01 = 1 auto const
+int property menuItemID_02 = 2 auto const
+
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    ;Player must use terminal to turn on or off gravity to proceed through the doors
+    HandleMenuItem(auiMenuItemID)
+    LinkedRefs = akterminalref.GetLinkedRefChain()
+    AirlockDoor01 = akterminalref.GetLinkedRef(LinkCustom01)
+    AirlockDoor02 = akterminalref.GetLinkedRef(LinkCustom02)
 EndEvent
 
-Function HandleMenuItem(Int auiMenuItemID)
-  If auiMenuItemID == menuItemID_01
-    Self.StartTimer(0.100000001, 10)
-  ElseIf auiMenuItemID == menuItemID_02
-    Self.StartTimer(0.100000001, 20)
-  EndIf
+
+function HandleMenuItem(int auiMenuItemID)
+    if auiMenuItemID == menuItemID_01
+        StartTimer(0.1, 10)
+    elseif auiMenuItemID == menuItemID_02
+        StartTimer(0.1, 20)
+    endif
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == 10
-    AirlockDoor01.lock(True, False, True)
-    AirlockDoor01.SetLockLevel(253)
-    AirlockDoor02.unlock(False)
-    RL082TAWarehouse01.setGravityScale(0.0)
-    Int I = 0
-    While I < LinkedRefs.Length
-      LinkedRefs[I].ApplyHavokImpulse(Utility.RandomFloat(-1.0, 1.0), Utility.RandomFloat(-1.0, 1.0), Utility.RandomFloat(-1.0, 1.0), (LinkedRefs[I].GetMass() * Utility.RandomInt(1, 2) as Float) * 0.25)
-      I += 1
-    EndWhile
-  ElseIf aiTimerID == 20
-    AirlockDoor01.unlock(False)
-    AirlockDoor01.setopen(True)
-    AirlockDoor02.lock(True, False, True)
-    AirlockDoor02.SetLockLevel(253)
-    RL082TAWarehouse01.setGravityScale(1.0)
-  EndIf
+Event OnTimer(int aiTimerID)
+    If aiTimerID == 10
+        AirlockDoor01.lock()
+        AirlockDoor01.SetLockLevel(253)
+        AirlockDoor02.unlock()
+        RL082TAWarehouse01.setGravityScale(0)
+
+        int i = 0
+        while (i < LinkedRefs.length)
+            ;Apply an impulse to refs linked ref to computer to show the effect of flaoting objects when turning gravity to 0
+            LinkedRefs[i].ApplyHavokImpulse(Utility.RandomFloat(-1.0, 1.0), Utility.RandomFloat(-1.0, 1.0), Utility.RandomFloat(-1.0, 1.0), LinkedRefs[i].GetMass()*Utility.RandomInt(1, 2)*0.25)
+            i += 1
+        endwhile
+    elseif aiTimerID == 20
+        AirlockDoor01.unlock()
+        AirlockDoor01.setopen()
+        AirlockDoor02.lock()
+        AirlockDoor02.SetLockLevel(253)
+        RL082TAWarehouse01.setGravityScale(1.0)
+    endif
 EndEvent
+
+
+

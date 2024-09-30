@@ -1,64 +1,71 @@
-ScriptName TriggerAmbushOnMarkerHit Extends ObjectReference
+Scriptname TriggerAmbushOnMarkerHit extends ObjectReference
 
-;-- Variables ---------------------------------------
+Keyword Property DMP_AmbushMarker Mandatory Const Auto
+{Keyword used to find the critter linked to this ambush marker}
 
-;-- Properties --------------------------------------
-Keyword Property DMP_AmbushMarker Auto Const mandatory
-{ Keyword used to find the critter linked to this ambush marker }
-Keyword Property LinkAmbushTrigger Auto Const mandatory
-{ Keyword to find the trigger linked to the ambushing critter }
+Keyword Property LinkAmbushTrigger Mandatory Const Auto
+{Keyword to find the trigger linked to the ambushing critter}
 
-;-- Functions ---------------------------------------
+Auto State Waiting
+    Event OnLoad()
+        RegisterForHitEvent(self)
+        trace(self, "OnHit event registered.")
+    EndEvent
+
+    Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+        trace(self, "Hit received! Processing.")
+        ProcessHit()
+    EndEvent
+
+    Event OnUnload()
+        UnregisterForHitEvent(self)
+        trace(self, "OnHit event unregistered.")
+    EndEvent
+EndState
+
+State Triggered
+    Event OnLoad()
+        ;Do nothing
+    EndEvent
+
+    Event OnUnload()
+        ;Do nothing
+    EndEvent
+EndState
 
 Function ProcessHit()
-  ObjectReference[] LinkedNPCs = Self.GetRefsLinkedToMe(DMP_AmbushMarker, None)
-  Int iLength = LinkedNPCs.Length
-  Bool AmbushNPCFound = False
-  Actor NPCRef = None
-  If iLength > 0 && !AmbushNPCFound
-    Int I = 0
-    NPCRef = LinkedNPCs[I] as Actor
-    If NPCRef != None
-      AmbushNPCFound = True
-    EndIf
-  EndIf
-  If AmbushNPCFound
-    defaultrefambushtrigger2 TriggerRef = NPCRef.GetLinkedRef(LinkAmbushTrigger) as defaultrefambushtrigger2
-    If TriggerRef != None
-      TriggerRef.TriggerAmbush()
-    EndIf
-  EndIf
-  Self.GotoState("Triggered")
+    ObjectReference[] LinkedNPCs = GetRefsLinkedToMe(DMP_AmbushMarker)
+    int iLength = LinkedNPCs.Length
+    trace(self, "Number of refs linked to me: " + iLength)
+    bool AmbushNPCFound
+    Actor NPCRef
+
+    if iLength > 0 && !AmbushNPCFound
+        int i = 0
+        NPCRef = LinkedNPCs[i] as Actor
+        trace(self, "Checking if linked ref: " + NPCRef + " is an actor.")
+
+        if NPCRef != None
+            AmbushNPCFound = true
+        endif
+    endif
+
+    if AmbushNPCFound
+        DefaultRefAmbushTrigger2 TriggerRef = NPCRef.GetLinkedRef(LinkAmbushTrigger) as DefaultRefAmbushTrigger2         
+
+        if TriggerRef != none
+            TriggerRef.TriggerAmbush()
+        endif
+    else
+        trace(self,"ERROR: No NPCs attached to this ambush marker!")
+    endif
+
+    GotoState("Triggered")
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
-
-;-- State -------------------------------------------
-State Triggered
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-
-  Event OnUnload()
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-    Self.ProcessHit()
-  EndEvent
-
-  Event OnUnload()
-    Self.UnregisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndEvent
-
-  Event OnLoad()
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndEvent
-EndState
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC09", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

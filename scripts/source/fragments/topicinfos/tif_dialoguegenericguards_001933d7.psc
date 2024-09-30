@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueGenericGuards_001933D7 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueGenericGuards_001933D7 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property NewHomesteadLocationMiscPointer Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  NewHomesteadLocationMiscPointer.SetStage(5)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+NewHomesteadLocationMiscPointer.SetStage(5)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property NewHomesteadLocationMiscPointer Auto Const Mandatory

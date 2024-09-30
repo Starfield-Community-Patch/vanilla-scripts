@@ -1,7 +1,5 @@
-ScriptName BE_BB01KillScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname BE_BB01KillScript extends ReferenceAlias
 
 Event OnLoad()
-  Self.TryToKill(None)
+    self.TryToKill()
 EndEvent

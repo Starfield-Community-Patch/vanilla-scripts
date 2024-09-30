@@ -1,27 +1,29 @@
-ScriptName Temp_FixExistingSaves_CompanionCrime Extends Actor
+Scriptname Temp_FixExistingSaves_CompanionCrime extends Actor
 
-;-- Variables ---------------------------------------
-Bool Done
+bool Done
 
-;-- Properties --------------------------------------
-Faction Property PersonalCrimeFaction Auto Const mandatory
-
-;-- Functions ---------------------------------------
+faction Property PersonalCrimeFaction Mandatory Const Auto
 
 Event OnInit()
-  If Done == False
-    ((Self as Actor) as companioncrimeresponsescript).RegisterForEvents()
-    Self.SetValue(Game.GetAggressionAV(), 1.0)
-    Self.SetCrimeFaction(PersonalCrimeFaction)
-    Done = True
-  EndIf
+    if Done == false
+        Trace(self, "OnInit()")
+        ((Self as Actor) as CompanionCrimeResponseScript).RegisterForEvents()
+        SetValue(Game.GetAggressionAV(), 1)
+
+        SetCrimeFaction(PersonalCrimeFaction)
+
+        Done = true
+    EndIf
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "TEMP",  string SubLogName = "Temp_FixExistingSaves_CompanionCrime", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "TEMP",  string SubLogName = "Temp_FixExistingSaves_CompanionCrime", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
-EndFunction

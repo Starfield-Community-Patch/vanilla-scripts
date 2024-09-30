@@ -1,86 +1,105 @@
-ScriptName OutpostBeaconScript Extends ObjectReference Const
+Scriptname OutpostBeaconScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-Bool bShowNormalTrace = True Const
-Float fAttackTimerMaxSeconds = 48.0 Const
-Float fAttackTimerMinSeconds = 12.0 Const
-Int iCheckForAttackTimerID = 1 Const
+SQ_CrewScript property SQ_Crew auto const mandatory
+{ to handle crew assign/dismiss events}
 
-;-- Properties --------------------------------------
-Group outpostAttacks
-  sq_parentscript Property SQ_Parent Auto Const mandatory
-  { holds outpost attack data/functions }
-  Bool Property AllowAttacks = True Auto conditional Const
-  { set to FALSE to prevent ALL random attacks }
-EndGroup
-
-sq_crewscript Property SQ_Crew Auto Const mandatory
-{ to handle crew assign/dismiss events }
-outposttutorialscript Property OutpostTutorial Auto Const mandatory
+OutpostTutorialScript property OutpostTutorial auto const mandatory
 { handle outpost tutorial events }
-companionaffinityeventsscript Property SQ_Companions Auto Const mandatory
-{ to handle companions responding to things the player builds }
-ActorValue Property OutpostSurveyBoost Auto Const mandatory
+
+CompanionAffinityEventsScript Property SQ_Companions auto const mandatory
+{to handle companions responding to things the player builds}
+
+ActorValue property OutpostSurveyBoost auto const mandatory
 { actor value to flag when an outpost has reported a planet survey boost }
-Message Property OutpostSurveyBoostMessage Auto Const mandatory
+
+Message property OutpostSurveyBoostMessage auto const mandatory
 { message first time player returns to outpost after fully surveying planet }
-Keyword Property LocTypeOutpost Auto Const mandatory
+
+Keyword property LocTypeOutpost auto const mandatory
 { make sure outpost locations have this keyword }
 
-;-- Functions ---------------------------------------
+int iCheckForAttackTimerID = 1 const
+
+; obviously should both be bigger for real
+float fAttackTimerMinSeconds = 12.0 const ; 120.0 Const
+float fAttackTimerMaxSeconds = 48.0 const ; 480.0 Const 
+
+group outpostAttacks
+    SQ_ParentScript property SQ_Parent auto const mandatory
+    { holds outpost attack data/functions }
+
+	bool Property AllowAttacks = true auto const conditional
+	{ set to FALSE to prevent ALL random attacks }
+EndGroup
 
 Event OnCrewAssigned(Actor akCrew, ObjectReference akAssignmentRef, ObjectReference akPreviousAssignmentRef)
-  SQ_Crew.HandleOnCrewAssigned(akCrew, Self as ObjectReference)
-EndEvent
+    Trace(self, " OnCrewAssigned " + akCrew)
+    SQ_Crew.HandleOnCrewAssigned(akCrew, self)
+    Trace(self, " OnCrewassigned DONE")
+endEvent
 
 Event OnCrewDismissed(Actor akCrew, ObjectReference akPreviousAssignmentRef)
-  SQ_Crew.HandleOnCrewDismissed(akCrew, Self as ObjectReference)
-EndEvent
+    Trace(self, " OnCrewDismissed " + akCrew)
+    SQ_Crew.HandleOnCrewDismissed(akCrew, self)
+endEvent
 
 Event OnUnload()
-  SQ_Crew.HandleCrewGoingHomeUnloaded(SQ_Crew.CrewGoingToOutposts)
-EndEvent
+    trace(self, " OnUnload")
+    ; see if any crew want to move here when I unload
+    SQ_Crew.HandleCrewGoingHomeUnloaded(SQ_Crew.CrewGoingToOutposts)
+endEvent
 
 Event OnLoad()
-  Self.GetCurrentLocation().AddKeyword(LocTypeOutpost)
-  SQ_Crew.HandleCrewGoingHomeUnloaded(SQ_Crew.CrewGoingToOutposts)
-  If Self.GetValue(OutpostSurveyBoost) == 0.0 && Self.GetCurrentPlanet().GetSurveyPercent() >= 1.0
-    Self.SetValue(OutpostSurveyBoost, 1.0)
-    OutpostSurveyBoostMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
-  Self.StartAttackTimer()
-EndEvent
+    trace(self, " OnLoad")
+    ; make sure my location has the outpost keyword (landing overlay won't)
+    GetCurrentLocation().AddKeyword(LocTypeOutpost)
+
+    ; see if any crew want to move here when I load
+    SQ_Crew.HandleCrewGoingHomeUnloaded(SQ_Crew.CrewGoingToOutposts)
+    if GetValue(OutpostSurveyBoost) == 0 && GetCurrentPlanet().GetSurveyPercent() >= 1.0
+        SetValue(OutpostSurveyBoost, 1)
+        OutpostSurveyBoostMessage.Show()
+    endif
+    ; run attack timer
+    StartAttackTimer()
+endEvent
 
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  SQ_Companions.OutpostObjectPlaced(akReference)
-  resource[] resources = akReference.GetValueResources()
-  If resources
-    Self.StartAttackTimer()
-  EndIf
+	SQ_Companions.Trace(self, "OnWorkshopObjectPlaced() akReference: " + akReference )
+	SQ_Companions.OutpostObjectPlaced(akReference)
+    Resource[] resources = akReference.GetValueResources()
+    debug.trace(self + "OnWorkshopObjectPlaced akReference=" + akReference + " resources=" + resources)
+    if resources
+        ; if this is a resource producing object, run attack timer again
+        StartAttackTimer()
+    endif
 EndEvent
 
-Event OnWorkshopMode(Bool aStart)
-  If aStart && OutpostTutorial.IsRunning()
-    OutpostTutorial.EnterWorkshopMenu(Self as ObjectReference)
-  EndIf
-EndEvent
+Event OnWorkshopMode(bool aStart)
+    if aStart && OutpostTutorial.IsRunning()
+        OutpostTutorial.EnterWorkshopMenu(self)
+    endif
+endEvent
 
-Function StartAttackTimer()
-  Float checkForAttackTime = Utility.RandomFloat(fAttackTimerMinSeconds, fAttackTimerMaxSeconds)
-  Self.StartTimer(checkForAttackTime, iCheckForAttackTimerID)
+function StartAttackTimer()
+    float checkForAttackTime = Utility.RandomFloat(fAttackTimerMinSeconds, fAttackTimerMaxSeconds)
+    debug.trace(self + " starting attack timer: " + checkForAttackTime + " seconds")
+    StartTimer(checkForAttackTime, iCheckForAttackTimerID)
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iCheckForAttackTimerID
-    SQ_Parent.CheckForAttack(Self, False, 0, 0.0)
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == iCheckForAttackTimerID
+        SQ_Parent.CheckForAttack(self)
+    endif
 EndEvent
+;************************************************************************************
+;****************************	   		Crew Logging		    *****************************
+;************************************************************************************
+bool bShowNormalTrace = true Const
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Crew",  string SubLogName = "OutpostBeaconScript", bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
-
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Crew",  string SubLogName = "OutpostBeaconScript", bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

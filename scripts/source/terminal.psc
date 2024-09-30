@@ -1,1 +1,1 @@
-ScriptName Terminal Extends Form Native hidden
+Scriptname Terminal extends Form Native Hidden

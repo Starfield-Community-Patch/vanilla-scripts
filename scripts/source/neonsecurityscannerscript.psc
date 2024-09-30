@@ -1,87 +1,110 @@
-ScriptName NeonSecurityScannerScript Extends ObjectReference Const
+Scriptname NeonSecurityScannerScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard scanGuard
-
-;-- Properties --------------------------------------
-wwiseevent Property AMB_Ext_CityNeon_AuroraScanner_Confirmation Auto Const mandatory
+WwiseEvent Property AMB_Ext_CityNeon_AuroraScanner_Confirmation Auto Const mandatory
 { sound to play if no aurora detected }
-wwiseevent Property AMB_Ext_CityNeon_AuroraScanner_Denial Auto Const mandatory
+
+WwiseEvent Property AMB_Ext_CityNeon_AuroraScanner_Denial Auto Const mandatory
 { sound to play if aurora detected and guards alarmed }
-Faction Property CurrentFollowerFaction Auto Const mandatory
-Keyword Property GuardKeyword Auto Const mandatory
+
+Faction property CurrentFollowerFaction auto Const mandatory
+
+Keyword property GuardKeyword auto const mandatory
 { used to find nearby guards }
-Potion Property Drug_Aurora Auto Const mandatory
-Faction Property CrimeFactionNeon Auto Const mandatory
-Message Property Neon_AuroraSnifferMessage Auto Const mandatory
-Float Property maxGuardDistance = 25.0 Auto Const
+
+Potion property Drug_Aurora auto const mandatory
+
+Faction property CrimeFactionNeon auto const mandatory
+
+Guard scanGuard ProtectsFunctionLogic
+
+Message Property Neon_AuroraSnifferMessage Auto Const Mandatory
+
+float property maxGuardDistance = 25.0 auto const
 { range to search for guards }
 
-;-- Functions ---------------------------------------
 
 Event OnLoad()
-  Self.AddInventoryEventFilter(Drug_Aurora as Form)
+    AddInventoryEventFilter(Drug_Aurora)
 EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef is Actor
-    Self.ScanActor(akActionRef as Actor, True)
-  ElseIf akActionRef.GetBaseObject() == Drug_Aurora as Form
-    akActionRef.SetFactionOwner(CrimeFactionNeon, False)
-    akActionRef.SendStealAlarm(Game.GetPlayer())
-  EndIf
+    debug.trace(self + " OnTriggerEnter " + akActionRef)
+    if akActionRef is Actor
+        ScanActor(akActionRef as Actor, true)
+    elseif akActionRef.GetBaseObject() == Drug_Aurora
+        ; assume if Aurora is dropped in the trigger the player is responsible
+        akActionRef.SetFactionOwner(CrimeFactionNeon)
+        akActionRef.SendStealAlarm(Game.GetPlayer())
+    endif
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  Guard scanGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.UnregisterForRemoteEvent(akActionRef as ScriptObject, "OnItemAdded")
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+    debug.trace(self + " OnTriggerLeave " + akActionRef)
+    LockGuard scanGuard
+        UnregisterForRemoteEvent(akActionRef, "OnItemAdded")
+        debug.trace(self + " " + akActionRef + " unregistered for OnItemAdded")
+    EndLockGuard
 EndEvent
 
-Function ScanActor(Actor ScanActor, Bool playSound)
-  Guard scanGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If (ScanActor as Bool && Self.IsValidActor(ScanActor)) && Self.IsInTrigger(ScanActor as ObjectReference)
-      Int auroraCount = ScanActor.GetItemCount(Drug_Aurora as Form)
-      If auroraCount > 0
-        AMB_Ext_CityNeon_AuroraScanner_Denial.PlayandWait(Self as ObjectReference, None, None)
-        ObjectReference[] guards = Self.FindAllReferencesWithKeyword(GuardKeyword as Form, maxGuardDistance)
-        If guards.Length > 0
-          Int I = 0
-          Actor guardActor = None
-          Float currentDistance = maxGuardDistance + 1.0
-          While I < guards.Length
-            Actor testGuard = guards[I] as Actor
-            Float testDistance = Self.GetDistance(testGuard as ObjectReference)
-            If (testGuard as Bool && testGuard.IsDead() == False) && testDistance < currentDistance
-              guardActor = testGuard
-              currentDistance = testDistance
-            EndIf
-            I += 1
-          EndWhile
-          If guardActor
-            guardActor.SendSmugglingAlarm(ScanActor)
-            If Game.GetPlayer().IsInCombat() == False
-              Neon_AuroraSnifferMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-            EndIf
-          EndIf
-        EndIf
-      Else
-        Self.RegisterForRemoteEvent(ScanActor as ScriptObject, "OnItemAdded")
-        AMB_Ext_CityNeon_AuroraScanner_Confirmation.PlayandWait(Self as ObjectReference, None, None)
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+
+Function ScanActor(Actor scanActor, bool playSound = true)
+    debug.trace(self + " ScanActor " + scanActor)
+    LockGuard scanGuard
+        if scanActor && IsValidActor(scanActor) && IsInTrigger(scanActor)
+            ; if scanActor has Aurora, trigger alarm
+            int auroraCount = scanActor.GetItemCount(Drug_Aurora)
+            debug.trace(self + "     auroraCount=" + auroraCount)
+            if auroraCount > 0
+                AMB_Ext_CityNeon_AuroraScanner_Denial.PlayandWait(self)
+
+                ; find a live guard
+                ObjectReference[] guards = FindAllReferencesWithKeyword(GuardKeyword, maxGuardDistance)
+                debug.trace(self + "     guards=" + guards)
+                if guards.Length > 0
+                    ; find closest guard
+                    int i = 0
+                    Actor guardActor
+                    float currentDistance = maxGuardDistance + 1.0
+                    while i < guards.Length
+                        Actor testGuard = guards[i] as Actor
+                        float testDistance = GetDistance(testGuard)
+                        debug.trace(self + " testGuard=" + testGuard + " distance=" + testDistance + " currentDistance=" + currentDistance)
+                        if testGuard && testGuard.IsDead() == false && testDistance < currentDistance
+                            guardActor = testGuard
+                            currentDistance = testDistance
+                            debug.trace(self + " guardActor=" + guardActor + " currentDistance=" + currentDistance)
+                        endif   
+                        i += 1
+                    endWhile
+                    
+                    debug.trace(self + "     Closest guardActor=" + guardActor)
+                    if guardActor
+                        guardActor.SendSmugglingAlarm(scanActor)
+                        if Game.GetPlayer().IsInCombat() == 0 ;if scanner catches player with Aurora, pop a message saying they're going to be arrested. Only show the message if player isn't in combat (that way if player resists arrest it won't keep popping up if player runs through the triggera lot)
+                            Neon_AuroraSnifferMessage.Show()
+                        endif
+                    EndIf
+                EndIf
+            Else
+                ; watch for actors to pick up aurora
+                RegisterForRemoteEvent(scanActor, "OnItemAdded")
+                debug.trace(self + " " + scanActor + " registered for OnItemAdded")
+                AMB_Ext_CityNeon_AuroraScanner_Confirmation.PlayandWait(self)
+            endif
+        endif
+    EndLockGuard
+    debug.trace(self + " ScanActor " + scanActor + " END")
 EndFunction
 
-Event ObjectReference.OnItemAdded(ObjectReference akSource, Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If akBaseItem == Drug_Aurora as Form
-    Self.ScanActor(akSource as Actor, False)
-  EndIf
+Event ObjectReference.OnItemAdded(ObjectReference akSource, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    debug.trace(self + " OnItemAdded akSource=" + akSource)
+    ; if we get this event, means someone picked up Aurora while in the trigger - blame the player!
+    if akBaseItem == Drug_Aurora
+        debug.trace(self + " added aurora - rescan " + akSource)
+        ScanActor(akSource as Actor, false)
+    endif
 EndEvent
 
-Bool Function IsValidActor(Actor ScanActor)
-  Return ScanActor.IsInFaction(CurrentFollowerFaction) || ScanActor == Game.GetPlayer()
-EndFunction
+bool Function IsValidActor(Actor scanActor)
+    return (scanActor.IsInFaction(CurrentFollowerFaction) || scanActor == Game.GetPlayer())
+endFunction

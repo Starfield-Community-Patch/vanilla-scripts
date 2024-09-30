@@ -1,7 +1,5 @@
-ScriptName TestInstancedKeyScript Extends ObjectReference Const
+Scriptname TestInstancedKeyScript extends ObjectReference Const
 
-;-- Functions ---------------------------------------
-
-Function AddKey()
-  Game.GetPlayer().AddKeyIfNeeded(Self as ObjectReference)
-EndFunction
+function AddKey()
+    Game.GetPlayer().AddKeyIfNeeded(self)
+endFunction

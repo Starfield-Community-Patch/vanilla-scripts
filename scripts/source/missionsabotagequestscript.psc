@@ -1,50 +1,59 @@
-ScriptName MissionSabotageQuestScript Extends MissionQuestScript
+Scriptname MissionSabotageQuestScript extends MissionQuestScript
 
-;-- Variables ---------------------------------------
+group SabotageMissionData
+	ReferenceAlias property HoldingContainer auto const Mandatory
+	{ alias where sabotage ref will be created }
 
-;-- Properties --------------------------------------
-Group SabotageMissionData
-  ReferenceAlias Property HoldingContainer Auto Const mandatory
-  { alias where sabotage ref will be created }
-  ReferenceAlias Property Device Auto Const mandatory
-  { sabotage ref }
-  ReferenceAlias Property DevicePlacementTrigger Auto Const mandatory
-  { sabotage ref }
-  ReferenceAlias Property PlacedDevice Auto Const mandatory
-  { static version of the ARC device that is actually placed }
-  MiscObject Property RIR04_Device Auto Const mandatory
-  { base object to create planted device }
-  Float Property CooldownDays = 2.0 Auto Const
-  { how long before the same target location can be picked again? }
-  ActorValue Property CooldownAV Auto Const mandatory
-  { AV to use for cooldown timestamp }
+	ReferenceAlias property Device auto const Mandatory
+	{ sabotage ref }
+
+	ReferenceAlias property DevicePlacementTrigger auto const Mandatory
+	{ sabotage ref }
+
+    ReferenceAlias Property PlacedDevice Auto Const Mandatory
+    { static version of the ARC device that is actually placed }
+
+    MiscObject Property RIR04_Device Auto Const Mandatory
+    { base object to create planted device }
+
+    float property CooldownDays = 2.0 auto Const
+    { how long before the same target location can be picked again? }
+
+    ActorValue property CooldownAV auto const mandatory
+    { AV to use for cooldown timestamp }
 EndGroup
 
+; OVERRIDE parent function
+Function MissionAccepted(bool bAccepted)
+	if bAccepted
+        ; move device to player's inventory
+        Game.GetPlayer().AddItem(Device.GetRef())
+        ; enable placement trigger
+        DevicePlacementTrigger.TryToEnable()
+	EndIf
+	Parent.MissionAccepted(bAccepted)
+endFunction
 
-;-- Functions ---------------------------------------
-
-Function MissionAccepted(Bool bAccepted)
-  If bAccepted
-    Game.GetPlayer().AddItem(Device.GetRef() as Form, 1, False)
-    DevicePlacementTrigger.TryToEnable()
-  EndIf
-  Parent.MissionAccepted(bAccepted)
-EndFunction
-
+; OVERRIDE parent function
 Function HandleOnQuestRejected()
-  Self.CleanupMission()
-  Self.MissionFailed()
-EndFunction
+    CleanupMission()
+	MissionFailed()
+endFunction
 
 Function MissionComplete()
-  Self.CleanupMission()
-  Parent.MissionComplete()
-EndFunction
+    CleanupMission()
+	Parent.MissionComplete()
+endFunction
 
 Function CleanupMission()
-  Game.GetPlayer().RemoveItem(Device.GetRef() as Form, 1, False, None)
-  PlacedDevice.GetRef().MoveTo(PrimaryRef.GetRef(), 0.0, 0.0, 0.0, True, False)
-  DevicePlacementTrigger.TryToDisable()
-  Location targetLoc = TargetLocation.GetLocation()
-  targetLoc.SetValue(CooldownAV, Utility.GetCurrentGameTime() + CooldownDays)
+
+    ; remove device from player
+    Game.GetPlayer().RemoveItem(Device.GetRef())
+    PlacedDevice.GetRef().MoveTo(PrimaryRef.GetRef(), abMatchRotation = True)
+    ; disable placement trigger
+    DevicePlacementTrigger.TryToDisable()
+
+    ; cooldown timestamp on location
+    Location targetLoc = TargetLocation.GetLocation()
+    targetLoc.SetValue(CooldownAV, Utility.GetCurrentGameTime() + CooldownDays)
 EndFunction

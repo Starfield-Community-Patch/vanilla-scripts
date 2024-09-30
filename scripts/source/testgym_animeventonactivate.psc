@@ -1,21 +1,27 @@
-ScriptName TestGym_AnimEventOnActivate Extends ObjectReference Const
-{ Tests brads stuff }
+Scriptname TestGym_AnimEventOnActivate extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+{Tests brads stuff}
 
-;-- Properties --------------------------------------
 ObjectReference Property PipeArt Auto Const
 
-;-- Functions ---------------------------------------
+
 
 Event OnLoad()
-  ; Empty function
-EndEvent
+
+endEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If 1 > 0
-    PipeArt.PlayAnimation("Play01")
-    Utility.Wait(3.0)
-    PipeArt.PlayAnimation("StopEffect")
-  EndIf
+
+if 1> 0 
+ 	 Debug.Trace("Hello Brad ")
+
+	; Play the  animation on the switch
+	PipeArt .PlayAnimation("Play01")
+
+	Utility.Wait(3) 
+
+	PipeArt .PlayAnimation("StopEffect")
+endif
+
 EndEvent
+

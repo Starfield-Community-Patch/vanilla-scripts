@@ -1,17 +1,14 @@
-ScriptName TestNPCArenaAddScript Extends ObjectReference Const
-{ Adds a specific NPC to one of the teams. }
+Scriptname TestNPCArenaAddScript extends ObjectReference Const
+{Adds a specific NPC to one of the teams.}
 
-;-- Variables ---------------------------------------
+ObjectReference Property ArenaController auto const Mandatory
 
-;-- Properties --------------------------------------
-ObjectReference Property ArenaController Auto Const mandatory
-Int Property TypeToAdd Auto Const
-{ 0. Assault, 1. Charger, 2. Heavy, 3. Officer, 4. Recruit, 5. Sniper, 6. Support }
-Int Property TeamToAddTo Auto Const mandatory
-{ 1. Red Team, 2. Blue Team }
+int Property TypeToAdd auto const
+{0. Assault, 1. Charger, 2. Heavy, 3. Officer, 4. Recruit, 5. Sniper, 6. Support}
 
-;-- Functions ---------------------------------------
+int property TeamToAddTo auto const Mandatory
+{1. Red Team, 2. Blue Team}
 
 Event OnActivate(ObjectReference akActionRef)
-  (ArenaController as testnpcarenascript).AddSpecificNPC(TypeToAdd, TeamToAddTo)
+    (ArenaController as TestNPCArenaScript).AddSpecificNPC(TypeToAdd, TeamToAddTo)
 EndEvent

@@ -1,1 +1,1 @@
-ScriptName Hazard Extends Form Native hidden
+Scriptname Hazard extends Form Native Hidden

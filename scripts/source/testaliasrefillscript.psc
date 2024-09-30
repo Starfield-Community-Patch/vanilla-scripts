@@ -1,19 +1,16 @@
-ScriptName TestAliasRefillScript Extends Quest
+Scriptname TestAliasRefillScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Alias Property ActorFillFromLoadedArea Auto Const
 Alias Property RefFillFromLocationAlias Auto Const
 
-;-- Functions ---------------------------------------
 
 Event OnQuestInit()
-  Self.StartTimer(5.0, 0)
+	;attempt to refill aliases every 5 seconds
+	StartTimer(5)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  ActorFillFromLoadedArea.RefillAlias()
-  RefFillFromLocationAlias.RefillAlias()
-  Self.StartTimer(5.0, 0)
+Event OnTimer(int aiTimerID)
+	ActorFillFromLoadedArea.RefillAlias()
+	RefFillFromLocationAlias.RefillAlias()
+	StartTimer(5)
 EndEvent

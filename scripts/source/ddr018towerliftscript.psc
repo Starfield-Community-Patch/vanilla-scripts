@@ -1,14 +1,10 @@
-ScriptName DDR018TowerLiftScript Extends ObjectReference Const
+Scriptname DDR018TowerLiftScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property myMoveHelper Mandatory Const Auto
+ObjectReference Property myMoveMarker Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ObjectReference Property myMoveHelper Auto Const mandatory
-ObjectReference Property myMoveMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  Utility.Wait(1.5)
-  myMoveHelper.TranslateToRef(myMoveMarker, 1.0, 0.0)
+    Utility.Wait(1.5)
+    myMoveHelper.TranslateToRef(myMoveMarker, 1)
 EndEvent

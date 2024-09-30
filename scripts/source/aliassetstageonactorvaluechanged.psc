@@ -1,67 +1,76 @@
-ScriptName AliasSetStageOnActorValueChanged Extends ReferenceAlias
+Scriptname AliasSetStageOnActorValueChanged extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ActorValue Property WatchedValue Auto Const Mandatory
+{The actor value to watch for}
 
-;-- Properties --------------------------------------
-ActorValue Property WatchedValue Auto Const mandatory
-{ The actor value to watch for }
-Int Property AVThreshold Auto Const mandatory
-{ When your actor value get BELOW this number, set the appropriate stage. So if you want it to fire when your AV is zero, set this to a number more than zero }
-Int Property StageToSet Auto Const mandatory
-{ Stage to set when "ValueTarget" is reached on WatchedValue }
-Int Property PrereqStage = -1 Auto Const
-{ OPTIONAL: Don't start watching for this value until this stage is set }
-Int Property ShutdownStage = -1 Auto Const
-{ OPTIONAL: If this stage is set, you can clean up this registration }
+int Property AVThreshold Mandatory Const Auto
+{When your actor value get BELOW this number, set the appropriate stage. So if you want it to fire when your AV is zero, set this to a number more than zero}
 
-;-- Functions ---------------------------------------
+int Property StageToSet Const Mandatory Auto
+{Stage to set when "ValueTarget" is reached on WatchedValue}
+
+int Property PrereqStage = -1 Const Auto
+{OPTIONAL: Don't start watching for this value until this stage is set}
+
+int Property ShutdownStage = -1 Const Auto
+{OPTIONAL: If this stage is set, you can clean up this registration}
+
 
 Event OnAliasInit()
-  ObjectReference currRef = Self.GetRef()
-  If currRef != None
-    If ShutdownStage <= -1 || !Self.GetOwningQuest().GetStageDone(ShutdownStage)
-      If PrereqStage >= 0
-        Self.RegisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
-      Else
-        Self.AliasValueRegistration(currRef)
-      EndIf
-    EndIf
-    If ShutdownStage > 0 && !Self.GetOwningQuest().GetStageDone(ShutdownStage)
-      Self.RegisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
-    EndIf
-  EndIf
+    ObjectReference currRef = GetRef()
+    if currRef != none
+        if ShutdownStage <= -1 || !GetOwningQuest().GetStageDone(ShutdownStage)
+            if PrereqStage >= 0
+                RegisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
+            else
+                AliasValueRegistration(currRef)
+            endif
+        endif
+
+        if ShutdownStage > 0 && !GetOwningQuest().GetStageDone(ShutdownStage)
+            RegisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
+        endif
+    endif
 EndEvent
 
-Event Quest.OnStageSet(Quest akSender, Int auiStageID, Int auiItemID)
-  If auiStageID == PrereqStage
-    ObjectReference currRef = Self.GetRef()
-    If currRef != None
-      Self.AliasValueRegistration(currRef)
-    EndIf
-  ElseIf auiStageID == ShutdownStage
-    ObjectReference currref = Self.GetRef()
-    Self.UnregisterForActorValueLessThanEvent(currref, WatchedValue, AVThreshold as Float)
-  EndIf
+Event Quest.OnStageSet(Quest akSender, int auiStageID, int auiItemID)
+    if auiStageID == PrereqStage
+        ObjectReference currRef = GetRef()
+
+        if currRef != none
+            AliasValueRegistration(currRef)
+        endif
+    elseif auiStageID == ShutdownStage
+        ObjectReference currRef = GetRef()
+        UnregisterForActorValueLessThanEvent(currRef, WatchedValue, AVThreshold)
+    endif
 EndEvent
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  Quest OQ = Self.GetOwningQuest()
-  ObjectReference currRef = Self.GetRef()
-  Bool passedThreshold = False
-  If (OQ.GetStageDone(PrereqStage) || PrereqStage < 0) && (!OQ.GetStageDone(ShutdownStage) || ShutdownStage < 0)
-    Int currentValue = Math.Ceiling(currRef.GetValue(WatchedValue))
-    If akObjRef == currRef && akActorValue == WatchedValue && currentValue < AVThreshold
-      passedThreshold = True
-      OQ.SetStage(StageToSet)
-    EndIf
-  EndIf
-  If !passedThreshold
-    Self.AliasValueRegistration(akObjRef)
-  EndIf
+    Quest OQ = GetOwningQuest()
+    ObjectReference currRef = GetRef()
+    bool passedThreshold = false
+    if (OQ.GetStageDone(PrereqStage) || PrereqStage < 0) && (!OQ.GetStageDone(ShutdownStage) || ShutdownStage < 0)
+        ; AVThreshold defined as integer, ceil AV float value to only consider threshold passed the value is at least a whole number less (main use case looking for 0 on a health AV, e.g. don't want to consider 0.1)
+        int currentValue = Math.Ceiling(currRef.GetValue(WatchedValue))
+        if akObjRef == currRef && akActorValue == WatchedValue && (currentValue < AVThreshold)
+            passedThreshold = true
+            OQ.SetStage(StageToSet)
+        endif
+    endif
+    ; If we didn't pass the threshold due to ceiling, we need to re-register to get another callback
+    if (!passedThreshold)
+        AliasValueRegistration(akObjRef)
+    endif
 EndEvent
 
 Function AliasValueRegistration(ObjectReference akTargetRef)
-  If akTargetRef != None
-    Self.RegisterForActorValueLessThanEvent(akTargetRef, WatchedValue, AVThreshold as Float)
-  EndIf
-EndFunction
+    if akTargetRef != none
+        RegisterForActorValueLessThanEvent(akTargetRef, WatchedValue, AVThreshold)
+    endif
+endFunction
+
+
+
+
+

@@ -1,53 +1,59 @@
-ScriptName KioskTerminalVendorScript Extends TerminalMenu
-{ script for terminals that act as vending machines }
+Scriptname KioskTerminalVendorScript extends TerminalMenu
+{script for terminals that act as vending machines}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Form[] Property ItemsForSale Auto Const
+Form[] property ItemsForSale auto Const
 { array of items for sale at this vending machine }
-ActorValue Property KioskTerminalItemCount Auto Const mandatory
+
+ActorValue property KioskTerminalItemCount auto const mandatory
 { set when initialized, for conditioning menu items }
-ActorValue Property KioskTerminalInitialized Auto Const mandatory
+
+ActorValue property KioskTerminalInitialized auto const mandatory
 { set to 1 when initialized }
-ActorValue Property KioskTerminalNoSaleFlag Auto Const mandatory
+
+ActorValue property KioskTerminalNoSaleFlag auto const mandatory
 { set to 1 if the player tries to buy something with not enough credits }
-TerminalMenu Property KioskTerminalMenu Auto Const mandatory
+
+TerminalMenu property KioskTerminalMenu auto const mandatory
 { the main terminal menu for this kiosk }
 
-;-- Functions ---------------------------------------
-
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If akTerminalRef.GetValue(KioskTerminalInitialized) == 0.0
-    akTerminalRef.SetValue(KioskTerminalInitialized, 1.0)
-    Int I = 0
-    While I < ItemsForSale.Length
-      Form theItem = ItemsForSale[I]
-      akTerminalRef.AddTextReplacementData("MiscItem" + I as String, theItem)
-      Int itemValue = theItem.GetGoldValue()
-      akTerminalRef.AddTextReplacementValue(("MiscItem" + I as String) + "value", itemValue as Float)
-      I += 1
-    EndWhile
-    akTerminalRef.SetValue(KioskTerminalItemCount, I as Float)
-  EndIf
+    debug.trace(self + " OnTerminalMenuEnter " + akTerminalRef)
+    ; init text replacement
+    if akTerminalRef.GetValue(KioskTerminalInitialized) == 0
+        akTerminalRef.SetValue(KioskTerminalInitialized, 1)
+        int i = 0
+        while i < ItemsForSale.Length
+            Form theItem = ItemsForSale[i]
+            akTerminalRef.AddTextReplacementData("MiscItem" + i, theItem)
+            int itemValue = theItem.GetGoldValue()
+            akTerminalRef.AddTextReplacementValue("MiscItem" + i + "Value", itemValue)
+            debug.Trace(self + " adding tag MiscItem" + i + "=" + theItem + " with value tag MiscItem" + i + "Value=" + itemValue)
+            i += 1
+        endWhile
+        akTerminalRef.SetValue(KioskTerminalItemCount, i)
+    endif
 EndEvent
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If akTerminalBase == KioskTerminalMenu
-    Form theItem = ItemsForSale[auiMenuItemID]
-    If theItem
-      akTerminalRef.AddTextReplacementData("SaleItem", theItem)
-      MiscObject credits = Game.GetCredits()
-      Actor player = Game.GetPlayer()
-      Int playerCredits = player.GetItemCount(credits as Form)
-      Int cost = theItem.GetGoldValue()
-      If playerCredits >= cost
-        akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 0.0)
-        player.RemoveItem(credits as Form, cost, False, None)
-        player.Additem(theItem, 1, False)
-      Else
-        akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 1.0)
-      EndIf
-    EndIf
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+    if akTerminalBase == KioskTerminalMenu
+        Form theItem = ItemsForSale[auiMenuItemID]
+        if theItem
+            akTerminalRef.AddTextReplacementData("SaleItem", theItem)
+
+            MiscObject credits = Game.GetCredits()
+            Actor player = Game.GetPlayer()
+            int playerCredits = player.GetItemCount(credits)
+            int cost = theItem.GetGoldValue()
+            if playerCredits >= cost
+                akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 0)
+                ; sell item to player
+                player.RemoveItem(credits, cost)
+                player.Additem(theItem)
+            Else
+                ; no sale
+                akTerminalRef.SetValue(KioskTerminalNoSaleFlag, 1)
+            endif
+        EndIf
+    endif
 EndEvent

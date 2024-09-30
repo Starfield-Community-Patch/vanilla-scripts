@@ -1,29 +1,31 @@
-ScriptName CRWQuestScript Extends Quest
+Scriptname CRWQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property CrewPosition Auto Const Mandatory
+ReferenceAlias Property CrewName Auto Const Mandatory
+Faction Property AvailableCrewFaction Auto Const Mandatory
+Faction Property CurrentCrewFaction Auto Const Mandatory
+Faction Property PotentialCrewFaction Auto Const Mandatory
+Message Property HiredMessage Auto Const Mandatory
+Message Property FiredMessage Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ReferenceAlias Property CrewPosition Auto Const mandatory
-ReferenceAlias Property CrewName Auto Const mandatory
-Faction Property AvailableCrewFaction Auto Const mandatory
-Faction Property CurrentCrewFaction Auto Const mandatory
-Faction Property PotentialCrewFaction Auto Const mandatory
-Message Property HiredMessage Auto Const mandatory
-Message Property FiredMessage Auto Const mandatory
 
-;-- Functions ---------------------------------------
-
+;This function is called in the individual CRW Quests
 Function CrewHired()
-  CrewPosition.ForceRefTo(CrewName.GetActorRef() as ObjectReference)
-  CrewName.GetActorRef().SetFactionRank(CurrentCrewFaction, 0)
-  CrewName.GetActorRef().SetFactionRank(PotentialCrewFaction, -1)
-  CrewName.GetActorRef().SetFactionRank(AvailableCrewFaction, -1)
-  HiredMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+	CrewPosition.ForceRefTo(CrewName.GetActorRef())
+	CrewName.GetActorRef().SetFactionRank(CurrentCrewFaction,0)
+	CrewName.GetActorRef().SetFactionRank(PotentialCrewFaction,-1)
+	CrewName.GetActorRef().SetFactionRank(AvailableCrewFaction,-1)
+	HiredMessage.Show()
+
 EndFunction
 
+;This function is called in the individual CRW Quests
 Function CrewFired()
-  CrewPosition.Clear()
-  CrewName.GetActorRef().SetFactionRank(CurrentCrewFaction, -1)
-  CrewName.GetActorRef().SetFactionRank(AvailableCrewFaction, 0)
-  FiredMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+	CrewPosition.Clear()
+	CrewName.GetActorRef().SetFactionRank(CurrentCrewFaction,-1)
+	CrewName.GetActorRef().SetFactionRank(AvailableCrewFaction,0)
+	FiredMessage.Show()
+
 EndFunction

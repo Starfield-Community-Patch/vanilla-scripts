@@ -1,50 +1,67 @@
-ScriptName SQ_TreasureMap_CreateMapScript Extends Quest
-{ script to place and clean up treasure map into a container }
+Scriptname SQ_TreasureMap_CreateMapScript extends Quest
+{script to place and clean up treasure map into a container}
 
-;-- Variables ---------------------------------------
-Location locationToCheck
-ObjectReference treasureMapRef
-
-;-- Properties --------------------------------------
-ReferenceAlias Property MapContainer Auto Const mandatory
+ReferenceAlias Property MapContainer Mandatory Const Auto
 { put the treasure map in this }
-LocationAlias Property MapLocation Auto Const mandatory
+
+LocationAlias property MapLocation auto const Mandatory
 { watch for player to leave this location - shut down quest and remove treasure map }
-Form Property TreasureMap Auto Const mandatory
+
+Form property TreasureMap auto const mandatory
 { treasure map to place - usually a leveled list }
-Keyword Property LocTypeSettlement Auto Const mandatory
+
+Keyword property LocTypeSettlement auto const mandatory
 { used to get settlement parent location, if any }
 
-;-- Functions ---------------------------------------
+; variables
+ObjectReference treasureMapRef
+
+Location locationToCheck ; when player leaves this location, shut down quest
 
 Event OnQuestStarted()
-  ObjectReference containerRef = MapContainer.GetRef()
-  treasureMapRef = containerRef.PlaceAtMe(TreasureMap, 1, False, False, True, None, None, True)
-  containerRef.AddItem(treasureMapRef as Form, 1, False)
-  locationToCheck = MapLocation.GetLocation()
-  Location[] settlementLocations = locationToCheck.GetParentLocations(LocTypeSettlement)
-  If settlementLocations.Length > 0
-    locationToCheck = settlementLocations[0]
-  EndIf
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-  Self.RegisterForRemoteEvent(treasureMapRef as ScriptObject, "OnContainerChanged")
+    debug.trace(self + "OnQuestStarted")
+
+    ObjectReference containerRef = MapContainer.GetRef()
+
+    ; create treasure map
+    treasureMapRef = containerRef.PlaceAtMe(TreasureMap)
+    ; move into vendor container
+    containerRef.AddItem(treasureMapRef)
+
+    ; is this in a settlement?
+    locationToCheck = MapLocation.GetLocation()
+
+    Location[] settlementLocations = locationToCheck.GetParentLocations(LocTypeSettlement)
+    if settlementLocations.Length > 0
+        locationToCheck = settlementLocations[0]
+    EndIf
+
+    debug.trace(self + " locationToCheck=" + locationToCheck)
+
+    ; register for events
+    RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+    RegisterForRemoteEvent(treasureMapRef, "OnContainerChanged")
 EndEvent
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  If akSender == Game.GetPlayer() && akOldLoc == locationToCheck && (akNewLoc == None || akNewLoc.IsSameLocation(akOldLoc, LocTypeSettlement) == False)
-    Self.Stop()
-  EndIf
+	debug.trace(self + "OnLocationChange() akSender: " + akSender + ", akOldLoc: " + akOldLoc + ", akNewLoc: " + akNewLoc)
+	if akSender == Game.GetPlayer() && akOldLoc == locationToCheck && (akNewLoc == NONE || akNewLoc.IsSameLocation(akOldLoc, LocTypeSettlement) == false)
+        Stop()
+	endif
 EndEvent
 
 Event ObjectReference.OnContainerChanged(ObjectReference akSource, ObjectReference akNewContainer, ObjectReference akOldContainer)
-  If akSource == treasureMapRef
-    Self.Stop()
-  EndIf
-EndEvent
+    debug.trace(self + " OnContainerChanged akSource=" + akSource + " akNewContainer=" + akNewContainer)
+    if akSource == treasureMapRef
+        ; treasure map moved out of container - shut down quest
+        Stop()
+    endif
+endEvent
 
 Event OnQuestShutdown()
-  ObjectReference containerRef = MapContainer.GetRef()
-  If treasureMapRef as Bool && containerRef as Bool
-    containerRef.RemoveItem(treasureMapRef as Form, 1, False, None)
-  EndIf
+    ; clean up treasure map
+    ObjectReference containerRef = MapContainer.GetRef()
+    if treasureMapRef && containerRef
+        containerRef.RemoveItem(treasureMapRef)
+    endif
 EndEvent

@@ -1,10 +1,8 @@
-ScriptName UCR01_MorphsCollScript Extends RefCollectionAlias
-
-;-- Functions ---------------------------------------
+Scriptname UCR01_MorphsCollScript extends RefCollectionAlias
 
 Event OnLoad(ObjectReference akSenderRef)
-  Actor currACT = akSenderRef as Actor
-  If currACT as Bool && !currACT.GetNoBleedoutRecovery()
-    currACT.SetNoBleedoutRecovery(True)
-  EndIf
+    Actor currACT = akSenderRef as Actor
+    if currAct && !currACT.GetNoBleedoutRecovery()
+        currACT.SetNoBleedoutRecovery(true)
+    endif
 EndEvent

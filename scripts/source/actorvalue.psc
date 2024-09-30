@@ -1,5 +1,4 @@
-ScriptName ActorValue Extends Form Native hidden
+Scriptname ActorValue extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-resource Function GetResource() Native
+; Get the Resource this ActorValue is pointing to, if any
+Resource Function GetResource() native

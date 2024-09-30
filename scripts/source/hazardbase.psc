@@ -1,99 +1,155 @@
-ScriptName HazardBase Extends objectReference
+scriptName HazardBase extends objectReference
+;
+;
+;============================================
+import utility
 
-;-- Variables ---------------------------------------
-Bool isWaitingToEvaluate = False
+int property damage auto hidden
+int property soundLevel = 10 auto 
+int property trapPushBack auto
+WwiseEvent property TrapHitSound auto
+weapon property hitFX auto
+ammo property hitFXAmmo auto
+int property trapLevel = 1 auto
+bool isWaitingToEvaluate = False
+float property staggerAmount = 0.0 auto
+bool property CheckAngle = false auto
+{if true this will check the angle of the actors velocity to the "up" vector of the trap
+	default == False}
 
-;-- Properties --------------------------------------
-Int Property damage Auto hidden
-Int Property soundLevel = 10 Auto
-Int Property trapPushBack Auto
-wwiseevent Property TrapHitSound Auto
-Weapon Property hitFX Auto
-Ammo Property hitFXAmmo Auto
-Int Property trapLevel = 1 Auto
-Float Property staggerAmount = 0.0 Auto
-Bool Property CheckAngle = False Auto
-{ if true this will check the angle of the actors velocity to the "up" vector of the trap
-	default == False }
-Int Property LvlThreshold1 Auto
-Int Property LvlDamage1 Auto
-Int Property LvlThreshold2 Auto
-Int Property LvlDamage2 Auto
-Int Property LvlThreshold3 Auto
-Int Property LvlDamage3 Auto
-Int Property LvlThreshold4 Auto
-Int Property LvlDamage4 Auto
-Int Property LvlThreshold5 Auto
-Int Property LvlDamage5 Auto
-Int Property LvlDamage6 Auto
 
-;-- Functions ---------------------------------------
-
-Event onLoad()
-  Self.ResolveLeveledDamage()
-EndEvent
-
-Function doLocalHit(ObjectReference akTarget, Float afXVel, Float afYVel, Float afZVel, Float afXPos, Float afYPos, Float afZPos, Int aeMaterial, Bool abInitialHit, Int aeMotionType)
-  akTarget.ProcessTrapHit(Self as ObjectReference, damage as Float, trapPushBack as Float, afXVel, afYVel, afZVel, afXPos, afYPos, afZPos, aeMaterial, staggerAmount)
-  TrapHitSound.play(Self as ObjectReference, None, None)
-  hitFX.fire(Self as ObjectReference, hitFXAmmo)
-  Self.CreateDetectionEvent(akTarget as Actor, soundLevel)
-EndFunction
-
-Bool Function isAngleAcceptable(Float afXVel, Float afYVel, Float afZVel)
-  Float maxZVelocity = 1.0
-  Float minZVelocity = 0.300000012
-  Float absoluteZ = Math.abs(afZVel)
-  Float absoluteY = Math.abs(afYVel)
-  Float absoluteX = Math.abs(afXVel)
-  If absoluteZ >= maxZVelocity
-    Return True
-  ElseIf absoluteZ >= minZVelocity
-    If absoluteZ * 0.600000024 >= absoluteY
-      Return True
-    ElseIf absoluteZ * 0.600000024 >= absoluteX
-      Return True
-    Else
-      Return False
-    EndIf
-  Else
-    Return False
-  EndIf
-EndFunction
-
-Function ResolveLeveledDamage()
-  Int damageLevel = 0
-  damageLevel = Self.CalculateEncounterLevel(trapLevel)
-  damage = LvlDamage1
-  If damageLevel > LvlThreshold1 && damageLevel <= LvlThreshold2
-    damage = LvlDamage2
-  EndIf
-  If damageLevel > LvlThreshold2 && damageLevel <= LvlThreshold3
-    damage = LvlDamage3
-  EndIf
-  If damageLevel > LvlThreshold3 && damageLevel <= LvlThreshold4
-    damage = LvlDamage4
-  EndIf
-  If damageLevel > LvlThreshold4 && damageLevel <= LvlThreshold5
-    damage = LvlDamage5
-  EndIf
-  If damageLevel > LvlThreshold5
-    damage = LvlDamage6
-  EndIf
-EndFunction
-
-;-- State -------------------------------------------
-Auto State CanHit
-
-  Event OnTrapHitStart(ObjectReference akTarget, Float afXVel, Float afYVel, Float afZVel, Float afXPos, Float afYPos, Float afZPos, Int aeMaterial, Bool abInitialHit, Int aeMotionType)
-    If !CheckAngle
-      Self.doLocalHit(akTarget, afXVel, afYVel, afZVel, afXPos, afYPos, afZPos, aeMaterial, abInitialHit, aeMotionType)
-    ElseIf Self.isAngleAcceptable(afXVel, afYVel, afZVel)
-      Self.doLocalHit(akTarget, afXVel, afYVel, afZVel, afXPos, afYPos, afZPos, aeMaterial, abInitialHit, aeMotionType)
-    EndIf
-  EndEvent
+auto State CanHit
+	Event OnTrapHitStart(ObjectReference akTarget, float afXVel, float afYVel, float afZVel, float afXPos, float afYPos, float afZPos, int aeMaterial, bool abInitialHit, int aeMotionType)
+; 		debug.Trace(self + ": TrapHitStart")
+; 		debug.Trace(self + ": XYZ = (" + afXPos + "," + afYPos + "," +afZPos + ")")
+		if !CheckAngle
+			doLocalHit(akTarget, afXVel, afYVel, afZVel, afXPos, afYPos, afZPos, aeMaterial, abInitialHit, aeMotionType)
+		else
+			if isAngleAcceptable(afXVel, afYVel, afZVel)
+				doLocalHit(akTarget, afXVel, afYVel, afZVel, afXPos, afYPos, afZPos, aeMaterial, abInitialHit, aeMotionType)
+			endif
+		endif
+	endEvent
 EndState
 
-;-- State -------------------------------------------
 State CannotHit
-EndState
+endState
+
+event onLoad()
+	ResolveLeveledDamage()				;set damage appropriate to player level
+endEvent
+
+; OnUpdate no longer exists in Institute. Nothing actually registered this in any
+; Institute script, so commenting it out shouldn't cause any problems until someone
+; familiar with the script can fix it corrently. (It's possible that a derived script
+; in Skyrim registered the update, however the commented out "Evaluate" call seems to
+; imply that this was old functionality, later removed)
+;/event onUpdate()
+	unRegisterForUpdate()
+	;EvaluateStoredRefs()
+	isWaitingToEvaluate = FALSE
+endEvent/;
+
+function doLocalHit(ObjectReference akTarget, float afXVel, float afYVel, float afZVel, float afXPos, float afYPos, float afZPos, int aeMaterial, bool abInitialHit, int aeMotionType)
+	akTarget.ProcessTrapHit(self, damage, trapPushBack, afXVel, afYVel, afZVel, afXPos, afYPos, afZPos, aeMaterial, staggerAmount)
+; 	debug.Trace(self + " has hit " + akTarget)
+	TrapHitSound.play( self as ObjectReference)		;play hit sound
+	hitFX.fire(self, hitFxAmmo)
+	CreateDetectionEvent(akTarget as actor, soundLevel) ; creates a detection event
+endFunction
+
+
+
+bool function isAngleAcceptable(float afXVel, float afYVel, float afZVel)
+	float maxZVelocity = 1.0
+	float minZVelocity = 0.3
+	; float selfX
+	; float selfY
+	; float selfZ
+	; float selfNodeX
+	; float selfNodeY
+	; float selfNodeZ
+	
+	
+	
+	; float dotProduct
+	; dotProduct = sqrt()
+	; if acos(MAXANGLE) < dotProduct
+	
+; 	debug.trace (self + ": X velocity = " + afXVel)
+; 	debug.trace (self + ": Y velocity = " + afYVel)
+; 	debug.trace (self + ": Z velocity = " + afZVel)
+	
+	float absoluteZ = (math.abs(afZVel))
+	float absoluteY = math.abs(afYVel)
+	float absoluteX = math.abs(afXVel)
+	if  absoluteZ  >= maxZVelocity
+		return true
+	elseif absoluteZ  >= minZVelocity
+		if (absoluteZ * (0.6)) >= absoluteY 
+			return True
+		elseif (absoluteZ * (0.6)) >= absoluteX
+			Return True
+		else
+			return False
+		endif
+	else
+		return false
+	endif
+endFunction
+
+;======================================================
+
+	
+int property LvlThreshold1 auto
+int property LvlDamage1 auto
+int property LvlThreshold2 auto
+int property LvlDamage2 auto
+int property LvlThreshold3 auto
+int property LvlDamage3 auto
+int property LvlThreshold4 auto
+int property LvlDamage4 auto
+int property LvlThreshold5 auto
+int property LvlDamage5 auto
+int property LvlDamage6 auto
+
+;int Function ResolveLeveledDamage (int damage)
+Function ResolveLeveledDamage()
+	int damageLevel
+	damageLevel = CalculateEncounterLevel(TrapLevel)
+	
+	damage = LvlDamage1
+	
+	if (damageLevel > LvlThreshold1 && damageLevel <= LvlThreshold2)
+		damage = LvlDamage2
+		;Trace("damage threshold =")
+		;Trace("2")
+	endif
+	if (damageLevel > LvlThreshold2 && damageLevel <= LvlThreshold3)
+		damage = LvlDamage3
+		;Trace("damage threshold =")
+		;Trace("3")
+	endif
+	if (damageLevel > LvlThreshold3 && damageLevel <= LvlThreshold4)
+		damage = LvlDamage4
+		;Trace("damage threshold =")
+		;Trace("4")
+	endif
+	if (damageLevel > LvlThreshold4 && damageLevel <= LvlThreshold5)
+		damage = LvlDamage5
+		;Trace("damage threshold =")
+		;Trace("5")
+	endif
+	if (damageLevel > LvlThreshold5)
+		damage = LvlDamage6
+		;Trace("damage threshold =")
+		;Trace("6")
+	endif
+	
+	;Trace("damage =")
+	;Trace(damage)
+	
+	;return damage
+EndFunction
+
+	

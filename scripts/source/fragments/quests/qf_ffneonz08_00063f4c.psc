@@ -1,67 +1,112 @@
-ScriptName Fragments:Quests:QF_FFNeonZ08_00063F4C Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNeonZ08_00063F4C Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueQuestNeon Auto Const
-ReferenceAlias Property Alias_HeadlockMarker Auto Const mandatory
-ReferenceAlias Property Alias_Headlock Auto Const mandatory
-Faction Property HeadlockEnemyFaction Auto Const
-GlobalVariable Property TLTimer Auto Const
-GlobalVariable Property DaysPassed Auto Const
-RefCollectionAlias Property Alias_HeadlockGang Auto Const mandatory
-Quest Property FFNeonGuardPointer_Z08 Auto Const mandatory
-ReferenceAlias Property Alias_Thug Auto Const mandatory
-ReferenceAlias Property Alias_ThugCOPY001 Auto Const mandatory
-ReferenceAlias Property Alias_ThugCOPY002 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  FFNeonGuardPointer_Z08.SetStage(200)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+;close pointer 
+FFNeonGuardPointer_Z08.SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0014_Item_00
 Function Fragment_Stage_0014_Item_00()
-  Self.SetObjectiveDisplayed(14, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(14)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0018_Item_00
 Function Fragment_Stage_0018_Item_00()
-  If Self.IsObjectiveDisplayed(14)
-    Self.SetObjectiveCompleted(14, True)
-  EndIf
-  If Self.GetStageDone(13)
-    Self.SetObjectiveDisplayed(14, False, False)
-  EndIf
-EndFunction
+;BEGIN CODE
+if IsObjectiveDisplayed(14)
+SetObjectiveCompleted(14)
+endif
 
+if GetStageDone(13)
+SetObjectiveDisplayed(14,0)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
-  Alias_HeadlockMarker.GetRef().Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
 
+Alias_HeadlockMarker.GetRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0028_Item_00
 Function Fragment_Stage_0028_Item_00()
-  Game.GetPlayer().AddToFaction(HeadlockEnemyFaction)
-  Alias_Headlock.GetActorRef().setvalue(Game.GetAggressionAV(), 1.0)
-  Alias_Headlock.GetActorRef().StartCombat(Game.GetPlayer() as ObjectReference, False)
-  Alias_Thug.GetActorRef().setvalue(Game.GetAggressionAV(), 1.0)
-  Alias_Thug.GetActorRef().StartCombat(Game.GetPlayer() as ObjectReference, False)
-  Alias_ThugCOPY001.GetActorRef().setvalue(Game.GetAggressionAV(), 1.0)
-  Alias_ThugCOPY001.GetActorRef().StartCombat(Game.GetPlayer() as ObjectReference, False)
-  Alias_ThugCOPY002.GetActorRef().setvalue(Game.GetAggressionAV(), 1.0)
-  Alias_ThugCOPY002.GetActorRef().StartCombat(Game.GetPlayer() as ObjectReference, False)
+;BEGIN CODE
+Game.GetPlayer().AddToFaction(HeadlockEnemyFaction)
+Alias_Headlock.GetActorRef().setvalue(Game.GetAggressionAV(), 1)
+Alias_Headlock.GetActorRef().StartCombat(Game.GetPlayer())
+Alias_Thug.GetActorRef().setvalue(Game.GetAggressionAV(), 1)
+Alias_Thug.GetActorRef().StartCombat(Game.GetPlayer())
+Alias_Thugcopy001.GetActorRef().setvalue(Game.GetAggressionAV(), 1)
+Alias_Thugcopy001.GetActorRef().StartCombat(Game.GetPlayer())
+Alias_Thugcopy002.GetActorRef().setvalue(Game.GetAggressionAV(), 1)
+Alias_Thugcopy002.GetActorRef().StartCombat(Game.GetPlayer())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  DialogueQuestNeon.SetStage(480)
-  TLTimer.setvalue(DaysPassed.GetValue() + 1.0)
-  Alias_HeadlockMarker.GetRef().Disable(False)
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+DialogueQuestNeon.SetStage(480)
+
+;Set a global variable to be == DaysPassed + 1, so we can condition TLs with it
+TLTimer.SetValue(DaysPassed.GetValue() + 1)
+
+Alias_HeadlockMarker.GetRef().Disable()
+
+CompleteAllObjectives()
+
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueQuestNeon Auto Const
+
+ReferenceAlias Property Alias_HeadlockMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_Headlock Auto Const Mandatory
+
+Faction Property HeadlockEnemyFaction Auto Const
+
+GlobalVariable Property TLTimer Auto Const
+
+GlobalVariable Property DaysPassed Auto Const
+
+RefCollectionAlias Property Alias_HeadlockGang Auto Const Mandatory
+
+Quest Property FFNeonGuardPointer_Z08 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Thug Auto Const Mandatory
+
+ReferenceAlias Property Alias_ThugCOPY001 Auto Const Mandatory
+
+ReferenceAlias Property Alias_ThugCOPY002 Auto Const Mandatory

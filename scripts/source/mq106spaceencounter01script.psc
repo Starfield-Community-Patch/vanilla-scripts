@@ -1,15 +1,11 @@
-ScriptName MQ106SpaceEncounter01Script Extends Quest
+Scriptname MQ106SpaceEncounter01Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property TheHelix Auto Const mandatory
-ReferenceAlias Property TheHelixMovetoMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property TheHelix Mandatory Const Auto
+ReferenceAlias Property TheHelixMovetoMarker Mandatory Const Auto
 
 Event OnQuestInit()
-  spaceshipreference HelixREF = TheHelix.GetShipRef()
-  HelixREF.moveto(TheHelixMovetoMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  HelixREF.EnableWithGravJump()
+    ;move the Helix and enable it
+    SpaceshipReference HelixREF = TheHelix.GetShipRef()
+    HelixRef.moveto(TheHelixMoveToMArker.GetRef())
+    HelixRef.EnableWithGravJump()
 EndEvent

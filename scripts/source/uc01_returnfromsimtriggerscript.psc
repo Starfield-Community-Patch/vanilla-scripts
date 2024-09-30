@@ -1,21 +1,22 @@
-ScriptName UC01_ReturnFromSimTriggerScript Extends ReferenceAlias
+Scriptname UC01_ReturnFromSimTriggerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+GlobalVariable Property UC01_ShipSim_PlayerEverPassedSequence Mandatory Const Auto
+{Only set the stage if the player enters the trigger after this global has been set to 1}
 
-;-- Properties --------------------------------------
-GlobalVariable Property UC01_ShipSim_PlayerEverPassedSequence Auto Const mandatory
-{ Only set the stage if the player enters the trigger after this global has been set to 1 }
-Int Property StageToSet = 600 Auto Const
-{ Stage to set if the player has ever completed the ship sim sequence }
-
-;-- Functions ---------------------------------------
+int Property StageToSet = 600 Const Auto
+{Stage to set if the player has ever completed the ship sim sequence}
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && UC01_ShipSim_PlayerEverPassedSequence.GetValue() >= 1.0
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
+    trace(self, "Exit sequence trigger activated by: " + akActionRef + ". UC01_ShipSim_PlayerEverPassedSequence val: " + UC01_ShipSim_PlayerEverPassedSequence.GetValue())
+    if akActionRef == Game.GetPlayer() && UC01_ShipSim_PlayerEverPassedSequence.GetValue() >= 1
+        trace(self, "Setting stage: " + StageToSet)
+        GetOwningQuest().SetStage(StageToSet)
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC01", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

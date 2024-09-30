@@ -1,20 +1,16 @@
-ScriptName OutpostBuilderMenuScript Extends ObjectReference Const
+Scriptname OutpostBuilderMenuScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkOutpostBuilder Auto Const mandatory
+Keyword Property LinkOutpostBuilder auto const mandatory
 { linked ref keyword to builder }
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    ObjectReference myBuilder = Self.GetLinkedRef(LinkOutpostBuilder)
-    If myBuilder
-      myBuilder.ShowWorkshopBuilderMenu()
-    Else
-      Self.ShowWorkshopBuilderMenu()
-    EndIf
-  EndIf
+    if akActionRef == Game.GetPlayer()
+        ObjectReference myBuilder = GetLinkedRef(LinkOutpostBuilder)
+        debug.trace(self + " OnActivate myBuilder=" + myBuilder)
+        if myBuilder
+            myBuilder.ShowWorkshopBuilderMenu()
+        Else
+            ShowWorkshopBuilderMenu()
+        endif
+    endif
 EndEvent

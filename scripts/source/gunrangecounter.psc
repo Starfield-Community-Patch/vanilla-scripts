@@ -1,83 +1,111 @@
-ScriptName GunRangeCounter Extends ObjectReference
-{ Receives info from GunRangeTarget }
+Scriptname GunRangeCounter extends ObjectReference
+{Receives info from GunRangeTarget}
 
-;-- Variables ---------------------------------------
-Int CurrentScore
-Int competitionTimerID = 1 Const
-Float fStartTime
+;******************************************************
 
-;-- Properties --------------------------------------
 Group Required_Properties
-  Int Property ScoreLimit = -1 Auto Const
-  { Score to reach }
-  Float Property TimeLimit = 10.0 Auto Const
-  { Time limit in seconds }
+	Int Property ScoreLimit = -1 Auto Const
+		{Score to reach}
+	Float Property TimeLimit = 10.0 Auto Const
+		{Time limit in seconds}
 EndGroup
+
+;******************************************************
 
 Group Optional_Properties
-  Quest Property QuestToSet Auto Const
-  { Quest containing the Stage to set }
-  Int Property StageToActivateButton = -1 Auto Const
-  { Stage to Set }
-  Int Property StageToStartCompetition = -1 Auto Const
-  { Stage to Set }
-  Int Property StageToSetSuccess = -1 Auto Const
-  { Stage to Set }
-  Int Property StageToSetFail = -1 Auto Const
-  { Stage to Set }
-  ObjectReference Property ScoreText Auto
-  { Debug text to show score }
-  ObjectReference Property TimerText Auto
-  { Debug text to show timer }
+	Quest Property QuestToSet Auto Const
+		{Quest containing the Stage to set}
+	Int Property StageToActivateButton = -1 Auto Const
+		{Stage to Set}
+	Int Property StageToStartCompetition = -1 Auto Const
+		{Stage to Set}
+	Int Property StageToSetSuccess = -1 Auto Const
+		{Stage to Set}
+	Int Property StageToSetFail = -1 Auto Const
+		{Stage to Set}
+	ObjectReference Property ScoreText Auto
+		{Debug text to show score}
+	ObjectReference Property TimerText Auto
+		{Debug text to show timer}
 EndGroup
 
+;******************************************************
 
-;-- Functions ---------------------------------------
+;Empty State
+Function GunRangeCompetition(int ScorePerHit)
+EndFunction
+;Event OnUpdate()
+;EndEvent
+
+;Local Variables
+int CurrentScore
+float fStartTime
+int competitionTimerID = 1 Const
+
+;******************************************************
 
 Event OnActivate(ObjectReference akActionRef)
-  If QuestToSet.GetCurrentStageID() == StageToActivateButton
-    QuestToSet.SetStage(StageToStartCompetition)
-    CurrentScore = 0
-    Self.GoToState("AllowCounting")
-  EndIf
+	Debug.Trace("Stage is " + QuestToSet.GetCurrentStageID())
+	If (QuestToSet.GetCurrentStageID() == StageToActivateButton)
+		Debug.Notification("Start!")
+
+		;Reset Values
+		QuestToSet.SetStage(StageToStartCompetition)
+		ScoreText.SetDebugTextString(" ")
+		TimerText.SetDebugTextString(" ")
+		CurrentScore = 0
+
+		GoToState("AllowCounting")
+	Endif
 EndEvent
 
-Function GunRangeCompetition(Int ScorePerHit)
-  ; Empty function
-EndFunction
+STATE AllowCounting
 
-;-- State -------------------------------------------
-State AllowCounting
+	Event OnBeginState(string asOldState)
+		fStartTime = Utility.GetCurrentRealTime()
+		StartTimer(0.5, competitionTimerID)
+	EndEvent	
 
-  Function GunRangeCompetition(Int ScorePerHit)
-    CurrentScore += ScorePerHit
-  EndFunction
+	Event OnTimer(int aiTimerID)
+		If (aiTimerID == competitionTimerID)
 
-  Event OnTimer(Int aiTimerID)
-    If aiTimerID == competitionTimerID
-      Int timeDisplay = (TimeLimit - Utility.GetCurrentRealTime() - fStartTime) as Int
-      timeDisplay = Math.Ceiling(timeDisplay as Float)
-      If Utility.GetCurrentRealTime() - fStartTime > TimeLimit
-        If CurrentScore < ScoreLimit
-          If QuestToSet != None
-            QuestToSet.SetStage(StageToSetFail)
-          EndIf
-        ElseIf QuestToSet != None
-          QuestToSet.SetStage(StageToSetSuccess)
-        EndIf
-        Self.GoToState("StopCounting")
-      Else
-        Self.StartTimer(0.5, competitionTimerID)
-      EndIf
-    EndIf
-  EndEvent
+			int timeDisplay = ((TimeLimit - (Utility.GetCurrentRealTime() - fStartTime)) as int)
+			timeDisplay = math.Ceiling(timeDisplay)
+			TimerText.SetDebugTextString(timeDisplay + ".0")
 
-  Event OnBeginState(String asOldState)
-    fStartTime = Utility.GetCurrentRealTime()
-    Self.StartTimer(0.5, competitionTimerID)
-  EndEvent
-EndState
+			If((Utility.GetCurrentRealTime() - fStartTime) > TimeLimit)		
+				If (CurrentScore < ScoreLimit)
+					Debug.Notification("Failed")
+					If (QuestToSet != None)
+						Debug.Trace("Testing stage is " + QuestToSet.GetCurrentStageID())
+						QuestToSet.SetStage(StageToSetFail)
+						Debug.Trace("After stage is " + QuestToSet.GetCurrentStageID())
+					EndIf	
+				Else					
+					Debug.Notification("Success")
+					If (QuestToSet != None)
+						Debug.Trace("Testing stage is " + QuestToSet.GetCurrentStageID())
+						QuestToSet.SetStage(StageToSetSuccess)
+						Debug.Trace("After stage is " + QuestToSet.GetCurrentStageID())
+					EndIf	
+				EndIf
 
-;-- State -------------------------------------------
-State StopCounting
-EndState
+				GoToState("StopCounting")	
+			Else
+				StartTimer(0.5, competitionTimerID)	
+			EndIf
+		EndIf
+	EndEvent
+
+	Function GunRangeCompetition(int ScorePerHit)
+			CurrentScore += ScorePerHit
+			ScoreText.SetDebugTextString(CurrentScore)
+			Debug.Trace("Score was set to " + CurrentScore)
+	EndFunction
+
+EndSTATE
+
+;******************************************************
+
+STATE StopCounting
+EndSTATE

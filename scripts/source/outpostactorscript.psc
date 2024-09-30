@@ -1,52 +1,55 @@
-ScriptName OutpostActorScript Extends Actor Const
+Scriptname OutpostActorScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property AssignAsCrewOnCreation = False Auto Const
+bool property AssignAsCrewOnCreation = false auto Const
 { if true, actor will be assigned as crew when it is created }
-ActorValue Property CrewReassignDisabled Auto Const
-{ optional - if exists, will be set on this actor when it is created }
-ActorValue Property CrewSlotCost Auto Const
-{ optional - if exists, will be set to CrewSlotCostValue on this actor when it is created }
-Int Property CrewSlotCostValue = -1 Auto Const
-Bool Property SetEssentialOnCreation = True Auto Const
-Bool Property SetNoBleedoutRecoveryOnCreation = True Auto Const
 
-;-- Functions ---------------------------------------
+ActorValue property CrewReassignDisabled auto const
+{ optional - if exists, will be set on this actor when it is created }
+
+ActorValue property CrewSlotCost auto const
+{ optional - if exists, will be set to CrewSlotCostValue on this actor when it is created }
+
+int property CrewSlotCostValue = -1 auto Const
+
+bool property SetEssentialOnCreation = true auto Const
+bool property SetNoBleedoutRecoveryOnCreation = true auto Const
 
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  ObjectReference myWorkshop = Self.GetWorkshop()
-  Self.SetEssential(SetEssentialOnCreation)
-  Self.SetNoBleedoutRecovery(SetNoBleedoutRecoveryOnCreation)
-  If CrewReassignDisabled
-    Self.SetValue(CrewReassignDisabled, 1.0)
-  EndIf
-  If CrewSlotCost
-    Self.ModValue(CrewSlotCost, CrewSlotCostValue as Float)
-  EndIf
-  Self.CheckAssignAsCrew(myWorkshop, True)
+    ObjectReference myWorkshop = GetWorkshop()
+
+    SetEssential(SetEssentialOnCreation)
+    SetNoBleedoutRecovery(SetNoBleedoutRecoveryOnCreation)
+    if CrewReassignDisabled
+        SetValue(CrewReassignDisabled, 1)
+    endif
+    if CrewSlotCost
+        ModValue(CrewSlotCost, CrewSlotCostValue)
+    endif
+
+    CheckAssignAsCrew(myWorkshop, true)
 EndEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akReference)
-  Self.CheckAssignAsCrew(akReference, False)
+    CheckAssignAsCrew(akReference, false)
 EndEvent
 
-Function CheckAssignAsCrew(ObjectReference myWorkshop, Bool bAssign)
-  If AssignAsCrewOnCreation
-    If myWorkshop
-      If bAssign
-        myWorkshop.AssignCrew(Self as Actor)
-      Else
-        myWorkshop.UnassignCrew(Self as Actor)
-      EndIf
-    EndIf
-  EndIf
+function CheckAssignAsCrew(ObjectReference myWorkshop, bool bAssign)
+    if AssignAsCrewOnCreation
+        if myWorkshop
+            debug.trace(self + " OnWorkshopObjectPlaced workshop=" + myWorkshop + " - assigning as crew=" + bAssign)
+            if bAssign
+                myWorkshop.AssignCrew(self)
+            Else
+                myWorkshop.UnassignCrew(self)
+            EndIf
+            debug.trace(self + "   workshop's current crew=" + myWorkshop.GetAllCrewMembers())
+        endif
+    endif
 EndFunction
 
-Function testGetAllCrew()
-  ObjectReference myWorkshop = Self.GetWorkshop()
-  If myWorkshop
-    
-  EndIf
-EndFunction
+function testGetAllCrew()
+    ObjectReference myWorkshop = GetWorkshop()
+    if myWorkshop
+        debug.trace(self + " testGetAllCrew: Ouworkshop's current crew=" + myWorkshop.GetAllCrewMembers())
+    endif
+endFunction

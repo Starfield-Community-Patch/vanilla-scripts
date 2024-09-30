@@ -1,17 +1,12 @@
-ScriptName DialogueCydoniaNoamAliasScript Extends ReferenceAlias
+Scriptname DialogueCydoniaNoamAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property Health Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ActorValue Property Health Auto Const Mandatory
 
 Event OnAliasInit()
-  Actor myActor = Self.GetActorRef()
-  myActor.SetEssential(True)
-  myActor.SetNoBleedoutRecovery(True)
-  myActor.AllowBleedoutDialogue(True)
-  Float fHealth = myActor.GetValue(Health)
-  myActor.DamageValue(Health, fHealth + 100.0)
+    Actor myActor = GetActorRef()
+	myActor.SetEssential(True)
+	myActor.SetNoBleedoutRecovery(True)
+	myactor.AllowBleedoutDialogue(True)
+	Float fHealth = myActor.GetValue(Health)
+	myActor.DamageValue(Health, fHealth + 100) 
 EndEvent

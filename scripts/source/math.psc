@@ -1,98 +1,135 @@
-ScriptName Math Extends ScriptObject Native hidden
+Scriptname Math Native Hidden
 
-;-- Functions ---------------------------------------
+; Calculates the absolute value of the passed in value - N for N, and N for (-N)
+float Function abs(float afValue) global native
 
-Int Function Ceiling(Float afValue) Global Native
+; Calculates the arccosine of the passed in value, returning degrees
+float Function acos(float afValue) global native
 
-Float Function DegreesToRadians(Float afDegrees) Global Native
+; Calculates the arcsine of the passed in value, returning degrees
+float Function asin(float afValue) global native
 
-Int Function Floor(Float afValue) Global Native
+; Calculates the arctangent of the passed in value, returning degrees
+float Function atan(float afValue) global native
 
-Float Function RadiansToDegrees(Float afRadians) Global Native
+; Calculates the ceiling of the passed in value - the smallest integer greater than or equal to the value
+int Function Ceiling(float afValue) global native
 
-Float Function abs(Float afValue) Global Native
+; Calculates the cosine of the passed in value (in degrees)
+float Function cos(float afValue) global native
 
-Float Function acos(Float afValue) Global Native
+; Converts degrees to radians
+float Function DegreesToRadians(float afDegrees) global native
 
-Float Function asin(Float afValue) Global Native
+; Calculates the floor of the passed in value - the largest integer less than or equal to the value
+int Function Floor(float afValue) global native
 
-Float Function atan(Float afValue) Global Native
+; Calculates x raised to the y power
+float Function pow(float x, float y) global native
 
-Float Function cos(Float afValue) Global Native
+; Converts radians to degrees
+float Function RadiansToDegrees(float afRadians) global native
 
-Float Function pow(Float x, Float y) Global Native
+; Calculates the sine of the passed in value (in degrees)
+float Function sin(float afValue) global native
 
-Float Function sin(Float afValue) Global Native
+; Calculate the square root of the passed in value
+float Function sqrt(float afValue) global native
 
-Float Function sqrt(Float afValue) Global Native
+; Calculates the tangent of the passed in value (in degrees)
+float Function tan(float afValue) global native
 
-Float Function tan(Float afValue) Global Native
+; return the max of the two numbers
+float Function Max(float afValue1, float afValue2) global
+	if afValue1 > afValue2
+		return afValue1
+	else
+		return afValue2
+	endif
+endFunction
 
-Float Function Max(Float afValue1, Float afValue2) Global
-  If afValue1 > afValue2
-    Return afValue1
-  Else
-    Return afValue2
-  EndIf
+; return the min of the two numbers
+float Function Min(float afValue1, float afValue2) global
+	if afValue1 < afValue2
+		return afValue1
+	else
+		return afValue2
+	endif
+endFunction
+
+;return clamped value
+float Function Clamp(float ValueToClamp, float afValueMin, float afValueMax) global
+	return  Max(Min(ValueToClamp, afValueMax), afValueMin)
 EndFunction
 
-Float Function Min(Float afValue1, Float afValue2) Global
-  If afValue1 < afValue2
-    Return afValue1
-  Else
-    Return afValue2
-  EndIf
+; return a normalized value between 0 and 1
+float Function Normalize(float afValue, float afMin, float afMax) global
+	return (afValue - afmin) / (afMax - afMin)
 EndFunction
 
-Float Function Clamp(Float ValueToClamp, Float afValueMin, Float afValueMax) Global
-  Return Math.Max(Math.Min(ValueToClamp, afValueMax), afValueMin)
+;rounds away from zero if decimal part is >= 0.5 otherwise rounds towards zero
+int Function Round(float afValueToRound) global
+	int trunc = afValueToRound as int
+
+	if abs(afValueToRound) - abs(trunc) >= 0.5
+		if afValueToRound < 0
+			return trunc - 1
+		else
+			return trunc + 1
+		endif
+	endif
+
+	return trunc
+
 EndFunction
 
-Float Function Normalize(Float afValue, Float afMin, Float afMax) Global
-  Return (afValue - afMin) / (afMax - afMin)
+;extracts the value of a number at a particular position (0-based, one's place is 0)
+;examples:
+;ExtractDigit(567, 0) == 7
+;ExtractDigit(567, 1) == 6
+;ExtractDigit(567, 2) == 5
+;ExtractDigit(567, 999) == -1
+;ExtractDigit(567, 999, 0) == 0
+int Function ExtractDigit(int number, int position, int NonExistentDigit = -1) global
+
+	;this is a number with all the digits to the left of the position
+	;for example 567 with position 1 == 56
+	int leftDigits = number / pow(10, position) as int
+
+	if leftDigits < 1 ;we don't have a digit at that position
+		return NonExistentDigit
+	else
+		return leftDigits % 10
+	endif
+
 EndFunction
 
-Int Function Round(Float afValueToRound) Global
-  Int trunc = afValueToRound as Int
-  If Math.abs(afValueToRound) - Math.abs(trunc as Float) >= 0.5
-    If afValueToRound < 0.0
-      Return trunc - 1
-    Else
-      Return trunc + 1
-    EndIf
-  EndIf
-  Return trunc
+; return a number days for a number of hours - useful for doing math with GameDaysPassed, etc.
+float Function HoursAsDays(float afHours) global
+	return afHours / 24.0
 EndFunction
 
-Int Function ExtractDigit(Int number, Int position, Int NonExistentDigit) Global
-  Int leftDigits = number / Math.pow(10.0, position as Float) as Int
-  If leftDigits < 1
-    Return NonExistentDigit
-  Else
-    Return leftDigits % 10
-  EndIf
+; return a number days for a number of minutes - useful for doing math with GameDaysPassed, etc.
+float Function MinutesAsDays(float afMinutes) global
+	return afMinutes / 24.0 / 60.0
 EndFunction
 
-Float Function HoursAsDays(Float afHours) Global
-  Return afHours / 24.0
+; return a number of days for a number of seconds - useful for doing math with GameDaysPassed, etc.
+float Function SecondsAsDays(float afSeconds) global
+	return afSeconds / 24.0 / 60.0 / 60.0
 EndFunction
 
-Float Function MinutesAsDays(Float afMinutes) Global
-  Return afMinutes / 24.0 / 60.0
+; return a number of hours for a number of days - useful for doing math with GameDaysPassed, etc.
+float Function DaysAsHours(float afDays) global
+	return afDays * 24.0
 EndFunction
 
-Float Function SecondsAsDays(Float afSeconds) Global
-  Return afSeconds / 24.0 / 60.0 / 60.0
+; return a number of Minutes for a number of days - useful for doing math with GameDaysPassed, etc.
+float Function DaysAsMinutes(float afDays) global
+	return afDays * 24.0 * 60.0
 EndFunction
 
-Float Function DaysAsHours(Float afDays) Global
-  Return afDays * 24.0
-EndFunction
-
-Float Function DaysAsMinutes(Float afDays) Global
-  Return afDays * 24.0 * 60.0
-EndFunction
-
-Float Function DaysAsSeconds(Float afDays) Global
-  Return afDays * 24.0 * 60.0 * 60.0
+; return a number of Seconds for a number of days - useful for doing math with GameDaysPassed, etc.
+float Function DaysAsSeconds(float afDays) global
+	return afDays * 24.0 * 60.0 * 60.0
 EndFunction

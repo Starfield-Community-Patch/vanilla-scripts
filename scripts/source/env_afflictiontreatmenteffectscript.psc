@@ -1,25 +1,26 @@
-ScriptName ENV_AfflictionTreatmentEffectScript Extends ActiveMagicEffect
+Scriptname ENV_AfflictionTreatmentEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+SQ_ENV_AfflictionsScript Property SQ_ENV Mandatory Const Auto
+{autofill}
 
-;-- Properties --------------------------------------
-sq_env_afflictionsscript Property SQ_ENV Auto Const mandatory
-{ autofill }
-Keyword Property TreatmentEffectKeyword Auto Const mandatory
-{ filter for: ENV_EffectType_AFFL_Treatment_ }
+Keyword Property TreatmentEffectKeyword Mandatory Const Auto
+{filter for: ENV_EffectType_AFFL_Treatment_}
 
-;-- Functions ---------------------------------------
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    Trace(self, "OnEffectStart() TreatmentEffectKeyword: " + TreatmentEffectKeyword + ", afMagnitude: " + afMagnitude)
+    
+    int improvementLevels = Math.Max(afMagnitude, 1) as int ;improvement levels is 1 or the magnitude if greater than 1
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Int improvementLevels = Math.Max(afMagnitude, 1.0) as Int
-  SQ_ENV.ImproveActiveAfflictions(TreatmentEffectKeyword, improvementLevels, True)
+    SQ_ENV.ImproveActiveAfflictions(TreatmentEffectKeyword, improvementLevels, true)
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "Afflictions", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "Afflictions", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

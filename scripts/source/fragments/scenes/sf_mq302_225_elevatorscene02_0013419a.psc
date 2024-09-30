@@ -1,31 +1,64 @@
-ScriptName Fragments:Scenes:SF_MQ302_225_ElevatorScene02_0013419A Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ302_225_ElevatorScene02_0013419A Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  kmyQuest.SetPlayerControlsEnabled(False)
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Lock player movement for the elevator scene.
+kMyQuest.SetPlayerControlsEnabled(False)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  kmyQuest.SetPlayerControlsEnabled(True)
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Unlock player movement.
+kMyQuest.SetPlayerControlsEnabled(True)
+;PlayElevator02 has already disabled the moving
+;elevator and swapped to the static version.
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_01_End
 Function Fragment_Phase_01_End()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  Actor allyRef = kmyQuest.Ally.GetActorRef()
-  If allyRef != None
-    allyRef.MoveToPackageLocation()
-  EndIf
-  Actor companionRef = kmyQuest.Companion.GetActorRef()
-  If companionRef != None
-    companionRef.MoveToPackageLocation()
-  EndIf
-EndFunction
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+Actor allyRef = kMyQuest.Ally.GetActorRef()
+if (allyRef != None)
+     allyRef.MoveToPackageLocation()
+EndIf
 
-Function Fragment_Phase_03_End()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  kmyQuest.PlayElevator02NoWait()
-  kmyQuest.SetStage(992)
+Actor companionRef = kMyQuest.Companion.GetActorRef()
+if (companionRef != None)
+     companionRef.MoveToPackageLocation()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Phase_03_End
+Function Fragment_Phase_03_End()
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Send the elevator down.
+kMyQuest.PlayElevator02NoWait()
+
+;Allow the shifting process to finish.
+kMyQuest.SetStage(992)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

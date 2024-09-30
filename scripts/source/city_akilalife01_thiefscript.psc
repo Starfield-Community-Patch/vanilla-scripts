@@ -1,21 +1,22 @@
-ScriptName City_AkilaLife01_ThiefScript Extends ReferenceAlias
+Scriptname City_AkilaLife01_ThiefScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Quest Property City_AkilaLife01 Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Quest Property City_AkilaLife01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
 
 Event OnLoad()
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+	RegisterForHitEvent(aktarget=Self)
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If Self.GetActorRef().IsBleedingout() > 0
-    City_AkilaLife01.SetStage(160)
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Else
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndIf
+
+
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+
+	if Self.GetActorRef().IsBleedingout()>0
+		City_AkilaLife01.SetStage(160)
+		Debug.Trace("Akila Thief hit while down, stage set")
+		RegisterForHitEvent(aktarget=Self)
+	else
+		RegisterForHitEvent(aktarget=Self)
+	endif
+
 EndEvent

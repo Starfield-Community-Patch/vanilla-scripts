@@ -1,14 +1,11 @@
-ScriptName AnnihilatorModEffect Extends ActiveMagicEffect
+Scriptname AnnihilatorModEffect extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Spell Property AnnihilatorSpawnHazardSelf Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Spell Property AnnihilatorSpawnHazardSelf Auto Const Mandatory
 
 Event OnDeath(ObjectReference akKiller)
-  Actor target = Self.GetTargetActor()
-  AnnihilatorSpawnHazardSelf.Cast(target as ObjectReference, target as ObjectReference)
-  Self.Dispel()
+    Actor target = GetTargetActor()
+    Debug.Trace("OnDeath event triggered")
+    AnnihilatorSpawnHazardSelf.Cast(target, target)
+    Debug.Trace("Spawned spell at " + target)
+    Dispel()
 EndEvent

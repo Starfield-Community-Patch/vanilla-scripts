@@ -1,16 +1,13 @@
-ScriptName CF01DialogueCrimeGuardsScript Extends Quest
+Scriptname CF01DialogueCrimeGuardsScript extends Quest
 
-;-- Variables ---------------------------------------
-inputenablelayer inputLayer
-
-;-- Functions ---------------------------------------
+InputEnableLayer inputLayer
 
 Function DisablePlayerControlsForCF01Arrest()
-  inputLayer = inputenablelayer.Create()
-  inputLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
+    inputLayer = InputEnableLayer.Create()
+    inputLayer.DisablePlayerControls()
 EndFunction
 
 Function EnablePlayerControlsAfterCF01Arrest()
-  inputLayer.EnablePlayerControls(True, True, True, True, True, True, True, True, True, True, True)
-  inputLayer.Delete()
+    inputLayer.EnablePlayerControls()
+    inputLayer.Delete()
 EndFunction

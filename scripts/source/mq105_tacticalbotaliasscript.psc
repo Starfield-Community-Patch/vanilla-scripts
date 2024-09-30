@@ -1,26 +1,22 @@
-ScriptName MQ105_TacticalBotAliasScript Extends ReferenceAlias
+Scriptname MQ105_TacticalBotAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property RobotSeesPlayerStage = 650 Auto Const
-Int Property RobotSeesPlayerPrereqStage = 600 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property RobotSeesPlayerStage=650 Const Auto
+Int Property RobotSeesPlayerPrereqStage=600 Const Auto
 
 Event OnLoad()
-  If Self.GetOwningQuest().GetStageDone(RobotSeesPlayerStage) == False
-    Self.RegisterForDistanceLessThanEvent(Self.getActorRef() as ScriptObject, Game.GetPlayer() as ScriptObject, 4.0, 0)
-  EndIf
+    If (GetOwningQuest().GetStageDone(RobotSeesPlayerStage) == False)
+        RegisterForDistanceLessThanEvent(self.getActorRef(), Game.GetPlayer(), 4.0)
+    EndIf
 EndEvent
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Quest myQuest = Self.GetOwningQuest()
-  If myQuest.GetStageDone(RobotSeesPlayerPrereqStage) && myQuest.GetStageDone(RobotSeesPlayerStage) == False
-    myQuest.SetStage(RobotSeesPlayerStage)
-  EndIf
-EndEvent
+Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+	;if the robot is ever close to the player, set quest stage
+    Quest myQuest = GetOwningQuest()
+    If (myQuest.GetStageDone(RobotSeesPlayerPrereqStage)) && (myQuest.GetStageDone(RobotSeesPlayerStage)==False)
+        myQuest.SetStage(RobotSeesPlayerStage)
+    EndIf
+endEvent
 
 Event OnUnLoad()
-  Self.UnregisterForDistanceEvents(Self.getActorRef() as ScriptObject, Game.GetPlayer() as ScriptObject, -1)
+    UnregisterForDistanceEvents(self.getActorRef(), Game.GetPlayer())
 EndEvent

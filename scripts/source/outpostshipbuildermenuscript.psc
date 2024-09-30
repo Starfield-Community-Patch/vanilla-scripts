@@ -1,17 +1,20 @@
-ScriptName OutpostShipbuilderMenuScript Extends TerminalMenu
+Scriptname OutpostShipbuilderMenuScript extends TerminalMenu
 
-;-- Functions ---------------------------------------
-
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  outpostshipbuildermenuactivator myShipbuilderRef = akTerminalRef as outpostshipbuildermenuactivator
-  If myShipbuilderRef
-    shipvendorscript theShipVendor = myShipbuilderRef.myVendor
-    If theShipVendor
-      If auiMenuItemID == 1
-        theShipVendor.myLandingMarker.ShowHangarMenu(0, theShipVendor as Actor, None, False)
-      ElseIf auiMenuItemID == 2
-        theShipVendor.myLandingMarker.ShowHangarMenu(0, theShipVendor as Actor, None, True)
-      EndIf
-    EndIf
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " auiMenuItemID=" + auiMenuItemID)
+    OutpostShipbuilderMenuActivator myShipbuilderRef = akTerminalRef as OutpostShipbuilderMenuActivator
+    if myShipbuilderRef
+        ShipVendorScript theShipVendor = myShipbuilderRef.myVendor as ShipVendorScript
+        debug.trace(self + " myShipbuilderRef=" + myShipbuilderRef + " theShipVendor=" + theShipVendor)
+        if theShipVendor
+            if auiMenuItemID == 1
+                debug.trace(self + " menu item 1 - modify ship")
+                theShipVendor.myLandingMarker.ShowHangarMenu(0, theShipVendor, abOpenToAvailableTab = false)
+            elseif auiMenuItemID == 2
+                debug.trace(self + " menu item 2 - buy ship")
+                theShipVendor.myLandingMarker.ShowHangarMenu(0, theShipVendor, abOpenToAvailableTab = true)
+            endif
+            debug.trace(self + " menu handling DONE")
+        endif
+    endif
 EndEvent

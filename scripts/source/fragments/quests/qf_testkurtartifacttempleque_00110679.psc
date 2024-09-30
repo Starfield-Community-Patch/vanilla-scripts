@@ -1,36 +1,56 @@
-ScriptName Fragments:Quests:QF_TestKurtArtifactTempleQue_00110679 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TestKurtArtifactTempleQue_00110679 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_AnomalyMapMarker Auto Const mandatory
-Message Property MQ_TempleTutorialMSG Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.setobjectivedisplayed(10, True, False)
-  Alias_AnomalyMapMarker.GetRef().SetRequiresScanning(False)
+;BEGIN CODE
+setobjectivedisplayed(10)
+Alias_AnomalyMapMarker.GetRef().SetRequiresScanning(false)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.setobjectivecompleted(10, True)
-  Self.setobjectivedisplayed(20, True, False)
+;BEGIN CODE
+setobjectivecompleted(10)
+setobjectivedisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.setobjectivecompleted(20, True)
-  Self.setobjectivedisplayed(30, True, False)
-  Game.GetPlayer().WaitFor3DLoad()
-  Utility.Wait(0.25)
-  MQ_TempleTutorialMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-EndFunction
+;BEGIN CODE
+setobjectivecompleted(20)
+setobjectivedisplayed(30)
 
+Game.GetPlayer().WaitFor3DLoad()
+Utility.Wait(0.25)
+MQ_TempleTutorialMSG.Show()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Self.setobjectivecompleted(30, True)
-  Self.setobjectivedisplayed(40, True, False)
+;BEGIN CODE
+setobjectivecompleted(30)
+setobjectivedisplayed(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.CompleteAllObjectives()
+;BEGIN CODE
+CompleteAllObjectives()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_AnomalyMapMarker Auto Const Mandatory
+
+Message Property MQ_TempleTutorialMSG Auto Const Mandatory

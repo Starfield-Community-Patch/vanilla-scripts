@@ -1,28 +1,27 @@
-ScriptName OnWeaponFire_Backfire Extends ActiveMagicEffect hidden
+Scriptname OnWeaponFire_Backfire extends ActiveMagicEffect Hidden
 
-;-- Variables ---------------------------------------
+int Property ChanceBackfire = 10 Const Auto
 
-;-- Properties --------------------------------------
-Int Property ChanceBackfire = 10 Auto Const
-Spell Property myWeaponFireSpell Auto Const
+SPELL Property myWeaponFireSpell Auto Const
 String Property myAnimEvent Auto Const
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.registerForAnimationEvent(akTarget, myAnimEvent)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    DEBUG.TRACE("Effect applied to " + akCaster + " by " + akTarget)
+    registerForAnimationEvent(akTarget, myAnimEvent)
 EndEvent
 
-Event OnAnimationEvent(ObjectReference akSource, String asEventName)
-  If asEventName == myAnimEvent
-    If Game.GetDieRollSuccess(ChanceBackfire, 1, 100, -1, -1)
-      myWeaponFireSpell.Cast(akSource, None)
-    EndIf
-  Else
-    Self.registerForAnimationEvent(akSource, myAnimEvent)
-  EndIf
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+    debug.trace("Received anim event: " + asEventName + akSource)
+    
+    if asEventName == myAnimEvent
+        if Game.GetDieRollSuccess(ChanceBackfire)
+            myWeaponFireSpell.Cast(akSource)
+        endif
+    else
+        registerForAnimationEvent(akSource, myAnimEvent)
+    endif
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.UnregisterForAnimationEvent(akCaster as ObjectReference, myAnimEvent)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+        UnregisterForAnimationEvent(akCaster, myAnimEvent)
 EndEvent

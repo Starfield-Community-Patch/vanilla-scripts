@@ -1,29 +1,33 @@
-ScriptName DefaultSurveyPlanetQuestScript Extends Quest default
-{ script to set a stage when a specified planet has been surveyed }
+Scriptname DefaultSurveyPlanetQuestScript extends Quest Default
+{script to set a stage when a specified planet has been surveyed}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property PlayerShip Auto Const mandatory
+ReferenceAlias Property PlayerShip Auto Const Mandatory
 { should point to SQ_PlayerShip, PlayerShip alias }
+
 LocationAlias Property TargetSystemLocation Auto Const
+
 LocationAlias Property TargetPlanetLocation Auto Const
-Keyword Property LocTypeMajorOrbital Auto Const mandatory
+
+Keyword property LocTypeMajorOrbital auto const Mandatory
 { used to check if something is a planet or moon }
-Int Property SurveyCompleteStage = -1 Auto Const mandatory
+
+int property SurveyCompleteStage = -1 auto Const Mandatory
 { stage to set when planet survey is complete }
 
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerPlanetSurveyComplete")
-EndEvent
+	; register for survey events
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerPlanetSurveyComplete")
+endEvent
 
-Event Actor.OnPlayerPlanetSurveyComplete(Actor akSource, planet akPlanet)
-  spaceshipreference playershipRef = PlayerShip.GetShipRef()
-  Location currentLocation = playershipRef.GetCurrentLocation()
-  If currentLocation.IsSameLocation(TargetPlanetLocation.GetLocation(), LocTypeMajorOrbital) && Self.GetStageDone(SurveyCompleteStage) == False
-    Self.SetStage(SurveyCompleteStage)
-    Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerPlanetSurveyComplete")
-  EndIf
+Event Actor.OnPlayerPlanetSurveyComplete(Actor akSource, Planet akPlanet)
+	; get player ship current location
+	SpaceshipReference playershipRef = PlayerShip.GetShipRef()
+    Location currentLocation = playershipRef.GetCurrentLocation()
+
+	debug.trace(self + " OnPlayerPlanetSurveyComplete akPlanet=" + akPlanet + " currentLocation=" + currentLocation)
+
+    if currentLocation.IsSameLocation(TargetPlanetLocation.GetLocation(), LocTypeMajorOrbital) && GetStageDone(SurveyCompleteStage) == false
+		SetStage(SurveyCompleteStage)
+        UnregisterForRemoteEvent(Game.GetPlayer(), "OnPlayerPlanetSurveyComplete")
+	endif
 EndEvent

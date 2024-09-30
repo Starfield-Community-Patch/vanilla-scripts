@@ -1,5 +1,3 @@
-ScriptName InstanceNamingRules Extends Form Native hidden
+Scriptname InstanceNamingRules extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Function MergeWith(InstanceNamingRules aSource) Native
+ Function MergeWith(InstanceNamingRules aSource) native 

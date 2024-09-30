@@ -1,106 +1,109 @@
-ScriptName LandingPadBlastShields Extends ObjectReference
-{ Handle the opening and closing of the landing pad blast shields. }
+Scriptname LandingPadBlastShields extends ObjectReference
+{Handle the opening and closing of the landing pad blast shields.}
 
-;-- Variables ---------------------------------------
-Int BeforeOpenTimerID = 3 Const
-Int OpenToCloseTimerID = 2 Const
+float Property BaseAnimSpeed = 1.0 Const Auto
+float Property AnimSpeedVariance = 0.0 Const Auto
+float Property BeforeOpenTimer = 12.0 Auto const
+float Property OpenToCloseTimer = 13.0 Auto const
+Keyword Property LinkedRef_LandingPadShield_EnableMarker Const Auto Mandatory
 
-;-- Properties --------------------------------------
-Float Property BaseAnimSpeed = 1.0 Auto Const
-Float Property AnimSpeedVariance = 0.0 Auto Const
-Float Property BeforeOpenTimer = 12.0 Auto Const
-Float Property OpenToCloseTimer = 13.0 Auto Const
-Keyword Property LinkedRef_LandingPadShield_EnableMarker Auto Const mandatory
-String Property blastShieldOpen = "Play01" Auto Const
-String Property blastShieldClose = "Play02" Auto Const
-String Property blastShieldInstantClose = "StateA_Idle" Auto Const
+String property blastShieldOpen = "Play01" auto const
+String property blastShieldClose = "Play02" auto const
+String property blastShieldInstantClose = "StateA_Idle" auto Const
 
-;-- Functions ---------------------------------------
+int BeforeOpenTimerID = 3 Const
+int OpenToCloseTimerID = 2 Const
 
-Event SpaceshipReference.OnShipTakeOff(spaceshipreference akSender, Bool abComplete)
-  ; Empty function
-EndEvent
-
-Function ActivateBlastShields(Bool isLanding)
-  Self.GoToState("Busy")
-  If isLanding
-    Self.StartTimer(BeforeOpenTimer, BeforeOpenTimerID)
-  Else
-    Self.StartTimer(0.0, BeforeOpenTimerID)
-  EndIf
+Function ActivateBlastShields(bool isLanding)
+    GoToState("Busy")
+    if isLanding
+        StartTimer(BeforeOpenTimer, BeforeOpenTimerID) ; Time before opening
+    Else
+        StartTimer(0, BeforeOpenTimerID) ; Time before opening
+    endif
 EndFunction
+
+Event SpaceshipReference.OnShipTakeOff(SpaceshipReference akSender, bool abComplete)
+    ; do nothing
+EndEvent
 
 Event OnCellLoad()
-  Self.AnimateBlastShields(blastShieldInstantClose)
+    Debug.Trace(self + " OnCellLoad - reset blast shields to down")
+    ; reset to down position
+    AnimateBlastShields(blastShieldInstantClose)
 EndEvent
 
-Function AnimateBlastShields(String animationString)
-  ObjectReference[] linkedrefs = Self.GetLinkedRefChain(None, 100)
-  Int index = 0
-  While index < linkedrefs.Length
-    ObjectReference blastShield = linkedrefs[index]
-    Self.AnimateBlastShield(blastShield, animationString)
-    index += 1
-  EndWhile
-EndFunction
+auto State Idle
+    ;Don't do anything if Blast shields are not linked to the landing marker.
+    Event OnActivate(ObjectReference akActionRef)
+        Debug.Trace(self + " OnActivate " + akActionRef)
+        ObjectReference[] linkedrefs = GetLinkedRefChain()
+        if(linkedrefs.Length > 0)
+            SpaceshipReference spaceshipRef = akActionRef as SpaceshipReference
+            if spaceshipRef
+                RegisterForRemoteEvent(spaceshipRef, "OnShipTakeOff")
+                ActivateBlastShields(true)
+            endif
+        endif
+    EndEvent
 
-Function AnimateBlastShield(ObjectReference blastShield, String animationString)
-  If blastShield as Bool && blastShield.Is3DLoaded()
-    blastShield.SetAnimationVariableFloat("AnimSpeed", BaseAnimSpeed + Utility.RandomFloat(-AnimSpeedVariance, AnimSpeedVariance))
-    blastShield.PlayAnimation(animationString)
-  EndIf
-EndFunction
+    Event SpaceshipReference.OnShipTakeOff(SpaceshipReference akSender, bool abComplete)
+        Debug.Trace(self + " OnShipTakeOff")
+        if(!abComplete)
+            Debug.Trace(self + " Takeoff Started")
+            ActivateBlastShields(false)      
+            UnregisterForRemoteEvent(akSender, "OnShipTakeOff")
+        endif
+    EndEvent
+EndState
 
-;-- State -------------------------------------------
 State Busy
+    Event OnUnload()
+        Debug.Trace(self + " OnUnload (BUSY)")
+        CancelTimer(OpenToCloseTimerID)
+        CancelTimer(BeforeOpenTimerID)
+        GotoState("Idle")
+    EndEvent
+    
+    Event OnTimer(int aiTimerID)
+        Debug.trace(self + " OnTimer " + aiTimerID)
+        if aiTimerID == OpenToCloseTimerID
+            AnimateBlastShields(blastShieldClose)
+            ObjectReference EnableMarker = GetLinkedRef(LinkedRef_LandingPadShield_EnableMarker)
+            If EnableMarker
+                EnableMarker.Disable()
+            EndIf
+            GoToState("Idle")
+        elseif aiTimerID == BeforeOpenTimerID
+            AnimateBlastShields(blastShieldOpen)
+            ObjectReference EnableMarker = GetLinkedRef(LinkedRef_LandingPadShield_EnableMarker)
+            If EnableMarker
+                EnableMarker.Enable()
+            EndIf
+            StartTimer(OpenToCloseTimer, OpenToCloseTimerID) ; Time until Close.
+        endif
+    EndEvent
 
-  Event SpaceshipReference.OnShipTakeOff(spaceshipreference akSender, Bool abComplete)
-    ; Empty function
-  EndEvent
-
-  Event OnTimer(Int aiTimerID)
-    If aiTimerID == OpenToCloseTimerID
-      Self.AnimateBlastShields(blastShieldClose)
-      ObjectReference EnableMarker = Self.GetLinkedRef(LinkedRef_LandingPadShield_EnableMarker)
-      If EnableMarker
-        EnableMarker.Disable(False)
-      EndIf
-      Self.GoToState("Idle")
-    ElseIf aiTimerID == BeforeOpenTimerID
-      Self.AnimateBlastShields(blastShieldOpen)
-      ObjectReference enablemarker = Self.GetLinkedRef(LinkedRef_LandingPadShield_EnableMarker)
-      If enablemarker
-        enablemarker.Enable(False)
-      EndIf
-      Self.StartTimer(OpenToCloseTimer, OpenToCloseTimerID)
-    EndIf
-  EndEvent
-
-  Event OnUnload()
-    Self.CancelTimer(OpenToCloseTimerID)
-    Self.CancelTimer(BeforeOpenTimerID)
-    Self.GoToState("Idle")
-  EndEvent
+    Event SpaceshipReference.OnShipTakeOff(SpaceshipReference akSender, bool abComplete)
+        Debug.Trace(self + " OnShipTakeOff - BUSY - do nothing")
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Idle
+function AnimateBlastShields(String animationString)
+    ObjectReference[] linkedrefs = GetLinkedRefChain()
+    int index = 0
+    While (index < linkedrefs.Length)
+        ObjectReference blastShield = linkedrefs[index]
+        AnimateBlastShield(blastShield, animationString)
+        index += 1
+    EndWhile
+endFunction
 
-  Event SpaceshipReference.OnShipTakeOff(spaceshipreference akSender, Bool abComplete)
-    If !abComplete
-      Self.ActivateBlastShields(False)
-      Self.UnregisterForRemoteEvent(akSender as ScriptObject, "OnShipTakeOff")
-    EndIf
-  EndEvent
-
-  Event OnActivate(ObjectReference akActionRef)
-    ObjectReference[] linkedrefs = Self.GetLinkedRefChain(None, 100)
-    If linkedrefs.Length > 0
-      spaceshipreference spaceshipRef = akActionRef as spaceshipreference
-      If spaceshipRef
-        Self.RegisterForRemoteEvent(spaceshipRef as ScriptObject, "OnShipTakeOff")
-        Self.ActivateBlastShields(True)
-      EndIf
-    EndIf
-  EndEvent
-EndState
+function AnimateBlastShield(ObjectReference blastShield, String animationString)
+    if blastShield && blastShield.Is3DLoaded()
+        ;set blast shield animspeed
+        blastShield.SetAnimationVariableFloat("AnimSpeed", BaseAnimSpeed + Utility.RandomFloat(-AnimSpeedVariance, AnimSpeedVariance))
+        ; open the blast shields.
+        blastShield.PlayAnimation(animationString)
+    endif
+endFunction

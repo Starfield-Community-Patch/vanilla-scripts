@@ -1,55 +1,59 @@
-ScriptName DoorBarricade Extends ObjectReference
-{ When this locked door barricade is unlocked it is disabled, plays a sound, and unlocks and makes usable a linked door. }
+Scriptname DoorBarricade extends ObjectReference
+{When this locked door barricade is unlocked it is disabled, plays a sound, and unlocks and makes usable a linked door.}
 
-;-- Variables ---------------------------------------
+Keyword Property LinkToBarricadedDoor Mandatory Const Auto
+int Property LockLevel = 251 Const Auto
+WwiseEvent Property WwiseEvent_DRS_Barricade_Unlock Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property LinkToBarricadedDoor Auto Const mandatory
-Int Property LockLevel = 251 Auto Const
-wwiseevent Property WwiseEvent_DRS_Barricade_Unlock Auto Const
-
-;-- Functions ---------------------------------------
+Auto State Initial
+    Event OnCellLoad()
+        SetupBarricade()
+    EndEvent
+EndState
 
 Function SetupBarricade()
-  Self.EnableNoWait(False)
-  If Self.GetLinkedRef(LinkToBarricadedDoor)
-    If Self.GetLockLevel() != 0
-      Self.GetLinkedRef(LinkToBarricadedDoor).BlockActivation(True, True)
-      Self.GetLinkedRef(LinkToBarricadedDoor).SetLockLevel(LockLevel)
-      Self.GetLinkedRef(LinkToBarricadedDoor).Lock(True, False, True)
+    EnableNoWait()
+    if(GetLinkedRef(LinkToBarricadedDoor))
+        if GetLockLevel() != 0
+            GetLinkedRef(LinkToBarricadedDoor).BlockActivation(true, true)
+            GetLinkedRef(LinkToBarricadedDoor).SetLockLevel(LockLevel)
+            GetLinkedRef(LinkToBarricadedDoor).Lock()
+        Else
+            Debug.Trace("Door is not locked. Disabling Barricade")
+            self.DisableNoWait()
+        endif
     Else
-      Self.DisableNoWait(False)
+        Debug.Trace("Missing Link from Baricade to Door.")
     EndIf
-  EndIf
-  Self.GoToState("Done")
+    GoToState("Done")
 EndFunction
 
 Event OnLockStateChanged()
-  If !Self.IsLocked()
-    If Self.GetLinkedRef(LinkToBarricadedDoor)
-      WwiseEvent_DRS_Barricade_Unlock.Play(Self.GetLinkedRef(LinkToBarricadedDoor), None, None)
-      Self.GetLinkedRef(LinkToBarricadedDoor).Lock(False, False, True)
-      Self.GetLinkedRef(LinkToBarricadedDoor).BlockActivation(False, False)
+    if(!IsLocked())
+        Debug.Trace("The door is unlocked")
+        ;Play sound
+        if(GetLinkedRef(LinkToBarricadedDoor))
+            ;Unlock the Linked Door
+            WwiseEvent_DRS_Barricade_Unlock.Play(GetLinkedRef(LinkToBarricadedDoor))
+            ;Playing sound on door so that the disabled barrier doesn't end the sound.
+            GetLinkedRef(LinkToBarricadedDoor).Lock(false)
+            ;Make the Door Activatable.
+            GetLinkedRef(LinkToBarricadedDoor).BlockActivation(false)
+        EndIf
+        ;Disable this object
+        self.DisableNoWait()
     EndIf
-    Self.DisableNoWait(False)
-  EndIf
 EndEvent
 
 Event OnReset()
-  Self.GoToState("Initial")
-  If Self.GetLinkedRef(None) == None
-    Self.SetupBarricade()
-  EndIf
+    Debug.Trace("This object was reset")
+
+    GoToState("Initial")
+    if GetLinkedRef() == none
+        SetupBarricade()
+    endif
 EndEvent
 
-;-- State -------------------------------------------
 State Done
-EndState
-
-;-- State -------------------------------------------
-Auto State Initial
-
-  Event OnCellLoad()
-    Self.SetupBarricade()
-  EndEvent
-EndState
+    ; Do nothing
+endState

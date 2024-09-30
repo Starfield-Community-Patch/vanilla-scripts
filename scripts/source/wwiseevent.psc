@@ -1,125 +1,151 @@
-ScriptName WwiseEvent Extends Form Native hidden
+Scriptname WwiseEvent extends Form Native Hidden
 
-;-- Structs -----------------------------------------
-Struct WwiseRTPCParam
-  String Name
-  Float value
-EndStruct
+; A single Wwise Switch parameter
+struct WwiseSwitchParam
+	string GroupName	; Name of the Switch Group that contains the given State
+	string StateName	; Name of the Switch State that should be activated 
+endStruct
 
-Struct WwiseSwitchParam
-  String GroupName
-  String StateName
-EndStruct
+; Helper function to construct a WwiseSwitchParam
+WwiseSwitchParam Function MakeNewWwiseSwitchParam(string aGroupName, string aStateName) global
+	WwiseSwitchParam retval = new WwiseSwitchParam
+	retval.GroupName = aGroupName
+	retval.StateName = aStateName
+	return retval
+endFunction
+
+; A single Wwise RTPC parameter
+struct WwiseRTPCParam
+	string Name		; Name of the Wwise Game Parameter to set
+	float Value		; Value the Game Parameter should be set to
+endStruct
+
+; Helper function to construct a WwiseRTPCParam
+WwiseRTPCParam Function MakeNewWwiseRTPCParam(string aName, float aValue) global
+	WwiseRTPCParam retval = new WwiseRTPCParam
+	retval.Name = aName
+	retval.Value = aValue
+	return retval
+endFunction
+
+; Play this sound base object from the specified source
+int Function Play(ObjectReference akSource, WwiseSwitchParam[] aSwitchParams = none, WwiseRTPCParam[] aRTPCParams = none)
+	return PlayImpl(akSource, ExtractSwitchGroups(aSwitchParams), ExtractSwitchStates(aSwitchParams), ExtractRTPCNames(aRTPCParams), ExtractRTPCValues(aRTPCParams))
+endFunction
+
+; Play this sound base object as a UI sound
+int Function PlayUI(WwiseSwitchParam[] aSwitchParams = none, WwiseRTPCParam[] aRTPCParams = none)
+	return PlayUIImpl(ExtractSwitchGroups(aSwitchParams), ExtractSwitchStates(aSwitchParams), ExtractRTPCNames(aRTPCParams), ExtractRTPCValues(aRTPCParams))
+endFunction
+
+; Play this sound base object from the specified source, and wait for it to finish
+bool Function PlayAndWait(ObjectReference akSource, WwiseSwitchParam[] aSwitchParams = none, WwiseRTPCParam[] aRTPCParams = none)
+	return PlayAndWaitImpl(akSource, ExtractSwitchGroups(aSwitchParams), ExtractSwitchStates(aSwitchParams), ExtractRTPCNames(aRTPCParams), ExtractRTPCValues(aRTPCParams))
+endFunction
+
+; Play this sound base object as a UI sound, and wait for it to finish
+bool Function PlayUIAndWait(WwiseSwitchParam[] aSwitchParams = none, WwiseRTPCParam[] aRTPCParams = none)
+	return PlayUIAndWaitImpl(ExtractSwitchGroups(aSwitchParams), ExtractSwitchStates(aSwitchParams), ExtractRTPCNames(aRTPCParams), ExtractRTPCValues(aRTPCParams))
+endFunction
+
+; Play this sound base object from the specified source and set an RTPC on the instance before playing
+int Function PlayWithRTPC(ObjectReference akSource, string asRTPCName, float afRTPCValue) native
+
+; Play this sound base object as UI and set an RTPC on the instance before playing
+int Function PlayUIWithRTPC(string asRTPCName, float afRTPCValue) native
+
+; Stops a given playback instance of a sound
+Function StopInstance(int aiPlaybackInstance) native global
+
+; Update a single RTPC value on a given playback instance of a sound
+Function UpdateInstanceRTPC(int aiPlaybackInstance, string asRTPCName, float afRTPCValue) native global
+
+; Update a set of RTPC values on a given playback instance of a sound
+Function UpdateInstanceRTPCs(int aiPlaybackInstance, WwiseRTPCParam[] aRTPCParams) global
+	UpdateInstanceRTPCsImpl(aiPlaybackInstance, ExtractRTPCNames(aRTPCParams), ExtractRTPCValues(aRTPCParams))
+endFunction
+
+; Sets the global value of a Wwise real-time parameter control
+Function SetGlobalRTPC(string asRTPCName, float afRTPCValue) native global
+
+; Sets a global Wwise State Group to the given named state
+Function SetGlobalState(string asStateGroup, string asStateName) native global
+
+; Called by the VM to play a UI sound by the ID of sound
+Function PlayMenuSound(string asSoundID) native global
 
 
-;-- Functions ---------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Helper functions below are not meant for direct use
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Bool Function PlayAndWaitImpl(ObjectReference akSource, String[] aSwitchGroups, String[] aSwitchStates, String[] aRTPCNames, Float[] aRTPCValues) Native
+; For internal use only. Extracts an array of Switch Group names from an array of WwiseSwitchParam.
+string[] Function ExtractSwitchGroups(WwiseSwitchParam[] aSwitchParams) global private
+	string[] switchGroups
+	if aSwitchParams.length > 0
+		switchGroups = new string[aSwitchParams.length]
+		int curSwitch = 0
+		while (curSwitch < aSwitchParams.length)
+			switchGroups[curSwitch] = aSwitchParams[curSwitch].GroupName
+			curSwitch += 1
+		endWhile
+	endif
+	return switchGroups
+endFunction
 
-Int Function PlayImpl(ObjectReference akSource, String[] aSwitchGroups, String[] aSwitchStates, String[] aRTPCNames, Float[] aRTPCValues) Native
+; For internal use only. Extracts an array of Switch State names from an array of WwiseSwitchParam.
+string[] Function ExtractSwitchStates(WwiseSwitchParam[] aSwitchParams) global private
+	string[] switchStates
+	if aSwitchParams.length > 0
+		switchStates = new string[aSwitchParams.length]
+		int curSwitch = 0
+		while (curSwitch < aSwitchParams.length)
+			switchStates[curSwitch] = aSwitchParams[curSwitch].StateName
+			curSwitch += 1
+		endWhile
+	endif
+	return switchStates
+endFunction
 
-Function PlayMenuSound(String asSoundID) Global Native
+; For internal use only. Extracts an array of RTPC names from an array of WwiseRTPCParam.
+string[] Function ExtractRTPCNames(WwiseRTPCParam[] aRTPCParams) global private
+	string[] rtpcNames
+	if aRTPCParams.length > 0
+		rtpcNames = new string[aRTPCParams.length]
+		int curRTPC = 0
+		while (curRTPC < aRTPCParams.length)
+			rtpcNames[curRTPC] = aRTPCParams[curRTPC].Name
+			curRTPC += 1
+		endWhile
+	endif
+	return rtpcNames
+endFunction
 
-Bool Function PlayUIAndWaitImpl(String[] aSwitchGroups, String[] aSwitchStates, String[] aRTPCNames, Float[] aRTPCValues) Native
+; For internal use only. Extracts an array of RTPC values from an array of WwiseRTPCParam.
+float[] Function ExtractRTPCValues(WwiseRTPCParam[] aRTPCParams) global private
+	float[] rtpcValues
+	if aRTPCParams.length > 0
+		rtpcValues = new float[aRTPCParams.length]
+		int curRTPC = 0
+		while (curRTPC < aRTPCParams.length)
+			rtpcValues[curRTPC] = aRTPCParams[curRTPC].Value
+			curRTPC += 1
+		endWhile
+	endif
+	return rtpcValues
+endFunction
 
-Int Function PlayUIImpl(String[] aSwitchGroups, String[] aSwitchStates, String[] aRTPCNames, Float[] aRTPCValues) Native
+; For internal use only. Users should call the Play function defined above. Play this Wwise Event from the given ObjectReference with an optional set of control parameters.
+int Function PlayImpl(ObjectReference akSource, string[] aSwitchGroups, string[] aSwitchStates, string[] aRTPCNames, float[] aRTPCValues) native private
 
-Int Function PlayUIWithRTPC(String asRTPCName, Float afRTPCValue) Native
+; For internal use only. Users should call the PlayUI function defined above. Plays this Wwise Event as a UI sound with an optional set of control parameters.
+int Function PlayUIImpl(string[] aSwitchGroups, string[] aSwitchStates, string[] aRTPCNames, float[] aRTPCValues) native private
 
-Int Function PlayWithRTPC(ObjectReference akSource, String asRTPCName, Float afRTPCValue) Native
+; For internal use only. Users should call the PlayAndWait function defined above. Play this Wwise Event from the given ObjectReference with an optional set of control parameters, and wait for it to finish before resuming execution.
+bool Function PlayAndWaitImpl(ObjectReference akSource, string[] aSwitchGroups, string[] aSwitchStates, string[] aRTPCNames, float[] aRTPCValues) native private
 
-Function SetGlobalRTPC(String asRTPCName, Float afRTPCValue) Global Native
+; For internal use only. Users should call the PlayUIAndWait function defined above. Plays this Wwise Event as a UI sound with an optional set of control parameters, and wait for it to finish before resuming execution.
+bool Function PlayUIAndWaitImpl(string[] aSwitchGroups, string[] aSwitchStates, string[] aRTPCNames, float[] aRTPCValues) native private
 
-Function SetGlobalState(String asStateGroup, String asStateName) Global Native
-
-Function StopInstance(Int aiPlaybackInstance) Global Native
-
-Function UpdateInstanceRTPC(Int aiPlaybackInstance, String asRTPCName, Float afRTPCValue) Global Native
-
-Function UpdateInstanceRTPCsImpl(Int aiPlaybackInstance, String[] aRTPCNames, Float[] aRTPCValues) Global Native
-
-wwiseevent:wwiseswitchparam Function MakeNewWwiseSwitchParam(String aGroupName, String aStateName) Global
-  wwiseevent:wwiseswitchparam retval = new wwiseevent:wwiseswitchparam
-  retval.GroupName = aGroupName
-  retval.StateName = aStateName
-  Return retval
-EndFunction
-
-wwiseevent:wwisertpcparam Function MakeNewWwiseRTPCParam(String aName, Float aValue) Global
-  wwiseevent:wwisertpcparam retval = new wwiseevent:wwisertpcparam
-  retval.Name = aName
-  retval.value = aValue
-  Return retval
-EndFunction
-
-Int Function Play(ObjectReference akSource, wwiseevent:wwiseswitchparam[] aSwitchParams, wwiseevent:wwisertpcparam[] aRTPCParams)
-  Return Self.PlayImpl(akSource, WwiseEvent.ExtractSwitchGroups(aSwitchParams), WwiseEvent.ExtractSwitchStates(aSwitchParams), WwiseEvent.ExtractRTPCNames(aRTPCParams), WwiseEvent.ExtractRTPCValues(aRTPCParams))
-EndFunction
-
-Int Function PlayUI(wwiseevent:wwiseswitchparam[] aSwitchParams, wwiseevent:wwisertpcparam[] aRTPCParams)
-  Return Self.PlayUIImpl(WwiseEvent.ExtractSwitchGroups(aSwitchParams), WwiseEvent.ExtractSwitchStates(aSwitchParams), WwiseEvent.ExtractRTPCNames(aRTPCParams), WwiseEvent.ExtractRTPCValues(aRTPCParams))
-EndFunction
-
-Bool Function PlayAndWait(ObjectReference akSource, wwiseevent:wwiseswitchparam[] aSwitchParams, wwiseevent:wwisertpcparam[] aRTPCParams)
-  Return Self.PlayAndWaitImpl(akSource, WwiseEvent.ExtractSwitchGroups(aSwitchParams), WwiseEvent.ExtractSwitchStates(aSwitchParams), WwiseEvent.ExtractRTPCNames(aRTPCParams), WwiseEvent.ExtractRTPCValues(aRTPCParams))
-EndFunction
-
-Bool Function PlayUIAndWait(wwiseevent:wwiseswitchparam[] aSwitchParams, wwiseevent:wwisertpcparam[] aRTPCParams)
-  Return Self.PlayUIAndWaitImpl(WwiseEvent.ExtractSwitchGroups(aSwitchParams), WwiseEvent.ExtractSwitchStates(aSwitchParams), WwiseEvent.ExtractRTPCNames(aRTPCParams), WwiseEvent.ExtractRTPCValues(aRTPCParams))
-EndFunction
-
-Function UpdateInstanceRTPCs(Int aiPlaybackInstance, wwiseevent:wwisertpcparam[] aRTPCParams) Global
-  WwiseEvent.UpdateInstanceRTPCsImpl(aiPlaybackInstance, WwiseEvent.ExtractRTPCNames(aRTPCParams), WwiseEvent.ExtractRTPCValues(aRTPCParams))
-EndFunction
-
-String[] Function ExtractSwitchGroups(wwiseevent:wwiseswitchparam[] aSwitchParams) Global
-  String[] switchGroups = None
-  If aSwitchParams.Length > 0
-    switchGroups = new String[aSwitchParams.Length]
-    Int curSwitch = 0
-    While curSwitch < aSwitchParams.Length
-      switchGroups[curSwitch] = aSwitchParams[curSwitch].GroupName
-      curSwitch += 1
-    EndWhile
-  EndIf
-  Return switchGroups
-EndFunction
-
-String[] Function ExtractSwitchStates(wwiseevent:wwiseswitchparam[] aSwitchParams) Global
-  String[] switchStates = None
-  If aSwitchParams.Length > 0
-    switchStates = new String[aSwitchParams.Length]
-    Int curSwitch = 0
-    While curSwitch < aSwitchParams.Length
-      switchStates[curSwitch] = aSwitchParams[curSwitch].StateName
-      curSwitch += 1
-    EndWhile
-  EndIf
-  Return switchStates
-EndFunction
-
-String[] Function ExtractRTPCNames(wwiseevent:wwisertpcparam[] aRTPCParams) Global
-  String[] rtpcNames = None
-  If aRTPCParams.Length > 0
-    rtpcNames = new String[aRTPCParams.Length]
-    Int curRTPC = 0
-    While curRTPC < aRTPCParams.Length
-      rtpcNames[curRTPC] = aRTPCParams[curRTPC].Name
-      curRTPC += 1
-    EndWhile
-  EndIf
-  Return rtpcNames
-EndFunction
-
-Float[] Function ExtractRTPCValues(wwiseevent:wwisertpcparam[] aRTPCParams) Global
-  Float[] rtpcValues = None
-  If aRTPCParams.Length > 0
-    rtpcValues = new Float[aRTPCParams.Length]
-    Int curRTPC = 0
-    While curRTPC < aRTPCParams.Length
-      rtpcValues[curRTPC] = aRTPCParams[curRTPC].value
-      curRTPC += 1
-    EndWhile
-  EndIf
-  Return rtpcValues
-EndFunction
+; For internal use only. Users should call the UpdateInstanceRTPCs function defined above. Updates a set of RTPC values on a given playback instance.
+Function UpdateInstanceRTPCsImpl(int aiPlaybackInstance, string[] aRTPCNames, float[] aRTPCValues) native global private

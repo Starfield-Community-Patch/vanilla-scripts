@@ -1,1 +1,1 @@
-ScriptName HeadPart Extends Form Native hidden
+Scriptname HeadPart Extends Form Native Hidden

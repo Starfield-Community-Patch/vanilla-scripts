@@ -1,46 +1,48 @@
-ScriptName TestPipeSprayScript Extends ObjectReference
+Scriptname TestPipeSprayScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+Keyword Property LinkTraps Mandatory Const Auto
+ActorValue Property Health Mandatory Const Auto
+ActorValue Property HAZ_AV_Broken Mandatory Const Auto
+ActorValue Property HAZ_AV_Pressurized Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property LinkTraps Auto Const mandatory
-ActorValue Property Health Auto Const mandatory
-ActorValue Property HAZ_AV_Broken Auto Const mandatory
-ActorValue Property HAZ_AV_Pressurized Auto Const mandatory
-Float Property DamageThreshold = 90.0 Auto Const
+;Tweakable Data
+float Property DamageThreshold = 90.0 Const Auto
 
-;-- Functions ---------------------------------------
 
 Event OnLoad()
-  ObjectReference PipeSegment = Self.GetLinkedRef(None)
-  Self.RegisterForActorValueLessThanEvent(PipeSegment, Health, DamageThreshold)
-  Self.RegisterForRemoteEvent(Self.GetLinkedRef(LinkTraps) as ScriptObject, "OnActivate")
+    ObjectReference PipeSegment = GetLinkedRef()
+    RegisterForActorValueLessThanEvent(PipeSegment, Health, DamageThreshold)
+    RegisterForRemoteEvent(GetLinkedRef(LinkTraps), "OnActivate")
 EndEvent
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  Self.GetLinkedRef(None).Disable(False)
-  Self.SetValue(HAZ_AV_Broken, 1.0)
-  If Self.GetValue(HAZ_AV_Pressurized) == 1.0
-    Self.StartSpray()
-  EndIf
+    ;Disable the pipe segment
+    GetLinkedRef().Disable()
+    SetValue(HAZ_AV_Broken, 1.00)
+    if(GetValue(HAZ_AV_Pressurized) == 1.00)
+        StartSpray()
+    EndIf
+    
 EndEvent
 
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  If Self.GetValue(HAZ_AV_Pressurized) == 1.0
-    Self.SetValue(HAZ_AV_Pressurized, 0.0)
-    Self.StopSpray()
-  Else
-    Self.SetValue(HAZ_AV_Pressurized, 1.0)
-    If Self.GetValue(HAZ_AV_Broken) == 1.0
-      Self.StartSpray()
+    ;toggle pressure
+    if(GetValue(HAZ_AV_Pressurized) == 1.00)
+        SetValue(HAZ_AV_Pressurized, 0.00)
+        StopSpray()
+    Else
+        SetValue(HAZ_AV_Pressurized, 1.00)
+        if (GetValue(HAZ_AV_Broken) == 1.00)
+            StartSpray()
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
 Function StartSpray()
-  Self.GetLinkedRef(None).GetLinkedRef(None).Enable(False)
+    GetLinkedRef().GetLinkedRef().Enable()
 EndFunction
 
 Function StopSpray()
-  Self.GetLinkedRef(None).GetLinkedRef(None).Disable(False)
+    GetLinkedRef().GetLinkedRef().Disable()
 EndFunction
+

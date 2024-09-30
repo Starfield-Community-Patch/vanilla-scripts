@@ -1,19 +1,16 @@
-ScriptName RyujinPlayerChairAliasScript Extends ReferenceAlias
+Scriptname RyujinPlayerChairAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property iStageToSet Auto Const mandatory
-Int Property iPreReqStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property iStageToSet Auto Const Mandatory
+Int Property iPreReqStage Auto Const Mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  Actor PlayerRef = Game.GetPlayer()
-  Quest OwningQuest = Self.GetOwningQuest()
-  If akActionRef == PlayerRef as ObjectReference
-    If !PlayerRef.IsInCombat() && OwningQuest.GetStageDone(iPreReqStage)
-      OwningQuest.SetStage(iStageToSet)
+
+    Actor PlayerRef = Game.GetPlayer() 
+    Quest OwningQuest = GetOwningQuest()
+
+    If akActionRef == PlayerRef
+        If !PlayerRef.IsInCombat() && OwningQuest.GetStageDone(iPreReqStage)
+            OwningQuest.SetStage(iStageToSet)
+        EndIf
     EndIf
-  EndIf
 EndEvent

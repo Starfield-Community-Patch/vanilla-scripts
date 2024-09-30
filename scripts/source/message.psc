@@ -1,15 +1,21 @@
-ScriptName Message Extends Form Native hidden
+Scriptname Message extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Show this message on the screen, substituting the values as appropriate. If a message box, it will wait until the user closes the box
+; before returning - returning the button the user hit. If not a message box, or something went wrong, it will return -1
+int Function Show(float afArg1 = 0.0, float afArg2 = 0.0, float afArg3 = 0.0, float afArg4 = 0.0, float afArg5 = 0.0, float afArg6 = 0.0, float afArg7 = 0.0, float afArg8 = 0.0, float afArg9 = 0.0) native
 
-Function AttachLoadDoors(ObjectReference[] aDoorRefsToAdd) Native
 
-Function ClearHelpMessages() Global Native
+; Shows help message for a user action on screen.
+Function ShowAsHelpMessage(string asEvent, float afDuration, float afInterval, int aiMaxTimes, string asContext="", int aiPriority=0, Message GamepadMsg=None) native
 
-Function ResetHelpMessage(String asEvent) Global Native
+; Ends the showing of a help message and makes the message inactive.
+Function UnshowAsHelpMessage() native
 
-Int Function Show(Float afArg1, Float afArg2, Float afArg3, Float afArg4, Float afArg5, Float afArg6, Float afArg7, Float afArg8, Float afArg9) Native
+; Hides the help message without marking it as "complete"
+Function ClearHelpMessages() native global
 
-Function ShowAsHelpMessage(String asEvent, Float afDuration, Float afInterval, Int aiMaxTimes, String asContext, Int aiPriority, Message GamepadMsg) Native
+; Resets help message status for an input event so a new message can be displayed for that event.
+Function ResetHelpMessage(string asEvent) native global
 
-Function UnshowAsHelpMessage() Native
+; Assigns the given array of load doors to each option in the message respectively.  References passed must be of type door.
+Function AttachLoadDoors(ObjectReference[] aDoorRefsToAdd) native

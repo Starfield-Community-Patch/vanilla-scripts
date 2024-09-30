@@ -1,85 +1,107 @@
-ScriptName NativeTerminal:ContainerScript Extends TerminalMenu
-{ handles containers via native terminal }
+Scriptname nativeTerminal:ContainerScript extends TerminalMenu
+{handles containers via native terminal}
 
-;-- Variables ---------------------------------------
-Bool anyLocked = False
-Bool anySafe = False
-Int containerCount = 0
+Keyword property LinkTerminalContainer auto const mandatory
 
-;-- Properties --------------------------------------
 Group autofillProperties
-  ActorValue Property NativeTerminalContainer_AnyLocked Auto Const mandatory
-  { autofill }
-  ActorValue Property NativeTerminalContainer_Count Auto Const mandatory
-  { autofill }
-  ActorValue Property NativeTerminalContainer_AnySafe Auto Const mandatory
-  { autofill }
-  Keyword Property LootSafeKeyword Auto Const mandatory
-  { autofill }
+    ActorValue property NativeTerminalContainer_AnyLocked auto const mandatory
+    { autofill }
+
+    ActorValue property NativeTerminalContainer_Count auto const mandatory
+    { autofill }
+
+    ActorValue property NativeTerminalContainer_AnySafe auto const mandatory
+    { autofill }
+
+    Keyword property LootSafeKeyword auto const mandatory
+    { autofill }
 EndGroup
 
-Keyword Property LinkTerminalContainer Auto Const mandatory
-Int Property menuItemID_Unlock01 = 1 Auto Const
-Int Property menuItemID_Unlock02 = 2 Auto Const
-Int Property menuItemID_Unlock03 = 3 Auto Const
-Int Property menuItemID_Unlock04 = 4 Auto Const
+; enums
+int property menuItemID_Unlock01 = 1 auto const
+int property menuItemID_Unlock02 = 2 auto const
+int property menuItemID_Unlock03 = 3 auto const
+int property menuItemID_Unlock04 = 4 auto const
 
-;-- Functions ---------------------------------------
+; script variables
+bool anyLocked = false  ; set to true if any are locked
+int containerCount = 0 ; count of containers
+bool anySafe = false ; set to true if any safes found
 
+; check linked refs to set up conditional actor values for what options the menu should show
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  Self.UpdateAllTerminalVariables(akTerminalRef)
+    debug.trace(self + " OnTerminalMenuEnter " + akTerminalRef)
+    UpdateAllTerminalVariables(akTerminalRef)
 EndEvent
 
-Function UpdateAllTerminalVariables(ObjectReference akTerminalRef)
-  ObjectReference[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalContainer, 100)
-  ObjectReference[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalContainer, None)
-  anyLocked = False
-  anySafe = False
-  containerCount = 0
-  If linkedRefChain.Length > 0
-    Self.UpdateTerminalVariablesForArray(linkedRefChain)
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.UpdateTerminalVariablesForArray(linkedRefChildren)
-  EndIf
-  akTerminalRef.SetValue(NativeTerminalContainer_AnyLocked, (anyLocked as Int) as Float)
-  akTerminalRef.SetValue(NativeTerminalContainer_AnySafe, (anySafe as Int) as Float)
-  akTerminalRef.SetValue(NativeTerminalContainer_Count, containerCount as Float)
-EndFunction
+function UpdateAllTerminalVariables(ObjectReference akTerminalRef)
+    debug.trace(self + " UpdateAllTerminalVariables " + akTerminalRef)
+    ; handle things linked either way
+    ObjectReference[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalContainer)
+    ObjectReference[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalContainer)
 
-Function UpdateTerminalVariablesForArray(ObjectReference[] ContainerArray)
-  Int I = 0
-  While I < ContainerArray.Length
-    ObjectReference theContainer = ContainerArray[I]
-    If theContainer.IsLocked()
-      anyLocked = True
+    ; these will be set to true by UpdateTerminalVariablesForArray if any traps fall into these categories
+    anyLocked = false  ; set to true if any cases are locked
+    anySafe = false ; set to true if any safes found
+    containerCount = 0 ; count of containers
+
+    if linkedRefChain.Length > 0
+        UpdateTerminalVariablesForArray(linkedRefChain)
     EndIf
-    If theContainer.HasKeyword(LootSafeKeyword)
-      anySafe = True
+    if linkedRefChildren.Length > 0
+        UpdateTerminalVariablesForArray(linkedRefChildren)
     EndIf
-    containerCount += 1
-    I += 1
-  EndWhile
-EndFunction
+    debug.trace(self + " actor values set:")
+    debug.trace(self + "   NativeTerminalContainer_AnyLocked: " + anyLocked)
+    debug.trace(self + "   NativeTerminalContainer_AnySafe: " + anySafe)
+    debug.trace(self + "   NativeTerminalContainer_Count: " + containerCount)
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  ObjectReference[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalContainer, 100)
-  ObjectReference[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalContainer, None)
-  If linkedRefChain.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, linkedRefChain, akTerminalRef)
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, linkedRefChildren, akTerminalRef)
-  EndIf
-EndEvent
+    akTerminalRef.SetValue(NativeTerminalContainer_AnyLocked, anyLocked as int)
+    akTerminalRef.SetValue(NativeTerminalContainer_AnySafe, anySafe as int)
+    akTerminalRef.SetValue(NativeTerminalContainer_Count, containerCount)
+endFunction
 
-Function HandleMenuItem(Int auiMenuItemID, ObjectReference[] refArray, ObjectReference akTerminalRef)
-  If auiMenuItemID == menuItemID_Unlock01 || auiMenuItemID == menuItemID_Unlock02 || auiMenuItemID == menuItemID_Unlock03 || auiMenuItemID == menuItemID_Unlock04
-    Int I = 0
-    While I < refArray.Length
-      refArray[I].Unlock(False)
-      I += 1
+function UpdateTerminalVariablesForArray(ObjectReference[] ContainerArray)
+    debug.trace(self + " UpdateTerminalVariablesForArray " + ContainerArray)
+    int i = 0
+    while i < ContainerArray.Length
+        ObjectReference theContainer = ContainerArray[i]
+        debug.trace(self + "  checking " + theContainer)
+        if theContainer.IsLocked()
+            anyLocked = true
+        endif
+        if theContainer.HasKeyword(LootSafeKeyword)
+            anySafe = true
+        EndIf
+
+        containerCount += 1
+        i += 1
     EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  EndIf
 EndFunction
+
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+    ; handle things linked either way
+    ObjectReference[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalContainer)
+    ObjectReference[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalContainer)
+    if linkedRefChain.Length > 0
+        HandleMenuItem(auiMenuItemID, linkedRefChain, akTerminalRef)
+    EndIf
+    if linkedRefChildren.Length > 0
+        HandleMenuItem(auiMenuItemID, linkedRefChildren, akTerminalRef)
+    EndIf
+EndEvent
+
+function HandleMenuItem(int auiMenuItemID, ObjectReference[] refArray, ObjectReference akTerminalRef)
+    debug.trace(self + " HandleMenuItem " + auiMenuItemID)
+    if auiMenuItemID == menuItemID_Unlock01 || auiMenuItemID == menuItemID_Unlock02 || auiMenuItemID == menuItemID_Unlock03 || auiMenuItemID == menuItemID_Unlock04
+        int i = 0
+        While i < refArray.Length
+            refArray[i].Unlock()
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    EndIf
+EndFunction
+

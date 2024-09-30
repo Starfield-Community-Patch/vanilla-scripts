@@ -1,7 +1,5 @@
-ScriptName TestSnapInteractionPlayerScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname TestSnapInteractionPlayerScript extends ReferenceAlias
 
 Event OnSit(ObjectReference akFurniture)
-  Self.GetOwningQuest().SetStage(10)
+  GetOwningQuest().SetStage(10)
 EndEvent

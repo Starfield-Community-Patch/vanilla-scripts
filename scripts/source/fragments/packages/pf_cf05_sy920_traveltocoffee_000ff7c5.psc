@@ -1,7 +1,12 @@
-ScriptName Fragments:Packages:PF_CF05_SY920_TraveltoCoffee_000FF7C5 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_CF05_SY920_TraveltoCoffee_000FF7C5 Extends Package Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  Self.GetOwningQuest().SetStage(780)
+;BEGIN CODE
+GetOwningQuest().SetStage(780)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

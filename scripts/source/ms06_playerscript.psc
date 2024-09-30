@@ -1,41 +1,47 @@
-ScriptName MS06_PlayerScript Extends ReferenceAlias
+Scriptname MS06_PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+FormList Property MS06_ResourceTypes Mandatory Const Auto
 
-;-- Properties --------------------------------------
-FormList Property MS06_ResourceTypes Auto Const mandatory
-
-;-- Functions ---------------------------------------
 
 Function RegisterPlayerForResourceTracking()
-  Self.AddInventoryEventFilter(MS06_ResourceTypes as Form)
-  Self.RunCheckResources()
+    AddInventoryEventFilter(MS06_ResourceTypes)
+    RunCheckResources()
 EndFunction
 
+
+;runs the ResourceCheck script on MS06_QuestScript
 Function RunCheckResources()
-  Quest myQuest = Self.GetOwningQuest()
-  ms06_questscript myQIScript = myQuest as ms06_questscript
-  myQIScript.ResourceCheck()
+    Quest myQuest = GetOwningQuest()
+    MS06_QuestScript myQIScript = myQuest as MS06_QuestScript
+    myQIScript.ResourceCheck()
 EndFunction
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; EVENTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 Event OnAliasInit()
-  Self.RegisterForRemoteEvent(Self.GetOwningQuest() as ScriptObject, "OnStageSet")
+    RegisterForRemoteEvent(GetOwningQuest(), "OnStageSet")
 EndEvent
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  Self.RunCheckResources()
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    RunCheckResources()
 EndEvent
 
-Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-  Self.RunCheckResources()
+Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+    RunCheckResources()
 EndEvent
 
-Event Quest.OnStageSet(Quest akSender, Int auiStageID, Int auiItemID)
-  Quest myQuest = Self.GetOwningQuest()
-  ms06_questscript myQIScript = myQuest as ms06_questscript
-  If auiStageID == myQIScript.GatherResourcesStage
-    Self.RegisterPlayerForResourceTracking()
-  ElseIf auiStageID == myQIScript.ResourcesCompletedStage
-    Self.RemoveInventoryEventFilter(MS06_ResourceTypes as Form)
-  EndIf
+Event Quest.OnStageSet(Quest akSender, int auiStageID, int auiItemID)
+    Quest myQuest = GetOwningQuest()
+    MS06_QuestScript myQIScript = myQuest as MS06_QuestScript
+
+    If auiStageID == myQiScript.GatherResourcesStage
+        RegisterPlayerForResourceTracking()
+    ElseIf auiStageID == myQiScript.ResourcesCompletedStage
+        RemoveInventoryEventFilter(MS06_ResourceTypes)
+    EndIf
 EndEvent

@@ -1,33 +1,39 @@
-ScriptName VendorEnhanceScript Extends TopicInfo Const
+ScriptName VendorEnhanceScript extends TopicInfo const
 
-;-- Variables ---------------------------------------
+GlobalVariable Property EnhancePrice Mandatory Const Auto
+GlobalVariable Property PD_EnhanceSpecialVouchers Mandatory Const Auto
+Quest Property DialogueParadiso Mandatory Const Auto
+MiscObject Property Credits Mandatory Const Auto
 
-;-- Properties --------------------------------------
-GlobalVariable Property EnhancePrice Auto Const mandatory
-GlobalVariable Property PD_EnhanceSpecialVouchers Auto Const mandatory
-Quest Property DialogueParadiso Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+	debug.trace(self + "showing salon menu " + akSpeakerRef)
 
-;-- Functions ---------------------------------------
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If PD_EnhanceSpecialVouchers.GetValue() < 1.0 || Self.GetOwningQuest() != DialogueParadiso
-    Game.GetPlayer().RemoveItem(Credits as Form, EnhancePrice.GetValueInt(), False, None)
-  ElseIf PD_EnhanceSpecialVouchers.GetValue() >= 2.0
-    PD_EnhanceSpecialVouchers.SetValue(1.0)
-  ElseIf PD_EnhanceSpecialVouchers.GetValue() == 1.0
-    PD_EnhanceSpecialVouchers.SetValue(0.0)
-  EndIf
-  Utility.Wait(0.200000003)
-  Game.ShowRaceMenu(None, 2, None, None, None)
-  Self.RegisterForMenuOpenCloseEvent("ChargenMenu")
-EndEvent
-
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If asMenuName == "ChargenMenu"
-    If abOpening == False
-      Self.UnRegisterForMenuOpenCloseEvent("ChargenMenu")
-      Game.FadeOutGame(False, True, 0.0, 0.100000001, False)
+    ;remove money from player
+    ;If the player has the vouchers they bought in Paradiso and they are redeeming them in Paradiso, then do not charge any credits.
+    If PD_EnhanceSpecialVouchers.GetValue() < 1 || GetOwningQuest() != DialogueParadiso
+        Game.GetPlayer().RemoveItem(Credits, EnhancePrice.GetValueInt())
+    Else 
+        ;The Paradiso vouchers are removed here if the player is credited with any.
+        If PD_EnhanceSpecialVouchers.GetValue() >= 2
+            PD_EnhanceSpecialVouchers.SetValue(1)
+        ElseIf PD_EnhanceSpecialVouchers.GetValue() == 1
+            PD_EnhanceSpecialVouchers.SetValue(0)
+        EndIf
     EndIf
-  EndIf
-EndEvent
+;only remove credits if I have 0 vouchers or if I'm not in Paradiso
+;Don't remove credits if I have more than 1 voucher and I'm in Paradiso.
+
+	;wait a second to allow the audio to finish
+	Utility.Wait(0.2)
+	Game.ShowRaceMenu(uiMode=2)    
+    RegisterForMenuOpenCloseEvent("ChargenMenu")
+endEvent
+
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    if (asMenuName== "ChargenMenu")
+        if (abOpening == False)
+            UnRegisterForMenuOpenCloseEvent("ChargenMenu")
+            Game.FadeOutGame(False, True, 0.0, 0.1) ;fade in        
+        endif
+    endif
+endEvent

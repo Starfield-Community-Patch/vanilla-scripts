@@ -1,21 +1,19 @@
-ScriptName UC01_VanguardTerminalScript Extends TerminalMenu Const
+Scriptname UC01_VanguardTerminalScript extends TerminalMenu Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property UC01_UCCrimeGold_VanguardTerminal Auto Const mandatory
-Faction Property CrimeFactionUC Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const mandatory
-
-;-- Functions ---------------------------------------
+GlobalVariable Property UC01_UCCrimeGold_VanguardTerminal Auto Const Mandatory
+Faction Property CrimeFactionUC Mandatory Const Auto
+ReferenceAlias Property PlayerShip Mandatory Const Auto
 
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  UC01_UCCrimeGold_VanguardTerminal.SetValue(CrimeFactionUC.GetCrimeGold() as Float)
-  akTerminalRef.AddTextReplacementValue("CrimeGold", UC01_UCCrimeGold_VanguardTerminal.GetValueInt() as Float)
-  akTerminalRef.AddTextReplacementData("PlayerName", Game.GetPlayer() as Form)
-  akTerminalRef.AddTextReplacementData("ShipName", PlayerShip.GetRef() as Form)
+    UC01_UCCrimeGold_VanguardTerminal.SetValue(CrimeFactionUC.GetCrimeGold())
+    akTerminalRef.AddTextReplacementValue("CrimeGold", UC01_UCCrimeGold_VanguardTerminal.GetValueInt())
+    akTerminalRef.AddTextReplacementData("PlayerName", Game.GetPlayer())
+    akTerminalRef.AddTextReplacementData("ShipName", PlayerShip.GetRef())
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC01", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

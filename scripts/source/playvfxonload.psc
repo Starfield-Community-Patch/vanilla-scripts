@@ -1,7 +1,5 @@
-ScriptName PlayVFXOnLoad Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname PlayVFXOnLoad extends ObjectReference Const
 
 Event OnLoad()
-  Self.PlayAnimation("Play01")
+    PlayAnimation("Play01")
 EndEvent

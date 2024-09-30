@@ -1,23 +1,23 @@
-ScriptName CF05_TransportDoorAliasScript Extends ReferenceAlias
-{ Script to display objectives to find keys for locked doors leading to the different sections of SY-920. }
+Scriptname CF05_TransportDoorAliasScript extends ReferenceAlias
+{Script to display objectives to find keys for locked doors leading to the different sections of SY-920.}
 
-;-- Variables ---------------------------------------
+Key Property KeyToCheck Auto Const Mandatory
+{The key required to unlock the door.}
 
-;-- Properties --------------------------------------
-Key Property KeyToCheck Auto Const mandatory
-{ The key required to unlock the door. }
-Int Property iHasKeyStage Auto Const mandatory
-{ The stage to set when elevator is activated. }
-Int Property iNoKeyStage Auto Const mandatory
-{ The stage to set to display the objective to find the key. }
+Int Property iHasKeyStage Auto Const Mandatory
+{The stage to set when elevator is activated.}
 
-;-- Functions ---------------------------------------
+Int Property iNoKeyStage Auto Const Mandatory
+{The stage to set to display the objective to find the key.}
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference PlayerRef = Game.GetPlayer() as ObjectReference
-  If akActionRef == PlayerRef && PlayerRef.GetItemCount(KeyToCheck as Form) <= 0
-    Self.GetOwningQuest().SetStage(iNoKeyStage)
-  ElseIf akActionRef == PlayerRef
-    Self.GetOwningQuest().SetStage(iHasKeyStage)
-  EndIf
+
+    ObjectReference PlayerRef = Game.GetPlayer()
+
+    If akActionRef == PlayerRef && PlayerRef.GetItemCount(KeyToCheck) <= 0
+        GetOwningQuest().SetStage(iNoKeyStage)
+    ElseIf akActionRef == PlayerRef
+        GetOwningQuest().SetStage(iHasKeyStage)
+    EndIf
+
 EndEvent

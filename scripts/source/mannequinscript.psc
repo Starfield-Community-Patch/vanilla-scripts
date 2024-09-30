@@ -1,24 +1,23 @@
-ScriptName MannequinScript Extends Actor Const
+Scriptname MannequinScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property allowPlayerActivation = True Auto Const
+bool property allowPlayerActivation = true auto const
 { if false, player activation is blocked }
-FormList Property DisplayFilter_Mannequins Auto Const mandatory
+
+FormList Property DisplayFilter_Mannequins auto Const Mandatory
 { autofill - used to filter what can be placed in the mannequin }
 
-;-- Functions ---------------------------------------
-
-Event OnLoad()
-  Self.SetHeadTracking(False)
-  Self.SetRestrained(True)
-  Self.SetUnconscious(True)
-  Self.BlockActivation(True, False)
+event OnLoad()
+	debug.trace(self + " OnLoad")
+	SetHeadTracking(false)
+	SetRestrained(true)
+	SetUnconscious(true)
+	BlockActivation(true, false)
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && allowPlayerActivation
-    Self.OpenInventory(True, DisplayFilter_Mannequins as Form, True)
-  EndIf
+	debug.trace(self + " OnActivate isActivationBlocked=" + isActivationBlocked())
+    if akActionRef == Game.GetPlayer() && allowPlayerActivation
+        debug.trace(self + "  player activation - try to open inventory")
+    	OpenInventory(true, DisplayFilter_Mannequins, true)
+    endif
 EndEvent

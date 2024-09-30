@@ -1,15 +1,11 @@
-ScriptName RemoveFactionFromPlayerOnActivate Extends ObjectReference Const
+Scriptname RemoveFactionFromPlayerOnActivate extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property FactionToAdd Auto Const
-
-;-- Functions ---------------------------------------
+Faction property FactionToAdd auto Const
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Actor player = Game.GetPlayer()
-    player.RemoveFromFaction(FactionToAdd)
-  EndIf
+    if(akActionRef == Game.GetPlayer())
+        Actor player = Game.GetPlayer()
+
+        player.RemoveFromFaction(FactionToAdd)
+    EndIf
 EndEvent

@@ -1,117 +1,158 @@
-ScriptName SQ_Followers_ActiveFollowersScript Extends RefCollectionAlias
-{ Script attached to ActiveFollowers refcollection alias.
-Currently it is managing the COM_SandboxDistancePollSuccessful which is used to turn on/off the sandboxing while player is loitering }
+Scriptname SQ_Followers_ActiveFollowersScript extends RefCollectionAlias
+{Script attached to ActiveFollowers refcollection alias.
+Currently it is managing the COM_SandboxDistancePollSuccessful which is used to turn on/off the sandboxing while player is loitering}
 
-;-- Variables ---------------------------------------
-Int PollSuccessCount
-Float PollSuccess_Distance = 5.0 Const
-Int PollSuccessesNeeded = 3 Const
-Float Timer_Dur_DistancePoll = 10.0 Const
-Int Timer_ID_DistancePoll = 1 Const
+
+GlobalVariable Property COM_SandboxDistancePollSuccessful Mandatory Const Auto 
+{Used to conditionalize sandbox package}
+
+;these will be "enums" for the COM_SandboxDistancePollSuccessful global
+int iPollUnsetOrNotYetSuccess = 0 Const ;not allowed to sandbox (yet)
+int iPollSuccess = 1 Const ;allowed to sandbox (because at least one active follower has had a chance to catch up and hang around the player.)
+
+
 Actor[] activeFollowers
-Bool activeFollowersArrayLock
-Int iPollSuccess = 1 Const
-Int iPollUnsetOrNotYetSuccess = 0 Const
 
-;-- Properties --------------------------------------
-GlobalVariable Property COM_SandboxDistancePollSuccessful Auto Const mandatory
-{ Used to conditionalize sandbox package }
+float PollSuccess_Distance = 5.0 Const
+int Timer_ID_DistancePoll = 1 Const
+float Timer_Dur_DistancePoll = 10.0 Const
+int PollSuccessCount
+int PollSuccessesNeeded = 3 Const
 
-;-- Functions ---------------------------------------
+ Event OnAliasInit()
+	Actor PlayerRef = Game.GetPlayer()
+	
+	Trace(self, "OnAliasInit() registering for OnPlayerLoitering events")
+	RegisterForRemoteEvent(PlayerRef, "OnPlayerLoiteringBegin")
+	RegisterForRemoteEvent(PlayerRef, "OnPlayerLoiteringEnd")
 
-Event OnPackageChange(ObjectReference akSenderRef, Package akOldPackage)
-  ; Empty function
+	activeFollowers = GetArray() as Actor[]
 EndEvent
 
-Event OnPackageEnd(ObjectReference akSenderRef, Package akOldPackage)
-  ; Empty function
+bool activeFollowersArrayLock
+Event OnAliasChanged(ObjectReference akObject, bool abRemove) 
+	While (activeFollowersArrayLock)
+		Utility.Wait(0.1)
+	EndWhile
+	activeFollowersArrayLock = true
+
+	Trace(self, "OnAliasChanged() akObject: " + akObject + ", abRemove: " + abRemove + ", GetCurrentPackage(): " + (akObject as actor).GetCurrentPackage())
+	activeFollowers = GetArray() as Actor[]
+
+	activeFollowersArrayLock = false
 EndEvent
 
-Event OnPackageStart(ObjectReference akSenderRef, Package akNewPackage)
-  ; Empty function
-EndEvent
+Event OnTimer(int aiTimerID)
+	Trace(self, "OnTimer() aiTimerID: " + aiTimerID)
 
-Event OnAliasInit()
-  Actor PlayerRef = Game.GetPlayer()
-  Self.RegisterForRemoteEvent(PlayerRef as ScriptObject, "OnPlayerLoiteringBegin")
-  Self.RegisterForRemoteEvent(PlayerRef as ScriptObject, "OnPlayerLoiteringEnd")
-  activeFollowers = Self.GetArray() as Actor[]
-EndEvent
+	if aiTimerID == Timer_ID_DistancePoll
+		bool shouldKeepPolling = KeepPolling()
+		Trace(self, "OnTimer() shouldKeepPolling: " + shouldKeepPolling)
 
-Event OnAliasChanged(ObjectReference akObject, Bool abRemove)
-  While activeFollowersArrayLock
-    Utility.Wait(0.100000001)
-  EndWhile
-  activeFollowersArrayLock = True
-  activeFollowers = Self.GetArray() as Actor[]
-  activeFollowersArrayLock = False
-EndEvent
-
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == Timer_ID_DistancePoll
-    Bool shouldKeepPolling = Self.KeepPolling()
-    If shouldKeepPolling
-      Self.StartTimer(Timer_Dur_DistancePoll, Timer_ID_DistancePoll)
-    Else
-      COM_SandboxDistancePollSuccessful.SetValue(iPollSuccess as Float)
-      Self.EvaluatePackageForAll()
-    EndIf
-  EndIf
+		if shouldKeepPolling
+			StartTimer(Timer_Dur_DistancePoll, Timer_ID_DistancePoll)
+		else
+			;at least one of the followers have caught up to player and have polled as being close enough for long enough, all followers are now allowed to sandbox.
+			COM_SandboxDistancePollSuccessful.SetValue(iPollSuccess)
+			EvaluatePackageForAll()
+		endif
+	endif
 EndEvent
 
 Event Actor.OnPlayerLoiteringBegin(Actor akSenderRef)
-  Self.StartTimer(Timer_Dur_DistancePoll, Timer_ID_DistancePoll)
-  Self.EvaluatePackageForAll()
+	Trace(self, "OnPlayerLoiteringBegin() akSenderRef: " + akSenderRef)
+
+	StartTimer(Timer_Dur_DistancePoll, Timer_ID_DistancePoll)
+	EvaluatePackageForAll()
 EndEvent
 
 Event Actor.OnPlayerLoiteringEnd(Actor akSenderRef)
-  Self.CancelTimer(Timer_ID_DistancePoll)
-  PollSuccessCount = 0
-  COM_SandboxDistancePollSuccessful.SetValue(iPollUnsetOrNotYetSuccess as Float)
-  Self.EvaluatePackageForAll()
+	Trace(self, "OnPlayerLoiteringEnd() akSenderRef: " + akSenderRef)
+	
+	CancelTimer(Timer_ID_DistancePoll)
+	PollSuccessCount = 0
+	COM_SandboxDistancePollSuccessful.SetValue(iPollUnsetOrNotYetSuccess)
+	EvaluatePackageForAll()
 EndEvent
 
-Bool Function KeepPolling()
-  While activeFollowersArrayLock
-    Utility.Wait(0.100000001)
-  EndWhile
-  activeFollowersArrayLock = True
-  Actor PlayerRef = Game.GetPlayer()
-  Bool returnVal = True
-  Int I = 0
-  While I < activeFollowers.Length && returnVal == True
-    ObjectReference nearbyFollower = None
-    If activeFollowers[I].GetDistance(PlayerRef as ObjectReference) <= PollSuccess_Distance
-      PollSuccessCount += 1
-      If PollSuccessCount >= PollSuccessesNeeded
-        PollSuccessCount = 0
-        returnVal = False
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
-  activeFollowersArrayLock = False
-  Return returnVal
+bool Function KeepPolling()
+	While (activeFollowersArrayLock)
+		Utility.Wait(0.1)
+	EndWhile
+	activeFollowersArrayLock = true
+
+	Trace(self, "KeepPolling() ")
+		
+	Actor PlayerRef = Game.GetPlayer()
+
+	bool returnVal = true
+
+	;once the player starts loitering, we need to make sure the follower catches up for awhile before they are allowed to sandbox again,
+	;otherwise if the player waits for them, they will immmediately start sandboxing.
+	;For simplicity, and because the common case is a single follower, as long as at least one follower is the near the player for a while,
+	;then they can all sandbox
+	int i = 0
+	While (i < activeFollowers.length && returnVal == true)
+		ObjectReference nearbyFollower 
+		
+		if activeFollowers[i].GetDistance(PlayerRef) <= PollSuccess_Distance
+			PollSuccessCount += 1
+			Trace(self, "OnKeepPollingTimer() nearby follower activeFollowers[i]: " + activeFollowers[i] + ", PollSuccessCount: " + PollSuccessCount + ", PollSuccessesNeeded: " + PollSuccessesNeeded)
+			if PollSuccessCount >= PollSuccessesNeeded
+				PollSuccessCount = 0
+				returnVal = false
+			endif
+		endif
+
+		i += 1
+	EndWhile
+
+	Trace(self, "KeepPolling() returnVal: " + returnVal)
+
+	activeFollowersArrayLock = false
+	return returnVal
 EndFunction
+
+
 
 Function EvaluatePackageForAll()
-  While activeFollowersArrayLock
-    Utility.Wait(0.100000001)
-  EndWhile
-  activeFollowersArrayLock = True
-  Int I = 0
-  While I < activeFollowers.Length
-    activeFollowers[I].EvaluatePackage(False)
-    I += 1
-  EndWhile
-  activeFollowersArrayLock = False
+	While (activeFollowersArrayLock)
+		Utility.Wait(0.1)
+	EndWhile
+	activeFollowersArrayLock = true
+
+	Trace(self, "EvaluatePackageForAll() ")
+	int i = 0
+	While (i < activeFollowers.length)
+		Trace(self, "EvaluatePackageForAll() calling EvaluatePackage() for activeFollowers[i]: " + activeFollowers[i])
+		activeFollowers[i].EvaluatePackage()
+		i += 1
+	EndWhile
+
+	activeFollowersArrayLock = false
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+Event OnPackageStart(ObjectReference akSenderRef, Package akNewPackage)
+	Trace(self, "OnPackageStart() akSenderRef: " + akSenderRef + ", akNewPackage: " + akNewPackage)
+EndEvent
+
+Event OnPackageChange(ObjectReference akSenderRef, Package akOldPackage)
+	Trace(self, "OnPackageChange() akSenderRef: " + akSenderRef + ", akOldPackage: " + akOldPackage)
+EndEvent
+
+Event OnPackageEnd(ObjectReference akSenderRef, Package akOldPackage)
+	Trace(self, "OnPackageEnd() akSenderRef: " + akSenderRef + ", akOldPackage: " + akOldPackage)
+EndEvent
+
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Followers",  string SubLogName = "ActiveFollowers", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Followers",  string SubLogName = "ActiveFollowers", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

@@ -1,14 +1,17 @@
-ScriptName Fragments:TopicInfos:TIF_UC01_002E8599 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_UC01_002E8599 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property MostRecentSceneMarker Auto Const mandatory
-ReferenceAlias Property SectorASceneMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  MostRecentSceneMarker.ForceRefTo(SectorASceneMarker.GetRef())
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+MostRecentSceneMarker.ForceRefTo(SectorASceneMarker.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property MostRecentSceneMarker Auto Const Mandatory
+
+ReferenceAlias Property SectorASceneMarker Auto Const Mandatory

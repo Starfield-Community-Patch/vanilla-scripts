@@ -1,94 +1,159 @@
-ScriptName DefaultCrowdEventMember Extends Actor default
-{ Data for how this actor should respond to events sent by a DefaultCrowdEventManager }
+Scriptname DefaultCrowdEventMember extends Actor Default
+{Data for how this actor should respond to events sent by a DefaultCrowdEventManager}
 
-;-- Structs -----------------------------------------
 Struct EventDatum
-  Keyword EventKeyword
-  { Keyword representing the event to respond to }
-  Keyword EventTopicSubType
-  { Topic SubType keyword to say when responding to the event }
-  Int EventChanceToRespond = 75
-  { 0-100, chance to respond to this event }
-  Float MinResponseDelay = 0.0
-  { In seconds, minimum amount of time to wait before responding to event }
-  Float MaxResponseDelay = 3.0
-  { In seconds, maximum amount of time to wait before responding to event }
-  Float CoolDown = 3.0
-  { In seconds, the time to wait before responding to any event after this event has been responded to }
-  Bool RequireToFaceEitherEventRef = True
-  { Does the actor need to be facing one of the EventRefs to respond?
-	Note: this does NOT cause the actor to face the EventRefs, just ignores the event if not facing }
+	keyword EventKeyword
+	{Keyword representing the event to respond to}
+
+	keyword EventTopicSubType
+	{Topic SubType keyword to say when responding to the event}
+
+	int EventChanceToRespond = 75
+	{0-100, chance to respond to this event}
+
+	float MinResponseDelay = 0.0
+	{In seconds, minimum amount of time to wait before responding to event}
+
+	float MaxResponseDelay = 3.0
+	{In seconds, maximum amount of time to wait before responding to event}
+
+	float CoolDown = 3.0
+	{In seconds, the time to wait before responding to any event after this event has been responded to}
+
+	bool RequireToFaceEitherEventRef = true
+	{Does the actor need to be facing one of the EventRefs to respond?
+	Note: this does NOT cause the actor to face the EventRefs, just ignores the event if not facing}
+
+
 EndStruct
 
-
-;-- Variables ---------------------------------------
-Bool coolingDown = False
-
-;-- Properties --------------------------------------
 Group Data
-  defaultcrowdeventmanager[] Property CrowdEventManagers Auto Const
-  { Pointer to quests whose CrowdEvent you are going to listen to. Quest must have a DefaultCrowdEventManager script attached. }
-  defaultcrowdeventmember:eventdatum[] Property EventData Auto Const
-  { Add keywords and correspond topics to say.
-Note: You can define multiple responses to the same event, but they will stop processing after responding to the first event the pass for, until the cool down. }
+
+DefaultCrowdEventManager[] Property CrowdEventManagers const auto
+{Pointer to quests whose CrowdEvent you are going to listen to. Quest must have a DefaultCrowdEventManager script attached.}
+
+EventDatum[] Property EventData const auto
+{Add keywords and correspond topics to say.
+Note: You can define multiple responses to the same event, but they will stop processing after responding to the first event the pass for, until the cool down.
+}
+
 EndGroup
 
 Group Quest_Properties
-  Quest Property ControllingQuest Auto Const
-  Int Property DisableOnStage Auto Const
-EndGroup
+Quest Property ControllingQuest Auto const
+int Property DisableOnStage Auto Const
+EndGroup 
 
+bool coolingDown = false
 
-;-- Functions ---------------------------------------
+;/
+Event OnInit()
+
+	int i = 0
+	while (i < CrowdEventManagers.length)
+			RegisterForCustomEvent(CrowdEventManagers[i], "CrowdEvent")	
+		i += 1
+	endwhile
+	
+EndEvent
+/;
 
 Event OnLoad()
-  Int I = 0
-  While I < CrowdEventManagers.Length
-    Self.RegisterForCustomEvent(CrowdEventManagers[I] as ScriptObject, "defaultcrowdeventmanager_CrowdEvent")
-    I += 1
-  EndWhile
+
+	int i = 0
+	while (i < CrowdEventManagers.length)
+			RegisterForCustomEvent(CrowdEventManagers[i], "CrowdEvent")	
+		i += 1
+	endwhile
+	
 EndEvent
 
-Event DefaultCrowdEventManager.CrowdEvent(defaultcrowdeventmanager akSender, Var[] akArgs)
-  If !ControllingQuest.GetStageDone(DisableOnStage)
-    If coolingDown
-      Return 
-    EndIf
-    coolingDown = True
-    Float CoolDown = 0.0
-    defaultcrowdeventmanager:crowdeventdata myCrowdEventData = akArgs[0] as defaultcrowdeventmanager:crowdeventdata
-    Keyword EventKeyword = myCrowdEventData.EventKeyword
-    ObjectReference EventRef1 = myCrowdEventData.EventRef1
-    ObjectReference EventRef2 = myCrowdEventData.EventRef2
-    Float HeadingAngleToRef1 = 0.0
-    Float HeadingAngleToRef2 = 0.0
-    If EventRef1
-      HeadingAngleToRef1 = Math.abs(Self.GetHeadingAngle(EventRef1))
-    EndIf
-    If EventRef2
-      HeadingAngleToRef2 = Math.abs(Self.GetHeadingAngle(EventRef2))
-    EndIf
-    Float FacingAngle = 45.0
-    Float delay = 0.0
-    Int chanceRoll = 0
-    Int I = 0
-    While I < EventData.Length && CoolDown == 0.0
-      If EventData[I].RequireToFaceEitherEventRef && HeadingAngleToRef1 > FacingAngle && HeadingAngleToRef2 > FacingAngle
-        
-      ElseIf EventData[I].EventKeyword == EventKeyword
-        chanceRoll = Utility.RandomInt(0, 100)
-        If chanceRoll < EventData[I].EventChanceToRespond
-          delay = Utility.RandomFloat(EventData[I].MinResponseDelay, EventData[I].MaxResponseDelay)
-          Utility.wait(delay)
-          Self.SayCustom(EventData[I].EventTopicSubType, None, False, None)
-          CoolDown = EventData[I].CoolDown
-        EndIf
-      EndIf
-      I += 1
-    EndWhile
-    If CoolDown > 0.0
-      Utility.wait(CoolDown)
-    EndIf
-    coolingDown = False
-  EndIf
+
+Event DefaultCrowdEventManager.CrowdEvent(DefaultCrowdEventManager akSender, Var[] akArgs)
+	;WE ASSUME that akSender is CrowdEventManager, since that's the only thing this script registers for
+	;first element in akArgs array is a keyword representing the event being sent
+
+	if !ControllingQuest.GetStageDone(DisableOnStage)
+
+		if coolingDown
+			debug.trace(self + "CoolingDown, RETURNING without responding")
+			RETURN
+		endif
+
+
+		coolingDown = true
+
+		float coolDown = 0.0
+
+		DefaultCrowdEventManager:CrowdEventData myCrowdEventData = (akArgs[0] as DefaultCrowdEventManager:CrowdEventData)
+
+		keyword eventKeyword =  myCrowdEventData.EventKeyword
+		ObjectReference EventRef1 =  myCrowdEventData.EventRef1
+		ObjectReference EventRef2 =  myCrowdEventData.EventRef2
+
+		debug.trace(self + "CrowdEvent() incoming EventKeyword" + eventKeyword)
+		debug.trace(self + "CrowdEvent() incoming EventRef1" + EventRef1)
+		debug.trace(self + "CrowdEvent() incoming EventRef2" + EventRef2)
+
+		float HeadingAngleToRef1
+		float HeadingAngleToRef2
+		
+		if EventRef1
+			HeadingAngleToRef1 = math.abs(GetHeadingAngle(EventRef1))
+		endif
+
+		if EventRef2
+			HeadingAngleToRef2 = math.abs(GetHeadingAngle(EventRef2))
+		endif
+
+
+		debug.trace(self + "CrowdEvent() HeadingAngleToRef1" + HeadingAngleToRef1)
+		debug.trace(self + "CrowdEvent() HeadingAngleToRef2" + HeadingAngleToRef2)
+
+		float FacingAngle = 45.0
+
+		float delay= 0.0
+		int chanceRoll = 0
+
+		;loop through event data array on the actor, and respond to ONE AND ONLY ONE event 
+		int i = 0
+		while (i < EventData.length && coolDown == 0)
+
+			if EventData[i].RequireToFaceEitherEventRef && HeadingAngleToRef1 > FacingAngle && HeadingAngleToRef2 > FacingAngle
+				debug.trace(self + "CrowdEvent() HeadingAngles to both EventRefs are too big to respond to event.")
+				
+			else
+				debug.trace(self + "Checking EventData[i].EventKeyword: " + EventData[i].EventKeyword)
+				if EventData[i].EventKeyword == eventKeyword
+					chanceRoll = utility.RandomInt(0, 100)
+					debug.trace(self + "EventChanceToRespond: " + EventData[i].EventChanceToRespond + " ROLLED: " + chanceRoll)
+
+					if chanceRoll < EventData[i].EventChanceToRespond
+						delay = utility.RandomFloat(EventData[i].MinResponseDelay, EventData[i].MaxResponseDelay)
+						debug.trace(self + "Will wait to say line for " + delay)
+
+						utility.wait(delay)
+
+						debug.trace(self + " will say: " + EventData[i].EventTopicSubType)
+						SayCustom(EventData[i].EventTopicSubType)
+
+						coolDown = EventData[i].coolDown
+					
+					endif
+
+				endif
+			endif
+
+			i += 1
+		endwhile
+
+		if coolDown > 0
+			debug.trace(self + "waiting for coolDown: " + coolDown)
+			utility.wait(coolDown)
+		endif
+
+		CoolingDown = false
+
+	endif
+
 EndEvent

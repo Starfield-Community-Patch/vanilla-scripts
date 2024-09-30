@@ -1,53 +1,65 @@
-ScriptName SQ_COM_CREW_GiveItemQuestScript Extends Quest
-{ attached to SQ_Crew quest }
+Scriptname SQ_COM_CREW_GiveItemQuestScript extends Quest
+{attached to SQ_Crew quest}
 
-;-- Structs -----------------------------------------
 Struct SkillDatum
-  Perk GiveItemSkill
-  { a perk on crew that will give the player items after exploring types of planets/locations }
-  conditionform Conditions
-  { conditions that when true (checked on change location) will grant items to give the player upon returning to the ship }
+    Perk GiveItemSkill
+    {a perk on crew that will give the player items after exploring types of planets/locations}
+
+    ConditionForm Conditions
+    {conditions that when true (checked on change location) will grant items to give the player upon returning to the ship}
 EndStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Properties
-  sq_com_crew_giveitemquestscript:skilldatum[] Property SkillData Auto Const mandatory
-  Float Property DistanceFromShip = 100.0 Auto Const
-  { how far must the skill holder be from the ship before we check Conditions to determine if they have items to give to player - ie: how far must they adventure to emulate them having a chance to find stuff? }
+    SkillDatum[] Property SkillData Mandatory Const Auto
+    float Property DistanceFromShip = 100.0 Const Auto
+    {how far must the skill holder be from the ship before we check Conditions to determine if they have items to give to player - ie: how far must they adventure to emulate them having a chance to find stuff?}
 EndGroup
 
+;called by COM_CREW_GiveItemActorScript
+bool Function CheckGiveItemConditions(Actor ActorToCheck)
+    ;first check distance
+    bool passedDistanceCheck = ActorToCheck.GetDistance(Game.GetPlayerHomeSpaceShip()) >= DistanceFromShip
 
-;-- Functions ---------------------------------------
+    Trace(self, "CheckGiveItemConditions() passedDistanceCheck: " + passedDistanceCheck)
 
-Bool Function CheckGiveItemConditions(Actor ActorToCheck)
-  Bool passedDistanceCheck = ActorToCheck.GetDistance(Game.GetPlayerHomeSpaceShip() as ObjectReference) >= DistanceFromShip
-  Bool passedSkillAndConditionsCheck = False
-  If passedDistanceCheck
-    Int I = 0
-    While I < SkillData.Length && passedSkillAndConditionsCheck == False
-      sq_com_crew_giveitemquestscript:skilldatum currentSkillDatum = SkillData[I]
-      Bool hasSkillPerk = ActorToCheck.HasPerk(currentSkillDatum.GiveItemSkill)
-      Bool passedConditions = False
-      If hasSkillPerk
-        passedConditions = currentSkillDatum.Conditions.IsTrue(ActorToCheck as ObjectReference, None)
-      EndIf
-      If hasSkillPerk && passedConditions
-        passedSkillAndConditionsCheck = True
-      EndIf
-      I += 1
-    EndWhile
-  EndIf
-  Return passedDistanceCheck && passedSkillAndConditionsCheck
+    bool passedSkillAndConditionsCheck = false
+    if passedDistanceCheck
+
+        ;find the skill
+        int i = 0
+        While (i < SkillData.length && passedSkillAndConditionsCheck == false)
+            SkillDatum currentSkillDatum = SkillData[i]
+            
+            bool hasSkillPerk = ActorToCheck.HasPerk(currentSkillDatum.GiveItemSkill)
+            Trace(self, "CheckGiveItemConditions() currentSkillDatum: " +  currentSkillDatum + ", hasSkillPerk: " + hasSkillPerk)
+
+            bool passedConditions
+            if hasSkillPerk
+                passedConditions = currentSkillDatum.Conditions.IsTrue(ActorToCheck)
+                Trace(self, "CheckGiveItemConditions() currentSkillDatum: " +  currentSkillDatum + ", hasSkillPerk: " + hasSkillPerk + ", passedConditions: " + passedConditions)
+            endif
+
+            if hasSkillPerk && passedConditions
+                passedSkillAndConditionsCheck = true
+            endif
+
+            i += 1
+        EndWhile
+
+        Trace(self, "CheckGiveItemConditions() passedSkillAndConditionsCheck: " + passedSkillAndConditionsCheck)
+    endif
+
+    return passedDistanceCheck && passedSkillAndConditionsCheck
+   
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Crew",  string SubLogName = "GiveItem", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Crew",  string SubLogName = "GiveItem", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

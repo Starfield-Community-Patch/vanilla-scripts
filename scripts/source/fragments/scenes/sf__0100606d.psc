@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF__0100606D Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF__0100606D Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_End
 Function Fragment_Phase_01_End()
-  sq_doctorsscript kmyQuest = Self.GetOwningQuest() as sq_doctorsscript
-  kmyQuest.HealAddictions()
+;BEGIN AUTOCAST TYPE SQ_DoctorsScript
+SQ_DoctorsScript kmyQuest = GetOwningQuest() as SQ_DoctorsScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.HealAddictions()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

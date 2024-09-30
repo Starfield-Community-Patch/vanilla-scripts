@@ -1,12 +1,7 @@
-ScriptName MQ102SpaceEncounter03Script Extends Quest
+Scriptname MQ102SpaceEncounter03Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MQ102 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property MQ102 Const Auto Mandatory
 
 Event OnQuestInit()
-  MQ102.SetStage(605)
+    MQ102.SetStage(605)
 EndEvent

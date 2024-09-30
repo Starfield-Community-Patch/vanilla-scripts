@@ -1,13 +1,11 @@
-ScriptName TestAffinityActorScript Extends Actor Const
+Scriptname TestAffinityActorScript extends Actor Const
 
-;-- Variables ---------------------------------------
+AffinityEvent Property TestAENoel2 const Auto
 
-;-- Properties --------------------------------------
-affinityevent Property TestAENoel2 Auto Const
-wwiseevent Property testSoundEvent Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnAffinityEvent(affinityevent MyAffinityEvent, ActorValue akActorValue, GlobalVariable akReactionValue, ObjectReference akTarget)
-  TestAENoel2.Send(None)
+Event OnAffinityEvent(AffinityEvent MyAffinityEvent, ActorValue akActorValue, GlobalVariable akReactionValue, ObjectReference akTarget)
+  ;testSoundEvent.Play(self)
+  debug.notification( "Affinity event hit" )
+  debug.trace(self + "AFFINITY EVENT RECEIVED" + MyAffinityEvent)
+  TestAENoel2.Send()
 EndEvent
+WwiseEvent Property testSoundEvent Auto Const

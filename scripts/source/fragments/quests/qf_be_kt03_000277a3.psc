@@ -1,86 +1,147 @@
-ScriptName Fragments:Quests:QF_BE_KT03_000277A3 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_BE_KT03_000277A3 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property SpaceshipCrew Auto Const mandatory
-ReferenceAlias Property Alias_EnemyShip Auto Const mandatory
-ReferenceAlias Property Alias_Captain Auto Const mandatory
-Float Property GravityFloat Auto Const mandatory
-RefCollectionAlias Property Alias_GenericCrew Auto Const mandatory
-Faction Property PlayerEnemyFaction Auto Const mandatory
-Faction Property REPlayerFriend Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-Quest Property SE_KT03 Auto Const mandatory
-ReferenceAlias Property Alias_PilotSeat Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-RefCollectionAlias Property Alias_AllCrew Auto Const mandatory
-ReferenceAlias Property Alias_FirstMate Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0006_Item_00
 Function Fragment_Stage_0006_Item_00()
-  SE_KT03.SetStage(2)
+;BEGIN CODE
+SE_KT03.SetStage(2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0007_Item_00
 Function Fragment_Stage_0007_Item_00()
-  SE_KT03.SetStage(3)
+;BEGIN CODE
+SE_KT03.SetStage(3)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0008_Item_00
 Function Fragment_Stage_0008_Item_00()
-  Self.SetStage(8)
+;BEGIN CODE
+SetStage(8)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0009_Item_00
 Function Fragment_Stage_0009_Item_00()
-  Faction myFaction = Alias_EnemyShip.GetShipRef().GetCrimeFaction()
-  Int I = 0
-  Actor[] robotCrew = Alias_AllCrew.GetActorArray()
-  While I < robotCrew.Length
-    robotCrew[I].SetCrimeFaction(myFaction)
-    I += 1
-  EndWhile
-EndFunction
+;BEGIN CODE
+Faction myFaction = Alias_EnemyShip.GetShipRef().GetCrimeFaction()
 
+int i = 0
+Actor[] robotCrew = Alias_AllCrew.GetActorArray()
+while i < robotCrew.Length
+    robotCrew[i].SetCrimeFaction(myFaction)
+    i += 1
+endwhile
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Cell myCell = Alias_PilotSeat.GetRef().GetParentCell()
-  myCell.SetPublic(True)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+Cell myCell = Alias_PilotSeat.GetRef().GetParentCell()
+
+myCell.SetPublic()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0015_Item_00
 Function Fragment_Stage_0015_Item_00()
-  SE_KT03.SetStage(30)
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SE_KT03.SetStage(30)
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_03
 Function Fragment_Stage_0020_Item_03()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetStage(8)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetStage(8)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0035_Item_00
 Function Fragment_Stage_0035_Item_00()
-  Self.SetObjectiveCompleted(10, True)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  spaceshipreference enemyShipRef = Alias_EnemyShip.GetShipRef()
-  enemyShipRef.SetValue(DockingPermission, 4.0)
-  Utility.Wait(6.0)
-  enemyShipRef.DisableWithGravJump()
+;BEGIN CODE
+SpaceshipReference enemyShipRef = Alias_EnemyShip.GetShipRef()
+enemyshipRef.SetValue(DockingPermission, 4)
+Utility.Wait(6)
+enemyShipRef.DisableWithGravJump()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Alias_GenericCrew.RemoveFromFaction(REPlayerFriend)
-  Alias_GenericCrew.AddtoFaction(PlayerEnemyFaction)
-  Alias_GenericCrew.SetValue(Aggression, 1.0)
-  Alias_GenericCrew.StartCombatAll(Game.GetPlayer() as ObjectReference)
-  SE_KT03.SetStage(6)
+;BEGIN CODE
+Alias_GenericCrew.RemoveFromFaction(REPlayerFriend)
+Alias_GenericCrew.AddtoFaction(PlayerEnemyFaction)
+Alias_GenericCrew.SetValue(Aggression, 1)
+Alias_GenericCrew.StartCombatAll(Game.GetPlayer())
+SE_KT03.SetStage(6)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0066_Item_00
 Function Fragment_Stage_0066_Item_00()
-  Self.SetObjectiveSkipped(10)
+;BEGIN CODE
+SetObjectiveSkipped(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.SetObjectiveFailed(10, True)
-  Self.Stop()
+;BEGIN CODE
+SetObjectiveFailed(10)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ActorValue Property SpaceshipCrew Auto Const Mandatory
+
+ReferenceAlias Property Alias_EnemyShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_Captain Auto Const Mandatory
+
+Float Property GravityFloat Auto Const Mandatory
+
+RefCollectionAlias Property Alias_GenericCrew Auto Const Mandatory
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+Faction Property REPlayerFriend Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+Quest Property SE_KT03 Auto Const Mandatory
+
+ReferenceAlias Property Alias_PilotSeat Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+RefCollectionAlias Property Alias_AllCrew Auto Const Mandatory
+
+ReferenceAlias Property Alias_FirstMate Auto Const Mandatory

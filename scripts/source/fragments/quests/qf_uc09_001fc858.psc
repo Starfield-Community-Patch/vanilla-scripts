@@ -1,287 +1,528 @@
-ScriptName Fragments:Quests:QF_UC09_001FC858 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_UC09_001FC858 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueUCNewAtlantisUCFaction Auto Const mandatory
-GlobalVariable Property UC09_PlayerChoiceResult Auto Const mandatory
-ObjectReference Property UC09_DebugMarker01 Auto Const mandatory
-ObjectReference Property UC09_DebugMarker02 Auto Const mandatory
-ObjectReference Property UC09_DebugMarker03 Auto Const mandatory
-ObjectReference Property UC09_DebugMarker04 Auto Const mandatory
-ReferenceAlias Property Alias_Hadrian Auto Const mandatory
-Message Property UC09_DEBUG_ExpansionPoint Auto Const mandatory
-Message Property UC09_DEBUG_SpeechChallenge Auto Const mandatory
-ReferenceAlias Property Alias_Jakob Auto Const mandatory
-Scene Property UC09_300_CabinetMainScene Auto Const mandatory
-Message Property UC09_DEBUG_AdditionalUC05Variations Auto Const mandatory
-Message Property UC09_DEBUG_SpeakToTuala Auto Const mandatory
-GlobalVariable Property UC_PlayerMentionedVVToHadrian Auto Const mandatory
-GlobalVariable Property UC09_HadsMad Auto Const mandatory
-GlobalVariable Property UC09_CleanUpLazarusPlant Auto Const mandatory
-ReferenceAlias Property Alias_VaeVictis Auto Const mandatory
-ReferenceAlias Property Alias_FB441MarineEnableMarker Auto Const mandatory
-ReferenceAlias Property Alias_FCObserverEnableMarker Auto Const mandatory
-Quest Property UC09_PostQuestline_HadrianScene Auto Const mandatory
-GlobalVariable Property UC07_HadrianKnowsVVLives Auto Const mandatory
-ReferenceAlias Property Alias_PostVVSceneTrigger Auto Const mandatory
-Perk Property BackgroundDiplomat Auto Const mandatory
-Perk Property TraitEmpath Auto Const mandatory
-Perk Property BackgroundIndustrialist Auto Const mandatory
-Perk Property BackgroundXenobiologist Auto Const mandatory
-GlobalVariable Property UCR05_Bonus Auto Const mandatory
-RefCollectionAlias Property Alias_LondinionDoors Auto Const mandatory
-ReferenceAlias Property Alias_ContinueAddressTrigger Auto Const mandatory
-GlobalVariable Property UC09_TellFreestarAboutLazPlant Auto Const mandatory
-Quest Property DialogueRedDevilsHQ Auto Const mandatory
-GlobalVariable Property MQ305_UC_AcelesEnding Auto Const mandatory
-GlobalVariable Property MQ305_UC_PlagueEnding Auto Const mandatory
-GlobalVariable Property UC09_LazarusPlantResult Auto Const mandatory
-GlobalVariable Property UC_LoganKnowsPlayerLearnedOfVaeVictis Auto Const mandatory
-ActorValue Property UC09_Foreknowledge_VVCommittedTheAttacksAV Auto Const mandatory
-ReferenceAlias Property Alias_HadrianShip Auto Const mandatory
-RefCollectionAlias Property Alias_NPCsToDisable Auto Const mandatory
-ReferenceAlias Property Alias_EmergencyRecording Auto Const mandatory
-GlobalVariable Property MQ305_UC_SterilizationEnding Auto Const mandatory
-ReferenceAlias Property Alias_ChiefSarkin Auto Const mandatory
-ReferenceAlias Property Alias_Abello Auto Const mandatory
-ReferenceAlias Property Alias_ChiefYasin Auto Const mandatory
-ReferenceAlias Property Alias_ChiefKulkarni Auto Const mandatory
-ReferenceAlias Property Alias_AdmiralLogan Auto Const mandatory
-ReferenceAlias Property Alias_VVDoor Auto Const mandatory
-ReferenceAlias Property Alias_SS7FloorManager Auto Const mandatory
-Book Property UC08_VV_AudioLog Auto Const mandatory
-Quest Property DialogueUCFactionNewAtlantis Auto Const mandatory
-GlobalVariable Property UCR05_Enabled Auto Const mandatory
-ReferenceAlias Property Alias_PostQuestSlate Auto Const mandatory
-Quest Property UC08_QueenBattle Auto Const mandatory
-Quest Property UC08_AnomalyBattle Auto Const mandatory
-ReferenceAlias Property Alias_HadriansShip_RHQ Auto Const mandatory
-Quest Property UC01 Auto Const mandatory
-ReferenceAlias Property Alias_VVCellDoor Auto Const mandatory
-ReferenceAlias Property Alias_SS7_CompanionWaitTrigger Auto Const mandatory
-Outfit Property Outfit_Clothes_Colonist_CroppedVest_Hadrian Auto Const mandatory
-Outfit Property Outfit_Clothes_ScienceLabTec Auto Const mandatory
-ActorValue Property ActorShouldShowSpacesuitCosmetic_AV Auto Const mandatory
-ActorValue Property ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV Auto Const mandatory
-GlobalVariable Property UC05_HadrianSandboxing_PostUC05 Auto Const mandatory
-Quest Property UC02 Auto Const mandatory
-affinityevent Property COM_WantsToTalkEvent_UnitedColonies Auto Const mandatory
-Keyword Property SQ_Followers_UseFollowPlayerCustom Auto Const mandatory
-ReferenceAlias[] Property Alias_Companions Auto Const mandatory
-GlobalVariable Property COM_WantsToTalk_CooldownDays Auto Const mandatory
-ActorValue Property COM_WantsToTalk_UnitedColonies_Cooldown Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  Self.SetStage(19)
-  Game.GetPlayer().MoveTo(UC09_DebugMarker01, 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+SetStage(19)
 
+Game.GetPlayer().MoveTo(UC09_DebugMarker01)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  Self.SetStage(19)
-  Self.SetStage(200)
-  Game.GetPlayer().MoveTo(UC09_DebugMarker02, 0.0, 0.0, 0.0, True, False)
-  Self.SetObjectiveCompleted(100, True)
-EndFunction
+;BEGIN CODE
+SetStage(19)
+SetStage(200)
 
+Game.GetPlayer().MoveTo(UC09_DebugMarker02)
+
+SetObjectiveCompleted(100)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0003_Item_00
 Function Fragment_Stage_0003_Item_00()
-  Self.SetStage(19)
-  Self.SetStage(200)
-  Self.SetStage(300)
-  Game.GetPlayer().MoveTo(UC09_DebugMarker03, 0.0, 0.0, 0.0, True, False)
-  Self.SetObjectiveCompleted(100, True)
-EndFunction
+;BEGIN CODE
+SetStage(19)
+SetStage(200)
+SetStage(300)
 
+Game.GetPlayer().MoveTo(UC09_DebugMarker03)
+
+SetObjectiveCompleted(100)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0004_Item_00
 Function Fragment_Stage_0004_Item_00()
-  Self.SetStage(19)
-  Self.SetStage(200)
-  Self.SetStage(310)
-  UC09_300_CabinetMainScene.Stop()
-  UC01.SetStage(100)
-  UC01.SetStage(1000)
-  Game.GetPlayer().MoveTo(UC09_DebugMarker04, 0.0, 0.0, 0.0, True, False)
-  Alias_Hadrian.GetRef().MoveTo(UC09_DebugMarker04, 0.0, 0.0, 0.0, True, False)
-  UC02.Stop()
-  Self.SetStage(500)
-EndFunction
+;BEGIN CODE
+SetStage(19)
+SetStage(200)
+SetStage(310)
+UC09_300_CabinetMainScene.Stop()
+UC01.SetStage(100)
+UC01.SetStage(1000)
 
+Game.GetPlayer().MoveTo(UC09_DebugMarker04)
+Alias_Hadrian.GetRef().MoveTo(UC09_DebugMarker04)
+UC02.Stop()
+SetStage(500)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0019_Item_00
 Function Fragment_Stage_0019_Item_00()
-  Alias_Hadrian.GetRef().Enable(False)
-  Actor PlayACT = Game.GetPlayer()
-  PlayACT.AddPerk(BackgroundDiplomat, False)
-  PlayACT.AddPerk(BackgroundIndustrialist, False)
-  PlayACT.AddPerk(TraitEmpath, False)
-  PlayACT.AddPerk(BackgroundXenobiologist, False)
-  Alias_VVDoor.GetRef().Unlock(False)
-  (Alias_SS7FloorManager.GetRef() as loadelevatorfloorscript).SetAccessible(True)
-  Game.GetPlayer().AddAliasedItem(UC08_VV_AudioLog as Form, Alias_EmergencyRecording as Alias, 1, True)
-  UC05_HadrianSandboxing_PostUC05.SetValue(1.0)
-EndFunction
+;BEGIN CODE
+Alias_Hadrian.GetRef().Enable()
+Actor PlayACT = Game.GetPlayer()
+PlayACT.AddPerk(BackgroundDiplomat)
+PlayACT.AddPerk(BackgroundIndustrialist)
+PlayACT.AddPerk(TraitEmpath)
+PlayACT.AddPerk(BackgroundXenobiologist)
 
+;Get the player into subsection 7
+Alias_VVDoor.GetRef().Unlock()
+(Alias_SS7FloorManager.GetRef() as LoadElevatorFloorScript).SetAccessible(true)
+
+;Plug in the emergency recorded into the quest alias
+Game.GetPlayer().AddAliasedItem(UC08_VV_AudioLog, Alias_EmergencyRecording)
+
+;Set up Hadrian to be ready to sandbox post-quest
+UC05_HadrianSandboxing_PostUC05.SetValue(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveDisplayed(100, True, False)
-  Self.SetActive(True)
-  Alias_NPCsToDisable.DisableAll(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+SetActive()
 
+;Disable the NPCs that wander around the MAST conference room
+Alias_NPCsToDisable.DisableAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0105_Item_00
 Function Fragment_Stage_0105_Item_00()
-  UC08_AnomalyBattle.SetStage(1000)
+;BEGIN CODE
+UC08_AnomalyBattle.SetStage(1000)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  Int Count = Alias_LondinionDoors.GetCount()
-  Int I = 0
-  While I < Count
-    ObjectReference currDoor = Alias_LondinionDoors.GetAt(I)
-    currDoor.SetOpen(False)
-    currDoor.Lock(True, False, True)
-    I += 1
-  EndWhile
-EndFunction
+;BEGIN CODE
+;Also, we lock all the doors back on Londinion at this point
+int Count = Alias_LondinionDoors.GetCount()
+int i = 0
 
+while i < Count
+  ObjectReference currDoor = Alias_LondinionDoors.GetAt(i)
+  currDoor.SetOpen(false)
+  currDoor.Lock()
+
+  i += 1
+endwhile
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0113_Item_00
 Function Fragment_Stage_0113_Item_00()
-  Self.SetStage(124)
+;BEGIN CODE
+;Also get VV rotated to face the player if he hasn't already
+SetStage(124)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0119_Item_00
 Function Fragment_Stage_0119_Item_00()
-  UCR05_Bonus.SetValue(1.0)
+;BEGIN CODE
+UCR05_Bonus.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0124_Item_00
 Function Fragment_Stage_0124_Item_00()
-  Alias_VaeVictis.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_VaeVictis.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0125_Item_00
 Function Fragment_Stage_0125_Item_00()
-  Game.GetPlayer().SetValue(UC09_Foreknowledge_VVCommittedTheAttacksAV, 1.0)
+;BEGIN CODE
+Game.GetPlayer().SetValue(UC09_Foreknowledge_VVCommittedTheAttacksAV, 1.0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0130_Item_00
 Function Fragment_Stage_0130_Item_00()
-  DialogueUCFactionNewAtlantis.SetStage(1011)
+;BEGIN CODE
+DialogueUCFactionNewAtlantis.SetStage(1011)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Quest __temp = Self as Quest
-  uc09questscript kmyQuest = __temp as uc09questscript
-  Actor HadACT = Alias_Hadrian.GetActorRef()
-  HadACT.SetOutfit(Outfit_Clothes_Colonist_CroppedVest_Hadrian, True)
-  HadACT.SetValue(ActorShouldShowSpacesuitCosmetic_AV, 0.0)
-  HadACT.SetValue(ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV, 0.0)
-  Alias_Jakob.GetActorRef().SetOutfit(Outfit_Clothes_ScienceLabTec, False)
-  kmyQuest.GetNPCsInPlace()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(200, True, False)
-  Alias_HadrianShip.GetRef().Disable(False)
-EndFunction
+;BEGIN AUTOCAST TYPE uc09questscript
+Quest __temp = self as Quest
+uc09questscript kmyQuest = __temp as uc09questscript
+;END AUTOCAST
+;BEGIN CODE
+Actor HadACT = Alias_Hadrian.GetActorRef()
+HadACT.SetOutfit(Outfit_Clothes_Colonist_CroppedVest_Hadrian, true)
+HadACT.SetValue(ActorShouldShowSpacesuitCosmetic_AV, 0.0)
+HadACT.SetValue(ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV, 0.0)
+Alias_Jakob.GetActorRef().SetOutfit(Outfit_Clothes_ScienceLabTec)
+kmyquest.GetNPCsInPlace()
 
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(200)
+
+;Get Hadrian's ship turned back off
+Alias_HadrianShip.GetRef().Disable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0210_Item_00
 Function Fragment_Stage_0210_Item_00()
-  UC_PlayerMentionedVVToHadrian.SetValue(1.0)
-  UC07_HadrianKnowsVVLives.SetValue(1.0)
+;BEGIN CODE
+UC_PlayerMentionedVVToHadrian.SetValue(1)
+UC07_HadrianKnowsVVLives.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0230_Item_00
 Function Fragment_Stage_0230_Item_00()
-  Self.SetStage(229)
+;BEGIN CODE
+SetStage(229)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(300, True, False)
-  Alias_Hadrian.GetActorRef().EvaluatePackage(False)
-  Alias_Jakob.GetActorRef().EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(300)
 
+Alias_Hadrian.GetActorRef().EvaluatePackage()
+Alias_Jakob.GetActorRef().EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0310_Item_00
 Function Fragment_Stage_0310_Item_00()
-  UC09_300_CabinetMainScene.Start()
-  Alias_ContinueAddressTrigger.GetRef().Enable(False)
-  Alias_NPCsToDisable.EnableAll(False)
-EndFunction
+;BEGIN CODE
+UC09_300_CabinetMainScene.Start()
 
+;Turn on the "Continue Address" trigger so the player can get back in
+Alias_ContinueAddressTrigger.GetRef().Enable()
+
+;Bring back the NPCs that were turned off earlier
+Alias_NPCsToDisable.EnableAll()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0315_Item_00
 Function Fragment_Stage_0315_Item_00()
-  UC09_HadsMad.SetValue(1.0)
+;BEGIN CODE
+UC09_HadsMad.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0320_Item_00
 Function Fragment_Stage_0320_Item_00()
-  UC_LoganKnowsPlayerLearnedOfVaeVictis.SetValue(1.0)
+;BEGIN CODE
+;Used for Sarah Morgan's conversation with Logan
+UC_LoganKnowsPlayerLearnedOfVaeVictis.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0325_Item_00
 Function Fragment_Stage_0325_Item_00()
-  Game.GetPlayer().RemoveItem(Alias_EmergencyRecording.GetRef() as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Alias_EmergencyRecording.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0365_Item_00
 Function Fragment_Stage_0365_Item_00()
-  UC09_LazarusPlantResult.SetValue(1.0)
+;BEGIN CODE
+UC09_LazarusPlantResult.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0367_Item_00
 Function Fragment_Stage_0367_Item_00()
-  UC09_LazarusPlantResult.SetValue(1.0)
+;BEGIN CODE
+UC09_LazarusPlantResult.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0369_Item_00
 Function Fragment_Stage_0369_Item_00()
-  UC09_LazarusPlantResult.SetValue(2.0)
+;BEGIN CODE
+UC09_LazarusPlantResult.SetValue(2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0371_Item_00
 Function Fragment_Stage_0371_Item_00()
-  UC09_LazarusPlantResult.SetValue(2.0)
+;BEGIN CODE
+UC09_LazarusPlantResult.SetValue(2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0399_Item_00
 Function Fragment_Stage_0399_Item_00()
-  UC09_DEBUG_AdditionalUC05Variations.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+UC09_DEBUG_AdditionalUC05Variations.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0499_Item_00
 Function Fragment_Stage_0499_Item_00()
-  Quest __temp = Self as Quest
-  uc09questscript kmyQuest = __temp as uc09questscript
-  Alias_ContinueAddressTrigger.GetRef().Disable(False)
-  kmyQuest.StaggeredEvalPackages()
-  If Self.GetStageDone(401)
-    UC09_PlayerChoiceResult.SetValue(2.0)
-    MQ305_UC_PlagueEnding.SetValue(1.0)
-  ElseIf Self.GetStageDone(402)
-    UC09_PlayerChoiceResult.SetValue(3.0)
-    MQ305_UC_SterilizationEnding.SetValue(1.0)
-  Else
-    UC09_PlayerChoiceResult.SetValue(1.0)
-    MQ305_UC_AcelesEnding.SetValue(1.0)
-  EndIf
-  Self.SetStage(500)
-EndFunction
+;BEGIN AUTOCAST TYPE uc09questscript
+Quest __temp = self as Quest
+uc09questscript kmyQuest = __temp as uc09questscript
+;END AUTOCAST
+;BEGIN CODE
+;Turn off the "Continue Address" trigger
+Alias_ContinueAddressTrigger.GetRef().Disable()
 
-Function Fragment_Stage_0500_Item_00()
-  If Self.GetStageDone(320)
-    Alias_VaeVictis.GetRef().Disable(False)
-    Alias_PostQuestSlate.GetRef().Enable(False)
-    Alias_VVCellDoor.GetRef().Unlock(False)
-    Alias_SS7_CompanionWaitTrigger.GetRef().Disable(False)
-  Else
-    UCR05_Enabled.SetValue(1.0)
-  EndIf
-  UC09_PostQuestline_HadrianScene.Start()
-  Alias_FB441MarineEnableMarker.GetRef().Enable(False)
-  DialogueRedDevilsHQ.SetStage(30)
-  Alias_HadriansShip_RHQ.GetRef().Enable(False)
-  If Self.GetStageDone(367) || Self.GetStageDone(371)
-    DialogueRedDevilsHQ.SetStage(32)
-    Alias_FCObserverEnableMarker.GetRef().Enable(False)
-    UC09_TellFreestarAboutLazPlant.SetValue(1.0)
-  EndIf
-  If Self.GetStageDone(369) || Self.GetStageDone(371)
-    UC09_CleanUpLazarusPlant.SetValue(1.0)
-  EndIf
-  DialogueUCNewAtlantisUCFaction.SetStage(500)
-  Game.AddAchievement(13)
-  Float currentGameTime = Utility.GetCurrentGameTime()
-  Float cooldownTime = currentGameTime + COM_WantsToTalk_CooldownDays.GetValue()
-  Int I = 0
-  While I < Alias_Companions.Length
-    Alias_Companions[I].GetActorRef().SetValue(COM_WantsToTalk_UnitedColonies_Cooldown, cooldownTime)
-    I += 1
-  EndWhile
-  COM_WantsToTalkEvent_UnitedColonies.Send(None)
-  Actor HadACT = Alias_Hadrian.GetActorRef()
-  If HadACT.HasKeyword(SQ_Followers_UseFollowPlayerCustom)
-    HadACT.RemoveKeyword(SQ_Followers_UseFollowPlayerCustom)
-  EndIf
-  Self.CompleteAllObjectives()
-  Self.Stop()
+kmyquest.StaggeredEvalPackages()
+
+;Set the right global for the post-quest gameplay
+if GetStageDone(401)
+  ;Player chose to kill with the microbe
+  UC09_PlayerChoiceResult.SetValue(2)
+  MQ305_UC_PlagueEnding.SetValue(1)
+elseif GetStageDone(402)
+  ;Player chose to sterilize with the microbe
+  UC09_PlayerChoiceResult.SetValue(3)
+  MQ305_UC_SterilizationEnding.SetValue(1)
+else
+  ;Player chose the Aceles
+  UC09_PlayerChoiceResult.SetValue(1)
+  MQ305_UC_AcelesEnding.SetValue(1)
+endif
+
+SetStage(500)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
+Function Fragment_Stage_0500_Item_00()
+;BEGIN CODE
+;If the player ratted out VV, disable him and turn on the scene trigger for him
+;Otherwise, turn on UCR05
+if GetStageDone(320)
+  Alias_VaeVictis.GetRef().Disable()
+  Alias_PostQuestSlate.GetRef().Enable()
+  Alias_VVCellDoor.GetRef().Unlock()
+  Alias_SS7_CompanionWaitTrigger.GetRef().Disable()
+else
+  UCR05_Enabled.SetValue(1)
+endif
+
+;Start up Hadrian's post-quest scene
+UC09_PostQuestline_HadrianScene.Start()
+
+;Get the extra Marines turned on at FB441
+Alias_FB441MarineEnableMarker.GetRef().Enable()
+
+;Get the Red Devils HQ bustling
+DialogueRedDevilsHQ.SetStage(30)
+
+;Turn Hadrian's ship back on there
+Alias_HadriansShip_RHQ.GetRef().Enable()
+
+;Turn on the FC Observers if appropriate
+if GetStageDone(367) || GetStageDone(371)
+  DialogueRedDevilsHQ.SetStage(32)
+  Alias_FCObserverEnableMarker.GetRef().Enable()
+  UC09_TellFreestarAboutLazPlant.SetValue(1)
+endif
+
+;If the player decided to wipe out the Lazarus Plant, mark that here
+if GetStageDone(369) || GetStageDone(371)
+  UC09_CleanUpLazarusPlant.SetValue(1.0)
+endif
+
+;Kick off the misc objective to Tuala
+DialogueUCNewAtlantisUCFaction.SetStage(500)
+
+;Achievement Unlocked
+Game.AddAchievement(13)
+
+;Send Affinity Event
+float currentGameTime = Utility.GetCurrentGameTime()
+float cooldownTime = (currentGameTime + COM_WantsToTalk_CooldownDays.GetValue())
+int i = 0
+while i < Alias_Companions.Length
+    Alias_Companions[i].GetActorRef().SetValue(COM_WantsToTalk_UnitedColonies_Cooldown, cooldownTime) 
+    i += 1
+endwhile
+
+COM_WantsToTalkEvent_UnitedColonies.Send()
+
+;Make sure we removed the "Use Custom Follow" keyword from Hadrian
+Actor HadACT = Alias_Hadrian.GetActorRef()
+
+if HadACT.HasKeyword(SQ_Followers_UseFollowPlayerCustom)
+  HadACT.RemoveKeyword(SQ_Followers_UseFollowPlayerCustom)
+endif
+
+CompleteAllObjectives()
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueUCNewAtlantisUCFaction Auto Const Mandatory
+
+GlobalVariable Property UC09_PlayerChoiceResult Auto Const Mandatory
+
+ObjectReference Property UC09_DebugMarker01 Auto Const Mandatory
+
+ObjectReference Property UC09_DebugMarker02 Auto Const Mandatory
+
+ObjectReference Property UC09_DebugMarker03 Auto Const Mandatory
+
+ObjectReference Property UC09_DebugMarker04 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Hadrian Auto Const Mandatory
+
+Message Property UC09_DEBUG_ExpansionPoint Auto Const Mandatory
+
+Message Property UC09_DEBUG_SpeechChallenge Auto Const Mandatory
+
+ReferenceAlias Property Alias_Jakob Auto Const Mandatory
+
+Scene Property UC09_300_CabinetMainScene Auto Const Mandatory
+
+Message Property UC09_DEBUG_AdditionalUC05Variations Auto Const Mandatory
+
+Message Property UC09_DEBUG_SpeakToTuala Auto Const Mandatory
+
+GlobalVariable Property UC_PlayerMentionedVVToHadrian Auto Const Mandatory
+
+GlobalVariable Property UC09_HadsMad Auto Const Mandatory
+
+GlobalVariable Property UC09_CleanUpLazarusPlant Auto Const Mandatory
+
+ReferenceAlias Property Alias_VaeVictis Auto Const Mandatory
+
+ReferenceAlias Property Alias_FB441MarineEnableMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_FCObserverEnableMarker Auto Const Mandatory
+
+Quest Property UC09_PostQuestline_HadrianScene Auto Const Mandatory
+
+GlobalVariable Property UC07_HadrianKnowsVVLives Auto Const Mandatory
+
+ReferenceAlias Property Alias_PostVVSceneTrigger Auto Const Mandatory
+
+Perk Property BackgroundDiplomat Auto Const Mandatory
+
+Perk Property TraitEmpath Auto Const Mandatory
+
+Perk Property BackgroundIndustrialist Auto Const Mandatory
+
+Perk Property BackgroundXenobiologist Auto Const Mandatory
+
+GlobalVariable Property UCR05_Bonus Auto Const Mandatory
+
+RefCollectionAlias Property Alias_LondinionDoors Auto Const Mandatory
+
+ReferenceAlias Property Alias_ContinueAddressTrigger Auto Const Mandatory
+
+GlobalVariable Property UC09_TellFreestarAboutLazPlant Auto Const Mandatory
+
+Quest Property DialogueRedDevilsHQ Auto Const Mandatory
+
+GlobalVariable Property MQ305_UC_AcelesEnding Auto Const Mandatory
+
+GlobalVariable Property MQ305_UC_PlagueEnding Auto Const Mandatory
+
+GlobalVariable Property UC09_LazarusPlantResult Auto Const Mandatory
+
+GlobalVariable Property UC_LoganKnowsPlayerLearnedOfVaeVictis Auto Const Mandatory
+
+ActorValue Property UC09_Foreknowledge_VVCommittedTheAttacksAV Auto Const Mandatory
+
+ReferenceAlias Property Alias_HadrianShip Auto Const Mandatory
+
+RefCollectionAlias Property Alias_NPCsToDisable Auto Const Mandatory
+
+ReferenceAlias Property Alias_EmergencyRecording Auto Const Mandatory
+
+GlobalVariable Property MQ305_UC_SterilizationEnding Auto Const Mandatory
+
+ReferenceAlias Property Alias_ChiefSarkin Auto Const Mandatory
+
+ReferenceAlias Property Alias_Abello Auto Const Mandatory
+
+ReferenceAlias Property Alias_ChiefYasin Auto Const Mandatory
+
+ReferenceAlias Property Alias_ChiefKulkarni Auto Const Mandatory
+
+ReferenceAlias Property Alias_AdmiralLogan Auto Const Mandatory
+
+ReferenceAlias Property Alias_VVDoor Auto Const Mandatory
+
+ReferenceAlias Property Alias_SS7FloorManager Auto Const Mandatory
+
+Book Property UC08_VV_AudioLog Auto Const Mandatory
+
+Quest Property DialogueUCFactionNewAtlantis Auto Const Mandatory
+
+GlobalVariable Property UCR05_Enabled Auto Const Mandatory
+
+ReferenceAlias Property Alias_PostQuestSlate Auto Const Mandatory
+
+Quest Property UC08_QueenBattle Auto Const Mandatory
+
+Quest Property UC08_AnomalyBattle Auto Const Mandatory
+
+ReferenceAlias Property Alias_HadriansShip_RHQ Auto Const Mandatory
+
+Quest Property UC01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_VVCellDoor Auto Const Mandatory
+
+ReferenceAlias Property Alias_SS7_CompanionWaitTrigger Auto Const Mandatory
+
+Outfit Property Outfit_Clothes_Colonist_CroppedVest_Hadrian Auto Const Mandatory
+
+Outfit Property Outfit_Clothes_ScienceLabTec Auto Const Mandatory
+
+ActorValue Property ActorShouldShowSpacesuitCosmetic_AV Auto Const Mandatory
+
+ActorValue Property ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV Auto Const Mandatory
+
+GlobalVariable Property UC05_HadrianSandboxing_PostUC05 Auto Const Mandatory
+
+Quest Property UC02 Auto Const Mandatory
+
+AffinityEvent Property COM_WantsToTalkEvent_UnitedColonies Auto Const Mandatory
+
+Keyword Property SQ_Followers_UseFollowPlayerCustom Auto Const Mandatory
+
+ReferenceAlias[] Property Alias_Companions Auto Const Mandatory
+
+GlobalVariable Property COM_WantsToTalk_CooldownDays Auto Const Mandatory
+
+ActorValue Property COM_WantsToTalk_UnitedColonies_Cooldown Auto Const Mandatory

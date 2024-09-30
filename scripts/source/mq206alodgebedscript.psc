@@ -1,24 +1,24 @@
-ScriptName MQ206ALodgeBedScript Extends ReferenceAlias
+Scriptname MQ206ALodgeBedScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Message Property MessageToShow Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Message Property MessageToShow Auto Const mandatory
-Int Property Button1StageToSet = 17 Auto Const
-Int Property PrereqStageDone = 15 Auto Const
-Int Property TurnOffStageDone = 20 Auto Const
-Int Property TurnOffStageDone02 = 30 Auto Const
+Int Property Button1StageToSet=17 Auto Const
 
-;-- Functions ---------------------------------------
+Int Property PrereqStageDone=15 Const Auto
+
+Int Property TurnOffStageDone=20 Const Auto
+
+Int Property TurnOffStageDone02=30 Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Quest myQuest = Self.GetOwningQuest()
-    If myQuest.GetStageDone(PrereqStageDone) && myQuest.GetStageDone(TurnOffStageDone) == False && myQuest.GetStageDone(TurnOffStageDone02) == False
-      Int iButton = MessageToShow.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      If iButton == 1
-        myQuest.SetStage(Button1StageToSet)
-      EndIf
+
+    If AkActionREF == Game.GetPlayer()
+        Quest myQuest = GetOwningQuest()
+        If (myQuest.GetStageDone(PrereqStageDone)) && (myQuest.GetStageDone(TurnOffStageDone) == False) && (myQuest.GetStageDone(TurnOffStageDone02) == False)
+            int iButton = MessageToShow.Show()
+            if iButton == 1
+                myQuest.SetStage(Button1StageToSet)
+            EndIf
+        EndIf
     EndIf
-  EndIf
 EndEvent

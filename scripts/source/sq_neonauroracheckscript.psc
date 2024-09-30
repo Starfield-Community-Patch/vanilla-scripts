@@ -1,92 +1,106 @@
-ScriptName SQ_NeonAuroraCheckScript Extends Quest
-{ watch for player to have or pick up Aurora while in Neon }
+Scriptname SQ_NeonAuroraCheckScript extends Quest
+{watch for player to have or pick up Aurora while in Neon}
 
-;-- Variables ---------------------------------------
-Int CheckForAuroraTimerID = 1 Const
-inputenablelayer myEnableLayer
+Location property CityNeonLocation auto const Mandatory
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard CheckForAuroraGuard
+Keyword property LocTypeSettlement auto const mandatory
 
-;-- Properties --------------------------------------
-Location Property CityNeonLocation Auto Const mandatory
-Keyword Property LocTypeSettlement Auto Const mandatory
-Potion Property Drug_Aurora Auto Const mandatory
-ReferenceAlias Property ActiveCompanion Auto Const mandatory
+Potion property Drug_Aurora auto const mandatory
+
+ReferenceAlias property ActiveCompanion auto const mandatory
 { companion alias - from SQ_Companion }
-ReferenceAlias Property PlayerShip Auto Const mandatory
+
+ReferenceAlias property PlayerShip auto const mandatory
 { current ship - from SQ_PlayerShip }
-ReferenceAlias Property Player Auto Const mandatory
+
+ReferenceAlias property Player auto const mandatory
 { player alias }
-ActorValue Property AuroraBlockingFastTravel Auto Const mandatory
+
+ActorValue property AuroraBlockingFastTravel auto const mandatory
 { use to give custom fast travel blocked message for this situation }
 
-;-- Functions ---------------------------------------
+InputEnableLayer myEnableLayer
+
+int CheckForAuroraTimerID = 1 Const
 
 Event OnQuestInit()
-  myEnableLayer = inputenablelayer.Create()
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnLocationChange")
-  Self.StartAuroraCheck(True)
+    debug.trace(self + "OnQuestInit")
+    myEnableLayer = InputEnableLayer.Create()
+	RegisterForRemoteEvent(PlayerShip, "OnLocationChange")
+    StartAuroraCheck(true)
 EndEvent
 
 Event ReferenceAlias.OnLocationChange(ReferenceAlias akSender, Location akOldLoc, Location akNewLoc)
-  Bool newLocationInNeon = akNewLoc.IsSameLocation(CityNeonLocation, LocTypeSettlement)
-  If newLocationInNeon == False
-    Self.StartAuroraCheck(False)
-  EndIf
-EndEvent
+	debug.trace(self + "OnLocationChange akoldloc=" + akOldLoc + " aknewloc=" + akNewLoc)
+	; if exiting Neon, do Aurora check
+	bool newLocationInNeon = akNewLoc.IsSameLocation(CityNeonLocation, LocTypeSettlement)
+	if newLocationInNeon == false
+        debug.trace(self + " player ship is no longer in Neon - shut down quest")
+        StartAuroraCheck(false)
+	endif
+endEvent
 
-Function StartAuroraCheck(Bool bStart)
-  Actor playerRef = Game.GetPlayer()
-  Actor companionRef = ActiveCompanion.GetActorRef()
-  If bStart
-    Self.CheckForAurora()
-    Self.AddInventoryEventFilter(Drug_Aurora as Form)
-    Self.RegisterForRemoteEvent(Player as ScriptObject, "OnItemAdded")
-    Self.RegisterForRemoteEvent(Player as ScriptObject, "OnItemRemoved")
-    Self.RegisterForRemoteEvent(ActiveCompanion as ScriptObject, "OnItemAdded")
-    Self.RegisterForRemoteEvent(ActiveCompanion as ScriptObject, "OnItemRemoved")
-  Else
-    Self.BlockFastTravel(playerRef, False)
-    myEnableLayer.Delete()
-    myEnableLayer = None
-    Self.Stop()
-  EndIf
-EndFunction
+function StartAuroraCheck(bool bStart)
+    debug.trace(self + "StartAuroraCheck " + bStart)
 
-Event ReferenceAlias.OnItemAdded(ReferenceAlias akSource, Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  Self.StartTimer(0.5, CheckForAuroraTimerID)
-EndEvent
-
-Event ReferenceAlias.OnItemRemoved(ReferenceAlias akSource, Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-  Self.StartTimer(0.5, CheckForAuroraTimerID)
-EndEvent
-
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == CheckForAuroraTimerID
-    Self.CheckForAurora()
-  EndIf
-EndEvent
-
-Function CheckForAurora()
-  Guard CheckForAuroraGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
     Actor playerRef = Game.GetPlayer()
     Actor companionRef = ActiveCompanion.GetActorRef()
-    If playerRef.GetItemCount(Drug_Aurora as Form) > 0 || (companionRef as Bool && companionRef.GetItemCount(Drug_Aurora as Form) > 0)
-      Self.BlockFastTravel(playerRef, True)
+
+    if bStart
+        CheckForAurora()
+        AddInventoryEventFilter(Drug_Aurora)
+        RegisterForRemoteEvent(Player, "OnItemAdded")
+        RegisterForRemoteEvent(Player, "OnItemRemoved")
+        RegisterForRemoteEvent(ActiveCompanion, "OnItemAdded")
+        RegisterForRemoteEvent(ActiveCompanion, "OnItemRemoved")
     Else
-      Self.BlockFastTravel(playerRef, False)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+        BlockFastTravel(playerRef, false)
+        myEnableLayer.Delete()
+        myEnableLayer = NONE
+        Stop()
+    endif
 EndFunction
 
-Function BlockFastTravel(Actor playerRef, Bool shouldBlock)
-  If shouldBlock
-    myEnableLayer.EnableFastTravel(False)
-    playerRef.SetValue(AuroraBlockingFastTravel, 1.0)
-  Else
-    myEnableLayer.EnableFastTravel(True)
-    playerRef.SetValue(AuroraBlockingFastTravel, 0.0)
-  EndIf
+Event ReferenceAlias.OnItemAdded(ReferenceAlias akSource, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    ; run short timer
+    StartTimer(0.5, CheckForAuroraTimerID)
+endEvent
+
+Event ReferenceAlias.OnItemRemoved(ReferenceAlias akSource, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+    ; run short timer
+    StartTimer(0.5, CheckForAuroraTimerID)
+endEvent
+
+Event OnTimer(int aiTimerID)
+    if aiTimerID == CheckForAuroraTimerID
+        CheckForAurora()
+    endif
+EndEvent
+
+Guard CheckForAuroraGuard ProtectsFunctionLogic
+
+Function CheckForAurora()
+    debug.trace(self + " CheckForAurora")
+    LockGuard CheckForAuroraGuard
+        Actor playerRef = Game.GetPlayer()
+        Actor companionRef = ActiveCompanion.GetActorRef()
+        ; does player or companion have Aurora, if so turn off fast travel
+        if playerRef.GetItemCount(Drug_Aurora) > 0 || (companionRef && companionRef.GetItemCount(Drug_Aurora) > 0)
+            debug.trace(self + " player or companion has Aurora - disable fast travel")
+            BlockFastTravel(playerRef, true)
+        Else
+            debug.trace(self + " nobody carrying Aurora - enable fast travel")
+            BlockFastTravel(playerRef, false)
+        endif
+    endLockGuard
+EndFunction
+
+function BlockFastTravel(Actor playerRef, bool shouldBlock=true)
+    if shouldBlock
+        myEnableLayer.EnableFastTravel(false)
+        playerRef.SetValue(AuroraBlockingFastTravel, 1)
+    Else
+        myEnableLayer.EnableFastTravel(true)
+        playerRef.SetValue(AuroraBlockingFastTravel, 0)
+    endif
 EndFunction

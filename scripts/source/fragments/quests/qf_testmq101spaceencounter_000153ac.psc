@@ -1,13 +1,17 @@
-ScriptName Fragments:Quests:QF_TestMQ101SpaceEncounter_000153AC Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TestMQ101SpaceEncounter_000153AC Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_BlackFleetShips Auto Const mandatory
-ReferenceAlias Property Alias_EnemyShip Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Alias_EnemyShip.GetShipref().Kill(None)
+;BEGIN CODE
+;kill the ship
+Alias_EnemyShip.GetShipref().Kill()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_BlackFleetShips Auto Const Mandatory
+
+ReferenceAlias Property Alias_EnemyShip Auto Const Mandatory

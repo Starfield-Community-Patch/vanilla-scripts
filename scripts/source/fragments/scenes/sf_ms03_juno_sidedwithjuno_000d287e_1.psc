@@ -1,19 +1,30 @@
-ScriptName Fragments:Scenes:SF_MS03_Juno_SidedWithJuno_000D287E_1 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MS03_Juno_SidedWithJuno_000D287E_1 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property Juno00 Auto Const
-ObjectReference Property JunoPromptTrigger Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  Game.StopDialogueCamera(False, False)
-  Juno00.PlayAnimation("Play02")
-  JunoPromptTrigger.BlockActivation(True, True)
-EndFunction
+;BEGIN CODE
+Game.StopDialogueCamera()
 
-Function Fragment_Phase_06_Begin()
-  Juno00.PlayAnimation("SequenceA03")
+;turn off screens
+Juno00.PlayAnimation("Play02")
+
+;disable Juno interaction
+JunoPromptTrigger.BlockActivation(true,true)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Phase_06_Begin
+Function Fragment_Phase_06_Begin()
+;BEGIN CODE
+Juno00.PlayAnimation("SequenceA03")
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ObjectReference Property Juno00 Auto Const
+
+ObjectReference Property JunoPromptTrigger Auto Const

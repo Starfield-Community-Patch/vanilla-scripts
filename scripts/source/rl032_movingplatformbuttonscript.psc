@@ -1,26 +1,23 @@
-ScriptName RL032_MovingPlatformButtonScript Extends ObjectReference
+Scriptname RL032_MovingPlatformButtonScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-movingplatformmasterscript movingPlatformMasterScriptRef
+int property CurrentFloor = 1 auto
 
-;-- Properties --------------------------------------
-Int Property CurrentFloor = 1 Auto
-
-;-- Functions ---------------------------------------
+MovingPlatformMasterScript movingPlatformMasterScriptRef
 
 Event OnCellLoad()
-  movingPlatformMasterScriptRef = Self.GetLinkedRef(None) as movingplatformmasterscript
+    movingPlatformMasterScriptRef = GetLinkedRef() as MovingPlatformMasterScript
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If movingPlatformMasterScriptRef.IsMoving()
-    Return 
-  EndIf
-  If CurrentFloor == 1
-    CurrentFloor = 0
-    movingPlatformMasterScriptRef.ProcessFloorTravelRequest(0)
-  ElseIf CurrentFloor == 0
-    CurrentFloor = 1
-    movingPlatformMasterScriptRef.ProcessFloorTravelRequest(1)
-  EndIf
+    if(movingPlatformMasterScriptRef.IsMoving())
+        return
+    endIf
+    
+    if(CurrentFloor == 1)
+        CurrentFloor = 0
+        movingPlatformMasterScriptRef.ProcessFloorTravelRequest(0)
+    elseif (CurrentFloor == 0)
+        CurrentFloor = 1
+        movingPlatformMasterScriptRef.ProcessFloorTravelRequest(1)
+    endIf
 EndEvent

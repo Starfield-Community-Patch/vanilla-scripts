@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_CF05_0004528D Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_CF05_0004528D Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_CF05_CargoBaySecurityDoor Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  Alias_CF05_CargoBaySecurityDoor.GetRef().SetOpen(False)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+Alias_CF05_CargoBaySecurityDoor.GetRef().SetOpen(false)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_CF05_CargoBaySecurityDoor Auto Const Mandatory

@@ -1,20 +1,16 @@
-ScriptName OneOfAKindQuestScript Extends Quest
+Scriptname OneOfAKindQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property CageDoor Auto Const mandatory
-{ Ref alias for the Ecliptic base cage door. }
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property CageDoor Mandatory Const Auto
+{Ref alias for the Ecliptic base cage door.}
 
 Function OpenCageGate()
-  ObjectReference CageREF = CageDoor.GetRef()
-  Int currOpenState = CageREF.GetOpenState()
-  If currOpenState == 1
-    CageREF.SetOpen(False)
-  ElseIf currOpenState == 3
-    CageREF.SetOpen(True)
-    Self.SetStage(200)
-  EndIf
+    ObjectReference CageREF = CageDoor.GetRef()
+    int currOpenState = CageRef.GetOpenState()
+
+    if currOpenState == 1
+        CageREF.SetOpen(false)
+    elseif currOpenState == 3
+        CageREF.SetOpen(true)
+        SetStage(200)
+    endif
 EndFunction

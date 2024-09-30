@@ -1,19 +1,16 @@
-ScriptName FFCydoniaZ07QuestScript Extends Quest
+Scriptname FFCydoniaZ07QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+ActorValue Property ProduceUses Mandatory Const Auto
+ReferenceAlias Property HeartOfMars Mandatory Const Auto
+Int Property ReturnStage = 300 Const Auto
 
-;-- Properties --------------------------------------
-ActorValue Property ProduceUses Auto Const mandatory
-ReferenceAlias Property HeartOfMars Auto Const mandatory
-Int Property ReturnStage = 300 Auto Const
-
-;-- Functions ---------------------------------------
 
 Function RegisterOre()
-  Self.RegisterForActorValueLessThanEvent(HeartOfMars.GetRef(), ProduceUses, 1.0)
+    RegisterForActorValueLessThanEvent(HeartOfMars.GetRef(), ProduceUses, 1)
 EndFunction
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  akObjRef.Disable(False)
-  Self.SetStage(ReturnStage)
+    Debug.Trace("The actor value" + akActorValue + " on " + akObjRef + " has changed to " + akObjRef.GetValue(akActorValue))
+    akObjRef.Disable()
+    SetStage(ReturnStage)
 EndEvent

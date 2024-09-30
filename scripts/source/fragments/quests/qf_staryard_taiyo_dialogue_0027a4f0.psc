@@ -1,13 +1,16 @@
-ScriptName Fragments:Quests:QF_Staryard_Taiyo_Dialogue_0027A4F0 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_Staryard_Taiyo_Dialogue_0027A4F0 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property SY_Taiyo_100_Intro Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Utility.Wait(8.0)
-  SY_Taiyo_100_Intro.Start()
+;BEGIN CODE
+; Play the intro
+Utility.Wait(8)
+SY_Taiyo_100_Intro.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property SY_Taiyo_100_Intro Auto Const Mandatory

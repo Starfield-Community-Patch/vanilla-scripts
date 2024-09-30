@@ -1,36 +1,59 @@
-ScriptName Fragments:Quests:QF_TEST_BE_GenericDerelict_K_000F2E6D Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TEST_BE_GenericDerelict_K_000F2E6D Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property TestGoToSpaceQuest Auto Const mandatory
-ReferenceAlias Property Alias_DerelictShip Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-Perk Property StarshipEngineering Auto Const mandatory
-Quest Property BE_Player_DerelictShip_Generic Auto Const mandatory
-Keyword Property SE_DerelictShipKeyword_Generic Auto Const mandatory
-Keyword Property SE_KT02_ShipKeyword Auto Const mandatory
-ReferenceAlias Property Alias_DerelictShip01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  TestGoToSpaceQuest.SetStage(10)
+;BEGIN CODE
+TestGoToSpaceQuest.SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  spaceshipreference MyShipRef = Alias_DerelictShip.GetShipRef()
-  MyShipRef.MoveNear(Alias_PlayerShip.GetShipRef() as ObjectReference, 0, 0, 0)
-  Game.GetPlayer().AddPerk(StarshipEngineering, False)
-EndFunction
+;BEGIN CODE
+SpaceshipReference MyShipRef = Alias_DerelictShip.GetShipRef()
 
+MyShipRef.MoveNear(Alias_PlayerShip.GetShipRef())
+Game.GetPlayer().AddPerk(StarshipEngineering)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  spaceshipreference MyShipRef = Alias_DerelictShip01.GetShipRef()
-  Alias_DerelictShip.GetShipRef().DisableNoWait(False)
-  MyShipRef.EnableNoWait(False)
-  MyShipRef.MoveNear(Alias_PlayerShip.GetShipRef() as ObjectReference, 0, 0, 0)
-EndFunction
+;BEGIN CODE
+SpaceshipReference MyShipRef = Alias_DerelictShip01.GetShipRef()
 
-Function Fragment_Stage_1000_Item_00()
-  BE_Player_DerelictShip_Generic.SetStage(1000)
+Alias_DerelictShip.GetShipRef().DisableNoWait()
+MyShipRef.EnableNoWait()
+MyShipRef.MoveNear(Alias_PlayerShip.GetShipRef())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
+Function Fragment_Stage_1000_Item_00()
+;BEGIN CODE
+BE_Player_DerelictShip_Generic.SetStage(1000)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property TestGoToSpaceQuest Auto Const Mandatory
+
+ReferenceAlias Property Alias_DerelictShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+Perk Property StarshipEngineering Auto Const Mandatory
+
+Quest Property BE_Player_DerelictShip_Generic Auto Const Mandatory
+
+Keyword Property SE_DerelictShipKeyword_Generic Auto Const Mandatory
+
+Keyword Property SE_KT02_ShipKeyword Auto Const Mandatory
+
+ReferenceAlias Property Alias_DerelictShip01 Auto Const Mandatory

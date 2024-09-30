@@ -1,16 +1,23 @@
-ScriptName TestZachGenericLoreTerminalScript Extends TerminalMenu
+Scriptname TestZachGenericLoreTerminalScript extends TerminalMenu
 
-;-- Variables ---------------------------------------
+Formlist Property TestZachGenericLoreFormList Auto Const Mandatory
 
-;-- Properties --------------------------------------
-FormList Property TestZachGenericLoreFormList Auto Const mandatory
-TerminalMenu Property TestZachGenericLoreTerminal_SingleEntry_CF01_Genesis Auto Const mandatory
-Message Property testZachGenericLoreMessage Auto Const mandatory
+TerminalMenu Property TestZachGenericLoreTerminal_SingleEntry_CF01_Genesis Mandatory Const Auto
 
-;-- Functions ---------------------------------------
+Message Property testZachGenericLoreMessage Mandatory Const Auto 
+
+;Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+;    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase + " akTerminalRef=" + akTerminalRef)
+;EndEvent
 
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  Form[] textReplacementArray = new Form[0]
-  Self.AddDynamicMenuItem(akTerminalRef, 0, 1, textReplacementArray)
-  Self.AddDynamicBodyTextItem(akTerminalRef, 0, 1, textReplacementArray)
-EndEvent
+    
+    Debug.Trace("Player entering menu " + akTerminalBase + " on " + akTerminalRef)
+    Form[] textReplacementArray = New Form[0]
+    ;akTerminalRef.AddTextReplacementData("Lore", testZachGenericLoreMessage)  
+
+    
+   	self.AddDynamicMenuItem(akTerminalRef, 0, 1, TextReplacementArray as Form[])
+    self.AddDynamicBodyTextItem(akTerminalRef, 0, 1, TextReplacementArray as Form[])
+
+endEvent

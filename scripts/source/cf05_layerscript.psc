@@ -1,6 +1,4 @@
-ScriptName CF05_LayerScript Extends Quest conditional
+Scriptname CF05_LayerScript extends Quest Conditional
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 inputenablelayer Property CF05_Layer Auto
+

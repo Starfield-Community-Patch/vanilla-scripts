@@ -1,51 +1,80 @@
-ScriptName Fragments:Quests:QF_SE_Player_FAB13_0005F837 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_FAB13_0005F837 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property SE_FAB13_050_SeaShanty Auto Const mandatory
-ReferenceAlias Property Alias_SingingCaptain Auto Const mandatory
-GlobalVariable Property SE_FAB13_SeaChanty Auto Const mandatory
-Scene Property SE_FAB13_060_SeaShanty02 Auto Const mandatory
-Scene Property SE_FAB13_070_SeaShanty03 Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  spaceshipreference oTarg = Alias_SingingCaptain.GetRef() as spaceshipreference
-  oTarg.SetValue(Aggression, 0.0)
+;BEGIN CODE
+SpaceshipReference oTarg = Alias_SingingCaptain.GetRef() as SpaceshipReference
+oTarg.SetValue(Aggression, 0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  If SE_FAB13_SeaChanty.GetValue() == 0.0
-    SE_FAB13_050_SeaShanty.Start()
-  ElseIf SE_FAB13_SeaChanty.GetValue() == 1.0
-    SE_FAB13_060_SeaShanty02.Start()
-  Else
-    SE_FAB13_070_SeaShanty03.Start()
-  EndIf
-EndFunction
+;BEGIN CODE
+; Now the Captain sings
 
+if ( SE_FAB13_SeaChanty.GetValue() == 0 )
+  SE_FAB13_050_SeaShanty.Start()
+elseif ( SE_FAB13_SeaChanty.GetValue() == 1 )
+  SE_FAB13_060_SeaShanty02.Start()
+else
+  SE_FAB13_070_SeaShanty03.Start()
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  If SE_FAB13_SeaChanty.GetValue() == 0.0
-    SE_FAB13_050_SeaShanty.Start()
-  ElseIf SE_FAB13_SeaChanty.GetValue() == 1.0
-    SE_FAB13_060_SeaShanty02.Start()
-  Else
-    SE_FAB13_070_SeaShanty03.Start()
-  EndIf
-EndFunction
+;BEGIN CODE
+; Now the Captain sings
 
+if ( SE_FAB13_SeaChanty.GetValue() == 0 )
+  SE_FAB13_050_SeaShanty.Start()
+elseif ( SE_FAB13_SeaChanty.GetValue() == 1 )
+  SE_FAB13_060_SeaShanty02.Start()
+else
+  SE_FAB13_070_SeaShanty03.Start()
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Utility.Wait(2.0)
-  (Alias_SingingCaptain.GetRef() as spaceshipreference).DisableWithGravJump()
+;BEGIN CODE
+; Now he fast travels away - bye-de-bye
+Utility.Wait(2.0)
+(Alias_SingingCaptain.GetRef() as SpaceshipReference).DisableWithGravJump()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  If SE_FAB13_SeaChanty.GetValue() == 2.0
-    SE_FAB13_SeaChanty.SetValue(0.0)
-  Else
-    SE_FAB13_SeaChanty.Mod(1.0)
-  EndIf
+;BEGIN CODE
+; Cycle the Sea Shanty
+if ( SE_FAB13_SeaChanty.GetValue() == 2 )
+  SE_FAB13_SeaChanty.SetValue(0)
+else
+  SE_FAB13_SeaChanty.Mod(1.0)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property SE_FAB13_050_SeaShanty Auto Const Mandatory
+
+ReferenceAlias Property Alias_SingingCaptain Auto Const Mandatory
+
+GlobalVariable Property SE_FAB13_SeaChanty Auto Const Mandatory
+
+Scene Property SE_FAB13_060_SeaShanty02 Auto Const Mandatory
+
+Scene Property SE_FAB13_070_SeaShanty03 Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory

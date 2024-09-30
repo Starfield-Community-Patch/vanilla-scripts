@@ -1,21 +1,18 @@
-ScriptName TrapCatwalkDamageLinkedRefonTrigger Extends ObjectReference Const
-{ Damages linked object when trigger is entered. }
+Scriptname TrapCatwalkDamageLinkedRefonTrigger extends ObjectReference Const
+{Damages linked object when trigger is entered.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Float Property damageAmount = 200.0 Auto Const
-wwiseevent Property WwiseEvent_TRP_Catwalk_Creak_OneShot Auto Const
-Float Property TimeToBreak = 0.5 Auto Const
-
-;-- Functions ---------------------------------------
+float Property damageAmount = 200.0 Const Auto
+WwiseEvent Property WwiseEvent_TRP_Catwalk_Creak_OneShot Const Auto
+float Property TimeToBreak = 0.5 Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  WwiseEvent_TRP_Catwalk_Creak_OneShot.Play(Self.GetLinkedRef(None), None, None)
-  Self.StartTimer(TimeToBreak, 0)
+    WwiseEvent_TRP_Catwalk_Creak_OneShot.Play(GetLinkedRef())
+    debug.trace(self + " Catwalk Damage Trigger Entered")
+    StartTimer(TimeToBreak)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  Self.GetLinkedRef(None).DamageObject(damageAmount)
-  Self.disable(False)
+Event OnTimer(int aiTimerID)
+    GetLinkedRef().DamageObject(damageAmount)
+    self.disable()
 EndEvent
+

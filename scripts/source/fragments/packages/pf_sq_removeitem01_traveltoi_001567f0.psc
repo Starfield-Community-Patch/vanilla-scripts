@@ -1,7 +1,12 @@
-ScriptName Fragments:Packages:PF_SQ_RemoveItem01_TravelToI_001567F0 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_SQ_RemoveItem01_TravelToI_001567F0 Extends Package Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  Self.GetOwningQuest().SetStage(10)
+;BEGIN CODE
+GetOwningQuest().SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

@@ -1,72 +1,89 @@
-ScriptName RQ_RescueScript Extends RQ_TransportPersonScript
+Scriptname RQ_RescueScript extends RQ_TransportPersonScript
 
-;-- Variables ---------------------------------------
+;see parent script: RQScript for traces, etc.
 
-;-- Properties --------------------------------------
 Group Rescue_Aliases
-  ReferenceAlias Property Alias_Door Auto Const mandatory
-  { autofill }
-  ReferenceAlias Property Alias_Victim Auto Const mandatory
-  { autofill }
-  RefCollectionAlias Property Alias_Actors Auto Const mandatory
-  { autofill }
-  RefCollectionAlias Property Alias_Passengers Auto Const mandatory
-  { autofill }
-  ReferenceAlias Property Alias_CaptiveTarget Auto Const mandatory
-  { autofill }
-  ReferenceAlias Property Alias_CaptiveMarker Auto Const mandatory
-  { autofill }
-  ReferenceAlias Property Alias_BossContainer Auto Const mandatory
-  { autofill }
-  ReferenceAlias Property Alias_BonusContainer Auto Const mandatory
-  { autofill }
-  ActorValue Property SQ_CaptiveStateNoBlockingHellos Auto Const mandatory
-  Int Property AllPassengersDisembarkStage = 500 Auto Const
-  { this stage is set by passenger script when all passengers disembark OR unload }
+	ReferenceAlias Property Alias_Door Mandatory Const Auto
+	{autofill}
+
+	ReferenceAlias Property Alias_Victim Mandatory Const Auto
+	{autofill}
+
+	RefCollectionAlias Property Alias_Actors Mandatory Const Auto
+	{autofill}
+
+	RefCollectionAlias Property Alias_Passengers Mandatory Const Auto
+	{autofill}
+
+	ReferenceAlias Property Alias_CaptiveTarget Auto Const Mandatory
+	{autofill}
+
+	ReferenceAlias Property Alias_CaptiveMarker Auto Const Mandatory
+	{autofill}
+
+	ReferenceAlias Property Alias_BossContainer Auto Const Mandatory
+	{autofill}
+
+	ReferenceAlias Property Alias_BonusContainer Auto Const Mandatory
+	{autofill}
+
+	ActorValue Property SQ_CaptiveStateNoBlockingHellos Auto Const Mandatory
+
+	int property AllPassengersDisembarkStage = 500 auto const 
+	{ this stage is set by passenger script when all passengers disembark OR unload }
+
 EndGroup
 
 Group Rescue_Scenes
-  Scene Property CaptiveRescuedScene Auto Const mandatory
-  { Scene to start when captive is rescued }
+	Scene Property CaptiveRescuedScene Mandatory Const Auto
+	{Scene to start when captive is rescued}
+
 EndGroup
 
 Group Rescue_PassengerHandling
-  sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-  { autofill }
+
+	SQ_PlayerShipScript Property SQ_PlayerShip Mandatory Const Auto
+	{autofill}
 EndGroup
 
+function InitializeNPCs()
+	Trace(self, "InitializeNPCs()")
 
-;-- Functions ---------------------------------------
+	ObjectReference CaptiveMarker = Alias_CaptiveMarker.GetRef()
+	ObjectReference DungeonMarker = Alias_BossContainer.GetRef()
+	Actor CaptiveNPC = Alias_CaptiveTarget.GetActorRef()
 
-Function InitializeNPCs()
-  ObjectReference CaptiveMarker = Alias_CaptiveMarker.GetRef()
-  ObjectReference DungeonMarker = Alias_BossContainer.GetRef()
-  Actor CaptiveNPC = Alias_CaptiveTarget.GetActorRef()
-  If CaptiveMarker
-    CaptiveNPC.MoveTo(CaptiveMarker, 0.0, 0.0, 0.0, True, False)
-  ElseIf DungeonMarker
-    CaptiveNPC.MoveTo(DungeonMarker, 0.0, 0.0, 0.0, True, False)
-  EndIf
-  CaptiveNPC.Enable(False)
-  CaptiveNPC.EvaluatePackage(False)
-  CaptiveNPC.SetValue(SQ_CaptiveStateNoBlockingHellos, 1.0)
-  Alias_BonusContainer.TryToEnable()
-  Parent.InitializeNPCs()
+	If CaptiveMarker
+		CaptiveNPC.MoveTo(CaptiveMarker)
+	ElseIf DungeonMarker
+		CaptiveNPC.MoveTo(DungeonMarker)
+	EndIf 
+
+	CaptiveNPC.Enable()
+	CaptiveNPC.EvaluatePackage()
+
+	; turn off captive blocking hellos so captive can have greeting
+	CaptiveNPC.SetValue(SQ_CaptiveStateNoBlockingHellos, 1)
+
+	Alias_BonusContainer.TryToEnable()
+
+	Parent.InitializeNPCs()
 EndFunction
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  If auiStageID == AllPassengersDisembarkStage
-    Int I = 0
-    While I < Alias_Actors.GetCount()
-      ObjectReference theActor = Alias_Actors.GetAt(I)
-      If theActor.Is3DLoaded() == False
-        theActor.DisableNoWait(False)
-      EndIf
-      I += 1
-    EndWhile
-    ObjectReference victimRef = Alias_Victim.GetRef()
-    If victimRef.Is3DLoaded() == False
-      victimRef.DisableNoWait(False)
-    EndIf
-  EndIf
+Event OnStageSet(int auiStageID, int auiItemID)
+	if auiStageID == AllPassengersDisembarkStage
+		; disable any actors currently unloaded
+		int i = 0
+		while i < Alias_Actors.GetCount()
+			ObjectReference theActor = Alias_Actors.GetAt(i)
+			if theActor.Is3DLoaded() == false
+				theActor.DisableNoWait()
+			endif
+			i += 1
+		EndWhile
+		ObjectReference victimRef = Alias_Victim.GetRef()
+		if victimRef.Is3DLoaded() == false
+			victimRef.DisableNoWait()
+		endif
+	endif
 EndEvent

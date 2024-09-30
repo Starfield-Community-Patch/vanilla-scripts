@@ -1,19 +1,16 @@
-ScriptName LegendaryAliasQuestScript Extends Quest
+Scriptname LegendaryAliasQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property ForceLegendaryAlias Mandatory Auto Const
 
-;-- Properties --------------------------------------
-ReferenceAlias Property ForceLegendaryAlias Auto Const mandatory
-Keyword Property LegendaryActorAliasApplied Auto Const mandatory
+Keyword Property LegendaryActorAliasApplied auto const mandatory
 
-;-- Functions ---------------------------------------
-
-Function MakeLegendary(Actor ActorToMakeLegendary)
-  If ActorToMakeLegendary.HasKeyword(LegendaryActorAliasApplied) == False
-    ForceLegendaryAlias.ApplyToRef(ActorToMakeLegendary as ObjectReference)
-  EndIf
+Function MakeLegendary(actor ActorToMakeLegendary)
+	if ActorToMakeLegendary.HasKeyword(LegendaryActorAliasApplied) == false
+		debug.trace(self + " MakeLegendary " + ActorToMakeLegendary)
+		ForceLegendaryAlias.ApplyToRef(ActorToMakeLegendary)
+	endif
 EndFunction
 
-Function RemoveLegendary(Actor ActorToRemoveLegendary)
-  ForceLegendaryAlias.RemoveFromRef(ActorToRemoveLegendary as ObjectReference)
+Function RemoveLegendary(actor ActorToRemoveLegendary)
+	ForceLegendaryAlias.RemoveFromRef(ActorToRemoveLegendary)
 EndFunction

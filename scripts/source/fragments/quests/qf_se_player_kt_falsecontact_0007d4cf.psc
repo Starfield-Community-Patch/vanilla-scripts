@@ -1,62 +1,101 @@
-ScriptName Fragments:Quests:QF_SE_Player_KT_FalseContact_0007D4CF Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_KT_FalseContact_0007D4CF Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-Scene Property PHailTemplate_100a_Hailing Auto Const mandatory
-GlobalVariable Property OE_FalseContact_Global Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-RefCollectionAlias Property Alias_ShipFighters Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip01 Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip02 Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-Faction Property PlayerEnemyFaction Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-GlobalVariable Property OE_Credit_FalseContactCredits Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  spaceshipreference HailerRef = Alias_HailingShip.GetShipRef()
-  spaceshipreference HailerRef01 = Alias_HailingShip01.GetShipRef()
-  spaceshipreference HailerRef02 = Alias_HailingShip02.GetShipRef()
-  Alias_ShipFighters.AddRef(HailerRef as ObjectReference)
-  Alias_ShipFighters.AddRef(HailerRef01 as ObjectReference)
-  Alias_ShipFighters.AddRef(HailerRef02 as ObjectReference)
-  HailerRef.EnableWithGravJump()
-  HailerRef01.EnableWithGravJump()
-  HailerRef02.EnableWithGravJump()
-  Alias_ShipFighters.SetValue(DockingPermission, 4.0)
-EndFunction
+;BEGIN CODE
+SpaceshipReference HailerRef = Alias_HailingShip.GetShipRef()
+SpaceshipReference HailerRef01 = Alias_HailingShip01.GetShipRef()
+SpaceshipReference HailerRef02 = Alias_HailingShip02.GetShipRef()
 
+Alias_ShipFighters.AddRef(HailerRef)
+Alias_ShipFighters.AddRef(HailerRef01)
+Alias_ShipFighters.AddRef(HailerRef02)
+
+HailerRef.EnableWithGravJump()
+;HailerRef01.MoveNear(HailerRef)
+;HailerRef02.MoveNear(HailerRef01)
+
+HailerRef01.EnableWithGravJump()
+HailerRef02.EnableWithGravJump()
+
+Alias_ShipFighters.SetValue(DockingPermission, 4)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Utility.Wait(4.0)
-  Self.SetStage(50)
+;BEGIN CODE
+Utility.Wait(4)
+SetStage(50)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  PHailTemplate_100a_Hailing.Start()
+;BEGIN CODE
+PHailTemplate_100a_Hailing.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, OE_Credit_FalseContactCredits.GetValueInt(), False, None)
-  OE_FalseContact_Global.SetValue(0.0)
-  Utility.Wait(2.0)
-  Self.SetStage(300)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Credits, OE_Credit_FalseContactCredits.GetValueInt())
+OE_FalseContact_Global.SetValue(0)
+Utility.Wait(2)
+SetStage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Alias_ShipFighters.AddtoFaction(PlayerEnemyFaction)
-  Alias_ShipFighters.SetValue(Aggression, 1.0)
-  Alias_ShipFighters.StartCombatAll(Alias_PlayerShip.GetShipRef() as ObjectReference)
-  OE_FalseContact_Global.SetValue(0.0)
+;BEGIN CODE
+Alias_ShipFighters.AddtoFaction(PlayerEnemyFaction)
+Alias_ShipFighters.SetValue(Aggression, 1)
+Alias_ShipFighters.StartCombatAll(Alias_playerShip.GetShipRef())
+OE_FalseContact_Global.SetValue(0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Alias_HailingShip.GetShipRef().DisableWithGravJump()
-  Utility.Wait(1.0)
-  Alias_HailingShip01.GetShipRef().DisableWithGravJump()
-  Alias_HailingShip02.GetShipRef().DisableWithGravJump()
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().DisableWithGravJump()
+Utility.Wait(1)
+Alias_HailingShip01.GetShipRef().DisableWithGravJump()
+Alias_HailingShip02.GetShipRef().DisableWithGravJump()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+Scene Property PHailTemplate_100a_Hailing Auto Const Mandatory
+
+GlobalVariable Property OE_FalseContact_Global Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+RefCollectionAlias Property Alias_ShipFighters Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+GlobalVariable Property OE_Credit_FalseContactCredits Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory

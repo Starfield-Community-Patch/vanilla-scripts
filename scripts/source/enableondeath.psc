@@ -1,14 +1,9 @@
-ScriptName EnableOnDeath Extends Actor Const
-{ When Parent Dying, enable property ref }
+Scriptname EnableOnDeath extends Actor Const
+{When Parent Dying, enable property ref}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 ObjectReference Property ObjToEnable Auto Const
-{ Set ref to be enabled }
-
-;-- Functions ---------------------------------------
+{Set ref to be enabled}
 
 Event OnDying(ObjectReference akKiller)
-  ObjToEnable.Enable(False)
-EndEvent
+    ObjToEnable.Enable()
+endEvent

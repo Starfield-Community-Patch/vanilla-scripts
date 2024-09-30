@@ -1,20 +1,15 @@
-ScriptName EliteCrew_StartQuestonLoadScript Extends Actor
-{ Script to start Elite Crew quests on load }
+Scriptname EliteCrew_StartQuestonLoadScript extends Actor
 
-;-- Variables ---------------------------------------
+{Script to start Elite Crew quests on load}
 
-;-- Properties --------------------------------------
-Quest Property ECQuest Auto Const mandatory
+Quest Property ECQuest Auto Const Mandatory
 
-;-- State -------------------------------------------
-State Done
-EndState
-
-;-- State -------------------------------------------
 Auto State Waiting
+    Event OnLoad()
+        goToState("Done") 
+        ECQuest.Start()
+    endEvent
+endState
 
-  Event OnLoad()
-    Self.goToState("Done")
-    ECQuest.Start()
-  EndEvent
-EndState
+State Done
+endState

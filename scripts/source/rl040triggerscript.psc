@@ -1,14 +1,9 @@
-ScriptName RL040TriggerScript Extends ReferenceAlias
+Scriptname RL040TriggerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property myEnableMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ObjectReference Property myEnableMarker Mandatory Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  myEnableMarker.Enable(False)
-  Utility.Wait(0.100000001)
-  Self.GetOwningQuest().SetStage(20)
+    myEnableMarker.Enable()
+    utility.Wait(0.1)
+    GetOwningQuest().SetStage(20)
 EndEvent

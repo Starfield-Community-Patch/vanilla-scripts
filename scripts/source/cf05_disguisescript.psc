@@ -1,43 +1,40 @@
-ScriptName CF05_DisguiseScript Extends Quest
+Scriptname CF05_DisguiseScript extends Quest 
 
-;-- Variables ---------------------------------------
-Int CF05TimerID = 10 Const
+Faction[] Property MyFaction Auto Const Mandatory
+Keyword Property CF05_EnsignArmorKeyword_Disguise Auto Const Mandatory
+Float Property TimeDelay Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Faction[] Property MyFaction Auto Const mandatory
-Keyword Property CF05_EnsignArmorKeyword_Disguise Auto Const mandatory
-Float Property TimeDelay Auto Const mandatory
-
-;-- Functions ---------------------------------------
+int CF05TimerID = 10 Const
 
 Function AddPlayerToFaction()
-  Int I = 0
-  While I < MyFaction.Length
-    Game.GetPlayer().AddtoFaction(MyFaction[I])
-    I += 1
-  EndWhile
-EndFunction
+	int i = 0
+	while i < MyFaction.Length
+		Game.GetPlayer().AddtoFaction(MyFaction[i])
+		i += 1
+	endwhile
+endFunction
 
 Function RemovePlayerFromFaction()
-  Int I = 0
-  While I < MyFaction.Length
-    Game.GetPlayer().RemoveFromFaction(MyFaction[I])
-    I += 1
-  EndWhile
-EndFunction
+	int i = 0
+	while i < MyFaction.Length
+		Game.GetPlayer().RemoveFromFaction(MyFaction[i])
+		i += 1
+	endwhile
+endFunction
 
 Function RunTimer()
-  Self.CancelTimer(CF05TimerID)
-  Self.StartTimer(TimeDelay, CF05TimerID)
-EndFunction
+	CancelTimer(CF05TimerID)
+	StartTimer(TimeDelay, CF05TimerID)
+endFunction
 
-Event OnTimer(Int timerID)
-  If timerID == CF05TimerID
-    Actor PlayerRef = Game.GetPlayer()
-    If PlayerRef.WornHasKeyword(CF05_EnsignArmorKeyword_Disguise)
-      Self.AddPlayerToFaction()
-    Else
-      Self.RemovePlayerFromFaction()
-    EndIf
-  EndIf
+Event OnTimer(int timerID)
+	if (timerID == CF05TimerID)
+		Actor PlayerRef = Game.GetPlayer()
+		
+		if PlayerRef.WornHasKeyword(CF05_EnsignArmorKeyword_Disguise)
+			AddPlayerToFaction()
+		else
+			RemovePlayerFromFaction()
+		endIf
+	endIf
 EndEvent

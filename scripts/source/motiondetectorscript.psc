@@ -1,30 +1,35 @@
-ScriptName MotionDetectorScript Extends ObjectReference Const
+Scriptname MotionDetectorScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+Keyword Property LinkCustom01 Mandatory Const Auto
+{Link from pivot to Trigger}
 
-;-- Properties --------------------------------------
-Keyword Property LinkCustom01 Auto Const mandatory
-{ Link from pivot to Trigger }
-Keyword Property LinkCustom02 Auto Const mandatory
-{ Link from pivot to Motion Detector }
-Keyword Property LinkCustom03 Auto Const mandatory
-Bool Property UnlockOnOpen = False Auto Const mandatory
+Keyword Property LinkCustom02 Mandatory Const Auto
+{Link from pivot to Motion Detector}
 
-;-- Functions ---------------------------------------
+;bool Property doOnce Mandatory Const Auto
+
+Keyword Property LinkCustom03 Mandatory Const Auto
+
+;Add ability to send event on detection.
+;Add choice between opening only, toggle, etc.
+
+bool Property UnlockOnOpen = false Mandatory Const Auto
+
 
 Event OnLoad()
-  Self.RegisterForRemoteEvent(Self.GetLinkedRef(LinkCustom01) as ScriptObject, "OnTriggerEnter")
+    RegisterForRemoteEvent(GetLinkedRef(LinkCustom01), "OnTriggerEnter")
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllRemoteEvents()
+    UnregisterForAllRemoteEvents()
 EndEvent
 
 Event ObjectReference.OnTriggerEnter(ObjectReference akSender, ObjectReference akActionRef)
-  ObjectReference LinkedDoor = Self.GetLinkedRef(LinkCustom03)
-  If LinkedDoor
-    If UnlockOnOpen || LinkedDoor.isLocked() == False
-      LinkedDoor.SetOpen(True)
-    EndIf
-  EndIf
+    debug.trace(self + "Trigger Entered")
+    ObjectReference LinkedDoor = GetLinkedRef(LinkCustom03)
+    if(LinkedDoor)
+        if(UnlockOnOpen || LinkedDoor.isLocked() == false)
+            LinkedDoor.SetOpen(true)
+        EndIf
+    endif
 EndEvent

@@ -1,69 +1,90 @@
-ScriptName COM_CoraHandlerQuestScript Extends Quest
+Scriptname COM_CoraHandlerQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill
-  ReferenceAlias Property Cora Auto Const mandatory
-  ReferenceAlias Property SamCoe Auto Const mandatory
-  LocationAlias Property PlayerShipLocation Auto Const mandatory
-  ReferenceAlias Property PlayerShipCrewMarker Auto Const mandatory
-  LocationAlias Property LodgeLocation Auto Const mandatory
-  ReferenceAlias Property LodgeSandboxMarker Auto Const mandatory
-  conditionform Property COM_CND_Cora_OnPlayerShip Auto Const mandatory
-  conditionform Property COM_CND_Cora_AtLodge Auto Const mandatory
-  conditionform Property COM_Cora_HandlerTeleportingAllowed Auto Const mandatory
-  { when this is true and quest has started (MQ103 stage 100 starts it), Cora will teleport to player ship or lodge as needed. }
-  ActorValue Property FollowerState Auto Const mandatory
+    ReferenceAlias Property Cora Mandatory Const Auto
+    ReferenceAlias Property SamCoe Mandatory Const Auto
+
+    LocationAlias Property PlayerShipLocation Mandatory Const Auto
+    ReferenceAlias Property PlayerShipCrewMarker Mandatory Const Auto
+    
+    LocationAlias Property LodgeLocation Mandatory Const Auto
+    ReferenceAlias Property LodgeSandboxMarker Mandatory Const Auto
+
+    ConditionForm Property COM_CND_Cora_OnPlayerShip Mandatory Const Auto
+    ConditionForm Property COM_CND_Cora_AtLodge Mandatory Const Auto
+
+    ConditionForm Property COM_Cora_HandlerTeleportingAllowed Mandatory Const Auto
+    {when this is true and quest has started (MQ103 stage 100 starts it), Cora will teleport to player ship or lodge as needed.}
+
+    ActorValue Property FollowerState Mandatory Const Auto
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  Actor SamCoeRef = SamCoe.GetActorReference()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-  Self.RegisterForRemoteEvent(SamCoeRef as ScriptObject, "OnLocationChange")
-  Self.RegisterForActorValueChangedEvent(SamCoeRef as ObjectReference, FollowerState)
+    Actor SamCoeRef = SamCoe.GetActorReference()
+
+    RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+    RegisterForRemoteEvent(SamCoeRef, "OnLocationChange")
+    RegisterForActorValueChangedEvent(SamCoeRef, FollowerState) ;Cora needs to match Sam Coe's follower state (following/waiting)
 EndEvent
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  Actor CoraRef = Cora.GetActorReference()
-  If COM_Cora_HandlerTeleportingAllowed.IsTrue(CoraRef as ObjectReference, None) == False
-    Return 
-  EndIf
-  Location playerShipLoc = PlayerShipLocation.GetLocation()
-  Location lodgeLoc = LodgeLocation.GetLocation()
-  ObjectReference moveToRef = None
-  If (playerShipLoc as Bool && CoraRef.GetCurrentLocation() != playerShipLoc) && COM_CND_Cora_OnPlayerShip.IsTrue(CoraRef as ObjectReference, None)
-    moveToRef = PlayerShipCrewMarker.GetReference()
-  ElseIf (lodgeLoc as Bool && CoraRef.GetCurrentLocation() != lodgeLoc) && COM_CND_Cora_AtLodge.IsTrue(CoraRef as ObjectReference, None)
-    moveToRef = LodgeSandboxMarker.GetReference()
-  EndIf
-  If moveToRef
-    CoraRef.MoveTo(moveToRef, 0.0, 0.0, 0.0, True, False)
-    CoraRef.EvaluatePackage(False)
-  EndIf
+    ;wif either change location...Achievements_CompanionsAndEliteCrew
+    Actor CoraRef = Cora.GetActorReference()
+    Trace(self, "OnLocationChange() akSender: " + akSender + ", akOldLoc: " + akOldLoc + ", akNewLoc: " + akNewLoc)
+
+    if COM_Cora_HandlerTeleportingAllowed.IsTrue(akRefObject=CoraRef) == false
+        Trace(self, "OnLocationChange() COM_Cora_HandlerTeleportingAllowed is false, BAILING - not teleporting Cora ")
+        RETURN
+    endif
+
+    
+    Location playerShipLoc = PlayerShipLocation.GetLocation()
+    Location lodgeLoc = LodgeLocation.GetLocation()
+    ObjectReference moveToRef = None
+
+    ;if she's not on the player ship, but should be, move her there
+    if playerShipLoc && CoraRef.GetCurrentLocation() != playerShipLoc && COM_CND_Cora_OnPlayerShip.IsTrue(CoraRef)
+        moveToRef = PlayerShipCrewMarker.GetReference()
+    elseif lodgeLoc && CoraRef.GetCurrentLocation() != lodgeLoc && COM_CND_Cora_AtLodge.IsTrue(CoraRef)
+        moveToRef = LodgeSandboxMarker.GetReference()
+    endif
+
+    if moveToRef
+        Trace(self, "OnLocationChange() moving Cora to: moveToRef: " + moveToRef)
+        CoraRef.MoveTo(moveToRef)
+        CoraRef.EvaluatePackage()
+    endif
+
+
 EndEvent
 
 Event OnActorValueChanged(ObjectReference akObjRef, ActorValue akActorValue)
-  ObjectReference SamCoeRef = SamCoe.GetReference()
-  If akObjRef == SamCoeRef && akActorValue == FollowerState
-    Float value = SamCoeRef.GetValue(FollowerState)
-    Cora.GetReference().SetValue(FollowerState, value)
-    Self.RegisterForActorValueChangedEvent(SamCoeRef, FollowerState)
-  EndIf
+    ObjectReference SamCoeRef = SamCoe.GetReference()
+    if akObjRef == SamCoeRef && akActorValue == FollowerState
+        float value = SamCoeRef.GetValue(FollowerState)
+        Cora.GetReference().SetValue(FollowerState, value)
+        RegisterForActorValueChangedEvent(SamCoeRef, FollowerState) ;Cora needs to match Sam Coe's follower state (following/waiting)
+        Trace(self, "OnActorValueChanged() set Cora's FollowerState to match Sam's. value: " + value)
+    endif
 EndEvent
 
+
 Function TestLodgeCondition()
-  Actor CoraRef = Cora.GetActorReference()
+;BUG TO WRITE UP... when this should be true, it's false if I don't pass in a subject reference (example: Sam Coe is not on the ship, and not an active companion)
+    Actor CoraRef = Cora.GetActorReference()
+    Trace(self, "TestLodgeCondition()  COM_CND_Cora_AtLodge: " +  COM_CND_Cora_AtLodge)
+    Trace(self, "TestLodgeCondition()  COM_CND_Cora_AtLodge.IsTrue(): " +  COM_CND_Cora_AtLodge.IsTrue())
+    Trace(self, "TestLodgeCondition()  COM_CND_Cora_AtLodge.IsTrue(CoraRef): " +  COM_CND_Cora_AtLodge.IsTrue(CoraRef))
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Companions",  string SubLogName = "Cora", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Companions",  string SubLogName = "Cora", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

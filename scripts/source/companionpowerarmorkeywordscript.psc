@@ -1,24 +1,27 @@
-ScriptName CompanionPowerArmorKeywordScript Extends Actor Const
+Scriptname CompanionPowerArmorKeywordScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Keyword Property pAttachPassenger Auto Const
 Keyword Property pAttachSlot2 Auto Const
 Keyword Property isPowerArmorFrame Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnItemEquipped(Form akBaseObject, ObjectReference akReference)
-  If akBaseObject.HasKeyword(isPowerArmorFrame) == True
-    Self.RemoveKeyword(pAttachPassenger)
-    Self.AddKeyword(pAttachSlot2)
-  EndIf
-EndEvent
+
+	debug.trace("Putting on power armor")
+
+	if akBaseObject.HasKeyword(isPowerArmorFrame) == 1
+		debug.trace("Swapping vertibird seat keywords")		
+		RemoveKeyword(pAttachPassenger)
+		AddKeyword(pAttachSlot2)
+	endif
+
+endEvent
 
 Event OnItemUnequipped(Form akBaseObject, ObjectReference akReference)
-  If akBaseObject.HasKeyword(isPowerArmorFrame) == True
-    Self.RemoveKeyword(pAttachSlot2)
-    Self.AddKeyword(pAttachPassenger)
-  EndIf
-EndEvent
+
+	if akBaseObject.HasKeyword(isPowerArmorFrame) == 1
+		debug.trace("Swapping vertibird seat keywords back")		
+		RemoveKeyword(pAttachSlot2)
+		AddKeyword(pAttachPassenger)
+	endif
+
+endEvent

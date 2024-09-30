@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_TestPetrovScene_003625FD Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_TestPetrovScene_003625FD Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property ArtifactHolder Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  ArtifactHolder.GetRef().PlayAnimation("TurnOn")
+;BEGIN CODE
+ArtifactHolder.GetRef().PlayAnimation("TurnOn")
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property ArtifactHolder Auto Const

@@ -1,16 +1,24 @@
-ScriptName Fragments:Quests:QF_DialogueCrucible_002955D8 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueCrucible_002955D8 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_HH_Holmes Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0135_Item_00
 Function Fragment_Stage_0135_Item_00()
-  Int n = 0
+;BEGIN CODE
+; TODO: Wire up the elite crew stuff
+int n=0
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0165_Item_00
 Function Fragment_Stage_0165_Item_00()
-  Alias_HH_Holmes.GetRef().Disable(False)
+;BEGIN CODE
+; Off camera HH Holmes has been disappeared
+Alias_HH_Holmes.GetRef().Disable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_HH_Holmes Auto Const Mandatory

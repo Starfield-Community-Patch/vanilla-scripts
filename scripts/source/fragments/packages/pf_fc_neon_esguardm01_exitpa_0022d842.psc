@@ -1,12 +1,14 @@
-ScriptName Fragments:Packages:PF_FC_Neon_ESGuardM01_ExitPa_0022D842 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_FC_Neon_ESGuardM01_ExitPa_0022D842 Extends Package Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueFCNeonEstablishingScene Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  DialogueFCNeonEstablishingScene.SetStage(130)
+;BEGIN CODE
+DialogueFCNeonEstablishingScene.SetStage(130)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueFCNeonEstablishingScene Auto Const Mandatory

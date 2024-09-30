@@ -1,23 +1,26 @@
-ScriptName DebugSceneScript Extends Scene
+Scriptname DebugSceneScript extends Scene
 
-;-- Functions ---------------------------------------
-
-Event OnAction(Int auiActionID, ReferenceAlias akAlias)
-  ; Empty function
+Event OnAction(int auiActionID, ReferenceAlias akAlias)
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
 
 Event OnBegin()
-  ; Empty function
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
 
 Event OnEnd()
-  ; Empty function
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
 
-Event OnPhaseBegin(Int auiPhaseIndex)
-  ; Empty function
+Event OnPhaseBegin(int auiPhaseIndex)
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent
 
-Event OnPhaseEnd(Int auiPhaseIndex)
-  ; Empty function
+Event OnPhaseEnd(int auiPhaseIndex) 
+	Debug.TraceFunction(self + "DEBUG FUNCTION PARAMS")
+    Debug.TraceStack(self + "DEBUG TRACING STACK CALLS")
 EndEvent

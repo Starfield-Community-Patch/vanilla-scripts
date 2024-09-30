@@ -1,7 +1,6 @@
-ScriptName TestDropScript Extends ObjectReference Const
+Scriptname TestDropScript extends ObjectReference Const
 
-;-- Functions ---------------------------------------
-
-Function TestDropFirstObject()
-  ObjectReference theRef = Self.DropFirstObject(False)
-EndFunction
+function TestDropFirstObject()
+	ObjectReference theRef = DropFirstObject()
+	debug.trace(self + " dropped ref=" + theRef)
+endFunction

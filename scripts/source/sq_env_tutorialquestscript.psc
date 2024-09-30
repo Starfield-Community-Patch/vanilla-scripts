@@ -1,218 +1,287 @@
-ScriptName SQ_Env_TutorialQuestScript Extends Quest
+Scriptname SQ_Env_TutorialQuestScript extends Quest
 
-;-- Structs -----------------------------------------
 Struct MagicEffectTutorialDatum
-  Keyword TutorialEffectKeyword
-  { filter for: ENV_TutorialEffect_* }
-  String TutorialEvent
-EndStruct
+    Keyword TutorialEffectKeyword
+    {filter for: ENV_TutorialEffect_*}
+    String TutorialEvent
+EndStruct 
+
+group Autofill
+    SQ_ENV_AfflictionsScript Property SQ_Env Mandatory Const Auto
+
+    Message Property SQ_ENV_TutorialMsgBox_StatusMenu_Afflictions Mandatory Const Auto
+    Message Property SQ_ENV_TutorialMsgBox_InventoryMenu_MatchingTreatment Mandatory Const Auto
+    FormList Property ENV_AFFL_TreatmentTypeKeywords Mandatory Const Auto
+
+    ActorValue Property Oxygen Mandatory Const Auto
+    ActorValue Property CarbonDioxide Mandatory Const Auto
+
+    ActorValue Property EnvDmg Mandatory Const Auto
+    ActorValue Property ENV_Damage_Soak Mandatory Const Auto
+
+    Keyword Property ENV_EffectType_AFFL_Affliction Mandatory Const Auto
+endgroup
+
+group EnableTutorials
+
+    Quest Property MQ101 Mandatory Const Auto
+    int Property EnableStage = 640 Const Auto
+endgroup
+
+MagicEffectTutorialDatum[] Property MagicEffectTutorialData Mandatory Const Auto
+
+DefaultTutorialQuestScript TutorialIns
+
+;asEvent strings used by DefaultTutorialQuestScript
+string EventString_GainInjury = "GainInjury"
+string EventString_MatchingTreatment = "MatchingTreatment"
+string EventString_Oxygen = "Oxygen"
+string EventString_OxygenOut = "OutOfOxygen"
+string EventString_CarbondioxideGain = "GainCarbonDioxide"
+string EventString_CarbondioxideMaxed = "MaxedCarbonDioxide"
+string EventString_EnvDmgSoak = "EnvDmgSoak"
+string EventString_EnvDmg = "EnvDmg"
+string EventString_EnvDmgReminder = "EnvDmg3"
+
+;names of menus
+string MenuName_StatusMenu = "StatusMenu" const
+string MenuName_InventoryMenu = "InventoryMenu" const
+
+int iTutorialState_Unset = 0
+int iTutorialState_Started = 1
+int iTutorialState_Finished = 2
+
+int AfflictionTutorialState
+int TreatmentTutorialState
+int TreatmentAcquireTutorialState
+
+bool FirstOxygenTutorialFinished
+bool FirstCarbonDioxideTutorialFinished
 
 
-;-- Variables ---------------------------------------
-Int AfflictionTutorialState
-String EventString_CarbondioxideGain = "GainCarbonDioxide"
-String EventString_CarbondioxideMaxed = "MaxedCarbonDioxide"
-String EventString_EnvDmg = "EnvDmg"
-String EventString_EnvDmgReminder = "EnvDmg3"
-String EventString_EnvDmgSoak = "EnvDmgSoak"
-String EventString_GainInjury = "GainInjury"
-String EventString_MatchingTreatment = "MatchingTreatment"
-String EventString_Oxygen = "Oxygen"
-String EventString_OxygenOut = "OutOfOxygen"
-Bool FirstCarbonDioxideTutorialFinished
-Bool FirstOxygenTutorialFinished
-Float InitialValue_Env_Damage_Soak = 200.0
-String MenuName_InventoryMenu = "InventoryMenu" Const
-String MenuName_StatusMenu = "StatusMenu" Const
-Float TimerDur_EnvDmgHealReminder = 60.0
-Float TimerDur_TimerDurMax_EnvDmgHealReminder = 960.0 Const
-Int TimerID_EnvDmgHealReminder = 1 Const
-Int TreatmentAcquireTutorialState
-Int TreatmentTutorialState
-defaulttutorialquestscript TutorialIns
-Bool TutorialsEnabled = False
-Int iTutorialState_Finished = 2
-Int iTutorialState_Started = 1
-Int iTutorialState_Unset = 0
+int TimerID_EnvDmgHealReminder = 1 const
+float TimerDur_EnvDmgHealReminder = 60.0 ;not const because it is added to
+float TimerDur_TimerDurMax_EnvDmgHealReminder = 960.0 const
 
-;-- Properties --------------------------------------
-Group Autofill
-  sq_env_afflictionsscript Property SQ_Env Auto Const mandatory
-  Message Property SQ_ENV_TutorialMsgBox_StatusMenu_Afflictions Auto Const mandatory
-  Message Property SQ_ENV_TutorialMsgBox_InventoryMenu_MatchingTreatment Auto Const mandatory
-  FormList Property ENV_AFFL_TreatmentTypeKeywords Auto Const mandatory
-  ActorValue Property Oxygen Auto Const mandatory
-  ActorValue Property CarbonDioxide Auto Const mandatory
-  ActorValue Property EnvDmg Auto Const mandatory
-  ActorValue Property ENV_Damage_Soak Auto Const mandatory
-  Keyword Property ENV_EffectType_AFFL_Affliction Auto Const mandatory
-EndGroup
 
-Group EnableTutorials
-  Quest Property MQ101 Auto Const mandatory
-  Int Property EnableStage = 640 Auto Const
-EndGroup
+float InitialValue_Env_Damage_Soak = 200.0
 
-sq_env_tutorialquestscript:magiceffecttutorialdatum[] Property MagicEffectTutorialData Auto Const mandatory
-
-;-- Functions ---------------------------------------
+bool TutorialsEnabled = false
 
 Event OnQuestStarted()
-  TutorialIns = (Self as Quest) as defaulttutorialquestscript
-  Self.RegisterForRemoteEvent(MQ101 as ScriptObject, "OnStageSet")
+    TutorialIns = (Self as Quest) as DefaultTutorialQuestScript
+    RegisterForRemoteEvent(MQ101, "OnStageSet")
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == TimerID_EnvDmgHealReminder
-    If Game.GetPlayer().GetValue(EnvDmg) > 0.0
-      TutorialIns.ShowHelpMessage(EventString_EnvDmgReminder)
-      If TimerDur_EnvDmgHealReminder < TimerDur_TimerDurMax_EnvDmgHealReminder
-        TimerDur_EnvDmgHealReminder *= 2.0
-        Self.StartTimer(TimerDur_EnvDmgHealReminder, TimerID_EnvDmgHealReminder)
-      EndIf
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == TimerID_EnvDmgHealReminder
+        if game.GetPlayer().GetValue(EnvDmg) > 0 ;only show tutorial until player has healed the EnvDmg
+            TutorialIns.ShowHelpMessage(EventString_EnvDmgReminder)
+
+            ;increase the amount of time each time through, until max, then stop reminding player - trying to be helpful, not annoying. ;)
+            if TimerDur_EnvDmgHealReminder < TimerDur_TimerDurMax_EnvDmgHealReminder
+                TimerDur_EnvDmgHealReminder = TimerDur_EnvDmgHealReminder * 2
+                StartTimer(TimerDur_EnvDmgHealReminder, TimerID_EnvDmgHealReminder)
+            endif
+        endif
+    endif
 EndEvent
 
-Event Quest.OnStageSet(Quest akSender, Int auiStageID, Int auiItemID)
-  If akSender == MQ101 && auiStageID == EnableStage
-    Self.EnableTutorials()
-    Self.UnregisterForRemoteEvent(MQ101 as ScriptObject, "OnStageSet")
-  EndIf
+event Quest.OnStageSet(Quest akSender, int auiStageID, int auiItemID)
+    Trace(self, "OnStageSet() akSender: " + akSender + ", auiStageID: " + auiStageID)
+
+    if akSender == MQ101 && auiStageID == EnableStage
+        EnableTutorials()
+        UnregisterForRemoteEvent(MQ101, "OnStageSet")
+    endif
 EndEvent
+
 
 Function EnableTutorials()
-  TutorialsEnabled = True
-  Self.StartOxygenTutorial()
-  Self.StartEnvDmgTutorial()
-  If SQ_Env.GetActiveAfflictions(False, False, False, False, None).Length > 0
-    Self.StartAfflictionTutorial()
-  EndIf
-  Actor playerRef = Game.GetPlayer()
-  Int I = 0
-  While I < MagicEffectTutorialData.Length
-    sq_env_tutorialquestscript:magiceffecttutorialdatum currentDatum = MagicEffectTutorialData[I]
-    If playerRef.HasMagicEffectWithKeyword(currentDatum.TutorialEffectKeyword)
-      String tutorialEventString = currentDatum.TutorialEvent
-      ((Self as Quest) as defaulttutorialquestscript).ShowHelpMessage(tutorialEventString)
-    EndIf
-    I += 1
-  EndWhile
-  If playerRef.HasMagicEffectWithKeyword(ENV_EffectType_AFFL_Affliction)
-    Self.StartAfflictionTutorial()
-  EndIf
+    Trace(self, "EnableTutorials() ")
+    TutorialsEnabled = true
+    StartOxygenTutorial()
+    StartEnvDmgTutorial()
+
+
+    ;does the player already have an affliction?
+    if SQ_Env.GetActiveAfflictions().Length > 0
+        StartAfflictionTutorial()
+    endif
+
+    ;does the player have a magic effect that wants to send a tutorial event?
+    Actor playerRef = Game.GetPlayer()
+    int i = 0
+    While (i < MagicEffectTutorialData.length)
+        MagicEffectTutorialDatum currentDatum = MagicEffectTutorialData[i]
+        
+        if playerRef.HasMagicEffectWithKeyword(currentDatum.TutorialEffectKeyword)
+            string tutorialEventString = currentDatum.TutorialEvent
+            Trace(self, "ShowEffectScriptHelpMessage() EnableTutorials: " + tutorialEventString)
+            ((self as quest) as DefaultTutorialQuestScript).ShowHelpMessage(tutorialEventString)
+        endif
+
+        i += 1
+    EndWhile
+
+    if playerRef.HasMagicEffectWithKeyword(ENV_EffectType_AFFL_Affliction)
+        StartAfflictionTutorial()
+    endif
+
 EndFunction
 
+
+;called when gaining an affliction. See ENV_AfflictionScript.Gain()
 Function StartAfflictionTutorial()
-  If TutorialsEnabled == False
-    Return 
-  EndIf
-  If AfflictionTutorialState == iTutorialState_Unset
-    AfflictionTutorialState = iTutorialState_Started
-    TreatmentTutorialState = iTutorialState_Started
-    TreatmentAcquireTutorialState = iTutorialState_Started
-    TutorialIns.ShowHelpMessage(EventString_GainInjury)
-    Self.RegisterForMenuOpenCloseEvent(MenuName_StatusMenu)
-    Self.RegisterForMenuOpenCloseEvent(MenuName_InventoryMenu)
-    Self.AddInventoryEventFilter(ENV_AFFL_TreatmentTypeKeywords as Form)
-    Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnItemAdded")
-  EndIf
+    if TutorialsEnabled == false
+       Trace(self, "StartAfflictionTutorial() but TutorialsEnabled == false. IGNORING.")
+        RETURN
+    endif
+
+    if AfflictionTutorialState == iTutorialState_Unset
+        Trace(self, "StartAfflictionTutorial() AfflictionTutorialState == iTutorialState_Unset")
+
+        AfflictionTutorialState = iTutorialState_Started
+        TreatmentTutorialState = iTutorialState_Started
+        TreatmentAcquireTutorialState = iTutorialState_Started
+    
+        TutorialIns.ShowHelpMessage(EventString_GainInjury)
+        RegisterForMenuOpenCloseEvent(MenuName_StatusMenu)
+        RegisterForMenuOpenCloseEvent(MenuName_InventoryMenu)
+
+        AddInventoryEventFilter(ENV_AFFL_TreatmentTypeKeywords)
+        RegisterForRemoteEvent(Game.GetPlayer(), "OnItemAdded")
+    endif
 EndFunction
 
 Function StartOxygenTutorial()
-  Actor playerRef = Game.GetPlayer()
-  Self.RegisterForActorValueLessThanEvent(playerRef as ObjectReference, Oxygen, 85.0)
-  Self.RegisterForActorValueGreaterThanEvent(playerRef as ObjectReference, CarbonDioxide, 25.0)
+    Trace(self, "StartOxygenTutorial()")
+    Actor playerRef = Game.GetPlayer()
+    RegisterForActorValueLessThanEvent(playerRef, Oxygen, 85)
+    RegisterForActorValueGreaterThanEvent(playerRef, CarbonDioxide, 25)
 EndFunction
 
 Function StartEnvDmgTutorial()
-  Actor playerRef = Game.GetPlayer()
-  Self.RegisterForActorValueLessThanEvent(playerRef as ObjectReference, ENV_Damage_Soak, InitialValue_Env_Damage_Soak - 1.0)
+    Trace(self, "StartEnvDmgTutorial()")
+    Actor playerRef = Game.GetPlayer()
+    RegisterForActorValueLessThanEvent(playerRef, ENV_Damage_Soak, InitialValue_Env_Damage_Soak - 1)
 EndFunction
 
+
 Function ShowEffectScriptHelpMessage(Keyword TutorialEffectKeyword)
-  If TutorialsEnabled
-    Int foundIndex = MagicEffectTutorialData.findstruct("TutorialEffectKeyword", TutorialEffectKeyword, 0)
-    If foundIndex > -1
-      String tutorialEventString = MagicEffectTutorialData[foundIndex].TutorialEvent
-      ((Self as Quest) as defaulttutorialquestscript).ShowHelpMessage(tutorialEventString)
-    EndIf
-  EndIf
+    Trace(self, "ShowEffectScriptHelpMessage() TutorialEffectKeyword: " + TutorialEffectKeyword + ", TutorialsEnabled: " + TutorialsEnabled)
+
+    if TutorialsEnabled 
+        int foundIndex = MagicEffectTutorialData.FindStruct("TutorialEffectKeyword", TutorialEffectKeyword)
+
+         if foundIndex > -1
+            string tutorialEventString = MagicEffectTutorialData[foundIndex].TutorialEvent
+
+            Trace(self, "ShowEffectScriptHelpMessage() tutorialEventString: " + tutorialEventString)
+            ((self as quest) as DefaultTutorialQuestScript).ShowHelpMessage(tutorialEventString)
+        endif
+    endif
+
 EndFunction
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  If akActorValue == Oxygen
-    If FirstOxygenTutorialFinished == False
-      TutorialIns.ShowHelpMessage(EventString_Oxygen)
-      FirstOxygenTutorialFinished = True
-      Self.RegisterForActorValueLessThanEvent(Game.GetPlayer() as ObjectReference, Oxygen, 20.0)
-    Else
-      TutorialIns.UnshowHelpMessage(EventString_Oxygen)
-      TutorialIns.ShowHelpMessage(EventString_OxygenOut)
-    EndIf
-  ElseIf akActorValue == ENV_Damage_Soak
-    TutorialIns.ShowHelpMessage(EventString_EnvDmgSoak)
-    Utility.Wait(10.0)
-    Self.RegisterForActorValueGreaterThanEvent(Game.GetPlayer() as ObjectReference, EnvDmg, 1.0)
-  EndIf
+    Trace(self, "OnActorValueLessThan() akObjRef: " + akObjRef + ", akActorValue: " + akActorValue)
+    if akActorValue == Oxygen
+        if FirstOxygenTutorialFinished == false
+            TutorialIns.ShowHelpMessage(EventString_Oxygen)
+            FirstOxygenTutorialFinished = true
+            RegisterForActorValueLessThanEvent(Game.GetPlayer(), Oxygen, 20)
+        else
+            TutorialIns.UnshowHelpMessage(EventString_Oxygen)
+            TutorialIns.ShowHelpMessage(EventString_OxygenOut)
+        endif
+
+    elseif akActorValue == ENV_Damage_Soak
+        TutorialIns.ShowHelpMessage(EventString_EnvDmgSoak)
+
+        ;sometimes things happen too fast...
+        Utility.Wait(10) ;minmum display time
+        RegisterForActorValueGreaterThanEvent(Game.GetPlayer(), EnvDmg, 1)
+    endif
 EndEvent
 
 Event OnActorValueGreaterThan(ObjectReference akObjRef, ActorValue akActorValue)
-  If akActorValue == CarbonDioxide
-    If FirstCarbonDioxideTutorialFinished == False
-      TutorialIns.UnshowHelpMessage(EventString_OxygenOut)
-      TutorialIns.ShowHelpMessage(EventString_CarbondioxideGain)
-      FirstCarbonDioxideTutorialFinished = True
-      Self.RegisterForActorValueGreaterThanEvent(Game.GetPlayer() as ObjectReference, CarbonDioxide, 99.0)
-    Else
-      TutorialIns.UnshowHelpMessage(EventString_CarbondioxideGain)
-      TutorialIns.ShowHelpMessage(EventString_CarbondioxideMaxed)
-    EndIf
-  ElseIf akActorValue == EnvDmg
-    TutorialIns.UnshowHelpMessage(EventString_EnvDmgSoak)
-    TutorialIns.ShowHelpMessage(EventString_EnvDmg)
-    Self.StartTimer(TimerDur_EnvDmgHealReminder, TimerID_EnvDmgHealReminder)
-  EndIf
+    Trace(self, "OnActorValueGreaterThan() akObjRef: " + akObjRef + ", akActorValue: " + akActorValue)
+    if akActorValue == CarbonDioxide
+        if FirstCarbonDioxideTutorialFinished == false
+            TutorialIns.UnshowHelpMessage(EventString_OxygenOut) ;stop showing O2 message, more important player is warned about dangers of CO2
+            TutorialIns.ShowHelpMessage(EventString_CarbondioxideGain)
+            FirstCarbonDioxideTutorialFinished = true
+            RegisterForActorValueGreaterThanEvent(Game.GetPlayer(), CarbonDioxide, 99)
+        else
+            TutorialIns.UnshowHelpMessage(EventString_CarbondioxideGain)
+            TutorialIns.ShowHelpMessage(EventString_CarbondioxideMaxed)
+        endif
+
+    elseif akActorValue == EnvDmg
+        TutorialIns.UnshowHelpMessage(EventString_EnvDmgSoak)
+        TutorialIns.ShowHelpMessage(EventString_EnvDmg)
+        StartTimer(TimerDur_EnvDmgHealReminder, TimerID_EnvDmgHealReminder)
+    endif
 EndEvent
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  If abOpening
-    If asMenuName == MenuName_StatusMenu && AfflictionTutorialState == iTutorialState_Started
-      TutorialIns.UnshowHelpMessage(EventString_GainInjury)
-      SQ_ENV_TutorialMsgBox_StatusMenu_Afflictions.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnregisterForMenuOpenCloseEvent(MenuName_StatusMenu)
-      AfflictionTutorialState = iTutorialState_Finished
-    ElseIf asMenuName == MenuName_InventoryMenu && TreatmentTutorialState == iTutorialState_Started
-      Bool hasMatchingAfflictionTreatment = SQ_Env.PlayerHasMatchingTreatmentItemForAnActiveAffliction()
-      If hasMatchingAfflictionTreatment
-        TutorialIns.UnshowHelpMessage(EventString_MatchingTreatment)
-        SQ_ENV_TutorialMsgBox_InventoryMenu_MatchingTreatment.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        TreatmentTutorialState = iTutorialState_Finished
-        TreatmentAcquireTutorialState = iTutorialState_Finished
-        Self.UnregisterForMenuOpenCloseEvent(MenuName_InventoryMenu)
-      EndIf
-    EndIf
-  EndIf
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    Trace(self, "OnMenuOpenCloseEvent() asMenuName: " + asMenuName + ", abOpening: " + abOpening)
+
+    if abOpening
+        ;The Status Menu
+        if asMenuName == MenuName_StatusMenu && AfflictionTutorialState == iTutorialState_Started
+            TutorialIns.UnshowHelpMessage(EventString_GainInjury) ; this told us to open this menu, we are here, so we should stop showing that
+            SQ_ENV_TutorialMsgBox_StatusMenu_Afflictions.Show()
+            UnregisterForMenuOpenCloseEvent(MenuName_StatusMenu)
+            AfflictionTutorialState = iTutorialState_Finished
+
+        ;The Inventory Menu
+        elseif asMenuName == MenuName_InventoryMenu && TreatmentTutorialState == iTutorialState_Started
+            bool hasMatchingAfflictionTreatment = SQ_Env.PlayerHasMatchingTreatmentItemForAnActiveAffliction()
+            Trace(self, "OnMenuOpenCloseEvent() hasMatchingAfflictionTreatment: " + hasMatchingAfflictionTreatment)
+
+            if hasMatchingAfflictionTreatment
+                TutorialIns.UnshowHelpMessage(EventString_MatchingTreatment) ; this told us to open this menu, we are here, so we should stop showing that
+                SQ_ENV_TutorialMsgBox_InventoryMenu_MatchingTreatment.Show()
+                TreatmentTutorialState = iTutorialState_Finished
+                TreatmentAcquireTutorialState = iTutorialState_Finished
+
+                ;we also don't need to tell player when they get one, since they already had one and found it in their inventory
+                UnregisterForMenuOpenCloseEvent(MenuName_InventoryMenu)
+            endif
+        endif
+    endif
 EndEvent
 
-Event ObjectReference.OnItemAdded(ObjectReference akSender, Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If TreatmentAcquireTutorialState == iTutorialState_Started
-    Bool hasMatchingAfflictionTreatment = SQ_Env.FormHasMatchingTreatmentItemForAnActiveAffliction(akBaseItem)
-    If hasMatchingAfflictionTreatment
-      TutorialIns.ShowHelpMessage("MatchingTreatment")
-      TreatmentAcquireTutorialState = iTutorialState_Finished
-    EndIf
-  EndIf
-  If TreatmentAcquireTutorialState == iTutorialState_Finished
-    Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnItemAdded")
-  EndIf
+Event ObjectReference.OnItemAdded(ObjectReference akSender, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    Trace(self, "OnItemAdded() akSender: " + akSender + ", akBaseItem: " + akBaseItem + ", aiItemCount: " + aiItemCount + ", akItemReference: " + akItemReference + ", akSourceContainer: " + akSourceContainer + ", aiTransferReason: " + aiTransferReason)
+    
+    if TreatmentAcquireTutorialState == iTutorialState_Started
+        bool hasMatchingAfflictionTreatment = SQ_ENV.FormHasMatchingTreatmentItemForAnActiveAffliction(akBaseItem)
+
+        Trace(self, "OnItemAdded() hasMatchingAfflictionTreatment: " + hasMatchingAfflictionTreatment + ", TreatmentAcquireTutorialState: " + TreatmentAcquireTutorialState)
+
+        if hasMatchingAfflictionTreatment
+            TutorialIns.ShowHelpMessage("MatchingTreatment")
+            TreatmentAcquireTutorialState = iTutorialState_Finished
+        endif
+    endif
+
+    if TreatmentAcquireTutorialState == iTutorialState_Finished ;could happen if player goes to inventory with such an item already, no need to tell them when they get another one
+        UnregisterForRemoteEvent(Game.GetPlayer(), "OnItemAdded")
+    endif    
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "Tutorials", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "Tutorials", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

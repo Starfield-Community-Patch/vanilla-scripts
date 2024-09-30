@@ -1,16 +1,19 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueRedMile_002E0C99 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueRedMile_002E0C99 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFRedMileR01Misc Auto Const mandatory
-Quest Property FFRedMileR01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  If !FFRedMileR01.IsRunning() && !FFRedMileR01Misc.IsRunning()
-    FFRedMileR01Misc.Start()
-  EndIf
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+If !FFRedMileR01.IsRunning() && !FFRedMileR01Misc.IsRunning()
+	FFRedMileR01Misc.Start()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFRedMileR01Misc Auto Const Mandatory
+
+Quest Property FFRedMileR01 Auto Const Mandatory

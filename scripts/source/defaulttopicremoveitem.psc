@@ -1,37 +1,37 @@
-ScriptName DefaultTopicRemoveItem Extends TopicInfo Const default
+Scriptname DefaultTopicRemoveItem extends TopicInfo const default
 
-;-- Variables ---------------------------------------
+bool Property RemoveItemOnBegin = false const auto
+{Default: false; should we remove the item when the topic starts playing?}
+bool Property RemoveItemOnEnd = true const auto
+{Default: true; should we remove the item when the topic finishes playing?}
 
-;-- Properties --------------------------------------
-Bool Property RemoveItemOnBegin = False Auto Const
-{ Default: false; should we remove the item when the topic starts playing? }
-Bool Property RemoveItemOnEnd = True Auto Const
-{ Default: true; should we remove the item when the topic finishes playing? }
-MiscObject Property MiscItemToRemove Auto Const
+MiscObject property MiscItemToRemove const auto
 { Which item should we remove from player? }
-Int Property ItemCountToRemove = 1 Auto Const
-{ how many items should we remove? }
-GlobalVariable Property ItemCountToRemoveGlobal Auto Const
+
+int property ItemCountToRemove = 1 const auto
+{how many items should we remove?}
+
+GlobalVariable property ItemCountToRemoveGlobal const auto
 { OPTIONAL - if this is provided, it will be used instead of ItemCountToRemove }
 
-;-- Functions ---------------------------------------
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+ 	if RemoveItemOnBegin
+ 		debug.trace(self + "OnBegin() will removeItem " + MiscItemToRemove)
+ 		RemoveItem()
+  	endif
+endEvent
 
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If RemoveItemOnBegin
-    Self.RemoveItem()
-  EndIf
-EndEvent
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+	if RemoveItemOnEnd
+		debug.trace(self + "OnEnd() will removeItem " + MiscItemToRemove)
+		RemoveItem()
+	endif
+endEvent
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If RemoveItemOnEnd
-    Self.RemoveItem()
-  EndIf
-EndEvent
-
-Function RemoveItem()
-  Int countToRemove = ItemCountToRemove
-  If ItemCountToRemoveGlobal
-    countToRemove = ItemCountToRemoveGlobal.GetValueInt()
-  EndIf
-  Game.GetPlayer().RemoveItem(MiscItemToRemove as Form, countToRemove, False, None)
-EndFunction
+function RemoveItem()
+	int countToRemove = ItemCountToRemove
+	if ItemCountToRemoveGlobal
+		countToRemove = ItemCountToRemoveGlobal.GetValueInt()
+	EndIf
+	Game.GetPlayer().RemoveItem(MiscItemToRemove, countToRemove)
+endFunction

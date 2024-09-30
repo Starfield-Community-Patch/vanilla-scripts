@@ -1,28 +1,42 @@
-ScriptName Fragments:Quests:QF_UC03_DeepMinesSupportQues_000FC83A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_UC03_DeepMinesSupportQues_000FC83A Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property UC03_PlayerKilledSpacerBoss Auto Const mandatory
-ReferenceAlias Property Alias_SpacerEnableMarker Auto Const mandatory
-ReferenceAlias Property Alias_ElevatorFloorMarker_Int Auto Const mandatory
-ReferenceAlias Property Alias_ElevatorFloorMarker_Ext Auto Const mandatory
-ReferenceAlias Property Alias_SpacerEnableMarker_Ext Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  UC03_PlayerKilledSpacerBoss.SetValue(1.0)
+;BEGIN CODE
+UC03_PlayerKilledSpacerBoss.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  loadelevatorfloorscript IntElevator = Alias_ElevatorFloorMarker_Int.GetRef() as loadelevatorfloorscript
-  loadelevatorfloorscript ExtElevator = Alias_ElevatorFloorMarker_Ext.GetRef() as loadelevatorfloorscript
-  ExtElevator.SetAccessible(True)
-  IntElevator.SetAccessible(True)
+;BEGIN CODE
+LoadElevatorFloorScript IntElevator = Alias_ElevatorFloorMarker_Int.GetRef() as LoadElevatorFloorScript
+LoadElevatorFloorScript ExtElevator = Alias_ElevatorFloorMarker_Ext.GetRef() as LoadElevatorFloorScript
+ExtElevator.SetAccessible(true)
+IntElevator.SetAccessible(true)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Alias_SpacerEnableMarker.GetRef().Disable(False)
-  Alias_SpacerEnableMarker_Ext.GetRef().Disable(False)
+;BEGIN CODE
+Alias_SpacerEnableMarker.GetRef().Disable()
+Alias_SpacerEnableMarker_Ext.GetRef().Disable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property UC03_PlayerKilledSpacerBoss Auto Const Mandatory
+
+ReferenceAlias Property Alias_SpacerEnableMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_ElevatorFloorMarker_Int Auto Const Mandatory
+
+ReferenceAlias Property Alias_ElevatorFloorMarker_Ext Auto Const Mandatory
+
+ReferenceAlias Property Alias_SpacerEnableMarker_Ext Auto Const Mandatory

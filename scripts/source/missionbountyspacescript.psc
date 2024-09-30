@@ -1,58 +1,82 @@
-ScriptName MissionBountySpaceScript Extends MissionQuestScript
+Scriptname MissionBountySpaceScript extends MissionQuestScript
 
-;-- Variables ---------------------------------------
+group BountySpace
+    RefCollectionAlias property Escorts auto const
+    { optional - holds escorts to randomly enable }
 
-;-- Properties --------------------------------------
-Group BountySpace
-  RefCollectionAlias Property Escorts Auto Const
-  { optional - holds escorts to randomly enable }
-  RefCollectionAlias Property SpawnMarkers Auto Const
-  { optional - holds spawn markers for escorts }
-  ReferenceAlias Property SpaceMapMarker Auto Const mandatory
-  Int Property ArriveInSystemStage = 20 Auto Const
-  { stage that's set when the player arrives in target system }
+    RefCollectionAlias property SpawnMarkers auto const
+    { optional - holds spawn markers for escorts }
+
+    ReferenceAlias property SpaceMapMarker auto Const Mandatory
+
+    int property ArriveInSystemStage = 20 auto Const
+    { stage that's set when the player arrives in target system }
 EndGroup
 
 
-;-- Functions ---------------------------------------
+Function MissionAccepted(bool bAccepted)
+	Trace(Self, " MissionAccepted")
+    Parent.MissionAccepted(bAccepted)
 
-Function MissionAccepted(Bool bAccepted)
-  Parent.MissionAccepted(bAccepted)
-  If bAccepted
-    spaceshipreference targetShip = PrimaryRef.GetShipRef()
-    targetShip.Enable(False)
-    SpaceMapMarker.TryToEnableNoWait()
-    If Escorts as Bool && Escorts.GetCount() > 0
-      Int numToEnable = Utility.RandomInt(1, Escorts.GetCount())
-      If numToEnable > 0
-        ObjectReference[] spawnMarkerArray = new ObjectReference[0]
-        If SpawnMarkers
-          spawnMarkerArray = SpawnMarkers.GetArray()
-        EndIf
-        Int I = 0
-        While I < numToEnable
-          spaceshipreference escortRef = Escorts.GetShipAt(I)
-          If escortRef
-            If spawnMarkerArray.Length > 0
-              ObjectReference spawnMarkerRef = spawnMarkerArray[0]
-              escortRef.MoveTo(spawnMarkerRef, 0.0, 0.0, 0.0, True, False)
-              spawnMarkerArray.remove(0, 1)
+    if bAccepted
+        ; enable target ship
+        SpaceshipReference targetShip = PrimaryRef.GetShipRef()
+        targetShip.Enable()
+        
+        ; enable map marker
+        SpaceMapMarker.TryToEnableNoWait()
+
+        ; enable escorts randomly, if any
+        if Escorts && Escorts.GetCount() > 0
+            Trace(Self, " rolling for number of escorts: 1 to " + Escorts.GetCount())
+            int numToEnable = Utility.RandomInt(1, Escorts.GetCount())
+            Trace(Self, " enabling " + numToEnable + " escorts")
+            if numToEnable > 0
+                ; spawn markers
+                ObjectReference[] spawnMarkerArray = new ObjectReference[0]
+                if SpawnMarkers
+                    spawnMarkerArray = SpawnMarkers.GetArray()
+                endif
+
+                int i = 0
+                while i < numToEnable
+                    SpaceshipReference escortRef = Escorts.GetShipAt(i)
+                    if escortRef
+                        if spawnMarkerArray.Length > 0
+                            ObjectReference spawnMarkerRef = spawnMarkerArray[0]
+                            Trace(Self, " moving escort to spawn marker " + spawnMarkerRef)
+                            escortRef.MoveTo(spawnMarkerRef)
+                            spawnMarkerArray.Remove(0)
+                        endif
+                        escortRef.Enable()
+                    endif
+                    i += 1
+                EndWhile
             EndIf
-            escortRef.Enable(False)
-          EndIf
-          I += 1
-        EndWhile
-      EndIf
-    EndIf
-  EndIf
-EndFunction
+        endif
+    endif
+endFunction
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  If auiStageID == ArriveInSystemStage
-    ObjectReference mapMarkerRef = SpaceMapMarker.GetRef()
-    mapMarkerRef.SetMarkerUndiscoveredVisibility(0)
-  ElseIf auiStageID == CompleteStage
-    ObjectReference mapmarkerref = SpaceMapMarker.GetRef()
-    mapmarkerref.Disable(False)
-  EndIf
+Event OnStageSet(int auiStageID, int auiItemID)
+     Trace(Self, " OnStageSet " + auiStageID)
+    if auiStageID == ArriveInSystemStage
+        ObjectReference mapMarkerRef = SpaceMapMarker.GetRef()
+        Trace(Self, " OnStageSet " + ArriveInSystemStage + ": map marker is now always visible " + mapmarkerref)
+        mapMarkerRef.SetMarkerUndiscoveredVisibility(0) ; map marker is now always visible
+    elseif auiStageID == CompleteStage
+        ObjectReference mapMarkerRef = SpaceMapMarker.GetRef()
+        Trace(Self, " OnStageSet " + CompleteStage + ": disable map marker " + mapmarkerref)
+        mapMarkerRef.Disable() ; disable map marker after target ship is destroyed
+    endif
 EndEvent
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Missions",  string SubLogName = "BountySpace", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Missions",  string SubLogName = "BountySpace", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+EndFunction

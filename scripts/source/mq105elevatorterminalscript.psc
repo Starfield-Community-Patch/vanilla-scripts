@@ -1,14 +1,9 @@
-ScriptName MQ105ElevatorTerminalScript Extends TerminalMenu
+Scriptname MQ105ElevatorTerminalScript extends TerminalMenu
 
-;-- Variables ---------------------------------------
+Key property MQ105SlaytonElevatorID auto Const
 
-;-- Properties --------------------------------------
-Key Property MQ105SlaytonElevatorID Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If auiMenuItemID == 1
-    Game.GetPlayer().AddItem(MQ105SlaytonElevatorID as Form, 1, False)
-  EndIf
-EndEvent
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+  if(auiMenuItemID == 1)
+        Game.GetPlayer().AddItem(MQ105SlaytonElevatorID, 1, false)
+  endIf
+endEvent

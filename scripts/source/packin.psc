@@ -1,1 +1,1 @@
-ScriptName PackIn Extends Form Native hidden
+Scriptname PackIn extends Form Native Hidden

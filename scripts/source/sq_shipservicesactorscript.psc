@@ -1,14 +1,13 @@
-ScriptName SQ_ShipServicesActorScript Extends ShipVendorScript conditional
+Scriptname SQ_ShipServicesActorScript extends ShipVendorScript conditional
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-dialogueshipservicesscript Property DialogueShipServices Auto Const mandatory
+DialogueShipServicesScript property DialogueShipServices auto const mandatory
 { quest handling ship services dialogue }
 
-;-- Functions ---------------------------------------
-
 Function HandleOnLoad()
-  Parent.HandleOnLoad()
-  DialogueShipServices.UpdateFuelGlobals()
-EndFunction
+    debug.trace(self + " HandleOnLoad")
+    ; update dialogue globals
+    Parent.HandleOnLoad()
+    DialogueShipServices.UpdateFuelGlobals()
+endFunction
+
+

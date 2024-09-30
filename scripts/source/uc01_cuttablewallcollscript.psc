@@ -1,24 +1,25 @@
-ScriptName UC01_CuttableWallCollScript Extends RefCollectionAlias
+Scriptname UC01_CuttableWallCollScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
+int Property TargetDestructionState = 1 Const Auto
+{If the object has switched to this state, disable its linked ref}
 
-;-- Properties --------------------------------------
-Int Property TargetDestructionState = 1 Auto Const
-{ If the object has switched to this state, disable its linked ref }
-Int Property StageToSet = 345 Auto Const
-{ Once this collection has been emptied, set this stage }
+int Property StageToSet = 345 Const Auto
+{Once this collection has been emptied, set this stage}
 
-;-- Functions ---------------------------------------
+Event OnDestructionStageChanged(ObjectReference akSenderRef, int aiOldStage, int aiCurrentStage)
+trace(self, "Sender Ref: " + akSenderRef + " . Old Destruction Stage: " + aiOldStage + ". New Dest Stage: " + aiCurrentStage + ". Target Stage: " + TargetDestructionState)
+    if aiCurrentStage == TargetDestructionState
+        RemoveRef(akSenderRef)
 
-Event OnDestructionStageChanged(ObjectReference akSenderRef, Int aiOldStage, Int aiCurrentStage)
-  If aiCurrentStage == TargetDestructionState
-    Self.RemoveRef(akSenderRef)
-    If Self.GetCount() <= 0
-      Self.GetOwningQuest().SetStage(StageToSet)
-    EndIf
-  EndIf
+        if GetCount() <= 0
+            GetOwningQuest().SetStage(StageToSet)
+        endif
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC01", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

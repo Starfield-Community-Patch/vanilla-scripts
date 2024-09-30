@@ -1,13 +1,9 @@
-ScriptName OE_Civilian_MapMarkerScript Extends ObjectReference Const
-{ sets the name to standard name based on NPC type on init, if visible on starmap }
+Scriptname OE_Civilian_MapMarkerScript extends ObjectReference Const
+{sets the name to standard name based on NPC type on init, if visible on starmap}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-sq_parentscript Property SQ_Parent Auto Const mandatory
-
-;-- Functions ---------------------------------------
+SQ_ParentScript property SQ_Parent auto const mandatory
 
 Event OnInit()
-  SQ_Parent.CheckForRenameMapMarker(Self as ObjectReference)
+    debug.trace(self + " OnInit")
+    SQ_Parent.CheckForRenameMapMarker(self)
 EndEvent

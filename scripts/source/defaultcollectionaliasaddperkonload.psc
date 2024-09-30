@@ -1,15 +1,10 @@
-ScriptName DefaultCollectionAliasAddPerkOnLoad Extends RefCollectionAlias Const default
+Scriptname DefaultCollectionAliasAddPerkOnLoad extends RefCollectionAlias Const Default
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Perk Property PerkToAdd Auto Const
-{ The perk that should be added to actors in the collection upon load. }
-
-;-- Functions ---------------------------------------
+Perk property PerkToAdd auto const
+{The perk that should be added to actors in the collection upon load.}
 
 Event OnLoad(ObjectReference akSenderRef)
-  If akSenderRef as Actor != None
-    (akSenderRef as Actor).AddPerk(PerkToAdd, False)
-  EndIf
+	if ((akSenderRef as Actor) != None)
+		(akSenderRef as Actor).AddPerk(PerkToAdd)
+	EndIf
 EndEvent

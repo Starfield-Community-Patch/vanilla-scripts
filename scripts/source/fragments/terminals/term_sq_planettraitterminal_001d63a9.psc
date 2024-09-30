@@ -1,7 +1,12 @@
-ScriptName Fragments:Terminals:TERM_SQ_PlanetTraitTerminal_001D63A9 Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_SQ_PlanetTraitTerminal_001D63A9 Extends Terminal Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  akTerminalRef.getlinkedref(None).Unlock(False)
+;BEGIN CODE
+akTerminalRef.getlinkedref().Unlock()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

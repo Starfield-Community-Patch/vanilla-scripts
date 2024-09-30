@@ -1,22 +1,35 @@
-ScriptName Fragments:Quests:QF_LC039_00183F61 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_LC039_00183F61 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property CF06 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  ; Empty function
+;BEGIN CODE
+;set by CF06
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  If CF06.GetStageDone(125) == False
-    CF06.Setstage(125)
-  EndIf
+;BEGIN CODE
+If CF06.GetStageDone(125) == 0
+CF06.Setstage(125)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_10000_Item_00
 Function Fragment_Stage_10000_Item_00()
-  Self.Stop()
+;BEGIN CODE
+;set by CF06
+
+;shut down.
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property CF06 Auto Const Mandatory

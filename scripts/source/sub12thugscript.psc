@@ -1,14 +1,9 @@
-ScriptName Sub12ThugScript Extends Actor Const
+Scriptname Sub12ThugScript extends Actor Const
 
-;-- Variables ---------------------------------------
+Faction property City_NA_Viewport03_GangFaction_Combat auto Const
 
-;-- Properties --------------------------------------
-Faction Property City_NA_Viewport03_GangFaction_Combat Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnCombatStateChanged(ObjectReference akTarget, Int aeCombatState)
-  If aeCombatState == 1
-    Self.AddToFaction(City_NA_Viewport03_GangFaction_Combat)
-  EndIf
+Event OnCombatStateChanged(ObjectReference akTarget, int aeCombatState)
+    if(aeCombatState == 1)
+        self.AddToFaction(City_NA_Viewport03_GangFaction_Combat)
+    endIf
 EndEvent

@@ -1,12 +1,7 @@
-ScriptName RMStockerAliasScript Extends ReferenceAlias
+Scriptname RMStockerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ActorValue Property ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV Mandatory Const Auto
 
 Event OnLoad()
-  Self.GetActorRef().SetValue(ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV, 1.0)
+    GetActorRef().SetValue(ActorShouldHideSpacesuitHelmetCosmeticBreathable_AV, 1)
 EndEvent

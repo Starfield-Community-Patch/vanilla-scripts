@@ -1,12 +1,7 @@
-ScriptName CF05_HuanShip_Script Extends ReferenceAlias
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_CF05_HuanShip Auto Const
-
-;-- Functions ---------------------------------------
+Scriptname CF05_HuanShip_Script extends ReferenceAlias
 
 Event OnLoad()
-  Alias_CF05_HuanShip.GetShipRef().SetExteriorLoadDoorInaccessible(False)
+	alias_CF05_HuanShip.GetShipRef().SetExteriorLoadDoorInaccessible(False)
 EndEvent
+
+ReferenceAlias Property Alias_CF05_HuanShip Auto Const

@@ -1,170 +1,212 @@
-ScriptName DefaultCaptiveWoundedAlias Extends ReferenceAlias
-{ Use this script to gain standard support for wounded captive npcs being healed by player.
+Scriptname DefaultCaptiveWoundedAlias extends ReferenceAlias
+{Use this script to gain standard support for wounded captive npcs being healed by player.
 
 WARNING: Dual use of DefaultCaptiveAlias AND DefaultCaptiveWoundedAlias on the same NPC is not currently supported.
 
-Let system design know if this is an important need. }
+Let system design know if this is an important need.}
+;not currently supporting both scripts to avoid problems with clearing the CaptiveFaction
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
 Group AutoFillProperties
-  sq_captivescript Property SQ_Captive Auto Const mandatory
-  Faction Property CaptiveFaction Auto Const mandatory
-  Keyword Property SQ_Link_CaptiveFurniture Auto Const mandatory
-  Faction Property WoundedFaction Auto Const mandatory
-  ActorValue Property SQ_WoundedState Auto Const mandatory
-  GlobalVariable Property SQ_WoundedState_0_Unset Auto Const mandatory
-  GlobalVariable Property SQ_WoundedState_1_Wounded Auto Const mandatory
-  GlobalVariable Property SQ_WoundedState_2_Healed Auto Const mandatory
-  Keyword Property SQ_Wounded_DialogueSubtype_HealedActorGratitude Auto Const mandatory
-  Keyword Property SQ_Captive_FurnitureType_Wounded Auto Const mandatory
+	SQ_CaptiveScript Property SQ_Captive Mandatory Const Auto
+	Faction Property CaptiveFaction Mandatory Auto Const ;CaptiveFaction is a standard faction we put "innocent" NPCs found in hostile dungeons to keep hostiles from aggroing on them.
+	Keyword Property SQ_Link_CaptiveFurniture Mandatory Const Auto
+
+	Faction Property WoundedFaction Mandatory Auto Const
+	ActorValue Property SQ_WoundedState Mandatory Const Auto
+	GlobalVariable Property SQ_WoundedState_0_Unset Mandatory Const Auto
+	GlobalVariable Property SQ_WoundedState_1_Wounded Mandatory Const Auto
+	GlobalVariable Property SQ_WoundedState_2_Healed Mandatory Const Auto
+	Keyword Property SQ_Wounded_DialogueSubtype_HealedActorGratitude Mandatory Auto const
+	Keyword Property SQ_Captive_FurnitureType_Wounded Mandatory Const Auto
 EndGroup
 
 Group MainProperties
-  Bool Property StartWounded = True Auto Const
-  { if true, captive is wounded }
-  Bool Property DisableOnUnload = False Auto Const
-  { after being freed, this actor will disable when unloaded }
-  Bool Property AlsoRemoveFromCaptiveFaction = False Auto Const
-  { after being freed, this actor will also be removed from the CaptiveFaction
-		Use this for actors that will be attacked while fleeing }
+	bool Property StartWounded = true Const Auto
+	{if true, captive is wounded}
+
+	bool Property DisableOnUnload = false Auto Const
+	{after being freed, this actor will disable when unloaded}
+
+	bool Property AlsoRemoveFromCaptiveFaction = false Auto Const
+	{after being freed, this actor will also be removed from the CaptiveFaction
+		Use this for actors that will be attacked while fleeing}
 EndGroup
 
 Group SetStageProperties
-  Quest Property QuestToSet Auto
-  { If this is set, set the stage on this quest if StageToSetWhenHealed is not -1
-		If QuestToSet is NOT set, it will try to set the stage on the owning quest }
-  Int Property StageToSetWhenHealed = -1 Auto Const
-  { this stage will be set when the victim is healed }
-  Int Property StageToSetOnCleanUp = -1 Auto Const
-  { this stage will be set when we try to clean up the actor }
+	Quest Property QuestToSet Auto
+	{ If this is set, set the stage on this quest if StageToSetWhenHealed is not -1
+		If QuestToSet is NOT set, it will try to set the stage on the owning quest}
+
+	int Property StageToSetWhenHealed = -1 auto const
+	{ this stage will be set when the victim is healed }
+
+	int Property StageToSetOnCleanUp = -1 Auto Const
+	{ this stage will be set when we try to clean up the actor }
+
 EndGroup
 
 Group CleanUpProperties
-  Bool Property RemoveFromFactions = True Auto Const
-  { if true (default), will remove from factions added by this script when cleaned up }
-  Bool Property DeleteWhenCleanedUp = False Auto Const
-  { if true, will delete when cleaned up }
+	bool Property RemoveFromFactions = true Const Auto
+	{if true (default), will remove from factions added by this script when cleaned up}
+
+	bool Property DeleteWhenCleanedUp = false Const Auto
+	{if true, will delete when cleaned up}
 EndGroup
 
 
-;-- Functions ---------------------------------------
 
 Event OnAliasInit()
-  Self.RegisterForCustomEvent(SQ_Captive as ScriptObject, "sq_captivescript_WoundedActorHealed")
-  Self.AddToFactions()
-  Self.SetState()
+	RegisterForCustomEvent(SQ_Captive, "WoundedActorHealed")
+
+	AddToFactions()
+	SetState()
 EndEvent
 
 Event OnAliasShutdown()
-  Self.ClearFactions()
-  Self.ResetAVs()
-  Self.CleanupIfReady()
+	ClearFactions()
+	ResetAVs()
+	CleanupIfReady()
 EndEvent
 
-Event OnAliasChanged(ObjectReference akObject, Bool abRemove)
-  If abRemove == False
-    Self.AddToFactions()
-    Self.SetState()
-  EndIf
+Event OnAliasChanged(ObjectReference akObject, bool abRemove)
+	;in case the alias is filled after the quest starts
+	if abRemove == false
+		AddToFactions()
+		SetState()
+	endif
 EndEvent
 
 Event OnLoad()
-  Self.SetState()
+	SetState()
 EndEvent
 
+
+
 Event OnUnload()
-  If DisableOnUnload
-    Self.GetReference().Disable(False)
-  EndIf
+	if DisableOnUnload
+		GetReference().Disable()
+	endif
 EndEvent
 
 Function AddToFactions()
-  Actor captiveActor = Self.GetActorReference()
-  If captiveActor
-    captiveActor.AddToFaction(CaptiveFaction)
-    If StartWounded
-      captiveActor.AddToFaction(WoundedFaction)
-    EndIf
-  EndIf
+	Actor captiveActor = GetActorReference()
+
+	if captiveActor
+		captiveActor.AddToFaction(CaptiveFaction) ;CaptiveFaction is a standard faction we put "innocent" NPCs found in hostile dungeons to keep hostiles from aggroing on them.
+
+		if StartWounded
+			captiveActor.AddToFaction(WoundedFaction)
+		endif
+	endif
+
 EndFunction
 
 Function SetState()
-  Actor actorRef = Self.GetActorRef()
-  If actorRef.IsInFaction(WoundedFaction)
-    actorRef.SetValue(SQ_WoundedState, SQ_WoundedState_1_Wounded.GetValue())
-    If actorRef.Is3DLoaded()
-      ObjectReference captiveFurniture = actorRef.GetLinkedRef(SQ_Link_CaptiveFurniture)
-      If captiveFurniture
-        actorRef.SnapIntoInteraction(captiveFurniture)
-      EndIf
-    EndIf
-    actorRef.SetRestrained(True)
-  EndIf
+	Actor actorRef = GetActorRef()
+	debug.trace(self + "SetState" + actorRef)
+
+	if actorRef.IsInFaction(WoundedFaction)
+		actorRef.SetValue(SQ_WoundedState, SQ_WoundedState_1_Wounded.GetValue())
+		if actorRef.Is3DLoaded()
+			; get into furniture
+			ObjectReference captiveFurniture = actorRef.GetLinkedRef(SQ_Link_CaptiveFurniture)
+			debug.trace(self + " 3D is loaded - furniture=" + captiveFurniture)
+			if captiveFurniture
+				actorRef.SnapIntoInteraction(captiveFurniture)
+			endif
+		endif
+		actorRef.SetRestrained()
+	endIf
 EndFunction
 
-Event SQ_CaptiveScript.WoundedActorHealed(sq_captivescript akSender, Var[] akArgs)
-  Actor woundedActor = akArgs[0] as Actor
-  Bool playerIsHealer = akArgs[1] as Bool
-  Bool showInventory = akArgs[2] as Bool
-  If woundedActor as ObjectReference == Self.GetReference()
-    Self.HealActor(playerIsHealer)
-  EndIf
+Event SQ_CaptiveScript.WoundedActorHealed(SQ_CaptiveScript akSender, var[] akArgs)
+	Actor woundedActor = akArgs[0] as Actor
+	bool playerIsHealer = akArgs[1] as bool
+	bool showInventory = akArgs[2] as bool
+
+	if woundedActor == GetReference()
+		HealActor(playerIsHealer)
+	endif
 EndEvent
 
+
 Function CleanupIfReady()
-  Actor actorRef = Self.GetActorRef()
-  If actorRef.IsInFaction(WoundedFaction) == False
-    If RemoveFromFactions
-      Self.ClearFactions()
-    EndIf
-    If DeleteWhenCleanedUp
-      actorRef.Disable(False)
-      actorRef.Delete()
-    EndIf
-    If StageToSetOnCleanUp > -1
-      If QuestToSet
-        QuestToSet.SetStage(StageToSetOnCleanUp)
-      Else
-        Self.GetOwningQuest().SetStage(StageToSetOnCleanUp)
-      EndIf
-    EndIf
-  EndIf
+	Actor actorRef = GetActorRef()
+
+	if actorRef.IsInFaction(WoundedFaction) == false
+		if RemoveFromFactions
+			ClearFactions()
+		endif
+
+		if DeleteWhenCleanedUp
+			actorRef.Disable()
+			actorRef.Delete()
+		endif
+
+		if StageToSetOnCleanUp > -1
+			if QuestToSet
+				QuestToSet.SetStage(StageToSetOnCleanUp)
+			else
+				GetOwningQuest().SetStage(StageToSetOnCleanUp)
+			endif
+		endif
+	endif
 EndFunction
 
+;CaptiveFaction is a standard faction we put "innocent" NPCs found in hostile dungeons to keep hostiles from aggroing on them.
 Function RemoveFromCaptiveFactionIfNeeded()
-  Actor actorRef = Self.GetActorRef()
-  If AlsoRemoveFromCaptiveFaction && actorRef.IsInFaction(WoundedFaction) == False
-    actorRef.RemoveFromFaction(CaptiveFaction)
-  EndIf
+	Actor actorRef = GetActorRef()
+	
+	if AlsoRemoveFromCaptiveFaction && actorRef.IsInFaction(WoundedFaction) == false
+		actorRef.RemoveFromFaction(CaptiveFaction)
+	endif
 EndFunction
 
-Function HealActor(Bool playerIsHealer)
-  Actor actorRef = Self.GetActorRef()
-  actorRef.SetValue(SQ_WoundedState, SQ_WoundedState_2_Healed.GetValue())
-  actorRef.RemoveFromFaction(WoundedFaction)
-  Self.RemoveFromCaptiveFactionIfNeeded()
-  actorRef.SetRestrained(False)
-  actorRef.EvaluatePackage(False)
-  actorRef.SayCustom(SQ_Wounded_DialogueSubtype_HealedActorGratitude, None, False, None)
-  If StageToSetWhenHealed > -1
-    If QuestToSet
-      QuestToSet.SetStage(StageToSetWhenHealed)
-    Else
-      Self.GetOwningQuest().SetStage(StageToSetWhenHealed)
-    EndIf
-  EndIf
-  actorRef.EvaluatePackage(False)
+Function HealActor(bool playerIsHealer = true)
+ 	Actor actorRef = GetActorRef()
+	 
+	debug.trace(self + "HealActor() ActorRef:" + actorRef + ", playerIsHealer:" + playerIsHealer)	
+	
+	actorRef.SetValue(SQ_WoundedState, SQ_WoundedState_2_Healed.GetValue())
+
+	actorRef.RemoveFromFaction(WoundedFaction)
+	RemoveFromCaptiveFactionIfNeeded()
+
+	actorRef.SetRestrained(false)
+
+	actorRef.EvaluatePackage()
+	
+	actorRef.SayCustom(SQ_Wounded_DialogueSubtype_HealedActorGratitude)
+	
+	if StageToSetWhenHealed > -1
+		if QuestToSet
+			QuestToSet.SetStage(StageToSetWhenHealed)
+		else
+			GetOwningQuest().SetStage(StageToSetWhenHealed)
+		endif
+	endif
+	actorRef.EvaluatePackage()
+
 EndFunction
 
+;call when quest shuts down
 Function ClearFactions()
-  Actor actorRef = Self.GetActorRef()
-  actorRef.RemoveFromFaction(CaptiveFaction)
-  actorRef.RemoveFromFaction(WoundedFaction)
+	Actor actorRef = GetActorRef()
+
+	actorRef.RemoveFromFaction(CaptiveFaction) ;CaptiveFaction is a standard faction we put "innocent" NPCs found in hostile dungeons to keep hostiles from aggroing on them.
+	actorRef.RemoveFromFaction(WoundedFaction)
 EndFunction
 
 Function ResetAVs()
-  Actor actorRef = Self.GetActorRef()
-  actorRef.SetValue(SQ_WoundedState, SQ_WoundedState_0_Unset.GetValue())
+	Actor actorRef = GetActorRef()
+
+	actorRef.SetValue(SQ_WoundedState, SQ_WoundedState_0_Unset.GetValue())
 EndFunction
+
+
+
+
+
+
+

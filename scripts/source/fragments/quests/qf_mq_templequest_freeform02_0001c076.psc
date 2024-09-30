@@ -1,39 +1,67 @@
-ScriptName Fragments:Quests:QF_MQ_TempleQuest_Freeform02_0001C076 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MQ_TempleQuest_Freeform02_0001C076 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_AnomalyMapMarker Auto Const mandatory
-Message Property MQ_TempleTutorialMSG Auto Const mandatory
-LocationAlias Property Alias_PlanetExploredTrait Auto Const mandatory
-ReferenceAlias Property Alias_TempleMapMarker Auto Const mandatory
-Quest Property MQ106 Auto Const mandatory
-ReferenceAlias Property Alias_TempleStarborn Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  kmyQuest.ShowHelpMessage("OutpostTutorial")
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.ShowHelpMessage("OutpostTutorial")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Quest __temp = Self as Quest
-  mq_temple_subscript kmyQuest = __temp as mq_temple_subscript
-  kmyQuest.TempleDiscovered()
-  Self.SetObjectiveDisplayed(10, True, True)
+;BEGIN AUTOCAST TYPE MQ_Temple_SubScript
+Quest __temp = self as Quest
+MQ_Temple_SubScript kmyQuest = __temp as MQ_Temple_SubScript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.TempleDiscovered()
+SetObjectiveDisplayed(10, abforce=true)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetStage(40)
+;BEGIN CODE
+SetStage(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_AnomalyMapMarker Auto Const Mandatory
+
+Message Property MQ_TempleTutorialMSG Auto Const Mandatory
+
+LocationAlias Property Alias_PlanetExploredTrait Auto Const Mandatory
+
+ReferenceAlias Property Alias_TempleMapMarker Auto Const Mandatory
+
+Quest Property MQ106 Auto Const Mandatory
+
+ReferenceAlias Property Alias_TempleStarborn Auto Const Mandatory

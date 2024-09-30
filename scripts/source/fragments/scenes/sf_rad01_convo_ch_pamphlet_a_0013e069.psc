@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_Rad01_Convo_Ch_Pamphlet_A_0013E069 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_Rad01_Convo_Ch_Pamphlet_A_0013E069 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Book Property Rad01_Pamphlet Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  Game.GetPlayer().RemoveItem(Rad01_Pamphlet as Form, 1, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(RAD01_Pamphlet, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Book Property Rad01_Pamphlet Auto Const

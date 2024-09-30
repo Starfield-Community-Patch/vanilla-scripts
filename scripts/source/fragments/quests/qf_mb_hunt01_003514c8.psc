@@ -1,19 +1,36 @@
-ScriptName Fragments:Quests:QF_MB_Hunt01_003514C8 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MB_Hunt01_003514C8 Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  missionhuntquestscript kmyQuest = __temp as missionhuntquestscript
-  kmyQuest.MissionComplete()
+;BEGIN AUTOCAST TYPE MissionHuntQuestScript
+Quest __temp = self as Quest
+MissionHuntQuestScript kmyQuest = __temp as MissionHuntQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.MissionComplete()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_01
 Function Fragment_Stage_0100_Item_01()
-  Quest __temp = Self as Quest
-  missionhuntquestscript kmyQuest = __temp as missionhuntquestscript
-  kmyQuest.MissionShutdown()
+;BEGIN AUTOCAST TYPE MissionHuntQuestScript
+Quest __temp = self as Quest
+MissionHuntQuestScript kmyQuest = __temp as MissionHuntQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.MissionShutdown()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

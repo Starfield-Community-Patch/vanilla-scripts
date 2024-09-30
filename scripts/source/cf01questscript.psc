@@ -1,21 +1,16 @@
-ScriptName CF01QuestScript Extends Quest
+Scriptname CF01QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property CrimeFactionUC Auto Const mandatory
+Faction property CrimeFactionUC auto const mandatory
 { UC crime faction for handling jail/bounty/etc. }
 
-;-- Functions ---------------------------------------
+function SendPlayerToJail()
+    CrimeFactionUC.SendPlayerToJail()
+endFunction
 
-Function SendPlayerToJail()
-  CrimeFactionUC.SendPlayerToJail(True, False)
-EndFunction
+function ModCrimeGold(int amount)
+    CrimeFactionUC.ModCrimeGold(amount)
+endFunction
 
-Function ModCrimeGold(Int amount)
-  CrimeFactionUC.ModCrimeGold(amount, False)
-EndFunction
-
-Function RemovePlayerContraband()
-  CrimeFactionUC.RemovePlayerContrabandAndStolenItems()
-EndFunction
+function RemovePlayerContraband()
+    CrimeFactionUC.RemovePlayerContrabandAndStolenItems()
+endFunction

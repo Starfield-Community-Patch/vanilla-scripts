@@ -1,30 +1,38 @@
-ScriptName BoostpackEffectScript Extends ActiveMagicEffect
-{ script lives on the boostpack enchantment and sets an actor variable for when the boostpack is active or not }
+Scriptname BoostpackEffectScript extends ActiveMagicEffect
+{script lives on the boostpack enchantment and sets an actor variable for when the boostpack is active or not}
 
-;-- Variables ---------------------------------------
+ActorValue property BoostpackActive Auto Const
 
-;-- Properties --------------------------------------
-ActorValue Property BoostpackActive Auto Const
 
-;-- Functions ---------------------------------------
+;*****************************************************
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.RegisterForAnimationEvent(akTarget, "StartImpactFX")
-  Self.RegisterForAnimationEvent(akTarget, "StopImpactFX")
+
+;*****************************************************
+
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    RegisterForAnimationEvent(akTarget, "StartImpactFX")
+    RegisterForAnimationEvent(akTarget, "StopImpactFX")
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.UnRegisterForAnimationEvent(akTarget, "StartImpactFX")
-  Self.UnRegisterForAnimationEvent(akTarget, "StopImpactFX")
+;*****************************************************
+
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    UnRegisterForAnimationEvent(akTarget, "StartImpactFX")
+    UnRegisterForAnimationEvent(akTarget, "StopImpactFX")
 EndEvent
 
-Event OnAnimationEvent(ObjectReference akSource, String asEventName)
-  If akSource
-    If asEventName == "StartImpactFX"
-      akSource.setValue(BoostpackActive, 1.0)
+;*****************************************************
+
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+    If akSource
+        if (asEventName == "StartImpactFX")
+            akSource.setValue(BoostpackActive, 1)
+        EndIf
+
+        if (asEventName == "StopImpactFX")
+            akSource.setValue(BoostpackActive, 0)
+        EndIf
     EndIf
-    If asEventName == "StopImpactFX"
-      akSource.setValue(BoostpackActive, 0.0)
-    EndIf
-  EndIf
 EndEvent
+
+;*****************************************************

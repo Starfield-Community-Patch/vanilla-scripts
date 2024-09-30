@@ -1,17 +1,22 @@
-ScriptName Curve Extends Form Native hidden
+Scriptname Curve extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Check whether the given input value is within the range of defined values for the curve.
+bool Function HasValueAt(float afInput) native
 
-Float Function GetValueAt(Float afInput) Native
+; Get the output value for the given input value.  
+; NOTE: Depending on the curve edge setting, it will clamp/mirror/repeat. Use HasValueAt first if you need to check if its within range.
+float Function GetValueAt(float afInput) native
 
-Bool Function HasValueAt(Float afInput) Native
+;jduvall
+;gets an array of values for a given array of inputs
+float[] Function GetValues(float[] Inputs)
+    float[] values = new float[Inputs.Length]
 
-Float[] Function GetValues(Float[] Inputs)
-  Float[] values = new Float[Inputs.Length]
-  Int I = 0
-  While I < Inputs.Length
-    values[I] = Self.GetValueAt(Inputs[I])
-    I += 1
-  EndWhile
-  Return values
+    int i = 0
+    While (i < Inputs.length)
+        values[i] = GetValueAt(Inputs[i])
+        i += 1
+    EndWhile
+
+    return values
 EndFunction

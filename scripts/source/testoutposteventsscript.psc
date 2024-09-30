@@ -1,19 +1,17 @@
-ScriptName TestOutpostEventsScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestOutpostEventsScript extends ObjectReference Const
 
 Event OnLoad()
-  ; Empty function
+    debug.trace(self + " OnLoad linkedRef=" + GetLinkedRef())
 EndEvent
 
 Event OnWorkshopCargoLinkChanged(ObjectReference akOldTarget, ObjectReference akNewTarget)
-  ; Empty function
-EndEvent
-
-Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  ; Empty function
+    debug.trace(self + " OnWorkshopCargoLinkChanged akOldTarget=" + akOldTarget + " akNewTarget=" + akNewTarget)
 EndEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akActionRef)
-  ; Empty function
+    debug.trace(self + " OnWorkshopObjectRemoved akActionRef=" + akActionRef)
+endEvent
+
+Event OnWorkshopObjectPlaced(ObjectReference akReference)
+    debug.trace(self + " OnWorkshopObjectPlaced akReference=" + akReference)
 EndEvent

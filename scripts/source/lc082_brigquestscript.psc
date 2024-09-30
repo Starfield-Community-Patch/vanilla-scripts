@@ -1,238 +1,262 @@
-ScriptName LC082_BrigQuestScript Extends Quest conditional
-{ Quest script for LC082. Manages the Brig on the UC Vigilance. }
+Scriptname LC082_BrigQuestScript extends Quest Conditional
+{Quest script for LC082. Manages the Brig on the UC Vigilance.}
 
-;-- Structs -----------------------------------------
 Struct BrigCellDatum
-  Bool cellOccupied
-  ObjectReference cellDoor
-  ObjectReference cellMarker
-  ObjectReference cellTrigger
-  ObjectReference cellTalkZoneTrigger
-  Actor cellPrisoner
+	bool cellOccupied
+	ObjectReference cellDoor
+	ObjectReference cellMarker
+	ObjectReference cellTrigger
+	ObjectReference cellTalkZoneTrigger
+	Actor cellPrisoner
 EndStruct
 
-
-;-- Variables ---------------------------------------
-Int CONST_Assistance_HelpsAllies = 1 Const
-Int CONST_InitializationDelayTimeout = 300 Const
-Bool initialized
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard BrigDataGuard
-
-;-- Properties --------------------------------------
 Group QuestProperties
-  lc082_brigquestscript:brigcelldatum[] Property BrigData Auto hidden
-  { Struct array of data representing the Brig.
-	 For convenience, to match the cell numbers on the terminal, BrigData[0] is unused/None. }
-  Int Property CurrentPrisonerCount Auto conditional hidden
-  { Number of prisoners currently in the Brig. }
+	BrigCellDatum[] property BrigData Auto Hidden RequiresGuard(BrigDataGuard)
+	{Struct array of data representing the Brig.
+	 For convenience, to match the cell numbers on the terminal, BrigData[0] is unused/None.}
+
+	int property CurrentPrisonerCount Auto Hidden Conditional
+	{Number of prisoners currently in the Brig.}
 EndGroup
 
 Group AutofillProperties
-  ReferenceAlias Property BrigManager Auto Const mandatory
-  RefCollectionAlias Property BrigPrisoners Auto Const mandatory
-  ActorBase Property LC082_LvlPrisonersGeneric Auto Const mandatory
-  ActorValue Property Assistance Auto Const mandatory
-  Armor Property Clothes_Prisoner_Scrubs_SysDef Auto Const mandatory
-  Keyword Property LinkCustom01 Auto Const mandatory
-  Keyword Property LC082_LinkBrigCellMarker Auto Const mandatory
-  Keyword Property LC082_LinkBrigCellTrigger Auto Const mandatory
-  Keyword Property LC082_LinkBrigCellTalkZoneTrigger Auto Const mandatory
+	ReferenceAlias property BrigManager Auto Const Mandatory
+	RefCollectionAlias property BrigPrisoners Auto Const Mandatory
+	ActorBase property LC082_LvlPrisonersGeneric Auto Const Mandatory
+	ActorValue property Assistance Auto Const Mandatory
+	Armor property Clothes_Prisoner_Scrubs_SysDef Auto Const Mandatory
+	Keyword property LinkCustom01 Auto Const Mandatory
+	Keyword property LC082_LinkBrigCellMarker Auto Const Mandatory
+	Keyword property LC082_LinkBrigCellTrigger Auto Const Mandatory
+	Keyword property LC082_LinkBrigCellTalkZoneTrigger Auto Const Mandatory
 EndGroup
 
+;Local Variables
+bool initialized
 
-;-- Functions ---------------------------------------
+;Local Consts
+int CONST_InitializationDelayTimeout = 300 Const
+int CONST_Assistance_HelpsAllies = 1 Const
 
+;Guards
+Guard BrigDataGuard
+
+
+;Called by the Brig Manager ref OnCellLoad, to ensure that the manager, all of the other refs,
+;and all of their linked ref connections have loaded before we try to access them.
 Function InitBrig()
-  Self.Start()
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If !initialized
-      ObjectReference[] brigCellDoors = BrigManager.GetRef().GetLinkedRefChain(LinkCustom01, 100)
-      BrigData = new lc082_brigquestscript:brigcelldatum[brigCellDoors.Length + 1]
-      Int I = 0
-      While I < brigCellDoors.Length
-        lc082_brigquestscript:brigcelldatum newDatum = new lc082_brigquestscript:brigcelldatum
-        newDatum.cellDoor = brigCellDoors[I]
-        newDatum.cellMarker = newDatum.cellDoor.GetLinkedRef(None)
-        newDatum.cellTrigger = newDatum.cellMarker.GetLinkedRef(None)
-        newDatum.cellTalkZoneTrigger = newDatum.cellTrigger.GetLinkedRef(None)
-        BrigData[I + 1] = newDatum
-        I += 1
-      EndWhile
-      initialized = True
-    Else
-      Int i = 0
-      While i < BrigData.Length
-        lc082_brigquestscript:brigcelldatum currentData = BrigData[i]
-        If currentData != None
-          Actor currentPrisoner = currentData.cellPrisoner
-          If currentPrisoner != None
-            currentPrisoner.SetLinkedRef(currentData.cellMarker, LC082_LinkBrigCellMarker, True)
-            currentPrisoner.SetLinkedRef(currentData.cellTrigger, LC082_LinkBrigCellTrigger, True)
-            currentPrisoner.SetLinkedRef(currentData.cellTalkZoneTrigger, LC082_LinkBrigCellTalkZoneTrigger, True)
-            currentPrisoner.DisableNoWait(False)
-            currentPrisoner.MoveTo(currentData.cellMarker, 0.0, 0.0, 0.0, True, False)
-            currentPrisoner.Enable(False)
-            currentPrisoner.RemoveAllItems(None, False, False)
-            currentPrisoner.EquipItem(Clothes_Prisoner_Scrubs_SysDef as Form, False, False)
-            currentPrisoner.EvaluatePackage(False)
-            currentPrisoner.MoveTo(currentData.cellMarker, 0.0, 0.0, 0.0, True, False)
-          EndIf
-        EndIf
-        i += 1
-      EndWhile
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	Start()
+	LockGuard BrigDataGuard
+		if (!initialized)
+			;We're initializing.
+			ObjectReference[] brigCellDoors = BrigManager.GetRef().GetLinkedRefChain(LinkCustom01)
+			brigData = new BrigCellDatum[brigCellDoors.Length+1]
+			int i = 0
+			While (i < brigCellDoors.Length)
+				BrigCellDatum newDatum = new BrigCellDatum
+				newDatum.cellDoor = brigCellDoors[i]
+				newDatum.cellMarker = newDatum.cellDoor.GetLinkedRef()
+				newDatum.cellTrigger = newDatum.cellMarker.GetLinkedRef()
+				newDatum.cellTalkZoneTrigger = newDatum.cellTrigger.GetLinkedRef()
+				brigData[i+1] = newDatum
+				i = i + 1
+			EndWhile
+			initialized = True
+		Else
+			;The cell has reset, and we need to reset all of the prisoners, too.
+			int i = 0
+			While (i < brigData.Length)
+				BrigCellDatum currentData = brigData[i]
+				if (currentData != None)
+					Actor currentPrisoner = currentData.cellPrisoner
+					if (currentPrisoner != None)
+						currentPrisoner.SetLinkedRef(currentData.cellMarker, LC082_LinkBrigCellMarker)
+						currentPrisoner.SetLinkedRef(currentData.cellTrigger, LC082_LinkBrigCellTrigger)
+						currentPrisoner.SetLinkedRef(currentData.cellTalkZoneTrigger, LC082_LinkBrigCellTalkZoneTrigger)
+						currentPrisoner.DisableNoWait()
+						currentPrisoner.MoveTo(currentData.cellMarker)
+						currentPrisoner.Enable()
+						currentPrisoner.RemoveAllItems()
+						currentPrisoner.EquipItem(Clothes_Prisoner_Scrubs_SysDef)
+						currentPrisoner.EvaluatePackage()
+						currentPrisoner.MoveTo(currentData.cellMarker)
+					EndIf
+				EndIf
+				i = i + 1
+			EndWhile
+		EndIf
+	EndLockGuard
 EndFunction
 
-Actor Function AddPrisoner(Actor newPrisoner, Int cellID)
-  If !initialized
-    Int I = 0
-    While !initialized && I < CONST_InitializationDelayTimeout
-      I += 1
-      Utility.Wait(0.100000001)
-    EndWhile
-    If !initialized
-      Return None
-    EndIf
-  EndIf
-  Actor result = None
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If newPrisoner != None
-      If newPrisoner.IsDead()
-        Return None
-      EndIf
-      Int prisonerInCell = BrigData.findstruct("cellPrisoner", newPrisoner, 0)
-      If prisonerInCell >= 0
-        Return None
-      EndIf
-    EndIf
-    If cellID <= 0 || cellID >= BrigData.Length || BrigData[cellID].cellPrisoner != None
-      cellID = Self.Private_FindRandomUnoccupiedCellID()
-    EndIf
-    If newPrisoner == None
-      newPrisoner = BrigData[cellID].cellMarker.PlaceActorAtMe(LC082_LvlPrisonersGeneric, 2, None, False, False, True, None, True)
-    EndIf
-    BrigData[cellID].cellOccupied = True
-    BrigData[cellID].cellPrisoner = newPrisoner
-    BrigPrisoners.AddRef(newPrisoner as ObjectReference)
-    newPrisoner.SetLinkedRef(BrigData[cellID].cellMarker, LC082_LinkBrigCellMarker, True)
-    newPrisoner.SetLinkedRef(BrigData[cellID].cellTrigger, LC082_LinkBrigCellTrigger, True)
-    newPrisoner.SetLinkedRef(BrigData[cellID].cellTalkZoneTrigger, LC082_LinkBrigCellTalkZoneTrigger, True)
-    newPrisoner.DisableNoWait(False)
-    newPrisoner.MoveTo(BrigData[cellID].cellMarker, 0.0, 0.0, 0.0, True, False)
-    newPrisoner.Enable(False)
-    newPrisoner.RemoveAllItems(None, False, False)
-    newPrisoner.EquipItem(Clothes_Prisoner_Scrubs_SysDef as Form, False, False)
-    newPrisoner.EvaluatePackage(False)
-    newPrisoner.MoveTo(BrigData[cellID].cellMarker, 0.0, 0.0, 0.0, True, False)
-    CurrentPrisonerCount += 1
-    result = newPrisoner
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  Return result
+
+;Add a prisoner to the Brig.
+;If no arguments are passed, a generic prisoner will be added to a random cell.
+Actor Function AddPrisoner(Actor newPrisoner=None, int cellID=-1)
+	if (!initialized)
+		int i = 0
+		While (!initialized && (i < CONST_InitializationDelayTimeout))
+			i = i + 1
+			Utility.Wait(0.1)
+		EndWhile
+		if (!initialized)
+			Debug.Trace("ERROR: LC082_BrigQuestScript.AddPrisoner was called, but the Brig hasn't initialized. You must load the interior of the Vigilance once before using the Brig.", 2)
+			return None
+		EndIf
+	EndIf
+
+	Actor result
+	LockGuard BrigDataGuard	
+		if (newPrisoner != None)
+			if (newPrisoner.IsDead())
+				Debug.Trace("WARN: LC082_BrigQuestScript.AddPrisoner was called, but " + newPrisoner + " is already dead.")
+				return None
+			EndIf
+
+			int prisonerInCell = BrigData.FindStruct("cellPrisoner", newPrisoner)
+			if (prisonerInCell >= 0)
+				Debug.Trace("WARN: LC082_BrigQuestScript.AddPrisoner was called, but " + newPrisoner + " is already in cell " + prisonerInCell)
+				return None
+			EndIf
+		EndIf
+		if ((cellID <= 0) || (cellID >= brigData.Length) || (brigData[cellID].cellPrisoner != None))
+			cellID = Private_FindRandomUnoccupiedCellID()
+		EndIf
+		if (newPrisoner == None)
+			newPrisoner = brigData[cellID].cellMarker.PlaceActorAtMe(LC082_LvlPrisonersGeneric, 2)
+		EndIf
+		brigData[cellID].cellOccupied = True
+		brigData[cellID].cellPrisoner = newPrisoner
+		BrigPrisoners.AddRef(newPrisoner)
+		newPrisoner.SetLinkedRef(brigData[cellID].cellMarker, LC082_LinkBrigCellMarker)
+		newPrisoner.SetLinkedRef(brigData[cellID].cellTrigger, LC082_LinkBrigCellTrigger)
+		newPrisoner.SetLinkedRef(brigData[cellID].cellTalkZoneTrigger, LC082_LinkBrigCellTalkZoneTrigger)
+		newPrisoner.DisableNoWait()
+		newPrisoner.MoveTo(brigData[cellID].cellMarker)
+		newPrisoner.Enable()
+		newPrisoner.RemoveAllItems()
+		newPrisoner.EquipItem(Clothes_Prisoner_Scrubs_SysDef)
+		newPrisoner.EvaluatePackage()
+		newPrisoner.MoveTo(brigData[cellID].cellMarker)
+		CurrentPrisonerCount = CurrentPrisonerCount + 1
+		result = newPrisoner
+	EndLockGuard
+	return result
 EndFunction
 
+
+;Disable a prisoner in the Brig.
+;This is intended for use only by LC088_Vigilance, to disable prisoners during the attack on the Vigilance.
 Function DisablePrisoner(Actor prisonerRef)
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int cellID = BrigData.findstruct("cellPrisoner", prisonerRef, 0)
-    If cellID >= 0
-      prisonerRef.DisableNoWait(False)
-      BrigData[cellID].cellOccupied = False
-      BrigData[cellID].cellPrisoner = None
-      CurrentPrisonerCount -= 1
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard BrigDataGuard
+		int cellID = BrigData.FindStruct("cellPrisoner", prisonerRef)
+		if (cellID >= 0)
+			prisonerRef.DisableNoWait()
+			brigData[cellID].cellOccupied = False
+			brigData[cellID].cellPrisoner = None
+			CurrentPrisonerCount = CurrentPrisonerCount - 1
+			;Debug.Trace("Disabled " + prisonerRef + " in cell " + cellID)
+		EndIf
+	EndLockGuard
 EndFunction
 
+
+;Reset all of the prisoners in the Brig.
+;This is intended for use only by LC088_Vigilance, to reset prisoners as the quest begins.
 Function ResetAllPrisoners()
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int I = 0
-    While I < BrigData.Length
-      If BrigData[I].cellOccupied
-        Actor current = BrigData[I].cellPrisoner
-        current.Reset(None)
-        current.SetLinkedRef(BrigData[I].cellMarker, LC082_LinkBrigCellMarker, True)
-        current.SetLinkedRef(BrigData[I].cellTrigger, LC082_LinkBrigCellTrigger, True)
-        current.SetLinkedRef(BrigData[I].cellTalkZoneTrigger, LC082_LinkBrigCellTalkZoneTrigger, True)
-        current.DisableNoWait(False)
-        current.MoveTo(BrigData[I].cellMarker, 0.0, 0.0, 0.0, True, False)
-        current.Enable(False)
-        current.RemoveAllItems(None, False, False)
-        current.EquipItem(Clothes_Prisoner_Scrubs_SysDef as Form, False, False)
-        current.EvaluatePackage(False)
-        current.MoveTo(BrigData[I].cellMarker, 0.0, 0.0, 0.0, True, False)
-      EndIf
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard BrigDataGuard
+		int i = 0
+		While (i < brigData.Length)
+			if (brigData[i].cellOccupied)
+				Actor current = brigData[i].cellPrisoner
+				current.Reset()
+				current.SetLinkedRef(brigData[i].cellMarker, LC082_LinkBrigCellMarker)
+				current.SetLinkedRef(brigData[i].cellTrigger, LC082_LinkBrigCellTrigger)
+				current.SetLinkedRef(brigData[i].cellTalkZoneTrigger, LC082_LinkBrigCellTalkZoneTrigger)
+				current.DisableNoWait()
+				current.MoveTo(brigData[i].cellMarker)
+				current.Enable()
+				current.RemoveAllItems()
+				current.EquipItem(Clothes_Prisoner_Scrubs_SysDef)
+				current.EvaluatePackage()
+				current.MoveTo(brigData[i].cellMarker)
+			EndIf
+			i = i + 1
+		EndWhile
+	EndLockGuard
 EndFunction
 
-Actor Function ReleasePrisoner(Int cellID)
-  If !initialized
-    
-  EndIf
-  Actor releasedPrisoner = None
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If cellID <= 0 || cellID >= BrigData.Length
-      
-    Else
-      BrigData[cellID].cellOccupied = False
-      BrigData[cellID].cellDoor.Unlock(False)
-      BrigData[cellID].cellDoor.SetOpen(True)
-      releasedPrisoner = BrigData[cellID].cellPrisoner
-      If releasedPrisoner != None
-        BrigData[cellID].cellPrisoner = None
-        BrigPrisoners.RemoveRef(releasedPrisoner as ObjectReference)
-        CurrentPrisonerCount -= 1
-        If releasedPrisoner.GetValue(Assistance) < CONST_Assistance_HelpsAllies as Float
-          releasedPrisoner.SetValue(Assistance, CONST_Assistance_HelpsAllies as Float)
-        EndIf
-        releasedPrisoner.EvaluatePackage(False)
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  Return releasedPrisoner
+
+;Release a prisoner from the Brig.
+;This is intended for use only by LC088_Vigilance, to release prisoners during the attack on the Vigilance.
+Actor Function ReleasePrisoner(int cellID)
+	if (!initialized)
+		Debug.Trace("ERROR: LC082_BrigQuestScript.AddPrisoner was called, but the Brig hasn't initialized and has no prisoners. Aborting. ", 2)
+	EndIf
+
+	Actor releasedPrisoner
+	LockGuard BrigDataGuard
+		if ((cellID <= 0) || (cellID >= brigData.Length))
+			Debug.Trace("ERROR: LC082_BrigQuestScript.RemovePrisoner: Invalid Cell ID " + cellID, 2)
+		Else
+			brigData[cellID].cellOccupied = False
+			brigData[cellID].cellDoor.Unlock()
+			brigData[cellID].cellDoor.SetOpen(True)
+			releasedPrisoner = brigData[cellID].cellPrisoner
+			if (releasedPrisoner != None)
+				brigData[cellID].cellPrisoner = None
+				BrigPrisoners.RemoveRef(releasedPrisoner)
+				CurrentPrisonerCount = CurrentPrisonerCount - 1
+				if (releasedPrisoner.GetValue(Assistance) < CONST_Assistance_HelpsAllies)
+					releasedPrisoner.SetValue(Assistance, CONST_Assistance_HelpsAllies)
+				EndIf
+				releasedPrisoner.EvaluatePackage()
+			EndIf
+		EndIf
+	EndLockGuard
+	return releasedPrisoner
 EndFunction
 
+;EVP all of the prisoners in the Brig.
 Function EVPPrisoners()
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int I = 0
-    While I < BrigData.Length
-      lc082_brigquestscript:brigcelldatum currentData = BrigData[I]
-      If currentData != None
-        Actor currentPrisoner = currentData.cellPrisoner
-        If currentPrisoner != None
-          currentPrisoner.EvaluatePackage(False)
-        EndIf
-      EndIf
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+	LockGuard BrigDataGuard
+		int i = 0
+		While (i < brigData.Length)
+			BrigCellDatum currentData = brigData[i]
+			if (currentData != None)
+				Actor currentPrisoner = currentData.cellPrisoner
+				if (currentPrisoner != None)
+					currentPrisoner.EvaluatePackage()
+				EndIf
+			EndIf
+			i = i + 1
+		EndWhile
+	EndLockGuard
 EndFunction
 
-Int Function GetBrigDataLength()
-  Guard BrigDataGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Return BrigData.Length
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+
+;Return the length of BrigData.
+int Function GetBrigDataLength()
+	LockGuard BrigDataGuard
+		return brigData.Length
+	EndLockGuard
 EndFunction
 
-Int Function Private_FindRandomUnoccupiedCellID()
-  Int randomCell = Utility.RandomInt(1, BrigData.Length)
-  Int I = randomCell
-  While I < BrigData.Length
-    If BrigData[I] != None && !BrigData[I].cellOccupied
-      Return I
-    EndIf
-    I += 1
-  EndWhile
-  I = 0
-  While I < randomCell
-    If BrigData[I] != None && !BrigData[I].cellOccupied
-      Return I
-    EndIf
-    I += 1
-  EndWhile
-  Return -1
+;Return the ID of a random unoccupied cell.
+int Function Private_FindRandomUnoccupiedCellID() RequiresGuard(BrigDataGuard)
+	int randomCell = Utility.RandomInt(1, brigData.Length)
+	int i = randomCell
+	While (i < brigData.Length)
+		if ((brigData[i] != None) && (!brigData[i].cellOccupied))
+			return i
+		EndIf
+		i = i + 1
+	EndWhile
+	i = 0
+	While (i < randomCell)
+		if ((brigData[i] != None) && (!brigData[i].cellOccupied))
+			return i
+		EndIf
+		i = i + 1
+	EndWhile
+	return -1
 EndFunction

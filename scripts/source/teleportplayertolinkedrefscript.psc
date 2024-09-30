@@ -1,11 +1,10 @@
-ScriptName TeleportPlayerToLinkedRefScript Extends ObjectReference
+Scriptname TeleportPlayerToLinkedRefScript extends ObjectReference
 
-;-- Functions ---------------------------------------
+event OnActivate(ObjectReference akActionRef)
+    ObjectReference player = Game.GetPlayer()
+    ObjectReference moveToRef = GetLinkedRef()
 
-Event OnActivate(ObjectReference akActionRef)
-  ObjectReference player = Game.GetPlayer() as ObjectReference
-  ObjectReference moveToRef = Self.GetLinkedRef(None)
-  If moveToRef != None
-    player.MoveTo(moveToRef, 0.0, 0.0, 0.0, True, False)
-  EndIf
-EndEvent
+    if(moveToRef != NONE)
+        player.MoveTo(moveToRef)
+    endIf
+endEvent

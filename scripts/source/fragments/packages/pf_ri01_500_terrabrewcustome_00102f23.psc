@@ -1,7 +1,12 @@
-ScriptName Fragments:Packages:PF_RI01_500_TerraBrewCustome_00102F23 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_RI01_500_TerraBrewCustome_00102F23 Extends Package Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  akActor.Disable(False)
+;BEGIN CODE
+akActor.Disable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

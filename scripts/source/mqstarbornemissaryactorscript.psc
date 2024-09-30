@@ -1,57 +1,55 @@
-ScriptName MQStarbornEmissaryActorScript Extends Actor
+Scriptname MQStarbornEmissaryActorScript extends Actor
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property MQ00_CompanionWhoDies Mandatory Const Auto
+GlobalVariable Property MQ_EmissaryRevealed Mandatory Const Auto
+GlobalVariable Property MQ_EmissaryRandom Mandatory Const Auto
+Idle Property Stage2NoTransition Mandatory Const Auto
+Actor[] Property CompanionArray Const Auto
 Int iRandomCompanion = -1
+Outfit Property Outfit_Spacesuit_Starborn_Companion_NPC_VoiceFilter Mandatory Const Auto
+Armor Property SpaceSuit_Starborn_Companion_PlayerOrFollower Mandatory Const Auto
+Armor Property SpaceSuit_Starborn_CompanionNPC_NOTPLAYABLE Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ReferenceAlias Property MQ00_CompanionWhoDies Auto Const mandatory
-GlobalVariable Property MQ_EmissaryRevealed Auto Const mandatory
-GlobalVariable Property MQ_EmissaryRandom Auto Const mandatory
-Idle Property Stage2NoTransition Auto Const mandatory
-Actor[] Property CompanionArray Auto Const
-Outfit Property Outfit_Spacesuit_Starborn_Companion_NPC_VoiceFilter Auto Const mandatory
-Armor Property SpaceSuit_Starborn_Companion_PlayerOrFollower Auto Const mandatory
-Armor Property SpaceSuit_Starborn_CompanionNPC_NOTPLAYABLE Auto Const mandatory
-
-;-- State -------------------------------------------
 Auto State WaitingForPlayer
+    Event OnLoad()
+        gotostate("hasbeentriggered") ;we only need to do this once
+        Self.WaitFor3dLoad() ;wait for 3d to fully load
+        If iRandomCompanion != -1
+            ;we picked a random companion before, so pick them again
+            Actor SetCompanionPicked = CompanionArray[iRandomCompanion]
+            CopyAppearance(SetCompanionPicked)
+            SetOverrideVoiceType(SetCompanionPicked.GetVoiceType())
+        ElseIf MQ_EmissaryRandom.GetValueInt() == 1
+            ;If the Emissary is randomized, pick a random companion
+            iRandomCompanion = Utility.RandomInt(0, 3)
+            Actor CompanionPicked = CompanionArray[iRandomCompanion]
+            CopyAppearance(CompanionPicked)
+            SetOverrideVoiceType(CompanionPicked.GetVoiceType())
+        ElseIf MQ00_CompanionWhoDies != None
+            ;if there's a specific companion who died, set to them
+            Actor DeadCompanionREF = MQ00_CompanionWhoDies.GetActorRef()
+            CopyAppearance(DeadCompanionREF)
+        EndIf
 
-  Event OnUnload()
-    ; Empty function
-  EndEvent
+        ;if emissary is revealed, make sure they're in an outfit with a helmet that modulates the voice
+        If MQ_EmissaryRevealed.GetValueInt() >= 1
+            RemoveItem(SpaceSuit_Starborn_CompanionNPC_NOTPLAYABLE)
+            EquipItem(SpaceSuit_Starborn_Companion_PlayerOrFollower)
+            SetOutfit(Outfit_Spacesuit_Starborn_Companion_NPC_VoiceFilter, abSleepOutfit=true)
+        EndIf
+    EndEvent
 
-  Event OnLoad()
-    Self.gotostate("hasbeentriggered")
-    Self.WaitFor3dLoad()
-    If iRandomCompanion != -1
-      Actor SetCompanionPicked = CompanionArray[iRandomCompanion]
-      Self.CopyAppearance(SetCompanionPicked)
-      Self.SetOverrideVoiceType(SetCompanionPicked.GetVoiceType())
-    ElseIf MQ_EmissaryRandom.GetValueInt() == 1
-      iRandomCompanion = Utility.RandomInt(0, 3)
-      Actor CompanionPicked = CompanionArray[iRandomCompanion]
-      Self.CopyAppearance(CompanionPicked)
-      Self.SetOverrideVoiceType(CompanionPicked.GetVoiceType())
-    ElseIf MQ00_CompanionWhoDies != None
-      Actor DeadCompanionREF = MQ00_CompanionWhoDies.GetActorRef()
-      Self.CopyAppearance(DeadCompanionREF)
-    EndIf
-    If MQ_EmissaryRevealed.GetValueInt() >= 1
-      Self.RemoveItem(SpaceSuit_Starborn_CompanionNPC_NOTPLAYABLE as Form, 1, False, None)
-      Self.EquipItem(SpaceSuit_Starborn_Companion_PlayerOrFollower as Form, False, False)
-      Self.SetOutfit(Outfit_Spacesuit_Starborn_Companion_NPC_VoiceFilter, True)
-    EndIf
-  EndEvent
+    Event OnUnload()
+        ;do nothing
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
 State hasbeentriggered
+    Event OnLoad()
+        ;do nothing
+    EndEvent
 
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-
-  Event OnUnload()
-    Self.gotostate("WaitingForPlayer")
-  EndEvent
+    Event OnUnload()
+        GotoState("WaitingForPlayer") ;Copy Appearrance needs to be called once per Load since it can reset
+    EndEvent
 EndState

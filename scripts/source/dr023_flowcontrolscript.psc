@@ -1,16 +1,18 @@
-ScriptName DR023_FlowControlScript Extends ObjectReference
+Scriptname DR023_FlowControlScript extends ObjectReference
 
-;-- State -------------------------------------------
-State Done
-EndState
+;Unlocks one of the doors in the central room and opens it. This randomizes the flow each time the player visits.
 
-;-- State -------------------------------------------
 Auto State RandomDoorState
+    Event OnCellLoad()
+        GotoState("Done")     
+        ObjectReference[] DR023doors = GetLinkedRefChain()
+        ObjectReference DoorUnlocked = DR023doors[Utility.RandomInt(0,DR023doors.length-1)]
+        DoorUnlocked.SetOpen()
 
-  Event OnCellLoad()
-    Self.GotoState("Done")
-    ObjectReference[] DR023doors = Self.GetLinkedRefChain(None, 100)
-    ObjectReference DoorUnlocked = DR023doors[Utility.RandomInt(0, DR023doors.Length - 1)]
-    DoorUnlocked.SetOpen(True)
-  EndEvent
+    EndEvent
+
 EndState
+
+STATE Done
+    ;do nothing
+EndSTATE

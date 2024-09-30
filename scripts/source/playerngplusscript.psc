@@ -1,15 +1,10 @@
-ScriptName PlayerNGPlusScript Extends Actor Const
+Scriptname PlayerNGPlusScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property PlayerUnityTimesEntered Auto Const mandatory
-EffectShader Property Starborn_DeathShader Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ActorValue Property PlayerUnityTimesEntered Mandatory Const Auto
+EffectShader Property Starborn_DeathShader Mandatory Const Auto
 
 Event OnDying(ObjectReference akKiller)
-  If Self.GetValue(PlayerUnityTimesEntered) as Int >= 1
-    Starborn_DeathShader.Play(Self as ObjectReference, -1.0)
-  EndIf
+    If ((Self.GetValue(PlayerUnityTimesEntered) as int) >= 1)
+        Starborn_DeathShader.Play(Self)
+    EndIf
 EndEvent

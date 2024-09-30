@@ -1,44 +1,46 @@
-ScriptName TestAirlockScript01 Extends ObjectReference
+Scriptname TestAirlockScript01 extends ObjectReference 
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property ArmorTypeHelmet Auto Const mandatory
-Message Property TestAirlockMSG01 Auto Const mandatory
-Bool Property bPowerered = True Auto
-
-;-- Functions ---------------------------------------
+Keyword Property ArmorTypeHelmet Auto Const Mandatory
+Message Property TestAirlockMSG01 Auto Const Mandatory
+bool Property bPowerered = True Auto
 
 Event OnInit()
-  Self.BlockActivation(True, False)
+	BlockActivation()
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If bPowerered
-    If Self.GetOpenState() == 3
-      If (akActionRef as Actor).WornHasKeyword(ArmorTypeHelmet)
-        Self.Activate(akActionRef, True)
-      ElseIf akActionRef == Game.GetPlayer() as ObjectReference
-        Int ButtonPressed = 0
-        ButtonPressed = TestAirlockMSG01.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        If ButtonPressed == 1
-          Self.Activate(akActionRef, True)
-        EndIf
-      Else
-        Self.Activate(akActionRef, True)
-      EndIf
-    Else
-      Self.Activate(akActionRef, True)
-    EndIf
-  EndIf
+	;this only works if the door has power
+	If bPowerered
+		;only do this if the door is closed
+		If self.GetOpenState() == 3
+			If (akActionRef as Actor).WornHasKeyword(ArmorTypeHelmet)
+				;open door
+				Self.Activate(akActionRef, True)
+			ElseIf (akActionRef == Game.GetPlayer())
+				;pop message box with buttons
+				int ButtonPressed
+				ButtonPressed = TestAirlockMSG01.Show()
+				If ButtonPressed == 1
+					;player decides to open airlock anyway
+					Self.Activate(akActionRef, True)
+				EndIf
+			Else
+				;open door because an NPC wants in
+				Self.Activate(akActionRef, True)
+			EndIf
+		Else
+			;pass activation through if door is open
+			Self.Activate(akActionRef, True)
+		EndIf
+	EndIf
 EndEvent
 
 Function PowerOff()
-  Self.SetOpen(True)
-  bPowerered = False
+	Self.SetOpen()
+	bPowerered = False
 EndFunction
 
-Function PowerOn()
-  Self.SetOpen(False)
-  bPowerered = True
+Function PowerOn()	
+	Self.SetOpen(False)
+	bPowerered = True
 EndFunction

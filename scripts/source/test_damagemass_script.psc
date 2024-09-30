@@ -1,7 +1,5 @@
-ScriptName Test_DamageMass_Script Extends ActiveMagicEffect
+Scriptname Test_DamageMass_Script extends ActiveMagicEffect
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  ; Empty function
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    Debug.Trace(Self + "EVENT: OnEffectStart fired. akTarget = " + akTarget + " akCaster = " + akCaster)
 EndEvent

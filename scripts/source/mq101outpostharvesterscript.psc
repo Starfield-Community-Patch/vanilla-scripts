@@ -1,15 +1,11 @@
-ScriptName MQ101OutpostHarvesterScript Extends ObjectReference Const
+Scriptname MQ101OutpostHarvesterScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Location Property SystemNarionPlanetAnselonMoonNexum Auto Const mandatory
-Quest Property MQ101 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Location Property SystemNarionPlanetAnselonMoonNexum Auto Const Mandatory
+Quest Property MQ101 Auto Const Mandatory
 
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  If Game.GetPlayer().IsInLocation(SystemNarionPlanetAnselonMoonNexum) && MQ101.GetStageDone(900) == False
-    MQ101.SetStage(740)
-  EndIf
+	If Game.GetPlayer().IsInLocation(SystemNarionPlanetAnselonMoonNexum) && MQ101.GetStageDone(900) == 0
+		MQ101.SetStage(740)
+	EndIf
 EndEvent
+

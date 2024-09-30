@@ -1,23 +1,19 @@
-ScriptName Mq301Script Extends Quest
+Scriptname Mq301Script extends Quest
 
-;-- Variables ---------------------------------------
+Int Property MoonLogCountTotal=6 Const Auto
 Int MoonLogCountCurrent
-
-;-- Properties --------------------------------------
-Int Property MoonLogCountTotal = 6 Auto Const
-Int Property MoonLogsDoneStage = 50 Auto Const
-Int Property MoonLogObj = 12 Auto Const
-Int Property MoonLogsFirstStage = 25 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property MoonLogsDoneStage=50 Const Auto
+Int Property MoonLogObj=12 Const Auto
+Int Property MoonLogsFirstStage=25 Const Auto
 
 Function UpdateMoonLogCount()
-  MoonLogCountCurrent += 1
-  If MoonLogCountCurrent == MoonLogCountTotal
-    Self.SetStage(MoonLogsDoneStage)
-  EndIf
-  If Self.GetStageDone(MoonLogsFirstStage) == False
-    Self.SetStage(MoonLogsFirstStage)
-  EndIf
-  Self.SetObjectiveDisplayed(MoonLogObj, True, False)
+    MoonLogCountCurrent += 1
+    If MoonLogCountCurrent == MoonLogCountTotal
+        SetStage(MoonLogsDoneStage)
+    EndIf
+
+	If GetStageDone(MoonLogsFirstStage) == False
+		SetStage(MoonLogsFirstStage)
+	EndIf
+    SetObjectiveDisplayed(MoonLogObj)
 EndFunction

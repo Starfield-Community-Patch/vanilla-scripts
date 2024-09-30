@@ -1,44 +1,49 @@
-ScriptName SQ_TreasureMapQuestScript Extends Quest
+Scriptname SQ_TreasureMapQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property TreasureMap Auto Const mandatory
+ReferenceAlias property TreasureMap auto const mandatory
 { used by SQ_TreasureMapScript to swap dummy map with the real map with text replacement created by this quest }
-ReferenceAlias Property Treasure Auto Const mandatory
-{ Treasure ref passed in via event - needs to be moved to the treasure container on startup }
-ReferenceAlias Property TreasureMapOriginal Auto Const mandatory
-{ passed in via event - used to get properties for creating treasure }
-GlobalVariable Property TreasureMapQuestCount Auto Const mandatory
-{ global variable that matches this treasure map type, to keep track of how many quests are currently running }
-Int Property ObjectiveID = 10 Auto Const
-Int Property ObjectiveStage = 100 Auto Const
 
-;-- Functions ---------------------------------------
+ReferenceAlias property Treasure auto const mandatory
+{ Treasure ref passed in via event - needs to be moved to the treasure container on startup }
+
+ReferenceAlias property TreasureMapOriginal auto const mandatory
+{ passed in via event - used to get properties for creating treasure }
+
+GlobalVariable property TreasureMapQuestCount auto const mandatory
+{ global variable that matches this treasure map type, to keep track of how many quests are currently running }
+
+int property ObjectiveID = 10 auto Const
+
+int property ObjectiveStage = 100 auto Const
 
 Event OnQuestStarted()
-  TreasureMapQuestCount.Mod(1.0)
-  If Self.CreateTreasure()
-    Self.SetObjectiveDisplayed(ObjectiveID, True, False)
-  Else
-    Game.GetPlayer().RemoveItem(TreasureMap.GetRef() as Form, 1, True, None)
-    Self.Stop()
-  EndIf
+    ; increment quest count
+    TreasureMapQuestCount.Mod(1)
+    if CreateTreasure()
+        SetObjectiveDisplayed(ObjectiveID)
+    Else
+        debug.trace(self + " WARNING: failed to create treasure - stopping quest", aiSeverity = 2)
+        Game.GetPlayer().RemoveItem(TreasureMap.GetRef(), abSilent=true) ; remove garbage map from player's inventory
+        Stop()
+    endif
 EndEvent
 
 Event OnQuestShutdown()
-  TreasureMapQuestCount.Mod(-1.0)
+    ; decrement quest count
+    TreasureMapQuestCount.Mod(-1)
 EndEvent
 
 Event OnQuestRejected()
-  Self.HandleOnQuestRejected()
+    HandleOnQuestRejected()    
 EndEvent
 
 Function HandleOnQuestRejected()
-  Self.SetObjectiveDisplayed(ObjectiveID, False, False)
-  Self.Stop()
+    SetObjectiveDisplayed(ObjectiveID, false)
+    Stop()
 EndFunction
 
-Bool Function CreateTreasure()
-  Return False
-EndFunction
+bool Function CreateTreasure()
+    debug.trace(self + " CreateTreasure - parent - should never see this")
+    ; override on extending scripts
+    return false
+endFunction

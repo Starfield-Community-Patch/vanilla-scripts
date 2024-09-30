@@ -1,65 +1,92 @@
-ScriptName SQ_Crew_SpawnManagerScript Extends Quest
+Scriptname SQ_Crew_SpawnManagerScript extends Quest
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
-Group autofill
-  ReferenceAlias Property SpawnMarker Auto Const mandatory
-  { autofill }
-  RefCollectionAlias Property Alias_SpawnedCrewCollection Auto Const mandatory
-  { autofill; REMINDER: these are initially disabled refs }
-  Keyword Property LinkGenericCrewSpawnMarker Auto Const mandatory
-  { autofill; the keyword to link spawned crew members to the spawn marker }
-  Int Property StopStage = 9999 Auto Const
-  { The stage to set to shut down this quest. }
+Group Autofill
+	ReferenceAlias Property SpawnMarker Mandatory Const Auto
+	{autofill}
+
+	RefCollectionAlias Property Alias_SpawnedCrewCollection Mandatory Const Auto
+	{autofill; REMINDER: these are initially disabled refs}
+
+	Keyword property LinkGenericCrewSpawnMarker Mandatory Const auto
+	{autofill; the keyword to link spawned crew members to the spawn marker}
+
+	int property StopStage = 9999 const auto
+	{ The stage to set to shut down this quest. }
 EndGroup
 
 Group EnableChances
-  Int[] Property EnableChances Auto Const mandatory
-  { chance for each roll to enable one of the refs in Alias_SpawnedCrewCollection }
+	int[] Property EnableChances Mandatory Const Auto
+	{chance for each roll to enable one of the refs in Alias_SpawnedCrewCollection}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
+;called by startup stage fragment
 Function RollToEnableRefs()
-  crewspawnerscript spawnMarkerRef = SpawnMarker.GetReference() as crewspawnerscript
-  If spawnMarkerRef.GetCanSpawnCrew() == False
-    Self.SetStopStage()
-    Return 
-  EndIf
-  Int max = spawnMarkerRef.MaxNumberToSpawn
-  Faction CrewCrimeFaction = spawnMarkerRef.CrewCrimeFaction
-  ObjectReference[] crewArray = Alias_SpawnedCrewCollection.GetArray()
-  Int I = 0
-  Int iMax = Math.min(max as Float, crewArray.Length as Float) as Int
-  If iMax > EnableChances.Length
-    iMax = EnableChances.Length
-  EndIf
-  While I < iMax
-    Bool success = Game.GetDieRollSuccess(EnableChances[I], 1, 100, -1, -1)
-    If success
-      Actor theCrew = crewArray[I] as Actor
-      theCrew.Enable(False)
-      theCrew.SetCrimeFaction(CrewCrimeFaction)
-      spawnMarkerRef.AddToSpawnedCrewArray(theCrew)
-      (theCrew as crewrandomvoicescript).TryToSetCrewVoiceType()
-    EndIf
-    I += 1
-  EndWhile
-  spawnMarkerRef.StartRespawnTimer()
-  Self.SetStopStage()
+	CrewSpawnerScript spawnMarkerRef = SpawnMarker.GetReference() as CrewSpawnerScript
+
+	if spawnMarkerRef.GetCanSpawnCrew() == false
+		Trace(self, "RollToEnableRefs() spawnMarkerRef.GetCanSpawnCrew() == false, aborting.")
+		SetStopStage()
+		return
+	endif
+
+	Trace(self, "RollToEnableRefs() spawnMarkerRef: " + spawnMarkerRef + ", spawnMarkerRef.GetCurrentLocation()" + spawnMarkerRef.GetCurrentLocation())
+
+	int max = spawnMarkerRef.MaxNumberToSpawn
+	Faction CrewCrimeFaction = spawnMarkerRef.CrewCrimeFaction
+
+	Trace(self, "RollToEnableRefs() max: " + max)
+
+	ObjectReference[] crewArray = Alias_SpawnedCrewCollection.GetArray()
+	Trace(self, "RollToEnableRefs() crewArray: " + max)
+	Trace(self, "RollToEnableRefs() EnableChances: " + EnableChances)
+
+	int i = 0
+	int iMax = Math.min(max, crewArray.Length) as int
+
+	if iMax > EnableChances.Length
+		Warning(self, "RollToEnableRefs() iMax > EnableChances.Length, forcing max to EnableChances.Length")
+		iMax = EnableChances.Length
+	endif
+
+	While (i < iMax)
+		bool success = Game.GetDieRollSuccess(EnableChances[i])
+		
+		if success
+			Actor theCrew = crewArray[i] as Actor
+			Trace(self, "RollToEnableRefs() success! Enabling crewArray[i]: " + crewArray[i])
+			theCrew.Enable() ; Purposely call .Enable() as further code relies on the 3D Loaded state of this Actor.
+			theCrew.SetCrimeFaction(CrewCrimeFaction)
+
+			; Add them to the Spawn Marker's spawned crew array, so they can be cleaned up later if unhired.
+			spawnMarkerRef.AddToSpawnedCrewArray(theCrew)
+
+			; Try to evaluate their voicetype.
+			Trace(self, "RollToEnableRefs() Trying to set crew voice type")
+			(theCrew as CrewRandomVoiceScript).TryToSetCrewVoiceType()
+		endif
+
+		i += 1
+	EndWhile
+
+	spawnMarkerRef.StartRespawnTimer()
+	SetStopStage()
+
+	Trace(self, "RollToEnableRefs() done")
 EndFunction
 
-Function SetStopStage()
-  Self.SetStage(StopStage)
-EndFunction
+function SetStopStage()
+	SetStage(StopStage)
+endFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Crew",  string SubLogName = "SpawnManager", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Crew",  string SubLogName = "SpawnManager", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

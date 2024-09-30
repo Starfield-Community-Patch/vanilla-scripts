@@ -1,40 +1,40 @@
-ScriptName LoadElevatorRequestFloorOnActivate Extends ObjectReference
+Scriptname LoadElevatorRequestFloorOnActivate extends ObjectReference
+; This script exists on Activators (like elevator buttons), which the player can use to travel between elevator floors.
+; When its reference is activated, this script calls RequestFloorTravel() on the LoadElevatorManagerScript which controls its elevator system. This is how the Player travels between elevator floors.
+;
+; For more information, look for "Load elevator implementation details" on confluence
 
-;-- Variables ---------------------------------------
-Int currentFloorIndex = -1
-loadelevatormanagerscript loadElevatorManager
+int currentFloorIndex = -1
+LoadElevatorManagerScript loadElevatorManager
 
-;-- Functions ---------------------------------------
+; Called during initialization, to populate this Activator with the data it needs to make floor travel requests.
+function AssignLoadElevatorData(int newCurrentFloorIndex, LoadElevatorManagerScript newLoadElevatorManager)
+	currentFloorIndex = newCurrentFloorIndex
+	loadElevatorManager = newLoadElevatorManager
+endFunction
 
-Function AssignLoadElevatorData(Int newCurrentFloorIndex, loadelevatormanagerscript newLoadElevatorManager)
-  currentFloorIndex = newCurrentFloorIndex
-  loadElevatorManager = newLoadElevatorManager
-EndFunction
+function AssignButtonName(Message buttonNameMessage)
+	SetOverrideName(buttonNameMessage)
+endFunction
 
-Function AssignButtonName(Message buttonNameMessage)
-  Self.SetOverrideName(buttonNameMessage)
-EndFunction
+auto state WaitingForPlayerToRequestFloorTravel
+; Call the LoadElevatorManagerScript to make a floor travel request
+event OnActivate(ObjectReference akActionRef)
+	GotoState("RequestingFloorTravel")
 
-;-- State -------------------------------------------
-State RequestingFloorTravel
+	if(currentFloorIndex != -1 && loadElevatorManager != NONE && akActionRef == Game.GetPlayer())
+		if(loadElevatorManager == None)
+			DefaultScriptFunctions.Trace(self, "LoadElevatorManagerScript not found.", true, "LoadElevators")
+		else
+			loadElevatorManager.RequestFloorTravel(currentFloorIndex, akActionRef)
+		endIf
+	endIf
 
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
+	GotoState("WaitingForPlayerToRequestFloorTravel")
+endEvent
+endState
 
-;-- State -------------------------------------------
-Auto State WaitingForPlayerToRequestFloorTravel
-
-  Event OnActivate(ObjectReference akActionRef)
-    Self.GotoState("RequestingFloorTravel")
-    If currentFloorIndex != -1 && loadElevatorManager != None && (akActionRef == Game.GetPlayer() as ObjectReference)
-      If loadElevatorManager == None
-        
-      Else
-        loadElevatorManager.RequestFloorTravel(currentFloorIndex, akActionRef)
-      EndIf
-    EndIf
-    Self.GotoState("WaitingForPlayerToRequestFloorTravel")
-  EndEvent
+state RequestingFloorTravel
+event OnActivate(ObjectReference akActionRef)
+endEvent
 EndState

@@ -1,16 +1,15 @@
-ScriptName ArtifactPower_ReflectShield Extends ActiveMagicEffect
+Scriptname ArtifactPower_ReflectShield extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Perk Property ReflectPerk Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Perk Property ReflectPerk Auto Const mandatory
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
 
-;-- Functions ---------------------------------------
+    akCaster.addPerk(ReflectPerk)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akCaster.addPerk(ReflectPerk, False)
-EndEvent
+ENDEVENT
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akCaster.removePerk(ReflectPerk)
-EndEvent
+EVENT OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+
+    akCaster.removePerk(ReflectPerk)
+
+ENDEVENT

@@ -1,81 +1,119 @@
-ScriptName UC07QuestScript Extends Quest
+Scriptname UC07QuestScript extends Quest
 
-;-- Structs -----------------------------------------
 Struct BatteryRecipeComponent
-  MiscObject ComponentObject
-  Int AmountRequired
+    MiscObject ComponentObject
+    int AmountRequired
 EndStruct
 
+BatteryRecipeComponent[] Property RecipePieces Mandatory Const Auto
+{The various pieces required for the battery and how many we need}
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property EclipticSceneTarget Mandatory Const Auto
+{Alias to fill if we find a living member of Ecliptic}
 
-;-- Properties --------------------------------------
-uc07questscript:batteryrecipecomponent[] Property RecipePieces Auto Const mandatory
-{ The various pieces required for the battery and how many we need }
-ReferenceAlias Property EclipticSceneTarget Auto Const mandatory
-{ Alias to fill if we find a living member of Ecliptic }
-RefCollectionAlias Property BatteryContainers Auto Const mandatory
-{ Collection containing the list of battery component containers }
-RefCollectionAlias Property QuestBatteryMaterials Auto Const mandatory
-{ Holding collection for the quest battery materials }
-ObjectReference Property UC07_BatteryComponentsSpawn Auto Const mandatory
-{ Spawn point for the battery components }
-Keyword Property UC07_BatteryComponent Auto Const mandatory
-{ Keyword used to designate the a component is one of our quest objects }
-Int Property BatteryComponentsDistributedStage = 105 Auto Const
-{ Stage to set once all the battery components have been distributed }
+RefCollectionAlias Property BatteryContainers Mandatory Const Auto
+{Collection containing the list of battery component containers}
 
-;-- Functions ---------------------------------------
+RefCollectionAlias Property QuestBatteryMaterials Mandatory Const Auto
+{Holding collection for the quest battery materials}
 
-Bool Function CheckForLivingSceneTarget(RefCollectionAlias akTargetColl)
-  Int I = 0
-  Int iCount = akTargetColl.GetCount()
-  Bool bFoundNPC = False
-  While I < iCount && !bFoundNPC
-    Actor currRef = akTargetColl.GetAt(I) as Actor
-    If !currRef.IsDead()
-      bFoundNPC = True
-      EclipticSceneTarget.ForceRefTo(currRef as ObjectReference)
-    EndIf
-    I += 1
-  EndWhile
-  Return bFoundNPC
+ObjectReference Property UC07_BatteryComponentsSpawn Mandatory Const Auto
+{Spawn point for the battery components}
+
+Keyword Property UC07_BatteryComponent Mandatory Const Auto
+{Keyword used to designate the a component is one of our quest objects}
+
+int Property BatteryComponentsDistributedStage = 105 Auto Const
+{Stage to set once all the battery components have been distributed}
+
+bool Function CheckForLivingSceneTarget(RefCollectionAlias akTargetColl)
+    int i = 0
+    int iCount = akTargetColl.GetCount()
+    bool bFoundNPC
+
+    while i < iCount && !bFoundNPC
+        Actor currRef = akTargetColl.GetAt(i) as Actor
+
+        if !currRef.IsDead()
+            bFoundNPC = true
+            EclipticSceneTarget.ForceRefTo(currRef)
+
+        endif
+
+        i += 1
+    endwhile
+
+    return bFoundNPC
 EndFunction
 
 Function DistributeBatteryComponents()
-  Int I = 0
-  Int iLength = RecipePieces.Length
-  While I < iLength
-    uc07questscript:batteryrecipecomponent myDatum = RecipePieces[I]
-    Int iAmountRequired = myDatum.AmountRequired
-    MiscObject currObj = myDatum.ComponentObject
-    ObjectReference ObjREF = UC07_BatteryComponentsSpawn.PlaceAtMe(currObj as Form, 1, False, False, True, None, None, True)
-    QuestBatteryMaterials.AddRef(ObjREF)
-    If iAmountRequired > 1
-      Int j = 0
-      While j < iAmountRequired
-        Self.FindBatteryContainer(ObjREF)
-        j += 1
-      EndWhile
-    ElseIf iAmountRequired == 1
-      Self.FindBatteryContainer(ObjREF)
-    EndIf
-    I += 1
-  EndWhile
-  Self.SetStage(BatteryComponentsDistributedStage)
+    int i = 0
+    int iLength  = RecipePieces.Length
+    trace(self, "Starting the distribution of the battery components.")
+
+    while i < iLength
+        BatteryRecipeComponent myDatum = RecipePieces[i]
+        int iAmountRequired = myDatum.AmountRequired
+        MiscObject currObj = myDatum.ComponentObject
+        ObjectReference ObjREF = UC07_BatteryComponentsSpawn.PlaceAtMe(currObj)
+
+        ;Add the item to the quest object collection (and give it its keyword)
+        QuestBatteryMaterials.AddRef(ObjREF)
+
+        if iAmountRequired > 1
+            int j = 0
+            
+            while j < iAmountRequired
+                FindBatteryContainer(ObjREF)
+
+                j += 1
+            endwhile
+        elseif iAmountRequired == 1
+            FindBatteryContainer(ObjREF)
+        endif
+
+        i += 1
+    endwhile
+
+    ;/ Turning this off in 3rd pass. Force the player to explore a little bit more.
+    ;Remove any battery containers from the list that don't have quest items in them
+    int k = 0
+    int kCount = BatteryContainers.GetCount()
+
+    while k < kCount
+        ObjectReference currContainer = BatteryContainers.GetAt(k)
+
+        if currContainer.GetItemCount(UC07_BatteryComponent) <= 0
+            trace(self, "Removed quest item-less container: " + currContainer)
+            BatteryContainers.RemoveRef(currContainer)
+        endif
+
+        k += 1
+    endwhile
+    /;
+
+    ;Sequence complete. Set the stage to turn on the container events in UC07_BatteryMaterialsCollScript
+    SetStage(BatteryComponentsDistributedStage)
 EndFunction
 
 Function FindBatteryContainer(ObjectReference akTargetObject)
-  Int iCount = BatteryContainers.GetCount()
-  Int iIndexMax = iCount - 1
-  If iIndexMax < 0
-    iIndexMax = 0
-  EndIf
-  Int iRand = Utility.RandomInt(0, iIndexMax)
-  ObjectReference currContainer = BatteryContainers.GetAt(iRand)
-  currContainer.AddItem(akTargetObject as Form, 1, False)
+    int iCount = BatteryContainers.GetCount()
+    int iIndexMax = iCount - 1
+
+    if iIndexMax < 0
+        iIndexMax = 0
+    endif
+
+    int iRand = Utility.RandomInt(0, iIndexMax)
+
+    ObjectReference currContainer = BatteryContainers.GetAt(iRand)
+    currContainer.AddItem(akTargetObject)
+    trace(self, "Item: " + akTargetObject + " to container: " + currContainer + ". Count of quest items: " + currContainer.GetItemCount(UC07_BatteryComponent)) 
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC07", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

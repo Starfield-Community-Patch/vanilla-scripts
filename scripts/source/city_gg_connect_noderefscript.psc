@@ -1,14 +1,9 @@
-ScriptName City_GG_Connect_NodeRefScript Extends ObjectReference Const
+Scriptname City_GG_Connect_NodeRefScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property City_GG_Connect_ActiveScanner_Keyword Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Keyword Property City_GG_Connect_ActiveScanner_Keyword Mandatory Const Auto
 
 Event OnLoad()
-  If !Self.HasKeyword(City_GG_Connect_ActiveScanner_Keyword)
-    Self.BlockActivation(True, True)
-  EndIf
+    if !HasKeyword(City_GG_Connect_ActiveScanner_Keyword)
+        BlockActivation(true, true)
+    endif
 EndEvent

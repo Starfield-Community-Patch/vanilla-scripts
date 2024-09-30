@@ -1,5 +1,4 @@
-ScriptName Challenge Extends Form Native hidden
+Scriptname Challenge extends Form native hidden
 
-;-- Functions ---------------------------------------
-
-Function StartPlayerChallenge() Native
+; Starts the specified challenge on the player
+Function StartPlayerChallenge() native

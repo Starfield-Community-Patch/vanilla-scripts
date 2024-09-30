@@ -1,57 +1,61 @@
-ScriptName UC02_TerrormorphFleeAliasScript Extends ReferenceAlias Const
+Scriptname UC02_TerrormorphFleeAliasScript extends ReferenceAlias const
 
-;-- Variables ---------------------------------------
-Int iCheckTimerID = 1 Const
+Faction Property TerrormorphFaction Mandatory Const Auto
+{Terrormorph faction}
 
-;-- Properties --------------------------------------
-Faction Property TerrormorphFaction Auto Const mandatory
-{ Terrormorph faction }
-RefCollectionAlias Property FleeingTerrormorph Auto Const mandatory
-{ Collection for fleeing Terrormorphs }
-Int Property CheckTimerLength Auto Const mandatory
-{ How frequently we check to see if the Terrormorph is out of range of the target }
-GlobalVariable Property UC02_TerrormorphFleeDistance Auto Const mandatory
-{ Global used to know how far Terrormorphs need to flee from this alias }
+RefCollectionAlias Property FleeingTerrormorph Mandatory Const Auto
+{Collection for fleeing Terrormorphs}
 
-;-- Functions ---------------------------------------
+int Property CheckTimerLength Mandatory Const Auto
+{How frequently we check to see if the Terrormorph is out of range of the target}
+
+GlobalVariable Property UC02_TerrormorphFleeDistance Mandatory Const Auto
+{Global used to know how far Terrormorphs need to flee from this alias}
+
+int iCheckTimerID = 1 const
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Actor TriggerACT = akActionRef as Actor
-  If TriggerACT as Bool && TriggerACT.IsInFaction(TerrormorphFaction)
-    If FleeingTerrormorph.GetCount() <= 0
-      Self.StartTimerCheck()
-    EndIf
-    FleeingTerrormorph.Addref(TriggerACT as ObjectReference)
-    TriggerACT.EvaluatePackage(False)
-  EndIf
+    Actor TriggerACT = akActionRef as Actor
+    if TriggerACT && TriggerACT.IsInFaction(TerrormorphFaction)
+        if FleeingTerrormorph.GetCount() <= 0
+            StartTimerCheck()
+        endif
+
+        FleeingTerrormorph.Addref(TriggerACT)
+        TriggerACT.EvaluatePackage()
+    endif
 EndEvent
 
 Function StartTimerCheck()
-  Self.StartTimer(CheckTimerLength as Float, iCheckTimerID)
+    StartTimer(CheckTimerLength,iCheckTimerID)
 EndFunction
 
 Function CleanUpCollection()
-  Int I = 0
-  Int iCount = FleeingTerrormorph.GetCount()
-  While I < iCount
-    ObjectReference currMorph = FleeingTerrormorph.GetAt(I)
-    If currMorph.GetDistance(Self.GetRef()) <= UC02_TerrormorphFleeDistance.GetValue()
-      FleeingTerrormorph.RemoveRef(currMorph)
-    EndIf
-    I += 1
-  EndWhile
-  If FleeingTerrormorph.GetCount() > 0
-    Self.StartTimerCheck()
-  EndIf
+    int i = 0
+    int iCount = FleeingTerrormorph.GetCount()
+    
+    while i < iCount
+        ObjectReference currMorph = FleeingTerrormorph.GetAt(i)
+
+        if currMorph.GetDistance(GetRef()) <= UC02_TerrormorphFleeDistance.GetValue()
+            FleeingTerrormorph.RemoveRef(currMorph)
+        endif
+
+        i += 1
+    endwhile
+
+    if FleeingTerrormorph.GetCount() > 0
+        StartTimerCheck()
+    endif
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iCheckTimerID
-    Self.CleanUpCollection()
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == iCheckTimerID
+        CleanUpCollection()
+    endif
 EndEvent
 
 Event OnUnload()
-  Self.CancelTimer(iCheckTimerID)
-  FleeingTerrormorph.RemoveAll()
+    CancelTimer(iCheckTimerID)
+    FleeingTerrormorph.RemoveAll()
 EndEvent

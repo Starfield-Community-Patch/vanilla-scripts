@@ -1,19 +1,17 @@
-ScriptName TestNPCChangeType Extends ObjectReference Const
+Scriptname TestNPCChangeType extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ActorBase[] property NPCTypes auto Const Mandatory
 
-;-- Properties --------------------------------------
-ActorBase[] Property NPCTypes Auto Const mandatory
-ObjectReference Property SpawnController Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ObjectReference Property SpawnController auto const Mandatory
 
 Function CycleNPCType()
-  Int index = NPCTypes.find((SpawnController as testnpcsimplespawn).ActorToSpawn, 0)
-  If index + 1 >= NPCTypes.Length - 1
-    index = 0
-  Else
-    index += 1
-  EndIf
-  (SpawnController as testnpcsimplespawn).ActorToSpawn = NPCTypes[index]
+
+	int index = NPCTypes.Find((SpawnController as TestNPCSimpleSpawn).ActorToSpawn)
+
+	if(index + 1 >= NPCTypes.Length-1)
+		index = 0
+	else
+		index += 1
+	EndIf
+	(SpawnController as TestNPCSimpleSpawn).ActorToSpawn = NPCTypes[index]
 EndFunction

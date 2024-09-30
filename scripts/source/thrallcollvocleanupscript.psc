@@ -1,56 +1,59 @@
-ScriptName ThrallCollVOCleanUpScript Extends RefCollectionAlias
+Scriptname ThrallCollVOCleanUpScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
-Int iTimerID = 1 Const
+MagicEffect Property CrTerrormorphMindControlEffect_NPC Mandatory Const Auto
+{The NPC mind control property}
 
-;-- Properties --------------------------------------
-MagicEffect Property CrTerrormorphMindControlEffect_NPC Auto Const mandatory
-{ The NPC mind control property }
-Int Property TimerLength = 5 Auto Const
-{ How frequently we check to see if there's any NPCs in the list that need their VO cleaned up }
-VoiceType Property NPCFTerrormorphThrall Auto Const mandatory
-{ Female Terrormorph voicetype }
-VoiceType Property NPCMTerrormorphThrall Auto Const mandatory
-{ Male Terrormorph voicetype }
+int Property TimerLength = 5 Const Auto
+{How frequently we check to see if there's any NPCs in the list that need their VO cleaned up}
 
-;-- Functions ---------------------------------------
+VoiceType Property NPCFTerrormorphThrall Mandatory Const Auto
+{Female Terrormorph voicetype}
+
+VoiceType Property NPCMTerrormorphThrall Mandatory Const Auto
+{Male Terrormorph voicetype}
+
+int iTimerID = 1 const
 
 Event OnAliasInit()
-  Self.StartCheck()
+    StartCheck()
 EndEvent
 
 Function StartCheck()
-  Self.StartTimer(TimerLength as Float, iTimerID)
+    StartTimer(TimerLength, iTimerID)
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iTimerID
-    If Self.GetCount() > 0
-      Self.RunVOCleanUp()
-    Else
-      Self.StartCheck()
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == iTimerID
+        if GetCount() > 0
+            RunVOCleanUp()
+        else
+            StartCheck()
+        endif
+    endif
 EndEvent
 
 Function RunVOCleanUp()
-  Int I = Self.GetCount() - 1
-  While I >= 0
-    Actor currAct = Self.GetAt(I) as Actor
-    If currAct != None
-      Self.AttemptVOCleanUp(currAct)
-    EndIf
-    I -= 1
-  EndWhile
-  Self.StartCheck()
+    int i = GetCount() - 1
+
+    while i >= 0
+        Actor currAct = GetAt(i) as Actor
+
+        if currAct != None
+            AttemptVOCleanUp(currAct)
+        endif
+
+        i -= 1
+    endwhile
+
+    StartCheck()
 EndFunction
 
 Function AttemptVOCleanUp(Actor akActorRef)
-  If !akActorRef.HasMagicEffect(CrTerrormorphMindControlEffect_NPC)
-    VoiceType currVoiceType = akActorRef.GetVoiceType()
-    If currVoiceType == NPCFTerrormorphThrall || currVoiceType == NPCMTerrormorphThrall
-      akActorRef.SetOverrideVoiceType(None)
-    EndIf
-    Self.RemoveRef(akActorRef as ObjectReference)
-  EndIf
+    if !akActorRef.HasMagicEffect(CrTerrormorphMindControlEffect_NPC)
+        VoiceType currVoiceType = akActorRef.GetVoiceType()
+        if currVoiceType == NPCFTerrormorphThrall || currVoiceType == NPCMTerrormorphThrall
+            akActorRef.SetOverrideVoiceType(none)
+        endif
+        RemoveRef(akActorRef)
+    endif
 EndFunction

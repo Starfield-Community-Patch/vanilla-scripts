@@ -1,20 +1,17 @@
-ScriptName TestForceAliasScript Extends Quest
+Scriptname TestForceAliasScript extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias property AliasToForce auto Const
 
-;-- Properties --------------------------------------
-ReferenceAlias Property AliasToForce Auto Const
-
-;-- Functions ---------------------------------------
-
-Function ForceIntoAlias(Form myForm)
-  ObjectReference myRef = myForm as ObjectReference
-  If myRef
-    AliasToForce.ForceRefTo(myRef)
-  Else
-    spaceshipreference myShip = myForm as spaceshipreference
-    If myShip
-      AliasToForce.ForceRefTo(myShip as ObjectReference)
-    EndIf
-  EndIf
+function ForceIntoAlias(Form myForm)
+    ObjectReference myRef = myForm as ObjectReference
+    if myRef
+        AliasToForce.ForceRefTo(myref)
+    else
+        SpaceshipReference myShip = myForm as SpaceshipReference
+        if myShip
+            AliasToForce.ForceRefTo(myship)
+        else
+            debug.trace(self + " invalid form " + myForm)
+        EndIf
+    endif
 EndFunction

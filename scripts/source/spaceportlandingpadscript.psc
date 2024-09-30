@@ -1,72 +1,100 @@
-ScriptName SpaceportLandingPadScript Extends ObjectReference
-{ Script for driving the animation of both the main elevator and the exit lounges. }
+Scriptname SpaceportLandingPadScript extends ObjectReference 
+{Script for driving the animation of both the main elevator and the exit lounges.}
 
-;-- Variables ---------------------------------------
+float Property OffsetDistance = 8.0 auto const 
+Static Property xMarker auto const
+ObjectReference Property elevatorRef auto const
+
 ObjectReference LastRaisedExit
-Bool elevatorIsUp = True
+bool elevatorIsUp = True
+
 Activator selfAsActivator
 
-;-- Properties --------------------------------------
-Float Property OffsetDistance = 8.0 Auto Const
-Static Property xMarker Auto Const
-ObjectReference Property elevatorRef Auto Const
+Event onTriggerEnter(objectReference triggerRef)
 
-;-- Functions ---------------------------------------
+	selfAsActivator = self.GetBaseObject() as Activator
 
-Event onTriggerEnter(ObjectReference triggerRef)
-  selfAsActivator = Self.GetBaseObject() as Activator
-  If triggerRef == Game.GetPlayer() as ObjectReference
-    ObjectReference bestExit = Self.GetBestExitLounge()
-    If bestExit == LastRaisedExit
-      bestExit.PlayAnimation("Stage1")
-      LastRaisedExit = None
-    ElseIf LastRaisedExit
-      bestExit.PlayAnimation("Stage2")
-      LastRaisedExit.PlayAnimation("Stage1")
-      LastRaisedExit = bestExit
-    Else
-      bestExit.PlayAnimation("Stage2")
-      LastRaisedExit = bestExit
-    EndIf
-    If elevatorIsUp == True
-      elevatorIsUp = False
-      elevatorRef.PlayAnimation("Stage2")
-    EndIf
-  EndIf
+	Debug.Trace("Landing Pad Trigggered by: " + triggerRef)
+
+	if triggerRef == Game.GetPlayer()
+		ObjectReference bestExit = GetBestExitLounge()
+
+		Debug.Trace("Best Elevator Ref is: " + bestExit)
+
+		;Handle the temp elevator logic.
+		if bestExit == LastRaisedExit
+			bestExit.PlayAnimation("Stage1")
+			LastRaisedExit = none
+		Elseif LastRaisedExit
+			bestExit.PlayAnimation("Stage2")
+			LastRaisedExit.PlayAnimation("Stage1")
+			LastRaisedExit = bestExit
+		Else
+			bestExit.PlayAnimation("Stage2")
+			LastRaisedExit = bestExit
+		endif
+
+		if elevatorIsUp == True
+			elevatorIsUp = False
+			elevatorRef.PlayAnimation("Stage2")
+		EndIf
+	EndIf
 EndEvent
 
-ObjectReference Function GetBestExitLounge()
-  ObjectReference[] LinkedRefs = Self.GetRefsLinkedToMe(None, None)
-  ObjectReference player = Game.GetPlayer() as ObjectReference
-  ObjectReference markerLocation = player.PlaceAtMe(xMarker as Form, 1, False, False, True, None, None, True)
-  Float posX = player.GetPositionX()
-  Float posY = player.GetPositionY()
-  Float playerAngle = player.GetAngleZ()
-  markerLocation.SetPosition(posX + Math.sin(playerAngle) * OffsetDistance, posY + Math.cos(playerAngle) * OffsetDistance, player.GetPositionZ())
-  Int j = LinkedRefs.Length - 1
-  While j >= 0
-    Bool isRemoved = False
-    If LinkedRefs[j].GetTriggerObjectCount() > 0
-      LinkedRefs.remove(j, 1)
-      isRemoved = True
-    EndIf
-    j -= 1
-  EndWhile
-  ObjectReference ClosestRef = LinkedRefs[0]
-  Int I = 1
-  While I < LinkedRefs.Length
-    ClosestRef = Self.CloserOfTwo(markerLocation, LinkedRefs[I], ClosestRef)
-    I += 1
-  EndWhile
-  Return ClosestRef
-  markerLocation.Delete()
+; Find the best (closest) exit lounge that is not colliding with anything.
+ObjectReference Function GetBestExitLounge() 
+
+	ObjectReference[] LinkedRefs = GetRefsLinkedToMe()
+	ObjectReference player = game.getplayer()
+	ObjectReference markerLocation = Player.PlaceAtMe(xMarker)
+
+	Float posX = player.GetPositionX()
+	Float posY = player.GetPositionY()
+	Float playerAngle = player.GetAngleZ()
+
+	markerLocation.SetPosition( (posX + math.sin(playerAngle) * OffsetDistance), (posY + (math.cos(playerAngle) * OffsetDistance)), player.GetPositionZ() )
+
+;TODO: Need to test collision, but it is breaking things in the animated prototype.
+
+	int j = LinkedRefs.length - 1  ;Loop backwards because we are attempting to remove things from the array as we go.
+	while (j >= 0)
+		bool isRemoved = False
+		if LinkedRefs[j].GetTriggerObjectCount() > 0
+			LinkedRefs.remove(j)
+			isRemoved = True
+		EndIf
+		Debug.Trace("The object count in the trigger " + j + " is " + LinkedRefs[j].GetTriggerObjectCount() + " therefore the activation of the elevator is " + !isRemoved)
+		j -= 1
+	endwhile
+
+	ObjectReference ClosestRef = LinkedRefs[0]
+
+	int i = 1 ;Starting at 1 since 0 is the default.
+	while (i < LinkedRefs.length)
+		;Debug.Trace("Linked Refs include: " + LinkedRefs[i])
+		ClosestRef = CloserOfTwo(markerLocation, LinkedRefs[i], ClosestRef)
+		i += 1
+	endwhile
+	return ClosestRef
+
+	markerLocation.Delete()
 EndFunction
 
+;/ Function CalculateHeadingOffset(float angle, float OffsetDistance, float posX, float posY)
+	posX += math.sin(angle) * OffsetDistance
+	posY += math.cos(angle) * OffsetDistance
+EndFunction /;
+
+;/ Float Function GetXYPosDistance(float x1, float y1, float x2, float y2)
+
+EndFunction  /;
+
 ObjectReference Function CloserOfTwo(ObjectReference TestRef, ObjectReference a, ObjectReference b)
-  Float distA = TestRef.GetDistance(a)
-  If Math.Min(distA, TestRef.GetDistance(b)) == distA
-    Return a
-  Else
-    Return b
-  EndIf
+	float distA = TestRef.GetDistance(a)
+	if Math.Min(distA, TestRef.GetDistance(b)) == distA
+		return a
+	Else
+		return b
+	endif
 EndFunction
+

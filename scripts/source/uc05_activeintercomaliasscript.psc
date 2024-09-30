@@ -1,21 +1,19 @@
-ScriptName UC05_ActiveIntercomAliasScript Extends ReferenceAlias
+Scriptname UC05_ActiveIntercomAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-Bool SetStageOnActivate
-Int StageToSet
-
-;-- Functions ---------------------------------------
+bool SetStageOnActivate
+int StageToSet
 
 Event OnActivate(ObjectReference akActionRef)
-  If SetStageOnActivate
-    SetStageOnActivate = False
-    Self.GetOwningQuest().SetStage(StageToSet)
-    StageToSet = -1
-  EndIf
-  (Self.GetOwningQuest() as uc05_questscript).UpdateActiveIntercom(Self as ScriptObject, False, None, -1)
+    if SetStageOnActivate
+        SetStageOnActivate = false
+        GetOwningQuest().SetStage(StageToSet)
+        StageToSet = -1
+    endif
+
+    (GetOwningQuest() as UC05_QuestScript).UpdateActiveIntercom(self)
 EndEvent
 
-Function UpdateStageToSet(Int iStageToSet)
-  StageToSet = iStageToSet
-  SetStageOnActivate = True
+Function UpdateStageToSet(int iStageToSet)
+    StageToSet = iStageToSet
+    SetStageOnActivate = true
 EndFunction

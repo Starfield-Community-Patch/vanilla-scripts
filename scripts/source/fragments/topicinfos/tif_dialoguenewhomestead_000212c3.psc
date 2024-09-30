@@ -1,18 +1,23 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueNewHomestead_000212C3 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueNewHomestead_000212C3 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFNewHomesteadR02Misc Auto Const mandatory
-Quest Property FFNewHomesteadR02 Auto Const mandatory
-GlobalVariable Property GameDaysPassed Auto Const mandatory
-GlobalVariable Property FFNewHomesteadR02_CooldownTime Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  If !FFNewHomesteadR02.IsRunning() && !FFNewHomesteadR02Misc.IsRunning() && GameDaysPassed.GetValue() >= FFNewHomesteadR02_CooldownTime.GetValue()
-    FFNewHomesteadR02Misc.Start()
-  EndIf
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+If !FFNewHomesteadR02.IsRunning() && !FFNewHomesteadR02Misc.IsRunning() && GameDaysPassed.GetValue() >= FFNewHomesteadR02_CooldownTime.GetValue()
+	FFNewHomesteadR02Misc.Start()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFNewHomesteadR02Misc Auto Const Mandatory
+
+Quest Property FFNewHomesteadR02 Auto Const Mandatory
+
+GlobalVariable Property GameDaysPassed Auto Const Mandatory
+
+GlobalVariable Property FFNewHomesteadR02_CooldownTime Auto Const Mandatory

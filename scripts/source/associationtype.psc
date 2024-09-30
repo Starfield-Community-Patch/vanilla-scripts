@@ -1,1 +1,1 @@
-ScriptName AssociationType Extends Form Native hidden
+Scriptname AssociationType extends Form Native Hidden

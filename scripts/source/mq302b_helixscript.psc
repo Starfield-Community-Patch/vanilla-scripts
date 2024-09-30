@@ -1,41 +1,37 @@
-ScriptName MQ302B_HelixScript Extends ReferenceAlias
+Scriptname MQ302B_HelixScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property Helix_AndrejaVoice Const Auto Mandatory
+ReferenceAlias Property Helix_BarrettVoice Const Auto Mandatory
+ReferenceAlias Property Helix_SamVoice Const Auto Mandatory
+ReferenceAlias Property Helix_SarahVoice Const Auto Mandatory
 
-;-- Properties --------------------------------------
-ReferenceAlias Property Helix_AndrejaVoice Auto Const mandatory
-ReferenceAlias Property Helix_BarrettVoice Auto Const mandatory
-ReferenceAlias Property Helix_SamVoice Auto Const mandatory
-ReferenceAlias Property Helix_SarahVoice Auto Const mandatory
-GlobalVariable Property COM_CompanionID_Andreja Auto Const mandatory
-GlobalVariable Property COM_CompanionID_Barrett Auto Const mandatory
-GlobalVariable Property COM_CompanionID_SamCoe Auto Const mandatory
-GlobalVariable Property COM_CompanionID_SarahMorgan Auto Const mandatory
-GlobalVariable Property MQ_CompanionDead Auto Const mandatory
+GlobalVariable Property COM_CompanionID_Andreja Const Auto Mandatory
+GlobalVariable Property COM_CompanionID_Barrett Const Auto Mandatory
+GlobalVariable Property COM_CompanionID_SamCoe Const Auto Mandatory
+GlobalVariable Property COM_CompanionID_SarahMorgan Const Auto Mandatory
+GlobalVariable Property MQ_CompanionDead Const Auto Mandatory
 
-;-- State -------------------------------------------
-State HasBeenTriggered
+Auto State WaitingForTrigger
+    Event OnLoad()
+        gotostate("HasBeenTriggered")
+        ;set the Helix's voicetype to match the companion who dies
+        Int iCompanionDead = MQ_CompanionDead.GetValueInt()
+        SpaceshipReference HelixREF = Self.GetShipRef()
 
-  Event OnLoad()
-    ; Empty function
-  EndEvent
+        If iCompanionDead == COM_CompanionID_Andreja.GetValueInt()
+            Helix_AndrejaVoice.ForceRefTo(HelixREF)
+        ElseIf iCompanionDead == COM_CompanionID_Barrett.GetValueInt()
+            Helix_BarrettVoice.ForceRefTo(HelixREF)
+        ElseIf iCompanionDead == COM_CompanionID_SamCoe.GetValueInt()
+            Helix_SamVoice.ForceRefTo(HelixREF)
+        ElseIf iCompanionDead == COM_CompanionID_SarahMorgan.GetValueInt()
+            Helix_SarahVoice.ForceRefTo(HelixREF)
+        EndIf
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State WaitingForTrigger
-
-  Event OnLoad()
-    Self.gotostate("HasBeenTriggered")
-    Int iCompanionDead = MQ_CompanionDead.GetValueInt()
-    spaceshipreference HelixREF = Self.GetShipRef()
-    If iCompanionDead == COM_CompanionID_Andreja.GetValueInt()
-      Helix_AndrejaVoice.ForceRefTo(HelixREF as ObjectReference)
-    ElseIf iCompanionDead == COM_CompanionID_Barrett.GetValueInt()
-      Helix_BarrettVoice.ForceRefTo(HelixREF as ObjectReference)
-    ElseIf iCompanionDead == COM_CompanionID_SamCoe.GetValueInt()
-      Helix_SamVoice.ForceRefTo(HelixREF as ObjectReference)
-    ElseIf iCompanionDead == COM_CompanionID_SarahMorgan.GetValueInt()
-      Helix_SarahVoice.ForceRefTo(HelixREF as ObjectReference)
-    EndIf
-  EndEvent
+State HasBeenTriggered
+    Event OnLoad()
+        ;do nothing
+    EndEvent
 EndState

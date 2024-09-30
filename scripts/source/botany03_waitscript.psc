@@ -1,18 +1,15 @@
-ScriptName Botany03_WaitScript Extends Quest
+Scriptname Botany03_WaitScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet Auto Const
-
-;-- Functions ---------------------------------------
-
+;Fires after player completes Botany02
+; Wait 24 hours to progress into Botany03
 Function Wait24()
-  Self.StartTimerGameTime(12.0, 1)
+    StartTimerGameTime(12, 1)
 EndFunction
 
-Event OnTimerGameTime(Int aiTimerID)
-  If aiTimerID == 1
-    Self.SetStage(StageToSet)
-  EndIf
+Event OnTimerGameTime(int aiTimerID)
+    If aiTimerID == 1
+        SetStage(StageToSet)
+    EndIf
 EndEvent
+
+Int Property StageToSet Auto Const

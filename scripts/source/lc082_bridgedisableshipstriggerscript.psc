@@ -1,20 +1,17 @@
-ScriptName LC082_BridgeDisableShipsTriggerScript Extends ObjectReference
-{ Script for the LC082 Bridge Trigger. }
+Scriptname LC082_BridgeDisableShipsTriggerScript extends ObjectReference
+{Script for the LC082 Bridge Trigger.}
+;
+;Temporarily disables the Vigilance's escort ships while the player is on the Bridge, since static ships look bad.
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group AutofillProperties
-  lc082_vigilancequestscript Property LC082 Auto Const mandatory
+	LC082_VigilanceQuestScript property LC082 Auto Const Mandatory
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
 Event OnTriggerEnter(ObjectReference akActionRef)
-  LC082.SetEscortShipsEnabled(False)
+	LC082.SetEscortShipsEnabled(False)  
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  LC082.SetEscortShipsEnabled(True)
+	LC082.SetEscortShipsEnabled(True)  
 EndEvent

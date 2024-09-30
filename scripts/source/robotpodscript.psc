@@ -1,44 +1,50 @@
-ScriptName RobotPodScript Extends Actor
+Scriptname RobotPodScript extends Actor 
 
-;-- Variables ---------------------------------------
+bool property isInPod = True Auto Conditional
+{Set to FALSE to have Robot start on its patrol. TRUE to start inside of pod}
 
-;-- Properties --------------------------------------
-Bool Property isInPod = True Auto conditional
-{ Set to FALSE to have Robot start on its patrol. TRUE to start inside of pod }
-Keyword Property DMP_LinkRobotPod Auto Const mandatory
-{ Robot Pod Link Keyword }
+Keyword property DMP_LinkRobotPod Auto Const Mandatory
+{Robot Pod Link Keyword}
 
-;-- Functions ---------------------------------------
-
+;If this Robot has a pod, send them to it; otherwise set them unconscious
 Function SendRobotToPod()
-  If Self.IsDead() == False
-    ObjectReference myPod = Self.GetLinkedRef(DMP_LinkRobotPod)
-    If myPod
-      isInPod = True
-      Self.EvaluatePackage(False)
-    Else
-      Self.SetUnconscious(True)
-    EndIf
-  EndIf
+	debug.trace(self+ " SendRobotToPod")
+	if IsDead() == false
+		ObjectReference myPod = GetLinkedRef(DMP_LinkRobotPod)
+		if myPod
+			isInPod = true
+			EvaluatePackage()
+		Else
+			; if no pod, just set unconscious
+			SetUnconscious()
+		endif
+	EndIf
 EndFunction
 
+;wake up this robot
 Function WakeRobotFromPod()
-  If Self.IsDead() == False
-    Self.SetUnconscious(False)
-    ObjectReference myPod = Self.GetLinkedRef(DMP_LinkRobotPod)
-    If myPod
-      isInPod = False
-      Self.EvaluatePackage(False)
-    EndIf
-  EndIf
+	debug.trace(self+ " WakeRobotFromPod")
+	if IsDead() == false
+		; wake me up
+		SetUnconscious(false)
+		; if I have a pod, get me out of it
+		ObjectReference myPod = GetLinkedRef(DMP_LinkRobotPod)
+		if myPod
+			isInPod = false
+			EvaluatePackage()
+		EndIf
+	EndIf
 EndFunction
 
+;Set robot to unconscious once robot returns to his pod.
 Event OnSit(ObjectReference akFurniture)
-  If akFurniture == Self.GetLinkedRef(DMP_LinkRobotPod)
-    Self.SetUnconscious(True)
-  EndIf
-EndEvent
+	Debug.Trace("We just sat on " + akFurniture)
+	if akFurniture == GetLinkedRef(DMP_LinkRobotPod)
+		SetUnconscious()
+	endif
+endEvent
 
-Bool Function HasPod()
-  Return Self.GetLinkedRef(DMP_LinkRobotPod) != None
+bool function HasPod()
+	return (GetLinkedRef(DMP_LinkRobotPod) != NONE)
 EndFunction
+

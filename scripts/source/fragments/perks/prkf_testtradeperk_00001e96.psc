@@ -1,7 +1,12 @@
-ScriptName Fragments:Perks:PRKF_TestTradePerk_00001E96 Extends Perk Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Perks:PRKF_TestTradePerk_00001E96 Extends Perk Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Entry_00
 Function Fragment_Entry_00(ObjectReference akTargetRef, Actor akActor)
-  (akTargetRef as Actor).ShowBarterMenu()
+;BEGIN CODE
+(akTargetRef as Actor).ShowBarterMenu()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

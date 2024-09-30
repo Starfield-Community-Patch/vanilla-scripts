@@ -1,47 +1,46 @@
-ScriptName CrewRandomVoiceScript Extends Actor
+Scriptname CrewRandomVoiceScript extends Actor
 
-;-- Variables ---------------------------------------
-Bool voiceTypeSet = False
-
-;-- Properties --------------------------------------
 Group Autofill
-  FormList Property CREW_VoiceTypes_Generic Auto Const mandatory
+	FormList Property CREW_VoiceTypes_Generic Mandatory Const Auto
 EndGroup
 
+bool voiceTypeSet = false
 
-;-- Functions ---------------------------------------
+function TryToSetCrewVoiceType()
+	bool enabled = IsEnabled()
+	bool loaded = Is3DLoaded()
 
-Function TryToSetCrewVoiceType()
-  Bool enabled = Self.IsEnabled()
-  Bool loaded = Self.Is3DLoaded()
-  If !voiceTypeSet && enabled && loaded
-    Self.GoToState("Done")
-    voiceTypeSet = True
-    VoiceType forcedVoice = Self.SetOverrideVoiceTypeRandom(CREW_VoiceTypes_Generic)
-  EndIf
-EndFunction
+	if !voiceTypeSet && enabled && loaded
+		GoToState("Done")
+		Trace(self, "TryToSetCrewVoiceType() passed conditions, setting voicetype. voiceTypeSet: " + voiceTypeSet + ", enabled: " + enabled + ", loaded: " + loaded)
+		voiceTypeSet = true
+		VoiceType forcedVoice = SetOverrideVoiceTypeRandom(CREW_VoiceTypes_Generic)
+		Trace(self, "TryToSetCrewVoiceType() forcedVoice: " + forcedVoice)
+	else
+		Trace(self, "TryToSetCrewVoiceType() failed conditions, voicetype not set. voiceTypeSet: " + voiceTypeSet + ", enabled: " + enabled + ", loaded: " + loaded)
+	endif
+endFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
-
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
-EndFunction
-
-;-- State -------------------------------------------
-State Done
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
 Auto State Waiting
-
-  Event OnLoad()
-    Self.TryToSetCrewVoiceType()
-  EndEvent
+	Event OnLoad()
+		Trace(self, "OnLoad() Trying to set crew voice type")
+		TryToSetCrewVoiceType()
+	EndEvent
 EndState
+
+State Done
+	Event OnLoad()
+		; Do nothing.
+	endEvent
+EndState
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Crew",  string SubLogName = "CrewRandomVoiceScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Crew",  string SubLogName = "CrewRandomVoiceScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+EndFunction

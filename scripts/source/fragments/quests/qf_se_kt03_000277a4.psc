@@ -1,53 +1,93 @@
-ScriptName Fragments:Quests:QF_SE_KT03_000277A4 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_KT03_000277A4 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property HailTemplate_100a_Hailing Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-Scene Property PHailTemplate_100a_Hailing Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-Faction Property PlayerEnemyFaction Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-ReferenceAlias Property Alias_MapMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0.0)
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0006_Item_00
 Function Fragment_Stage_0006_Item_00()
-  spaceshipreference myShip = Alias_HailingShip.GetShipRef()
-  myShip.SetValue(DockingPermission, 4.0)
-  myShip.AddtoFaction(PlayerEnemyFaction)
-  myShip.SetValue(Aggression, 1.0)
-  Self.SetObjectiveSkipped(10)
-EndFunction
+;BEGIN CODE
+SpaceshipReference myShip = Alias_HailingShip.GetShipRef()
 
+myShip.SetValue(DockingPermission, 4)
+myShip.AddtoFaction(PlayerEnemyFaction)
+myShip.SetValue(Aggression, 1)
+SetObjectiveSkipped(10)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(10, True)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  PHailTemplate_100a_Hailing.Start()
+;BEGIN CODE
+; Start the hailing scene
+PHailTemplate_100a_Hailing.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0066_Item_00
 Function Fragment_Stage_0066_Item_00()
-  Self.Stop()
+;BEGIN CODE
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  spaceshipreference oTarg = Alias_HailingShip.GetRef() as spaceshipreference
-  oTarg.DisableWithGravJump()
-  Alias_MapMarker.GetRef().DisableNoWait(False)
+;BEGIN CODE
+; When the hailing ship reaches its orbit destination (currently CenterMarker)
+; it fast travels away.
+SpaceshipReference oTarg = Alias_HailingShip.GetRef() as SpaceshipReference 
+oTarg.DisableWithGravJump()
+Alias_MapMarker.GetRef().DisableNoWait()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.FailAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+FailAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property HailTemplate_100a_Hailing Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+Scene Property PHailTemplate_100a_Hailing Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+ReferenceAlias Property Alias_MapMarker Auto Const Mandatory

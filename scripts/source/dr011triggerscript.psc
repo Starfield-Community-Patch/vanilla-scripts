@@ -1,22 +1,18 @@
-ScriptName DR011TriggerScript Extends ObjectReference
-{ Script for a trigger that causes a ship to land in DR011's Shuttle Bay. }
+Scriptname DR011TriggerScript extends ObjectReference
+{Script for a trigger that causes a ship to land in DR011's Shuttle Bay.}
 
-;-- Variables ---------------------------------------
+Keyword property LinkCustom01 Auto Const Mandatory
+Keyword property LinkCustom02 Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Keyword Property LinkCustom01 Auto Const mandatory
-Keyword Property LinkCustom02 Auto Const mandatory
-
-;-- State -------------------------------------------
-State Done
+Auto State Waiting
+    Event OnTriggerEnter(ObjectReference akActionRef)
+        GoToState("Done")
+        ;Open the shuttle bay doors.
+        (GetLinkedRef(LinkCustom01) as ShuttleBayDoorManagerScript).OpenShuttleBayDoors()
+        ;Enable a ship that lands in the shuttle bay.
+        GetLinkedRef(LinkCustom02).Enable()
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnTriggerEnter(ObjectReference akActionRef)
-    Self.GoToState("Done")
-    (Self.GetLinkedRef(LinkCustom01) as shuttlebaydoormanagerscript).OpenShuttleBayDoors()
-    Self.GetLinkedRef(LinkCustom02).Enable(False)
-  EndEvent
+State Done
 EndState

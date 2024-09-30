@@ -1,31 +1,30 @@
-ScriptName MQ404PlayerScript Extends ReferenceAlias
+Scriptname MQ404PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property BuildArmillaryPrereqStage = 110 Const Auto
+Int Property BuildArmillaryStage = 120 Const Auto
+ActorValue Property MQArmillaryShipBuilderCheck Mandatory Const Auto
+Keyword Property ShipTypeStarborn Mandatory Const Auto
+ReferenceAlias Property PlayerShip Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Int Property BuildArmillaryPrereqStage = 110 Auto Const
-Int Property BuildArmillaryStage = 120 Auto Const
-ActorValue Property MQArmillaryShipBuilderCheck Auto Const mandatory
-Keyword Property ShipTypeStarborn Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnPlayerModifiedShip(spaceshipreference akShip)
-  Quest myQuest = Self.GetOwningQuest()
-  If akShip.GetValue(MQArmillaryShipBuilderCheck) >= 1.0
-    If myQuest.GetStageDone(BuildArmillaryPrereqStage) == True && myQuest.GetStageDone(BuildArmillaryStage) == False
-      myQuest.SetStage(BuildArmillaryStage)
+;if the player builds a ship module with the Armillary in it, advance quest
+Event OnPlayerModifiedShip(SpaceshipReference akShip)
+    Quest myQuest = GetOwningQuest()
+    if akShip.GetValue(MQArmillaryShipBuilderCheck) >= 1
+        If (myQuest.GetStageDone(BuildArmillaryPrereqStage)==True) && (myQuest.GetStageDone(BuildArmillaryStage)==False)
+            myQuest.SetStage(BuildArmillaryStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
+
 Event OnEnterShipInterior(ObjectReference akShip)
-  Quest myQuest = Self.GetOwningQuest()
-  spaceshipreference PlayerShipREF = PlayerShip.GetShipReference()
-  If (akShip == PlayerShipREF as ObjectReference) && akShip.HasKeyword(ShipTypeStarborn)
-    If myQuest.GetStageDone(BuildArmillaryPrereqStage) == True && myQuest.GetStageDone(BuildArmillaryStage) == False
-      myQuest.SetStage(BuildArmillaryStage)
+    Quest myQuest = GetOwningQuest()
+    SpaceshipReference PlayerShipREF = PlayerShip.GetShipReference()
+
+    ;if the player enters their Starborn ship during the Armillary step, advance quest (since the Starborn ships always have room for Armillary)
+    If (akShip == PlayerShipREF) && (akShip.HasKeyword(ShipTypeStarborn))
+        If (myQuest.GetStageDone(BuildArmillaryPrereqStage)==True) && (myQuest.GetStageDone(BuildArmillaryStage)==False)
+            myQuest.SetStage(BuildArmillaryStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent

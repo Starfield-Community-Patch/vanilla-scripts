@@ -1,24 +1,22 @@
-ScriptName RedMileRaceFanfareScript Extends Quest
+Scriptname RedMileRaceFanfareScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Float Property Speed Auto
-RefCollectionAlias Property Alias_LightRotationHelpers Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Function StopFanfare()
-  ; Empty function
-EndFunction
+RefCollectionAlias property Alias_LightRotationHelpers Auto Const Mandatory
 
 Function StartDoorOpenFanfare()
-  Int I = 0
-  ObjectReference[] LightRotationHelpers = None
-  LightRotationHelpers = Alias_LightRotationHelpers.GetArray()
-  While I < LightRotationHelpers.Length
-    LightRotationHelpers[I].SetAnimationVariableFloat("Speed", Speed)
-    LightRotationHelpers[I].PlayAnimation("RotateCW_Loop")
-    I += 1
-  EndWhile
+    ;Rotate the lights
+    int i = 0 
+    ObjectReference[] LightRotationHelpers 
+    LightRotationHelpers = Alias_LightRotationHelpers.GetArray()
+
+    While (i < LightRotationHelpers.length )
+        LightRotationHelpers[i].SetAnimationVariableFloat("Speed", Speed)
+        LightRotationHelpers[i].PlayAnimation("RotateCW_Loop")
+        i = i + 1
+    EndWhile
+
+EndFunction
+
+Function StopFanfare()
+
 EndFunction

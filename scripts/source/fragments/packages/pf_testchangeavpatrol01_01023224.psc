@@ -1,6 +1,6 @@
-ScriptName Fragments:Packages:PF_TestChangeAVPatrol01_01023224 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_TestChangeAVPatrol01_01023224 Extends Package Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
 ActorValue Property TestAvoidance_Start Auto Const

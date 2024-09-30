@@ -1,23 +1,25 @@
-ScriptName UC04_KilledByPlayerCollScript Extends RefCollectionAlias
+Scriptname UC04_KilledByPlayerCollScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
+GlobalVariable Property UC04_AttackActive Mandatory Const Auto
+{Global used to track if the attack if still currently active}
 
-;-- Properties --------------------------------------
-GlobalVariable Property UC04_AttackActive Auto Const mandatory
-{ Global used to track if the attack if still currently active }
-Int Property StagetoSet = 730 Auto Const
-{ Stage to set if this NPC was killed by the player }
-
-;-- Functions ---------------------------------------
+int Property StagetoSet = 730 Auto Const
+{Stage to set if this NPC was killed by the player}
 
 Event OnDeath(ObjectReference akSenderRef, ObjectReference akKiller)
-  If UC04_AttackActive.GetValue() >= 1.0
-    If akKiller == Game.GetPlayer() as ObjectReference
-      Self.GetOwningQuest().SetStage(StagetoSet)
-    EndIf
-  EndIf
+    trace(self, "Guard killed: " + akSenderRef + " by: " + akKiller)
+    if UC04_AttackActive.GetValue() >= 1
+        trace(self, "Attack is active.")
+        if akKiller == Game.GetPlayer()
+            trace(self, "Player is killer. Set the stage!")
+            GetOwningQuest().SetStage(StagetoSet)
+        endif
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC04", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

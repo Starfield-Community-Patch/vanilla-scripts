@@ -1,58 +1,52 @@
-ScriptName LvlStarbornScript Extends Actor
+Scriptname LvlStarbornScript extends Actor
 
-;-- Variables ---------------------------------------
+Spell Property ffStarbornTeleport Mandatory Const Auto
+Spell Property ffStarbornDeath Mandatory Const Auto
+ActorValue Property QuantumEssence Mandatory Const Auto
+Message Property QuantumEssenceAddMSG Mandatory Const Auto
+Spell Property FortifyQuantumEssenceSpell Mandatory Const Auto
+EffectShader Property Starborn_DeathShader Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Spell Property ffStarbornTeleport Auto Const mandatory
-Spell Property ffStarbornDeath Auto Const mandatory
-ActorValue Property QuantumEssence Auto Const mandatory
-Message Property QuantumEssenceAddMSG Auto Const mandatory
-Spell Property FortifyQuantumEssenceSpell Auto Const mandatory
-EffectShader Property Starborn_DeathShader Auto Const mandatory
+Auto State WaitingForLoad
+    Event OnLoad()
+        GotoState("HasLoaded")
+        ffStarbornTeleport.Cast(Self, Self)
+    EndEvent
+EndState
 
-;-- Functions ---------------------------------------
+State HasLoaded
+    Event OnLoad()
+        ;do nothing
+    EndEvent
+EndState
 
 Event OnLoad()
-  ; Empty function
+    ;do nothing
 EndEvent
 
 Event OnDying(ObjectReference akKiller)
-  Self.BlockActivation(True, True)
-  Starborn_DeathShader.Play(Self as ObjectReference, -1.0)
+    Self.BlockActivation(true, true)
+    ;ffStarbornDeath.Cast(Self, Self)
+    Starborn_DeathShader.Play(Self)
 EndEvent
 
 Event OnDeath(ObjectReference akKiller)
-  If (akKiller as Actor).IsPlayerTeammate()
-    FortifyQuantumEssenceSpell.Cast(Self as ObjectReference, Game.GetPlayer() as ObjectReference)
-  Else
-    FortifyQuantumEssenceSpell.Cast(Self as ObjectReference, akKiller)
-  EndIf
-  QuantumEssenceAddMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Utility.Wait(5.0)
-  Self.Disable(False)
+    ;add Quantum Essence to the killer, unless that killer is a player teammate
+    If (akKiller as Actor).IsPlayerTeammate()
+        FortifyQuantumEssenceSpell.Cast(Self, Game.GetPlayer()) ;player gets the Quantum Essence if teammate kills Starborn
+    Else
+        FortifyQuantumEssenceSpell.Cast(Self, akKiller)
+    EndIf
+    QuantumEssenceAddMSG.Show()
+
+    Utility.Wait(5.0) ;give the FX some time, and then disable
+    Disable()
 EndEvent
 
 Function TeleportIn()
-  ffStarbornTeleport.Cast(Self as ObjectReference, Self as ObjectReference)
+    ffStarbornTeleport.Cast(Self, Self)
 EndFunction
 
 Function TeleportOut()
-  ffStarbornDeath.Cast(Self as ObjectReference, Self as ObjectReference)
+    ffStarbornDeath.Cast(Self, Self)
 EndFunction
-
-;-- State -------------------------------------------
-State HasLoaded
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForLoad
-
-  Event OnLoad()
-    Self.GotoState("HasLoaded")
-    ffStarbornTeleport.Cast(Self as ObjectReference, Self as ObjectReference)
-  EndEvent
-EndState

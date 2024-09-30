@@ -1,52 +1,48 @@
-ScriptName MQ207CRafaelPostquestQuestScript Extends Quest
-{ Quest script for MQ207C_RafaelPostquest, the quest that manages Rafael's transition from Quest NPC to Elite Crew. }
+Scriptname MQ207CRafaelPostquestQuestScript extends Quest
+{Quest script for MQ207C_RafaelPostquest, the quest that manages Rafael's transition from Quest NPC to Elite Crew.}
 
-;-- Variables ---------------------------------------
-Int CONST_III_DisableInNishinaStage = 110 Const
-Int CONST_III_ReadyToDisableInNishinaStage = 100 Const
-Int CONST_II_DisableInSettledSystemStage = 40 Const
-Int CONST_II_FollowToShipStage = 20 Const
-Int CONST_II_PassengerOnShipStage = 30 Const
-Int CONST_Post_DisplaySpeakToRafaelStage = 210 Const
-Int CONST_Post_WatchForArrivalInNewAtlantisStage = 200 Const
-
-;-- Properties --------------------------------------
 Group AutofillProperties
-  LocationAlias Property PlayerShipInteriorLocation Auto Const mandatory
-  ReferenceAlias Property PlayerShip Auto Const mandatory
-  ReferenceAlias Property RafaelAguerro Auto Const mandatory
-  Location Property SFreya_PFreyaIII Auto Const mandatory
-  Location Property CityNewAtlantisLocation Auto Const mandatory
-  Keyword Property LocTypeSettlement Auto Const mandatory
+    LocationAlias property PlayerShipInteriorLocation Auto Const Mandatory
+    ReferenceAlias property PlayerShip Auto Const Mandatory
+    ReferenceAlias property RafaelAguerro Auto Const Mandatory
+    Location property SFreya_PFreyaIII Auto Const Mandatory
+    Location property CityNewAtlantisLocation Auto Const Mandatory
+    Keyword property LocTypeSettlement Auto Const Mandatory
 EndGroup
 
-
-;-- Functions ---------------------------------------
+;Local consts.
+int CONST_II_FollowToShipStage = 20 Const
+int CONST_II_PassengerOnShipStage = 30 Const
+int CONST_II_DisableInSettledSystemStage = 40 Const
+int CONST_III_ReadyToDisableInNishinaStage = 100 Const
+int CONST_III_DisableInNishinaStage = 110 Const
+int CONST_Post_WatchForArrivalInNewAtlantisStage = 200 Const
+int CONST_Post_DisplaySpeakToRafaelStage = 210 Const
 
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnLocationChange")
+    RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+    RegisterForRemoteEvent(PlayerShip, "OnLocationChange")
 EndEvent
 
 Event Actor.OnLocationChange(Actor akSource, Location akOldLoc, Location akNewLoc)
-  Self.UpdatePostquestState(akNewLoc)
+    UpdatePostquestState(akNewLoc)
 EndEvent
 
 Event ReferenceAlias.OnLocationChange(ReferenceAlias akSource, Location akOldLoc, Location akNewLoc)
-  Self.UpdatePostquestState(akNewLoc)
+    UpdatePostquestState(akNewLoc)
 EndEvent
 
 Function UpdatePostquestState(Location akPlayerLoc)
-  If Self.GetStage() == CONST_II_FollowToShipStage && (akPlayerLoc == PlayerShipInteriorLocation.GetLocation() || akPlayerLoc != SFreya_PFreyaIII && !SFreya_PFreyaIII.IsChild(akPlayerLoc))
-    Self.SetStage(CONST_II_PassengerOnShipStage)
-  EndIf
-  If Self.GetStage() == CONST_II_PassengerOnShipStage && (akPlayerLoc.HasKeyword(LocTypeSettlement) || akPlayerLoc.GetParentLocations(LocTypeSettlement).Length > 0) && RafaelAguerro.GetRef().GetCurrentLocation() != akPlayerLoc
-    Self.SetStage(CONST_II_DisableInSettledSystemStage)
-  EndIf
-  If Self.GetStage() == CONST_III_ReadyToDisableInNishinaStage && !akPlayerLoc.IsChild(SFreya_PFreyaIII)
-    Self.SetStage(CONST_III_DisableInNishinaStage)
-  EndIf
-  If Self.GetStage() == CONST_Post_WatchForArrivalInNewAtlantisStage && (akPlayerLoc == CityNewAtlantisLocation || akPlayerLoc.IsChild(CityNewAtlantisLocation))
-    Self.SetStage(CONST_Post_DisplaySpeakToRafaelStage)
-  EndIf
+    if ((GetStage() == CONST_II_FollowToShipStage) && ((akPlayerLoc == PlayerShipInteriorLocation.GetLocation()) || ((akPlayerLoc != SFreya_PFreyaIII) && !SFreya_PFreyaIII.IsChild(akPlayerLoc))))
+        SetStage(CONST_II_PassengerOnShipStage)
+    EndIf
+    if ((GetStage() == CONST_II_PassengerOnShipStage) && ((akPlayerLoc.HasKeyword(LocTypeSettlement)) || (akPlayerLoc.GetParentLocations(LocTypeSettlement).Length > 0)) && (RafaelAguerro.GetRef().GetCurrentLocation() != akPlayerLoc))
+        SetStage(CONST_II_DisableInSettledSystemStage)
+    EndIf
+    if ((GetStage() == CONST_III_ReadyToDisableInNishinaStage) && (!akPlayerLoc.IsChild(SFreya_PFreyaIII)))
+        SetStage(CONST_III_DisableInNishinaStage)
+    EndIf
+    if ((GetStage() == CONST_Post_WatchForArrivalInNewAtlantisStage) && ((akPlayerLoc == CityNewAtlantisLocation) || (akPlayerLoc.IsChild(CityNewAtlantisLocation))))
+        SetStage(CONST_Post_DisplaySpeakToRafaelStage)
+    EndIf
 EndFunction

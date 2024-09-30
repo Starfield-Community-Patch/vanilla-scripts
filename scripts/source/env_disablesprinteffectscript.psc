@@ -1,15 +1,13 @@
-ScriptName ENV_DisableSprintEffectScript Extends ActiveMagicEffect
+Scriptname ENV_DisableSprintEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-inputenablelayer InputLayer
+InputEnableLayer InputLayer
 
-;-- Functions ---------------------------------------
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    InputLayer = InputEnableLayer.Create()
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  InputLayer = inputenablelayer.Create()
-  InputLayer.EnableSprinting(False)
+    InputLayer.EnableSprinting(false)
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  InputLayer.Delete()
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    InputLayer.Delete()
 EndEvent

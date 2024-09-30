@@ -1,12 +1,14 @@
-ScriptName Fragments:Quests:QF__01000815 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF__01000815 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property TestHelpMessage Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  TestHelpMessage.ShowAsHelpMessage("Activate", 5.0, 30.0, 3, "", 0, None)
+;BEGIN CODE
+TestHelpMessage.ShowAsHelpMessage("Activate", 5, 30, 3)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Message Property TestHelpMessage Auto Const Mandatory

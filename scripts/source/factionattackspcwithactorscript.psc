@@ -1,18 +1,15 @@
-ScriptName FactionAttacksPCWithActorScript Extends Actor conditional
-{ If the Actor enters a given location then the specified faction goes temporarily hostile to the player }
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Location Property pLocation Auto
-Faction Property pFactionToGoHostile Auto conditional
-Message Property pMessage Auto conditional
-
-;-- Functions ---------------------------------------
+Scriptname FactionAttacksPCWithActorScript extends Actor conditional
+{If the Actor enters a given location then the specified faction goes temporarily hostile to the player}
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If akNewLoc == pLocation
-    pMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    pFactionToGoHostile.SetPlayerEnemy(True)
-  EndIf
+
+	if ( akNewLoc == pLocation )
+		pMessage.Show()
+		pFactionToGoHostile.SetPlayerEnemy()
+	endif
+
 EndEvent
+
+Location Property pLocation Auto
+Faction Property pFactionToGoHostile Auto Conditional
+Message Property pMessage Auto Conditional

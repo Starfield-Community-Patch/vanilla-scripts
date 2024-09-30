@@ -1,38 +1,40 @@
-ScriptName DefaultAliasOnActivateRemoveItems Extends DefaultAliasOnActivate default
-{ Removes item(s) to <RefToCheck> when THIS Alias's reference is activated.
+Scriptname DefaultAliasOnActivateRemoveItems extends DefaultAliasOnActivate Default
+{Removes item(s) to <RefToCheck> when THIS Alias's reference is activated.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is the reference activating THIS Alias's reference.
-<LocationToCheck> is the current location of THIS Alias's reference. }
+<LocationToCheck> is the current location of THIS Alias's reference.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Group Quest_Properties collapsedonbase collapsedonref
-{ Double-Click to EXPAND }
-  Bool Property xxxPlaceHolderForEmptyGroup2xxx Auto Const hidden
-  { `TTP-27034: Papyrus: Need a way to manage groups across parents and children` }
+Group Quest_Properties collapsed
+{Double-Click to EXPAND}
+	bool Property xxxPlaceHolderForEmptyGroup2xxx Const Auto HIDDEN
+	{`TTP-27034: Papyrus: Need a way to manage groups across parents and children`}
 EndGroup
 
 Group Script_Specific_Properties
-  Form Property ItemToRemove Auto Const mandatory
-  { Remove this item from RefToCheck }
-  Int Property AmountToRemove = 1 Auto Const
-  { The amount to give }
-  Bool Property RemoveSilently = False Auto Const
-  { (Default false) If true, give the item silently. If true, show message when giving item. }
-  Message Property InsufficientItemsMessage Auto Const
-  { Message to display if RefToCheck doesn't have AmountToRemove or more ItemToRemove in their inventory }
+	Form property ItemToRemove Auto Const Mandatory
+	{Remove this item from RefToCheck}
+
+	int Property AmountToRemove = 1 Const Auto
+	{The amount to give}
+
+	bool Property RemoveSilently = false  Const Auto
+	{(Default false) If true, give the item silently. If true, show message when giving item.}
+
+	Message property InsufficientItemsMessage Auto Const
+	{Message to display if RefToCheck doesn't have AmountToRemove or more ItemToRemove in their inventory}
 EndGroup
 
+;Reimplementing Parent's empty function
+Function DoSpecificThing(DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams, ObjectReference RefToDoThingWith = None, bool LastRefToDoThingWith = true)
+	ObjectReference RefToCheck = ParentScriptFunctionParams.RefToCheck
+	
+	if RefToCheck.GetItemCount(ItemToRemove) >= AmountToRemove
+		DefaultScriptFunctions.Trace(self, "DoSpecificThing() removing ItemToRemove: " + ItemToRemove + ", from ParentScriptFunctionParams.RefToCheck: " + RefToCheck + ", ", ShowTraces)
+		ParentScriptFunctionParams.RefToCheck.RemoveItem(ItemToRemove, AmountToRemove, abSilent = RemoveSilently)
+		parent.DoSpecificThing(ParentScriptFunctionParams = ParentScriptFunctionParams, RefToDoThingWith = RefToDoThingWith, LastRefToDoThingWith = LastRefToDoThingWith)
+	elseif InsufficientItemsMessage
+		DefaultScriptFunctions.Trace(self, "DoSpecificThing() RefToCheck.GetItemCount(ItemToRemove) < AmountToRemove. NOT removing ItemToRemove: " + ItemToRemove + ", from ParentScriptFunctionParams.RefToCheck: " + RefToCheck + ", ", ShowTraces)
+		InsufficientItemsMessage.Show()
+	endif
 
-;-- Functions ---------------------------------------
-
-Function DoSpecificThing(defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams, ObjectReference RefToDoThingWith, Bool LastRefToDoThingWith)
-  ObjectReference RefToCheck = ParentScriptFunctionParams.RefToCheck
-  If RefToCheck.GetItemCount(ItemToRemove) >= AmountToRemove
-    ParentScriptFunctionParams.RefToCheck.RemoveItem(ItemToRemove, AmountToRemove, RemoveSilently, None)
-    Parent.DoSpecificThing(ParentScriptFunctionParams, RefToDoThingWith, LastRefToDoThingWith)
-  ElseIf InsufficientItemsMessage
-    InsufficientItemsMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
 EndFunction

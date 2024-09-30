@@ -1,12 +1,10 @@
-ScriptName TestKenObjSpawn Extends ObjectReference Const
+Scriptname TestKenObjSpawn extends ObjectReference Const
 
-;-- Functions ---------------------------------------
-
-Function SpawnObject()
-  Form ObjectBase = Game.GetForm(1743617)
-  Float[] offsetValues = new Float[3]
-  offsetValues[0] = 100.0
-  offsetValues[1] = 100.0
-  offsetValues[2] = 0.0
-  ObjectReference newObj = Self.PlaceAtMe(ObjectBase, 1, False, False, True, offsetValues, None, True)
-EndFunction
+function SpawnObject()
+	Form ObjectBase = Game.GetForm(0x001a9b01)
+	float[] offsetValues = new float[3]
+	offsetValues[0] = 100.0
+	offsetValues[1] = 100.0
+	offsetValues[2] = 0.0
+	ObjectReference newObj = PlaceAtMe(ObjectBase, 1, false, false, true, offsetValues)
+endFunction

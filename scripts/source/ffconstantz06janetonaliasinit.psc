@@ -1,12 +1,7 @@
-ScriptName FFConstantZ06JanetOnAliasInit Extends ReferenceAlias
+Scriptname FFConstantZ06JanetOnAliasInit extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property InitStage = 1 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property InitStage = 1 Const Auto
 
 Event OnAliasInit()
-  Self.GetOwningQuest().SetStage(InitStage)
+    GetOwningQuest().SetStage(InitStage)
 EndEvent

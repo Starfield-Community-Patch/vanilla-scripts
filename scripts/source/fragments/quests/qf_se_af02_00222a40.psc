@@ -1,95 +1,165 @@
-ScriptName Fragments:Quests:QF_SE_AF02_00222A40 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_AF02_00222A40 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_playerShip Auto Const mandatory
-Potion Property ShipRepairKit Auto Const mandatory
-ReferenceAlias Property Alias_Ship01 Auto Const mandatory
-Scene Property SE_AF02_004_RaceScene Auto Const
-GlobalVariable Property SE_AF02_GateCount Auto Const
-MiscObject Property Credits Auto Const
-Scene Property SE_AF02_006_LoseScene Auto Const
-Scene Property SE_AF02_007_WinScene Auto Const
-Scene Property SE_AF02_001_HailingScene Auto Const mandatory
-GlobalVariable Property SE_AF02_CreditCount Auto Const mandatory
-GlobalVariable Property SE_AF02_DestroyShip Auto Const mandatory
-ReferenceAlias Property Alias_MapMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  SE_AF02_001_HailingScene.Start()
+;BEGIN CODE
+SE_AF02_001_HailingScene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0007_Item_00
 Function Fragment_Stage_0007_Item_00()
-  spaceshipreference ShipRef = Alias_Ship01.GetShipRef()
-  If ShipRef.Is3DLoaded()
+;BEGIN CODE
+SpaceshipReference ShipRef = Alias_Ship01.GetShipRef()
+
+If ShipRef.Is3DLoaded()
     ShipRef.DisableWithGravJump()
-  EndIf
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0007_Item_01
 Function Fragment_Stage_0007_Item_01()
-  Alias_Ship01.GetRef().DisableNoWait(False)
+;BEGIN CODE
+Alias_Ship01.GetRef().DisableNoWait()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0007_Item_02
 Function Fragment_Stage_0007_Item_02()
-  Self.FailAllObjectives()
-  Utility.Wait(0.5)
-  Alias_MapMarker.GetRef().DisableNoWait(False)
-  Self.Stop()
+;BEGIN CODE
+FailAllObjectives()
+Utility.Wait(0.5)
+Alias_MapMarker.GetRef().DisableNoWait()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  If !Self.GetStageDone(7)
-    Self.SetObjectiveDisplayed(10, True, False)
-    Alias_Ship01.GetShipRef().BlockActivation(True, True)
-  Else
-    Self.Stop()
-  EndIf
-  Self.SetActive(True)
-EndFunction
+;BEGIN CODE
+; If you didn't refuse the quest - then proceed
+if ( !GetStageDone(7) )
+  SetObjectiveDisplayed(10)
+  Alias_Ship01.GetShipRef().BlockActivation(true, true)
+  ;SE_AF02_004_RaceScene.Start()
+else
+  ; If the player refused and leaves the ship, then despawn
+  Stop()
+endif
 
+;Set active to give player immediate target
+SetActive()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0025_Item_00
 Function Fragment_Stage_0025_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  If Self.GetStageDone(32)
-    SE_AF02_006_LoseScene.Start()
-    Alias_Ship01.GetShipRef().AddItem(Credits as Form, SE_AF02_CreditCount.GetValueInt(), False)
-  Else
-    SE_AF02_007_WinScene.Start()
-  EndIf
+;BEGIN CODE
+SetObjectiveCompleted(30)
+if GetStageDone(32)
+	;Player Loses
+	SE_AF02_006_LoseScene.start()
+	Alias_Ship01.GetShipRef().AddItem(Credits, SE_AF02_CreditCount.GetValueInt())
+else
+	;Player Wins
+	SE_AF02_007_WinScene.start()
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0032_Item_00
 Function Fragment_Stage_0032_Item_00()
-  Self.SetStage(30)
+;BEGIN CODE
+SetStage(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0035_Item_00
 Function Fragment_Stage_0035_Item_00()
-  Alias_Ship01.GetShipRef().BlockActivation(False, False)
+;BEGIN CODE
+Alias_Ship01.GetShipRef().BlockActivation(false, false)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  SE_AF02_GateCount.setvalue(1.0)
-  spaceshipreference raceShip = Alias_Ship01.GetShipRef()
-  raceShip.BlockActivation(False, False)
-EndFunction
+;BEGIN CODE
+SE_AF02_GateCount.setvalue(1)
+SpaceshipReference raceShip = Alias_Ship01.GetShipRef()
 
+raceShip.BlockActivation(false, false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  If Self.GetStageDone(32)
-    SE_AF02_DestroyShip.setvalue(1.0)
-  EndIf
+;BEGIN CODE
+if GetStageDone(32)
+    SE_AF02_DestroyShip.SetValue(1)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0750_Item_00
 Function Fragment_Stage_0750_Item_00()
-  Self.SetObjectiveDisplayed(750, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(750)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_playerShip Auto Const Mandatory
+
+Potion Property ShipRepairKit Auto Const Mandatory
+
+ReferenceAlias Property Alias_Ship01 Auto Const Mandatory
+
+Scene Property SE_AF02_004_RaceScene Auto Const
+
+GlobalVariable Property SE_AF02_GateCount Auto Const
+
+MiscObject Property Credits Auto Const
+
+Scene Property SE_AF02_006_LoseScene Auto Const
+
+Scene Property SE_AF02_007_WinScene Auto Const
+
+Scene Property SE_AF02_001_HailingScene Auto Const Mandatory
+
+GlobalVariable Property SE_AF02_CreditCount Auto Const Mandatory
+
+GlobalVariable Property SE_AF02_DestroyShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_MapMarker Auto Const Mandatory

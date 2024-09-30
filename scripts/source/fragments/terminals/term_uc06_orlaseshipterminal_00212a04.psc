@@ -1,12 +1,15 @@
-ScriptName Fragments:Terminals:TERM_UC06_OrlaseShipTerminal_00212A04 Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_UC06_OrlaseShipTerminal_00212A04 Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkShipSpaceshipInventory Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_02
 Function Fragment_Terminal_02(ObjectReference akTerminalRef)
-  akTerminalRef.GetLinkedRef(LinkShipSpaceshipInventory).Unlock(False)
+;BEGIN CODE
+;Unlock the Ship Inventory.
+akTerminalRef.GetLinkedRef(LinkShipSpaceshipInventory).Unlock()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Keyword Property LinkShipSpaceshipInventory Auto Const Mandatory

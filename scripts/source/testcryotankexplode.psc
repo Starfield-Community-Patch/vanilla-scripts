@@ -1,38 +1,39 @@
-ScriptName TestCryoTankExplode Extends ObjectReference Const
+Scriptname TestCryoTankExplode extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Spell Property ExplosionFireHazardSpell Auto Const
+SPELL Property ExplosionFireHazardSpell Auto Const
 Explosion Property fragGrenadeExplosion Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndIf
+	if Is3DLoaded()
+		RegisterForHitEvent(self)
+	EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  Self.PlaceAtMe(fragGrenadeExplosion as Form, 1, False, False, True, None, None, True)
-  Self.FreezeIce()
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+
+  self.PlaceAtMe(fragGrenadeExplosion)
+  FreezeIce()
+  
 EndEvent
 
 Function FreezeIce()
-  ObjectReference IceLinked = Self.GetLinkedRef(None)
-  Float MaxScale = IceLinked.GetScale()
-  IceLinked.SetScale(0.01)
-  Float currentScale = IceLinked.GetScale()
-  While currentScale <= MaxScale - 0.200000003
-    Utility.Wait(0.100000001)
-    IceLinked.SetScale(currentScale * 1.200000048)
-    currentScale = IceLinked.GetScale()
-  EndWhile
-  IceLinked.SetScale(MaxScale)
-  Self.UnregisterForAllHitEvents(None)
-EndFunction
+
+    ObjectReference IceLinked = GetLinkedRef()
+    ;IceLinked.Enable()
+
+    float MaxScale = IceLinked.GetScale()
+    IceLinked.SetScale(0.01)
+    float currentScale = IceLinked.GetScale()
+    while currentScale <= MaxScale - 0.2
+        Utility.Wait(0.1)
+        IceLinked.SetScale(currentScale * 1.2)
+        currentScale = IceLinked.GetScale()
+    EndWhile
+    IceLinked.SetScale(MaxScale)
+    UnregisterForAllHitEvents()
+ EndFunction  

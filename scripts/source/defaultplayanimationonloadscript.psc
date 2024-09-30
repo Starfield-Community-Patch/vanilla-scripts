@@ -1,22 +1,18 @@
-ScriptName DefaultPlayAnimationOnLoadScript Extends ObjectReference default
+Scriptname DefaultPlayAnimationOnLoadScript extends ObjectReference Default
 
-;-- Variables ---------------------------------------
+string Property AnimationToPlay Mandatory Const Auto
+bool property PlayAnimationOnlyOnce = false auto const
 
-;-- Properties --------------------------------------
-String Property AnimationToPlay Auto Const mandatory
-Bool Property PlayAnimationOnlyOnce = False Auto Const
-
-;-- State -------------------------------------------
-State Done
+Auto State PlayAnim
+    Event OnLoad()
+        If (PlayAnimationOnlyOnce)
+           GotoState("Done") 
+        EndIf
+        
+        PlayAnimation(AnimationToPlay)
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State PlayAnim
-
-  Event OnLoad()
-    If PlayAnimationOnlyOnce
-      Self.GotoState("Done")
-    EndIf
-    Self.PlayAnimation(AnimationToPlay)
-  EndEvent
+State Done
+    
 EndState

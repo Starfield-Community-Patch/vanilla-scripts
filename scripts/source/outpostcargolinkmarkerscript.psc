@@ -1,74 +1,94 @@
-ScriptName OutpostCargoLinkMarkerScript Extends ObjectReference conditional
-{ holds data about the specifics of this cargo link }
+Scriptname OutpostCargoLinkMarkerScript extends ObjectReference conditional
+{holds data about the specifics of this cargo link}
 
-;-- Variables ---------------------------------------
+SQ_OutpostCargoLinkScript property SQ_OutpostCargoLink auto const mandatory
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard animationStateGuard
-
-;-- Properties --------------------------------------
-sq_outpostcargolinkscript Property SQ_OutpostCargoLink Auto Const mandatory
-ActorValue Property CarryWeight Auto Const mandatory
+ActorValue Property CarryWeight auto const mandatory
 { actor value to set on myself for code to use as default ship carry weight }
-ActorValue Property OutpostCargoLinkAnimState Auto Const mandatory
+
+ActorValue Property OutpostCargoLinkAnimState auto const mandatory
 { actor value to set on myself for code to use as default ship carry weight }
-Float Property SpaceshipDefaultCarryWeight = 300.0 Auto Const
+
+float property SpaceshipDefaultCarryWeight = 300.0 auto Const
 { value to set }
-spaceshipbase Property OutpostCargoLinkShip Auto Const mandatory
+
+SpaceshipBase property OutpostCargoLinkShip auto const mandatory
 { spaceship base for my cargo ship }
-Bool Property RequiresFuel = False Auto Const
-Bool Property CreateShipAtCargoLink01 = True Auto Const
+
+bool property RequiresFuel = false auto Const
+
+bool property CreateShipAtCargoLink01 = true auto const
 { if true, create ship at cargo link 01 - the one the player is at
   if false, create ship at cargo link 02 - the "other" cargo link }
-Keyword Property CargoLinkMenuKeyword Auto Const
-{ OPTIONAL - if included, pass this in to ShowWorkshopTargetMenu }
-Keyword Property OutpostCargoLinkLightsKeyword Auto Const mandatory
-{ used to get linked lights on cargo link }
-Form Property SpecificCargo Auto hidden
-{ used only for Supply missions - if set, only move this type of cargo between cargo links - updated by supply mission }
-Int Property SpecificCargoMax Auto hidden
-{ used only for supply missions - max amount of cargo to take - updated by supply mission }
-Bool Property isLinked = False Auto conditional hidden
 
-;-- Functions ---------------------------------------
+Keyword property CargoLinkMenuKeyword auto Const
+{ OPTIONAL - if included, pass this in to ShowWorkshopTargetMenu }
+
+Keyword property OutpostCargoLinkLightsKeyword auto Const Mandatory
+{ used to get linked lights on cargo link }
+
+Form property SpecificCargo auto hidden
+{ used only for Supply missions - if set, only move this type of cargo between cargo links - updated by supply mission  }
+
+int property SpecificCargoMax auto hidden
+{ used only for supply missions - max amount of cargo to take - updated by supply mission }
+
+bool property isLinked = false auto hidden conditional ; set to true when linked to something
+
+CustomEvent SetAnimationStateEvent
 
 Event OnInit()
-  Self.SetValue(CarryWeight, SpaceshipDefaultCarryWeight)
-  If RequiresFuel
-    Self.AddKeyword(SQ_OutpostCargoLink.OutpostProductionHalted)
-  EndIf
+    SetValue(CarryWeight, SpaceshipDefaultCarryWeight)
+    if RequiresFuel
+        AddKeyword(SQ_OutpostCargoLink.OutpostProductionHalted) ; so it doesn't consume fuel until linked
+    endif
 EndEvent
 
 Event OnLoad()
-  Int animStateID = Self.GetValueInt(OutpostCargoLinkAnimState)
-  sq_outpostcargolinkscript:animdata theData = SQ_OutpostCargoLink.GetAnimationData(animStateID)
-  Self.SetAnimationState(animStateID, theData)
+    ; restore current animation state
+    int animStateID = GetValueInt(OutpostCargoLinkAnimState)
+    SQ_OutpostCargoLinkScript:animData theData = SQ_OutpostCargoLink.GetAnimationData(animStateID)
+    SetAnimationState(animStateID, theData)
 EndEvent
 
 Event OnWorkshopCargoLinkChanged(ObjectReference akOldTarget, ObjectReference akNewTarget)
-  If akNewTarget != akOldTarget
-    If akOldTarget
-      SQ_OutpostCargoLink.ClearCargoLink(Self as ObjectReference, akOldTarget)
-    EndIf
-    If akNewTarget
-      If SQ_OutpostCargoLink.CreateCargoLink(Self as ObjectReference, akNewTarget) == False
-        SQ_OutpostCargoLink.ClearCargoLink(Self as ObjectReference, akNewTarget)
-      EndIf
-    EndIf
-    SQ_OutpostCargoLink.SendOutpostCargoLinkChangedEvent(Self.GetWorkshop(), Self as ObjectReference, akOldTarget, akNewTarget)
-  EndIf
-EndEvent
+    debug.trace(self + " OnWorkshopCargoLinkChanged akOldTarget=" + akOldTarget + " akNewTarget=" + akNewTarget)
+    if akNewTarget != akOldTarget
+        ; something has changed
+
+        ; clear old cargo link if there is one
+        if akOldTarget
+            SQ_OutpostCargoLink.ClearCargoLink(self, akOldTarget)
+        endif
+
+        if akNewTarget
+            ; update cargo link to new target
+            if SQ_OutpostCargoLink.CreateCargoLink(self, akNewTarget) == false
+                ; error of some kind - couldn't create ship, most likely because marker was in use
+                ; undo whatever got linked
+                SQ_OutpostCargoLink.ClearCargoLink(self, akNewTarget)
+            endif
+        endif
+
+        SQ_OutpostCargoLink.SendOutpostCargoLinkChangedEvent(GetWorkshop(), self, akOldTarget, akNewTarget)
+    endif
+endEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akActionRef)
-  SQ_OutpostCargoLink.ClearCargoLink(Self as ObjectReference, None)
-EndEvent
+    debug.trace(self + " OnWorkshopObjectRemoved akActionRef=" + akActionRef)
+    ; clear cargo link
+    SQ_OutpostCargoLink.ClearCargoLink(self, NONE)
+endEvent
 
-Function SetAnimationState(Int stateID, sq_outpostcargolinkscript:animdata theData)
-  Guard animationStateGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.SetValue(OutpostCargoLinkAnimState, stateID as Float)
-    Var[] kargs = new Var[1]
-    kargs[0] = theData as Var
-    Self.SendCustomEvent("outpostcargolinkmarkerscript_SetAnimationStateEvent", kargs)
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+Guard animationStateGuard ProtectsFunctionLogic
+function SetAnimationState(int stateID, SQ_OutpostCargoLinkScript:animData theData)
+    debug.trace(self + " SetAnimationState " + theData + " is3dloaded=" + Is3DLoaded())
+    LockGuard animationStateGuard
+        ; record state (for initializing when loaded)
+        SetValue(OutpostCargoLinkAnimState, stateID)
+        ; send custom event that lights have registered for
+        Var[] kargs = new Var[1]
+        kargs[0] = theData
+        SendCustomEvent("SetAnimationStateEvent", kargs)
+    EndLockGuard
+endFunction

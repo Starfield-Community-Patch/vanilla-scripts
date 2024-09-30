@@ -1,7 +1,6 @@
-ScriptName CityCYRedTape01TextTerminalScript Extends ObjectReference Const
+Scriptname CityCYRedTape01TextTerminalScript extends ObjectReference Const
 
-;-- Functions ---------------------------------------
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, terminalmenu akTerminalBase, ObjectReference akTerminalRef)
-  Self.AddTextReplacementData("PlayerLabel", Game.GetPlayer() as Form)
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    AddTextReplacementData("PlayerLabel", Game.GetPlayer())
 EndEvent

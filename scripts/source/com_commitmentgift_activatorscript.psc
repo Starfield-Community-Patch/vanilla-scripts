@@ -1,25 +1,25 @@
-ScriptName COM_CommitmentGift_ActivatorScript Extends ObjectReference Const
+Scriptname COM_CommitmentGift_ActivatorScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property CommitmentGiftEnabled Auto Const mandatory
-
-;-- Functions ---------------------------------------
+GlobalVariable Property CommitmentGiftEnabled Mandatory Const Auto
 
 Event OnLoad()
-  If CommitmentGiftEnabled.GetValue() == 1.0
-    Self.Enable(False)
-  Else
-    Self.Disable(False)
-  EndIf
+    if CommitmentGiftEnabled.GetValue() == 1
+        Trace(self, "OnLoad() enabling because CommitmentGiftEnabled: " +  CommitmentGiftEnabled + " == 1 ")
+        Enable()
+    else
+        Trace(self, "OnLoad() disabling because CommitmentGiftEnabled: " +  CommitmentGiftEnabled + " != 1 ")
+        Disable()
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Companions",  string SubLogName = "CommitmentGift", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Companions",  string SubLogName = "CommitmentGift", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

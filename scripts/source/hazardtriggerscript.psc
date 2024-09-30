@@ -1,28 +1,24 @@
-ScriptName HazardTriggerScript Extends ObjectReference Const
-{ Script for a hazard-like trigger that casts a spell at any actors in the trigger. }
+Scriptname HazardTriggerScript extends ObjectReference const
+{Script for a hazard-like trigger that casts a spell at any actors in the trigger.}
 
-;-- Variables ---------------------------------------
+Spell property TriggerSpell Auto Const Mandatory
+{The spell to cast on any actors in the trigger.}
 
-;-- Properties --------------------------------------
-Spell Property TriggerSpell Auto Const mandatory
-{ The spell to cast on any actors in the trigger. }
-Float Property TriggerSpellDelay = 1.0 Auto Const
-{ DEFAULT: 1. Timer delay between castings of the spell. }
-
-;-- Functions ---------------------------------------
+float property TriggerSpellDelay = 1.0 Auto Const
+{DEFAULT: 1. Timer delay between castings of the spell.}
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Self.StartTimer(TriggerSpellDelay, 0)
+	StartTimer(TriggerSpellDelay)
 EndEvent
 
-Event OnTimer(Int timerID)
-  ObjectReference[] triggerRefs = Self.GetAllRefsInTrigger()
-  If triggerRefs.Length > 0
-    Int I = 0
-    While I < triggerRefs.Length
-      TriggerSpell.Cast(Self as ObjectReference, triggerRefs[I])
-      I += 1
-    EndWhile
-    Self.StartTimer(TriggerSpellDelay, 0)
-  EndIf
+Event OnTimer(int timerID)
+		ObjectReference[] triggerRefs = GetAllRefsInTrigger()
+		if (triggerRefs.Length > 0)
+			int i = 0
+			While (i < triggerRefs.Length)
+				TriggerSpell.Cast(Self, triggerRefs[i])
+				i = i + 1
+			EndWhile
+			StartTimer(TriggerSpellDelay)
+		EndIf
 EndEvent

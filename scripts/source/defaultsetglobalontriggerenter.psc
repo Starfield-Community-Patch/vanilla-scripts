@@ -1,18 +1,15 @@
-ScriptName DefaultSetGlobalOnTriggerEnter Extends ObjectReference Const default
-{ Set a global to a specific value when this trigger is entered by the player. }
+Scriptname DefaultSetGlobalOnTriggerEnter extends ObjectReference Const Default
+{Set a global to a specific value when this trigger is entered by the player.}
 
-;-- Variables ---------------------------------------
+GlobalVariable Property GlobalToSet const auto
+{The Global we want to set to NumToSetGlobalTo}
 
-;-- Properties --------------------------------------
-GlobalVariable Property GlobalToSet Auto Const
-{ The Global we want to set to NumToSetGlobalTo }
-Float Property NumToSetGlobalTo Auto Const
-{ The number we want to set GlobalToSet to. }
-
-;-- Functions ---------------------------------------
+Float Property NumToSetGlobalTo const auto
+{The number we want to set GlobalToSet to.}
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    GlobalToSet.SetValue(NumToSetGlobalTo)
-  EndIf
+    if akActionRef == Game.GetPlayer()
+    	GlobalToSet.SetValue(NumToSetGlobalTo)
+    	;debug.Trace(GlobalToSet + " set to " + GlobalToSet.GetValue())
+    endif
 EndEvent

@@ -1,13 +1,19 @@
-ScriptName Fragments:Scenes:SF_COM_Andreja_QuestEvent_MQ_0003BD77 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_COM_Andreja_QuestEvent_MQ_0003BD77 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property COM_WantsToTalk_MQ104A Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_09_End
 Function Fragment_Phase_09_End()
-  com_companionquestscript kmyQuest = Self.GetOwningQuest() as com_companionquestscript
-  kmyQuest.TalkAboutQuestEventSceneEnded(COM_WantsToTalk_MQ104A)
+;BEGIN AUTOCAST TYPE com_companionquestscript
+com_companionquestscript kmyQuest = GetOwningQuest() as com_companionquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.TalkAboutQuestEventSceneEnded(COM_WantsToTalk_MQ104A)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+
+
+ActorValue Property COM_WantsToTalk_MQ104A Auto Const Mandatory

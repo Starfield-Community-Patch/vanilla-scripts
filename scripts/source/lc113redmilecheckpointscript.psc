@@ -1,15 +1,12 @@
-ScriptName LC113RedMileCheckpointScript Extends ObjectReference
+Scriptname LC113RedMileCheckpointScript extends ObjectReference
+WwiseEvent property QST_FC05_Beacon_Activation_WEF auto Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property LC113_Checkpoint_Explosion Mandatory Const Auto
+Explosion Property FlameExplosion Mandatory Const Auto
 
-;-- Properties --------------------------------------
-wwiseevent Property QST_FC05_Beacon_Activation_WEF Auto Const
-ObjectReference Property LC113_Checkpoint_Explosion Auto Const mandatory
-Explosion Property FlameExplosion Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;Player presses the button at the checkpoint setting off an explosion out of the top of the stack
 Event OnActivate(ObjectReference akActionRef)
-  LC113_Checkpoint_Explosion.PlaceAtMe(FlameExplosion as Form, 1, False, False, True, None, None, True)
-  QST_FC05_Beacon_Activation_WEF.Play(LC113_Checkpoint_Explosion, None, None)
+    LC113_Checkpoint_Explosion.PlaceAtMe(FlameExplosion)
+    QST_FC05_Beacon_Activation_WEF.Play(LC113_Checkpoint_Explosion)
+	Debug.Trace("Playing Sound: " + QST_FC05_Beacon_Activation_WEF)
 EndEvent

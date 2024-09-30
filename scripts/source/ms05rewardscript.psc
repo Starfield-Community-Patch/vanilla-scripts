@@ -1,22 +1,23 @@
-ScriptName MS05RewardScript Extends Quest
+Scriptname MS05RewardScript extends Quest
 
-;-- Variables ---------------------------------------
+SQ_PlayerShipScript Property SQ_PlayerShip Mandatory Const Auto
+ReferenceAlias Property RidiculousShip Mandatory Const Auto
+ReferenceAlias Property SensibleShip Mandatory Const Auto
+Int Property SellShipStage = 1001 Const Auto
 
-;-- Properties --------------------------------------
-sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-ReferenceAlias Property RidiculousShip Auto Const mandatory
-ReferenceAlias Property SensibleShip Auto Const mandatory
-Int Property SellShipStage = 1001 Auto Const
 
-;-- Functions ---------------------------------------
 
 Event OnQuestInit()
-  Self.RegisterForCustomEvent(SQ_PlayerShip as ScriptObject, "sq_playershipscript_SQ_PlayerSellShip")
+    RegisterForCustomEvent(SQ_PlayerShip, "SQ_PlayerSellShip")
 EndEvent
 
-Event SQ_PlayerShipScript.SQ_PlayerSellShip(sq_playershipscript akSender, Var[] akArgs)
-  spaceshipreference PlayerShipToSell = akArgs[0] as spaceshipreference
-  If PlayerShipToSell == RidiculousShip.GetShipRef() || PlayerShipToSell == SensibleShip.GetShipRef()
-    Self.SetStage(SellShipStage)
-  EndIf
+;If the player sells the ship before claiming it by sitting int he pilot's seat, we complete the quest.
+;To do this, we set Stage 1001, which does the same thing as Stage 1000, but excludes the tutorial message pop-up. 
+Event SQ_PlayerShipScript.SQ_PlayerSellShip(SQ_PlayerShipScript akSender, Var[] akArgs)
+	SpaceshipReference PlayerShipToSell = akArgs[0] as SpaceshipReference
+    debug.trace(self + " PlayerShipToSell=" + PlayerShipToSell)
+
+    If PlayerShipToSell == RidiculousShip.GetShipRef() || PlayerShipToSell == SensibleShip.GetShipRef()
+        SetStage(SellShipStage)
+    EndIf
 EndEvent

@@ -1,24 +1,20 @@
-ScriptName LC008_ElevatorMover Extends ObjectReference Const
+Scriptname LC008_ElevatorMover extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkCustom01 Auto Const
-{ End Position }
-Keyword Property LinkCustom02 Auto Const
-{ Start Position }
-Keyword Property LinkCustom03 Auto Const mandatory
-{ Door to Slayton }
-Float Property TranslationSpeed = 1.0 Auto Const
-
-;-- Functions ---------------------------------------
+Keyword Property LinkCustom01 Const Auto
+{End Position}
+Keyword Property LinkCustom02 Const Auto
+{Start Position}
+Keyword Property LinkCustom03 Mandatory Const Auto
+{Door to Slayton}
+float Property TranslationSpeed = 1.0 Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference StartPosition = Self.GetLinkedRef(LinkCustom02)
-  Self.SetPosition(StartPosition.GetPositionX(), StartPosition.GetPositionY(), StartPosition.GetPositionZ())
-  Self.TranslateToRef(Self.GetLinkedRef(LinkCustom01), TranslationSpeed, 0.0)
+    ObjectReference StartPosition = GetLinkedRef(LinkCustom02)
+    self.SetPosition(StartPosition.GetPositionX(), StartPosition.GetPositionY(), StartPosition.GetPositionZ())
+    self.TranslateToRef(GetLinkedRef(LinkCustom01), TranslationSpeed)
 EndEvent
 
 Event OnTranslationComplete()
-  Self.GetLinkedRef(LinkCustom03).SetOpen(True)
+    ;Open the Elevator Doors
+    self.GetLinkedRef(LinkCustom03).SetOpen(true)
 EndEvent

@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_UC08_004E484B Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_UC08_004E484B Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property UC08_DEBUG_TransmitUnlockSound Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  UC08_DEBUG_TransmitUnlockSound.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+UC08_DEBUG_TransmitUnlockSound.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Message Property UC08_DEBUG_TransmitUnlockSound Auto Const Mandatory

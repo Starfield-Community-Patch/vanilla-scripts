@@ -1,13 +1,8 @@
-ScriptName DefaultMessageOnEffectStart Extends ActiveMagicEffect default
+Scriptname DefaultMessageOnEffectStart extends ActiveMagicEffect Default
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property MessageToShow Auto Const mandatory
+Message Property MessageToShow Auto Const Mandatory
 { The message to show when this effect starts. }
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  MessageToShow.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	MessageToShow.Show()
 EndEvent

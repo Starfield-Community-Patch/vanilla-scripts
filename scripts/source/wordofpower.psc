@@ -1,1 +1,1 @@
-ScriptName WordOfPower Extends Form Native hidden
+Scriptname WordOfPower Extends Form Native Hidden

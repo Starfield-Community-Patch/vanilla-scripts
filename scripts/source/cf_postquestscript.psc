@@ -1,153 +1,182 @@
-ScriptName CF_PostQuestScript Extends Quest
-{ Quest script for CF_Post, the CF Postquest Script. }
+Scriptname CF_PostQuestScript extends Quest
+{Quest script for CF_Post, the CF Postquest Script.}
 
-;-- Variables ---------------------------------------
-Int CONST_CaptainState_Active = 0 Const
-Int CONST_CaptainState_Dead = 2 Const
-Int CONST_CaptainState_Freed = 4 Const
-Int CONST_CaptainState_Imprisoned = 3 Const
-Int CONST_CaptainState_Inactive = 1 Const
-Int CONST_Stage_PostquestFinal_CF = 110 Const
-Int CONST_Stage_PostquestFinal_SD = 210 Const
-Int CONST_Stage_PostquestStartup_CF = 100 Const
-Int CONST_Stage_PostquestStartup_SD = 200 Const
-Int CONST_Stage_QuickstartCF = 0 Const
-Int CONST_Stage_QuickstartSD = 1 Const
-Float CONST_VigilanceCrippledHealthPercent = 0.050000001 Const
-Bool waitingForPlayerToSit
-
-;-- Properties --------------------------------------
 Group QuestProperties
-  ActorValue[] Property VigilanceSystemActorValues Auto Const mandatory
-  dialogueshipservicesscript Property DialogueShipServices Auto Const mandatory
+	ActorValue[] property VigilanceSystemActorValues Auto Const Mandatory
+	DialogueShipServicesScript property DialogueShipServices Auto Const Mandatory
 EndGroup
 
 Group AutofillProperties
-  sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-  LocationAlias Property SuvorovOrbitLocation Auto Const mandatory
-  ReferenceAlias Property TheKey Auto Const mandatory
-  ReferenceAlias Property Vigilance Auto Const mandatory
-  ReferenceAlias Property PlayerShip Auto Const mandatory
-  ReferenceAlias Property PlayerShipPilotSeat Auto Const mandatory
-  ReferenceAlias Property TheKeyMapMarker Auto Const mandatory
-  ReferenceAlias Property Captain_RokovShip Auto Const mandatory
-  ReferenceAlias Property Captain_MathisShip Auto Const mandatory
-  ReferenceAlias Property Captain_NaevaShip Auto Const mandatory
-  ReferenceAlias Property Captain_AdlerShip Auto Const mandatory
-  ReferenceAlias Property Captain_HuanShip Auto Const mandatory
-  ReferenceAlias Property Captain_EstelleShip Auto Const mandatory
-  GlobalVariable Property CrimsonFleetCaptainState_Rokov Auto Const mandatory
-  GlobalVariable Property CrimsonFleetCaptainState_Mathis Auto Const mandatory
-  GlobalVariable Property CrimsonFleetCaptainState_Naeva Auto Const mandatory
-  GlobalVariable Property CrimsonFleetCaptainState_Adler Auto Const mandatory
-  GlobalVariable Property CrimsonFleetCaptainState_Huan Auto Const mandatory
-  GlobalVariable Property CrimsonFleetCaptainState_Estelle Auto Const mandatory
-  ReferenceAlias Property CFPost_CFVigilanceMarker Auto Const mandatory
-  ReferenceAlias Property CFPost_SDVigilanceMarker Auto Const mandatory
-  Faction Property CrimeFactionUC Auto Const mandatory
-  Faction Property UCSysDefFaction Auto Const mandatory
-  Faction Property CrimeFactionCrimsonFleet Auto Const mandatory
-  ActorValue Property Health Auto Const mandatory
+	SQ_PlayerShipScript property SQ_PlayerShip Auto Const Mandatory
+	LocationAlias property SuvorovOrbitLocation Auto Const Mandatory
+
+	ReferenceAlias property TheKey Auto Const Mandatory
+	ReferenceAlias property Vigilance Auto Const Mandatory
+	ReferenceAlias property PlayerShip Auto Const Mandatory
+	ReferenceAlias property PlayerShipPilotSeat Auto Const Mandatory
+	ReferenceAlias property TheKeyMapMarker Auto Const Mandatory
+
+	ReferenceAlias property Captain_RokovShip Auto Const Mandatory
+	ReferenceAlias property Captain_MathisShip Auto Const Mandatory
+	ReferenceAlias property Captain_NaevaShip Auto Const Mandatory
+	ReferenceAlias property Captain_AdlerShip Auto Const Mandatory
+	ReferenceAlias property Captain_HuanShip Auto Const Mandatory
+	ReferenceAlias property Captain_EstelleShip Auto Const Mandatory
+
+	GlobalVariable property CrimsonFleetCaptainState_Rokov Auto Const Mandatory
+	GlobalVariable property CrimsonFleetCaptainState_Mathis Auto Const Mandatory
+	GlobalVariable property CrimsonFleetCaptainState_Naeva Auto Const Mandatory
+	GlobalVariable property CrimsonFleetCaptainState_Adler Auto Const Mandatory
+	GlobalVariable property CrimsonFleetCaptainState_Huan Auto Const Mandatory
+	GlobalVariable property CrimsonFleetCaptainState_Estelle Auto Const Mandatory
+
+	ReferenceAlias property CFPost_CFVigilanceMarker Auto Const Mandatory
+	ReferenceAlias property CFPost_SDVigilanceMarker Auto Const Mandatory
+	Faction property CrimeFactionUC Auto Const Mandatory
+	Faction property UCSysDefFaction Auto Const Mandatory
+	Faction property CrimeFactionCrimsonFleet Auto Const Mandatory
+	ActorValue property Health Auto Const Mandatory
 EndGroup
 
+;Local Variables
+bool waitingForPlayerToSit
 
-;-- Functions ---------------------------------------
+;Local Consts
+;Standard values for the CF Captain State globals.
+int CONST_CaptainState_Active = 0 Const
+int CONST_CaptainState_Inactive = 1 Const
+int CONST_CaptainState_Dead = 2 Const
+int CONST_CaptainState_Imprisoned = 3 Const
+int CONST_CaptainState_Freed = 4 Const
 
+;Vigilance values.
+float CONST_VigilanceCrippledHealthPercent = 0.05 Const
+
+;Stages
+int CONST_Stage_QuickstartCF = 0 Const
+int CONST_Stage_QuickstartSD = 1 Const
+int CONST_Stage_PostquestStartup_CF = 100 Const
+int CONST_Stage_PostquestFinal_CF = 110 Const
+int CONST_Stage_PostquestStartup_SD = 200 Const
+int CONST_Stage_PostquestFinal_SD = 210 Const
+
+
+;------------------------------------
+;Quickstart Setup
+;-----------------
+
+;DEBUG - For quickstarts, force the player onto their ship (spawned by the LC088 Quickstarts), then move them to the Key.
 Function QuickstartToKey()
-  Actor player = Game.GetPlayer()
-  inputenablelayer myEnableLayer = inputenablelayer.Create()
-  myEnableLayer.DisablePlayerControls(True, True, True, False, False, True, True, False, True, True, False)
-  spaceshipreference playerShipRef = PlayerShip.GetShipRef()
-  playerShipRef.InstantUndock()
-  playerShipRef.MoveTo(TheKeyMapMarker.GetRef().GetLinkedRef(None), 0.0, 0.0, 0.0, True, False)
-  player.MoveTo(playerShipRef as ObjectReference, 0.0, 0.0, 0.0, True, False)
-  PlayerShipPilotSeat.GetRef().Activate(player as ObjectReference, False)
-  myEnableLayer.Delete()
+	Actor player = Game.GetPlayer()
+	InputEnableLayer myEnableLayer = InputEnableLayer.Create()
+	myEnableLayer.DisablePlayerControls(abCamSwitch=True)
+	SpaceshipReference playerShipRef = PlayerShip.GetShipRef()
+	playerShipRef.InstantUndock()
+	playerShipRef.MoveTo(TheKeyMapMarker.GetRef().GetLinkedRef())
+	player.MoveTo(playerShipRef)
+	PlayerShipPilotSeat.GetRef().Activate(player)
+	myEnableLayer.Delete()
 EndFunction
 
+
+;------------------------------------
+;Postquest Functions
+;--------------------
+
 Function RegisterForPostquestLocationChange()
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnLocationChange")
+	RegisterForRemoteEvent(PlayerShip, "OnLocationChange")
 EndFunction
 
 Event ReferenceAlias.OnLocationChange(ReferenceAlias source, Location akOldLoc, Location akNewLoc)
-  Location survorovOrbitLoc = SuvorovOrbitLocation.GetLocation()
-  If akNewLoc != survorovOrbitLoc && !survorovOrbitLoc.IsChild(akNewLoc)
-    Self.UnregisterForRemoteEvent(PlayerShip as ScriptObject, "OnLocationChange")
-    If Self.GetStageDone(CONST_Stage_PostquestStartup_CF)
-      Self.SetStage(CONST_Stage_PostquestFinal_CF)
-    ElseIf Self.GetStageDone(CONST_Stage_PostquestStartup_SD)
-      Self.SetStage(CONST_Stage_PostquestFinal_SD)
-    EndIf
-  EndIf
+	Location survorovOrbitLoc = SuvorovOrbitLocation.GetLocation()
+	if ((akNewLoc != survorovOrbitLoc) && (!survorovOrbitLoc.IsChild(akNewLoc)))
+		UnregisterForRemoteEvent(PlayerShip, "OnLocationChange")
+		if (GetStageDone(CONST_Stage_PostquestStartup_CF))
+			SetStage(CONST_Stage_PostquestFinal_CF)
+		ElseIf (GetStageDone(CONST_Stage_PostquestStartup_SD))
+			SetStage(CONST_Stage_PostquestFinal_SD)
+		EndIf
+	EndIf
 EndEvent
 
+
+;------------------------------------
+;Postquest - CF
+;---------------
+
 Function CF_CleanupAllCaptainShips()
-  Self.CF_CleanupCaptainShip(CrimsonFleetCaptainState_Rokov.GetValueInt(), Captain_RokovShip)
-  Self.CF_CleanupCaptainShip(CrimsonFleetCaptainState_Mathis.GetValueInt(), Captain_MathisShip)
-  Self.CF_CleanupCaptainShip(CrimsonFleetCaptainState_Naeva.GetValueInt(), Captain_NaevaShip)
-  Self.CF_CleanupCaptainShip(CrimsonFleetCaptainState_Adler.GetValueInt(), Captain_AdlerShip)
-  Self.CF_CleanupCaptainShip(CrimsonFleetCaptainState_Huan.GetValueInt(), Captain_HuanShip)
-  Self.CF_CleanupCaptainShip(CrimsonFleetCaptainState_Estelle.GetValueInt(), Captain_EstelleShip)
+	CF_CleanupCaptainShip(CrimsonFleetCaptainState_Rokov.GetValueInt(), Captain_RokovShip)
+	CF_CleanupCaptainShip(CrimsonFleetCaptainState_Mathis.GetValueInt(), Captain_MathisShip)
+	CF_CleanupCaptainShip(CrimsonFleetCaptainState_Naeva.GetValueInt(), Captain_NaevaShip)
+	CF_CleanupCaptainShip(CrimsonFleetCaptainState_Adler.GetValueInt(), Captain_AdlerShip)
+	CF_CleanupCaptainShip(CrimsonFleetCaptainState_Huan.GetValueInt(), Captain_HuanShip)
+	CF_CleanupCaptainShip(CrimsonFleetCaptainState_Estelle.GetValueInt(), Captain_EstelleShip)
 EndFunction
 
-Function CF_CleanupCaptainShip(Int captainState, ReferenceAlias captainShip)
-  If captainState == CONST_CaptainState_Active
-    spaceshipreference captainShipRef = captainShip.GetShipRef()
-    captainShipRef.EnableNoWait(False)
-    If captainShipRef.IsDockedWith(Vigilance.GetShipRef())
-      captainShipRef.InstantUndock()
-    EndIf
-    captainShip.TryToEvaluatePackage()
-    captainShipRef.InstantDock(TheKey.GetShipRef() as ObjectReference)
-  EndIf
+Function CF_CleanupCaptainShip(int captainState, ReferenceAlias captainShip)
+	if (captainState == CONST_CaptainState_Active)
+		SpaceshipReference captainShipRef = captainShip.GetShipRef()
+		captainShipRef.EnableNoWait()
+		if (captainShipRef.IsDockedWith(Vigilance.GetShipRef()))
+			captainShipRef.InstantUndock()
+		EndIf
+		captainShip.TryToEvaluatePackage()
+		captainShipRef.InstantDock(TheKey.GetShipRef())
+	EndIf
 EndFunction
 
 Function CF_ConvertVigilance()
-  spaceshipreference vigilanceRef = Vigilance.GetShipRef()
-  vigilanceRef.RemoveFromFaction(CrimeFactionUC)
-  vigilanceRef.RemoveFromFaction(UCSysDefFaction)
-  vigilanceRef.AddToFaction(CrimeFactionCrimsonFleet)
+	SpaceshipReference vigilanceRef = Vigilance.GetShipRef()
+	vigilanceRef.RemoveFromFaction(CrimeFactionUC)
+	vigilanceRef.RemoveFromFaction(UCSysDefFaction)
+	vigilanceRef.AddToFaction(CrimeFactionCrimsonFleet)
 EndFunction
 
+
 Function CF_DisableCaptainShips()
-  Captain_RokovShip.TryToDisableNoWait()
-  Captain_MathisShip.TryToDisableNoWait()
-  Captain_AdlerShip.TryToDisableNoWait()
-  Captain_HuanShip.TryToDisableNoWait()
-  Captain_EstelleShip.TryToDisableNoWait()
+	Captain_RokovShip.TryToDisableNoWait()
+	Captain_MathisShip.TryToDisableNoWait()
+	Captain_AdlerShip.TryToDisableNoWait()
+	Captain_HuanShip.TryToDisableNoWait()
+	Captain_EstelleShip.TryToDisableNoWait()
 EndFunction
 
 Function CF_MoveAndCrippleVigilance()
-  spaceshipreference vigilanceRef = Vigilance.GetShipRef()
-  vigilanceRef.Enable(False)
-  vigilanceRef.MoveTo(CFPost_CFVigilanceMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  Int I = 0
-  While I < VigilanceSystemActorValues.Length
-    vigilanceRef.EnablePartRepair(VigilanceSystemActorValues[I], False)
-    vigilanceRef.DamageValue(VigilanceSystemActorValues[I], vigilanceRef.GetValue(VigilanceSystemActorValues[I]))
-    I += 1
-  EndWhile
-  vigilanceRef.EnablePartRepair(Health, False)
-  vigilanceRef.DamageValue(Health, vigilanceRef.GetValue(Health) * (1.0 - CONST_VigilanceCrippledHealthPercent))
+	SpaceshipReference vigilanceRef = Vigilance.GetShipRef()
+	vigilanceRef.Enable()
+	vigilanceRef.MoveTo(CFPost_CFVigilanceMarker.GetRef())
+	int i = 0
+	While (i < VigilanceSystemActorValues.Length)
+		vigilanceRef.EnablePartRepair(VigilanceSystemActorValues[i], False)
+		vigilanceRef.DamageValue(VigilanceSystemActorValues[i], vigilanceRef.GetValue(VigilanceSystemActorValues[i]))
+		i = i + 1
+	EndWhile
+	vigilanceRef.EnablePartRepair(Health, False)
+	vigilanceRef.DamageValue(Health, vigilanceRef.GetValue(Health) * (1-CONST_VigilanceCrippledHealthPercent))
 EndFunction
+
+
+;------------------------------------
+;Postquest - SD
+;---------------
 
 Function SD_CleanupAllCaptainShips()
-  Self.SD_CleanupCaptainShip(CrimsonFleetCaptainState_Rokov.GetValueInt(), Captain_RokovShip)
-  Self.SD_CleanupCaptainShip(CrimsonFleetCaptainState_Mathis.GetValueInt(), Captain_MathisShip)
-  Self.SD_CleanupCaptainShip(CrimsonFleetCaptainState_Naeva.GetValueInt(), Captain_NaevaShip)
-  Self.SD_CleanupCaptainShip(CrimsonFleetCaptainState_Adler.GetValueInt(), Captain_AdlerShip)
-  Self.SD_CleanupCaptainShip(CrimsonFleetCaptainState_Huan.GetValueInt(), Captain_HuanShip)
-  Self.SD_CleanupCaptainShip(CrimsonFleetCaptainState_Estelle.GetValueInt(), Captain_EstelleShip)
+	SD_CleanupCaptainShip(CrimsonFleetCaptainState_Rokov.GetValueInt(), Captain_RokovShip)
+	SD_CleanupCaptainShip(CrimsonFleetCaptainState_Mathis.GetValueInt(), Captain_MathisShip)
+	SD_CleanupCaptainShip(CrimsonFleetCaptainState_Naeva.GetValueInt(), Captain_NaevaShip)
+	SD_CleanupCaptainShip(CrimsonFleetCaptainState_Adler.GetValueInt(), Captain_AdlerShip)
+	SD_CleanupCaptainShip(CrimsonFleetCaptainState_Huan.GetValueInt(), Captain_HuanShip)
+	SD_CleanupCaptainShip(CrimsonFleetCaptainState_Estelle.GetValueInt(), Captain_EstelleShip)
 EndFunction
 
-Function SD_CleanupCaptainShip(Int captainState, ReferenceAlias captainShip)
-  If captainState == CONST_CaptainState_Active
-    captainShip.GetShipRef().DisableNoWait(False)
-  EndIf
+Function SD_CleanupCaptainShip(int captainState, ReferenceAlias captainShip)
+	if (captainState == CONST_CaptainState_Active)
+		captainShip.GetShipRef().DisableNoWait()
+	EndIf
 EndFunction
 
 Function SD_MoveVigilance()
-  spaceshipreference vigilanceRef = Vigilance.GetShipRef()
-  vigilanceRef.Enable(False)
-  vigilanceRef.MoveTo(CFPost_SDVigilanceMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
+	SpaceshipReference vigilanceRef = Vigilance.GetShipRef()
+	vigilanceRef.Enable()
+	vigilanceRef.MoveTo(CFPost_SDVigilanceMarker.GetRef())
 EndFunction

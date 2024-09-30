@@ -1,7 +1,6 @@
-ScriptName MQ305UnityRampScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname MQ305UnityRampScript extends ReferenceAlias
 
 Event OnLoad()
-  Self.GetRef().PlayAnimation("Landed")
+    ;make sure ramp is down on load
+    Self.GetRef().PlayAnimation("Landed")
 EndEvent

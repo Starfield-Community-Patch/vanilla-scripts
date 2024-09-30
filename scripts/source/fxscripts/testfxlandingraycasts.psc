@@ -1,85 +1,103 @@
-ScriptName FXScripts:TestFXLandingRaycasts Extends ObjectReference
-{ Test script for ship landing effects. }
+Scriptname FXScripts:TestFXLandingRaycasts extends ObjectReference
+{Test script for ship landing effects.}
 
-;-- Variables ---------------------------------------
-Int ImpactTimer = 10
+ImpactDataSet Property ThrusterDustKickupImpacts Auto Const Mandatory
+{The impact set that will be spawned from the ship thrusters.}
+ImpactDataSet Property ThrusterFireKickupImpacts Auto Const Mandatory
+{The impact set that will be spawned very close from the ship thrusters.}
+ImpactDataSet Property ThrusterFireMidRangeKickupImpacts Auto Const Mandatory
+{The impact set that will be spawned very close from the ship thrusters.}
+
+float Property ImpactRecastDelay = 0.1 Auto Const 
+float Property ImpactRange = 45.0 Auto Const 
+float Property ImpactMidRange = 13.0 Auto Const 
+float Property ImpactCloseRange = 7.0 Auto Const 
+
+bool bPlayImpactEffects = false
+int ImpactTimer = 10
 ObjectReference ObjRef
-Bool bPlayImpactEffects = False
 
-;-- Properties --------------------------------------
-ImpactDataSet Property ThrusterDustKickupImpacts Auto Const mandatory
-{ The impact set that will be spawned from the ship thrusters. }
-ImpactDataSet Property ThrusterFireKickupImpacts Auto Const mandatory
-{ The impact set that will be spawned very close from the ship thrusters. }
-ImpactDataSet Property ThrusterFireMidRangeKickupImpacts Auto Const mandatory
-{ The impact set that will be spawned very close from the ship thrusters. }
-Float Property ImpactRecastDelay = 0.100000001 Auto Const
-Float Property ImpactRange = 45.0 Auto Const
-Float Property ImpactMidRange = 13.0 Auto Const
-Float Property ImpactCloseRange = 7.0 Auto Const
 
-;-- Functions ---------------------------------------
 
 Event OnLoad()
-  ObjectReference TestRef = Self as ObjectReference
-  If TestRef.IsBoundGameObjectAvailable()
-    Cell ShipCell = TestRef.GetParentCell()
-    ObjectReference ShipRef = ShipCell.GetParentRef()
-    ObjRef = TestRef
-    Self.RegisterForRemoteEvent((ShipRef as spaceshipreference) as ScriptObject, "OnShipLanding")
-    Self.RegisterForRemoteEvent((ShipRef as spaceshipreference) as ScriptObject, "OnShipTakeOff")
-  EndIf
+	ObjectReference TestRef = Self as ObjectReference
+	if TestRef.IsBoundGameObjectAvailable()
+		Debug.trace("------- LandingFX Self is  : " + Self)
+		Debug.trace("------- LandingFX ObjRef is: " + TestRef)
+
+		Cell ShipCell = TestRef.GetParentCell()
+		Debug.trace("------- LandingFX Cell is: " + ShipCell)
+
+		ObjectReference ShipRef = ShipCell.GetParentRef()
+		Debug.trace("------- LandingFX Ship is: " + ShipRef)
+		ObjRef = TestRef
+
+		RegisterForRemoteEvent(ShipRef as SpaceshipReference, "OnShipLanding")
+		RegisterForRemoteEvent(ShipRef as SpaceshipReference, "OnShipTakeOff")
+	EndIf
 EndEvent
 
-Event SpaceshipReference.OnShipLanding(spaceshipreference akSender, Bool abComplete)
-  Cell ShipCell = Self.GetParentCell()
-  ObjectReference ShipRef = ShipCell.GetParentRef()
-  If ShipRef
-    If abComplete == False
-      Self.RegisterForAnimationEvent(ShipRef, "StartImpactFX")
-      Self.RegisterForAnimationEvent(ShipRef, "StopImpactFX")
-    Else
-      bPlayImpactEffects = False
-      Self.UnRegisterForAnimationEvent(ShipRef, "StartImpactFX")
-      Self.UnRegisterForAnimationEvent(ShipRef, "StopImpactFX")
-    EndIf
-  EndIf
+Event SpaceshipReference.OnShipLanding(SpaceshipReference akSender, bool abComplete)
+	Cell ShipCell = Self.GetParentCell()
+	ObjectReference ShipRef = ShipCell.GetParentRef()
+	Debug.trace("------- OnShipLanding event fired for: " + ObjRef)
+	if ShipRef
+		if abComplete == false
+			RegisterForAnimationEvent(ShipRef, "StartImpactFX")
+			RegisterForAnimationEvent(ShipRef, "StopImpactFX")
+		Else
+			bPlayImpactEffects = False
+			UnRegisterForAnimationEvent(ShipRef, "StartImpactFX")
+			UnRegisterForAnimationEvent(ShipRef, "StopImpactFX")
+		EndIf
+	endif
 EndEvent
 
-Event SpaceshipReference.OnShipTakeOff(spaceshipreference akSender, Bool abComplete)
-  Cell ShipCell = Self.GetParentCell()
-  ObjectReference ShipRef = ShipCell.GetParentRef()
-  If ShipRef
-    If abComplete == False
-      Self.RegisterForAnimationEvent(ShipRef, "StartImpactFX")
-      Self.RegisterForAnimationEvent(ShipRef, "StopImpactFX")
-    Else
-      bPlayImpactEffects = False
-      Self.UnRegisterForAnimationEvent(ShipRef, "StartImpactFX")
-      Self.UnRegisterForAnimationEvent(ShipRef, "StopImpactFX")
-    EndIf
-  EndIf
+Event SpaceshipReference.OnShipTakeOff(SpaceshipReference akSender, bool abComplete)
+	Cell ShipCell = Self.GetParentCell()
+	ObjectReference ShipRef = ShipCell.GetParentRef()
+	Debug.trace("------- OnShipTakeoff event fired for: " + ObjRef)
+	if ShipRef
+		if abComplete == false
+			RegisterForAnimationEvent(ShipRef, "StartImpactFX")
+			RegisterForAnimationEvent(ShipRef, "StopImpactFX")
+		Else
+			bPlayImpactEffects = False
+			UnRegisterForAnimationEvent(ShipRef, "StartImpactFX")
+			UnRegisterForAnimationEvent(ShipRef, "StopImpactFX")
+		EndIf
+	endif
 EndEvent
 
-Event OnAnimationEvent(ObjectReference akSource, String asEventName)
-  If asEventName == "StartImpactFX"
-    bPlayImpactEffects = True
-    Self.StartTimer(ImpactRecastDelay, ImpactTimer)
-  EndIf
-  If asEventName == "StopImpactFX"
-    bPlayImpactEffects = False
-  EndIf
+; Event OnUnLoad()
+; 	bPlayImpactEffects = False
+;     UnRegisterForAnimationEvent(ObjRef, "StartImpactFX")
+;     UnRegisterForAnimationEvent(ObjRef, "StopImpactFX")
+; EndEvent
+
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+	debug.Trace("SourceRef is " + akSource + " and Event is " + asEventName)
+	if asEventName == "StartImpactFX"
+		bPlayImpactEffects = true
+		debug.trace("Starting Timer for ImpactFX Animation")
+		StartTimer(ImpactRecastDelay, ImpactTimer)
+	EndIf
+
+	if asEventName == "StopImpactFX"
+		debug.trace("Finished ImpactFX Sequence")
+		bPlayImpactEffects = False
+	EndIf
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == ImpactTimer
-    If bPlayImpactEffects == True
-      If ObjRef
-        ObjRef.PlayImpactEffect(ThrusterDustKickupImpacts, "ThrusterRayCaster01", 0.0, 0.0, -1.0, ImpactRange, True, False)
-        ObjRef.PlayImpactEffect(ThrusterFireKickupImpacts, "ThrusterRayCaster01", 0.0, 0.0, -1.0, ImpactCloseRange, True, False)
-        ObjRef.PlayImpactEffect(ThrusterFireMidRangeKickupImpacts, "ThrusterRayCaster01", 0.0, 0.0, -1.0, ImpactMidRange, True, False)
-      EndIf
-      Self.StartTimer(ImpactRecastDelay, ImpactTimer)
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+	if aiTimerID == ImpactTimer
+		if bPlayImpactEffects == True
+			if ObjRef
+				ObjRef.PlayImpactEffect(ThrusterDustKickupImpacts, "ThrusterRayCaster01", 0, 0, -1, ImpactRange, true, false)
+				ObjRef.PlayImpactEffect(ThrusterFireKickupImpacts, "ThrusterRayCaster01", 0, 0, -1, ImpactCloseRange, true, false)
+				ObjRef.PlayImpactEffect(ThrusterFireMidRangeKickupImpacts, "ThrusterRayCaster01", 0, 0, -1, ImpactMidRange, true, false)
+			endif
+			StartTimer(ImpactRecastDelay, ImpactTimer)
+		endif
+	endif
 EndEvent

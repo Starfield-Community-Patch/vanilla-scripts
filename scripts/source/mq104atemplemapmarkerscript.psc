@@ -1,12 +1,7 @@
-ScriptName MQ104ATempleMapMarkerScript Extends ReferenceAlias
+Scriptname MQ104ATempleMapMarkerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet = 405 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property StageToSet=405 Const Auto
 
 Event OnMapMarkerDiscovered()
-  Self.GetOwningQuest().SetStage(StageToSet)
+    GetOwningQuest().SetStage(StageToSet)
 EndEvent

@@ -1,10 +1,11 @@
-ScriptName DefaultAliasOnRead Extends DefaultAliasParent default
-{ Sets quest stage when this reference has been read.
-<QuestToSetOrCheck> is THIS Alias's GetOwningQuest() }
-
-;-- Functions ---------------------------------------
+Scriptname DefaultAliasOnRead extends DefaultAliasParent Default
+{Sets quest stage when this reference has been read.
+<QuestToSetOrCheck> is THIS Alias's GetOwningQuest()}
 
 Event OnRead()
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, None, None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnRead()", ShowTraces)
+	
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = None)
+	DefaultScriptFunctions.Trace(self, "OnRead() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent

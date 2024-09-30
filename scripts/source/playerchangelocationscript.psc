@@ -1,14 +1,11 @@
-ScriptName PlayerChangeLocationScript Extends Actor Const
+Scriptname PlayerChangeLocationScript extends Actor Const
 { Send events when the player changes locations
-  For now specifically to get the PlayerShipQuest to run - possibly temp solution? }
+  For now specifically to get the PlayerShipQuest to run - possibly temp solution?
+  }
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property PlayerShipQuestKeyword Auto Const
-
-;-- Functions ---------------------------------------
+Keyword Property PlayerShipQuestKeyword auto const
 
 Event OnEnterShipInterior(ObjectReference akShip)
-  PlayerShipQuestKeyword.SendStoryEvent(None, akShip, None, 0, 0)
+	debug.trace(self + " OnEnterShipInterior akShip= " + akShip)
+    	PlayerShipQuestKeyword.SendStoryEvent(akRef1 = akShip)
 EndEvent

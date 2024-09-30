@@ -1,7 +1,13 @@
-ScriptName Fragments:Terminals:TERM_RL040HexPodTerminal_002CC2E0 Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_RL040HexPodTerminal_002CC2E0 Extends Terminal Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  akTerminalRef.GetLinkedRef(None).Unlock(False)
+;BEGIN CODE
+;Unlock the linked door.
+akTerminalRef.GetLinkedRef().Unlock()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

@@ -1,23 +1,35 @@
-ScriptName Weather Extends Form Native hidden
+Scriptname Weather extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Turns on/off ambient particles in the sky
+function EnableAmbientParticles( bool abEnable = true ) native global
 
-Function EnableAmbientParticles(Bool abEnable) Global Native
+; Finds a weather from the current region/climate whose classification matches the given one.
+Weather function FindWeather( Keyword aKeyword ) native global
 
-Weather Function FindWeather(Keyword aKeyword) Global Native
+; Forces the active weather on the sky to be this weather.
+function ForceActive( bool abOverride=false ) native
 
-Function ForceActive(Bool abOverride) Native
+; Gets this weather's classification keywords
+Keyword[] function GetClassification() native
 
-Keyword[] Function GetClassification() Native
+; Gets the sky's current weather
+Weather function GetCurrentWeather() native global
 
-Weather Function GetCurrentWeather() Global Native
+; Gets the transition percentage of the current weather
+float function GetCurrentWeatherTransition() native global
 
-Float Function GetCurrentWeatherTransition() Global Native
+; Gets the sky's outgoing weather
+Weather function GetOutgoingWeather() native global
 
-Weather Function GetOutgoingWeather() Global Native
+; Gets the sky's current mode
+; 0 - No sky (SM_NONE)
+; 1 - Interior (SM_INTERIOR)
+; 2 - Skydome only (SM_SKYDOME_ONLY)
+; 3 - Full sky (SM_FULL)
+int function GetSkyMode() native global
 
-Int Function GetSkyMode() Global Native
+; Tells the sky to release its overriding weather. 
+function ReleaseOverride() native global
 
-Function ReleaseOverride() Global Native
-
-Function SetActive(Bool abOverride, Bool abAccelerate) Native
+; Sets the active weather on the sky to be this weather.
+function SetActive( bool abOverride=false, bool abAccelerate=false ) native

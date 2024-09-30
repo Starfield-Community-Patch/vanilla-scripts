@@ -1,56 +1,62 @@
-ScriptName RL039_ExampleTurretScript Extends Actor
+Scriptname RL039_ExampleTurretScript extends Actor
 
-;-- Variables ---------------------------------------
-Bool attackBlob
+float property initialWaitTime auto const
+float property randomWaitTimeMin auto const
+float property randomWaitTimeMax auto const
+float property randomFireTimeMin auto const
+float property randomFireTimeMax auto const
+int property hitsPerFire auto const
+WwiseEvent property fireSoundEvent auto Const
+Keyword property RL039_ExplosionMarker auto Const
+
+bool attackBlob
+ExpandingBiomassScript target_expandingBiomassScript
 ObjectReference explosionMarker
-expandingbiomassscript target_expandingBiomassScript
-
-;-- Properties --------------------------------------
-Float Property initialWaitTime Auto Const
-Float Property randomWaitTimeMin Auto Const
-Float Property randomWaitTimeMax Auto Const
-Float Property randomFireTimeMin Auto Const
-Float Property randomFireTimeMax Auto Const
-Int Property hitsPerFire Auto Const
-wwiseevent Property fireSoundEvent Auto Const
-Keyword Property RL039_ExplosionMarker Auto Const
-
-;-- Functions ---------------------------------------
 
 Event OnCellLoad()
-  ObjectReference target = Self.GetLinkedRef(None)
-  target_expandingBiomassScript = target as expandingbiomassscript
-  explosionMarker = Self.GetLinkedRef(RL039_ExplosionMarker)
-  explosionMarker.Disable(False)
-  Utility.Wait(initialWaitTime)
-  attackBlob = True
-  Self.ShootAtTarget()
+    ObjectReference target = GetLinkedRef()
+    target_expandingBiomassScript = target as ExpandingBiomassScript
+
+    explosionMarker = GetLinkedRef(RL039_ExplosionMarker)
+    explosionMarker.Disable()
+
+    Utility.Wait(initialWaitTime)
+
+    attackBlob = true
+    ShootAtTarget()
 EndEvent
 
 Event OnDeath(ObjectReference akKiller)
-  attackBlob = False
-  Self.DisableNoWait(False)
+    attackBlob = false
+
+    DisableNoWait()
 EndEvent
 
-Function ShootAtTarget()
-  While attackBlob
-    Float fireTime = Utility.RandomFloat(randomFireTimeMin, randomFireTimeMax)
-    target_expandingBiomassScript.TakeHits(hitsPerFire)
-    Int fireSoundId = fireSoundEvent.Play(Self as ObjectReference, None, None)
-    explosionMarker.Enable(False)
-    Utility.Wait(fireTime)
-    wwiseevent.StopInstance(fireSoundId)
-    explosionMarker.Disable(False)
-    Float waitTime = Utility.RandomFloat(randomWaitTimeMin, randomWaitTimeMax)
-    Utility.Wait(waitTime)
-  EndWhile
-EndFunction
+function ShootAtTarget()
+    while(attackBlob)
+        float fireTime = Utility.RandomFloat(randomFireTimeMin, randomFireTimeMax)
 
-Event OnCombatStateChanged(ObjectReference akTarget, Int aeCombatState)
-  If aeCombatState != 0
-    attackBlob = False
-  ElseIf !Self.IsDead()
-    attackBlob = True
-    Self.ShootAtTarget()
-  EndIf
+        target_expandingBiomassScript.TakeHits(hitsPerFire)
+
+        int fireSoundId = fireSoundEvent.Play(self)
+        explosionMarker.Enable()
+
+        Utility.Wait(fireTime)
+
+        WwiseEvent.StopInstance(fireSoundId)
+        explosionMarker.Disable()
+
+        float waitTime = Utility.RandomFloat(randomWaitTimeMin, randomWaitTimeMax)
+
+        Utility.Wait(waitTime)
+    endWhile
+endFunction
+
+Event OnCombatStateChanged(ObjectReference akTarget, int aeCombatState)
+    if(aeCombatState != 0)
+        attackBlob = false
+    elseif(!IsDead())
+        attackBlob = true
+        ShootAtTarget()
+    endIf
 EndEvent

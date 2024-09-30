@@ -1,16 +1,13 @@
-ScriptName MS01RefCollectionDestroyed Extends RefCollectionAlias
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property StageToSet Auto Const
-
-;-- Functions ---------------------------------------
+Scriptname MS01RefCollectionDestroyed extends RefCollectionAlias
 
 Event OnDestroyed(ObjectReference akSenderRef, ObjectReference akDestroyer)
-  If Self.GetCount() <= 1
-    Self.GetOwningQuest().SetStage(StageToSet)
-  Else
-    Self.RemoveRef(akSenderRef)
-  EndIf
+  Debug.Trace("OnDestroyed fired for MS01")
+	if ((GetCount() <= 1) )
+		GetOwningQuest().SetStage(StageToSet)
+    Else   
+        Self.RemoveRef(akSenderRef)
+	EndIf
+
 EndEvent
+
+Int Property StageToSet Auto Const

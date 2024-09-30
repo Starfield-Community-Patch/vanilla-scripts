@@ -1,38 +1,41 @@
-ScriptName RL037HydraulicPress Extends ObjectReference
-{ Script for the Hydraulic Lift used for the Mantis' ship. }
+Scriptname RL037HydraulicPress extends ObjectReference
+{Script for the Hydraulic Lift used for the Mantis' ship.}
 
-;-- Variables ---------------------------------------
-Float CONST_DistanceAlongHelper = 0.449999988 Const
+ObjectReference Property MovementHelperRef Auto Const Mandatory
+ObjectReference Property LandingEnableRef Auto Const Mandatory
+ObjectReference Property CollisionEnableRef Auto Const Mandatory
+Keyword Property LinkCustom01 Auto Const Mandatory
+Keyword Property LinkCustom02 Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ObjectReference Property MovementHelperRef Auto Const mandatory
-ObjectReference Property LandingEnableRef Auto Const mandatory
-ObjectReference Property CollisionEnableRef Auto Const mandatory
-Keyword Property LinkCustom01 Auto Const mandatory
-Keyword Property LinkCustom02 Auto Const mandatory
+float CONST_DistanceAlongHelper = 0.45 Const
 
-;-- State -------------------------------------------
-State Done
+
+Auto State Waiting
+  Event OnActivate(ObjectReference akActionRef)
+
+     if akActionRef == game.getPlayer() 
+        GotoState("Done")
+        ObjectReference soundMarker = GetLinkedRef(LinkCustom01)
+        SpaceshipReference mantisShipRef = GetLinkedRef(Linkcustom02) as SpaceshipReference
+        CollisionEnableRef.Enable()
+        mantisShipRef.Enable()
+        LandingEnableRef.Enable()
+
+        ; TEMP until we get the event: GEN-527399
+        SQ_PlayerShipScript SQ_PlayerShip = Game.GetForm(0x000174a2) as SQ_PlayerShipScript
+        SQ_PlayerShip.AddPlayerOwnedShip(mantisShipRef)
+        ; once bug is fixed, can return to using:
+        ;Game.AddPlayerOwnedShip(mantisShipRef)
+
+        soundMarker.Enable()
+        MovementHelperRef.SetAnimationVariableFloat("Speed", 0.025)
+        MovementHelperRef.SetAnimationVariableFloat("Position", CONST_DistanceAlongHelper)
+        MovementHelperRef.PlayAnimationAndWait("Play01", "done")
+        soundMarker.Disable()
+      
+     endIf
+  EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.getPlayer() as ObjectReference
-      Self.GotoState("Done")
-      ObjectReference soundMarker = Self.GetLinkedRef(LinkCustom01)
-      spaceshipreference mantisShipRef = Self.GetLinkedRef(LinkCustom02) as spaceshipreference
-      CollisionEnableRef.Enable(False)
-      mantisShipRef.Enable(False)
-      LandingEnableRef.Enable(False)
-      sq_playershipscript SQ_PlayerShip = Game.GetForm(95394) as sq_playershipscript
-      SQ_PlayerShip.AddPlayerOwnedShip(mantisShipRef)
-      soundMarker.Enable(False)
-      MovementHelperRef.SetAnimationVariableFloat("Speed", 0.025)
-      MovementHelperRef.SetAnimationVariableFloat("Position", CONST_DistanceAlongHelper)
-      MovementHelperRef.PlayAnimationAndWait("Play01", "Done")
-      soundMarker.Disable(False)
-    EndIf
-  EndEvent
+State Done
 EndState

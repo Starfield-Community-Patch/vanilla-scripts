@@ -1,20 +1,18 @@
-ScriptName POI004_SwapCreatureScript Extends ObjectReference
+Scriptname POI004_SwapCreatureScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool swapActivated = False
+Keyword property POI004_MoltingShellKeyword auto const
+Keyword property POI004_HiddenCreatureKeyword auto const
 
-;-- Properties --------------------------------------
-Keyword Property POI004_MoltingShellKeyword Auto Const
-Keyword Property POI004_HiddenCreatureKeyword Auto Const
-
-;-- Functions ---------------------------------------
+bool swapActivated = false
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && !swapActivated
-    ObjectReference moltingShell = Self.GetLinkedRef(POI004_MoltingShellKeyword)
-    ObjectReference hiddenCreature = Self.GetLinkedRef(POI004_HiddenCreatureKeyword)
-    moltingShell.Disable(False)
-    hiddenCreature.Enable(False)
-    swapActivated = True
-  EndIf
+    if(akActionRef == Game.GetPlayer() && !swapActivated)
+        ObjectReference moltingShell = GetLinkedRef(POI004_MoltingShellKeyword)
+        ObjectReference hiddenCreature = GetLinkedRef(POI004_HiddenCreatureKeyword)
+
+        moltingShell.Disable()
+        hiddenCreature.Enable()
+
+        swapActivated = true
+    endIf
 EndEvent

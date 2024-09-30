@@ -1,76 +1,79 @@
-ScriptName TestSESatRepairQuestScript Extends Quest
+Scriptname TestSESatRepairQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 RefCollectionAlias Property DamagedSectionsAlias Auto
 
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  Int count = 0
-  While count < DamagedSectionsAlias.GetCount()
-    ObjectReference currentObjectReference = DamagedSectionsAlias.GetAt(count)
-    Self.RegisterForHitEvent(currentObjectReference as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-    Self.RegisterForRemoteEvent(currentObjectReference as ScriptObject, "OnActivate")
-    count += 1
-  EndWhile
+    debug.Trace(self + "|OnQuestInit(): Started") 
+    int count = 0
+    While (count < DamagedSectionsAlias.GetCount())
+        ObjectReference currentObjectReference = DamagedSectionsAlias.GetAt(count)
+        RegisterForHitEvent(currentObjectReference) 
+        RegisterForRemoteEvent(currentObjectReference, "OnActivate")
+        count += 1
+    EndWhile
 EndEvent
 
 Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  If akSender.GetScale() > 2.0
-    akSender.SetScale(akSender.GetScale() - 0.25)
-    Self.RegisterForHitEvent(akSender as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Else
-    akSender.DisableNoWait(False)
-    Self.SetStage(100)
-    Self.CheckForOneMoreRemaining()
-    If Self.CheckForAllDisabled()
-      Self.SetStage(500)
+    If (akSender.GetScale() > 2)
+        akSender.SetScale(akSender.GetScale() - 0.25)
+        RegisterForHitEvent(akSender)
+    Else
+        debug.Trace(self + "|OnHit(): Scale at it's lowest, disabling") 
+        akSender.DisableNoWait()
+        SetStage(100)
+        CheckForOneMoreRemaining()
+        If (CheckForAllDisabled())
+            debug.Trace(self + "|OnHit(): All are disabled, set the stage!") 
+            SetStage(500)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  If akTarget.GetScale() > 2.0
-    akTarget.SetScale(akTarget.GetScale() - 0.25)
-    Self.RegisterForHitEvent(akTarget as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Else
-    akTarget.DisableNoWait(False)
-    Self.SetStage(100)
-    Self.CheckForOneMoreRemaining()
-    If Self.CheckForAllDisabled()
-      Self.SetStage(500)
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    If (akTarget.GetScale() > 2)
+        akTarget.SetScale(akTarget.GetScale() - 0.25)
+        RegisterForHitEvent(akTarget)
+    Else
+        debug.Trace(self + "|OnHit(): Scale at it's lowest, disabling") 
+        akTarget.DisableNoWait()
+        SetStage(100)
+        CheckForOneMoreRemaining()
+        If (CheckForAllDisabled())
+            debug.Trace(self + "|OnHit(): All are disabled, set the stage!") 
+            SetStage(500)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
 Bool Function CheckForOneMoreRemaining()
-  Int count = 0
-  Int countDisabled = 0
-  Int countMax = DamagedSectionsAlias.GetCount()
-  While count < countMax
-    ObjectReference currentObjectReference = DamagedSectionsAlias.GetAt(count)
-    If currentObjectReference.IsDisabled()
-      countDisabled += 1
+    debug.Trace(self + "|CheckForOneMoreRemaining(): Started") 
+    int count = 0
+    int countDisabled = 0
+    int countMax = DamagedSectionsAlias.GetCount()
+    While (count < countMax)
+        ObjectReference currentObjectReference = DamagedSectionsAlias.GetAt(count)
+        If (currentObjectReference.IsDisabled())
+            countDisabled = countDisabled + 1
+        EndIf
+        count += 1
+    EndWhile
+    debug.Trace(self + "|CheckForOneMoreRemaining(): " + countDisabled + " of " + countMax + " repairs remaining.") 
+    If (countDisabled == (countMax - 1))
+        SetStage(200)
     EndIf
-    count += 1
-  EndWhile
-  If countDisabled == countMax - 1
-    Self.SetStage(200)
-  EndIf
 EndFunction
 
 Bool Function CheckForAllDisabled()
-  Int count = 0
-  While count < DamagedSectionsAlias.GetCount()
-    ObjectReference currentObjectReference = DamagedSectionsAlias.GetAt(count)
-    If currentObjectReference.IsDisabled()
-      
-    Else
-      Return False
-    EndIf
-    count += 1
-  EndWhile
-  Return True
+    int count = 0
+    While (count < DamagedSectionsAlias.GetCount())
+        ObjectReference currentObjectReference = DamagedSectionsAlias.GetAt(count)
+        If (currentObjectReference.IsDisabled())
+            ;Do Nothing and Keep Checking
+        Else
+            ;We found one that is enabled, so return false
+            Return False
+        EndIf
+        count += 1
+    EndWhile
+    Return True
 EndFunction

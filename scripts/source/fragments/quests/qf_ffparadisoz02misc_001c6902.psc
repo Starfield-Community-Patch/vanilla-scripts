@@ -1,27 +1,41 @@
-ScriptName Fragments:Quests:QF_FFParadisoZ02Misc_001C6902 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFParadisoZ02Misc_001C6902 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFparadisoZ02 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetObjectiveDisplayed(50, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(50)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(50)
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  FFparadisoZ02.Start()
+;BEGIN CODE
+SetObjectiveCompleted(100)
+FFParadisoZ02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFparadisoZ02 Auto Const Mandatory

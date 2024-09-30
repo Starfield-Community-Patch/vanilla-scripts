@@ -1,62 +1,101 @@
-ScriptName Fragments:Quests:QF_OE_AustinF_Prospectors_0004BD87 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_OE_AustinF_Prospectors_0004BD87 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property Credits Auto Const
-RefCollectionAlias Property Alias_Predators_FactionA_Herd Auto Const mandatory
-Scene Property OE_AustinF_ProspectorScene01 Auto Const
-ReferenceAlias Property Alias_NPCDialogue01 Auto Const mandatory
-Weapon Property Cutter Auto Const
-Faction Property PlayerEnemyFaction Auto Const mandatory
-LeveledItem Property LL_Quest_Reward_GrabBag_Small Auto Const mandatory
-ReferenceAlias Property Alias_RockpilePackin Auto Const mandatory
-ReferenceAlias Property Alias_RewardMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Alias_NPCDialogue01.GetRef().MoveToNearestNavmeshLocation()
-  Alias_NPCDialogue01.GetActorRef().EquipItem(Cutter as Form, True, False)
+;BEGIN CODE
+Alias_NPCDialogue01.GetRef().MoveToNearestNavmeshLocation()
+Alias_NPCDialogue01.GetActorRef().EquipItem(Cutter, true)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Alias_NPCDialogue01.GetActorRef().EvaluatePackage(False)
-  If !Self.GetStageDone(275)
-    Self.SetStage(900)
-  EndIf
-EndFunction
+;BEGIN CODE
+Alias_NPCDialogue01.GetActorRef().EvaluatePackage()
 
+If !GetStageDone(275)
+   SetStage(900)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0275_Item_00
 Function Fragment_Stage_0275_Item_00()
-  Alias_NPCDialogue01.GetActorRef().AddToFaction(PlayerEnemyFaction)
-  Alias_NPCDialogue01.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_NPCDialogue01.GetActorRef().AddToFaction(PlayerEnemyFaction)
+Alias_NPCDialogue01.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetStage(325)
+;BEGIN CODE
+SetStage(325)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0325_Item_00
 Function Fragment_Stage_0325_Item_00()
-  Alias_NPCDialogue01.GetActorRef().AddToFaction(PlayerEnemyFaction)
-  Alias_NPCDialogue01.GetActorRef().StartCombat(Game.GetPlayer() as ObjectReference, False)
-  Alias_NPCDialogue01.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_NPCDialogue01.GetActorRef().AddToFaction( PlayerEnemyFaction )
+Alias_NPCDialogue01.GetActorRef().StartCombat( Game.GetPlayer() )
+Alias_NPCDialogue01.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  Self.SetStage(900)
+;BEGIN CODE
+SetStage(900)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
 Function Fragment_Stage_0900_Item_00()
-  If Self.GetStageDone(800)
-    Self.SetStage(920)
-  ElseIf Self.GetStageDone(275)
-    Self.SetStage(920)
-  Else
-    Self.SetStage(910)
-  EndIf
+;BEGIN CODE
+If GetStageDone(800) 
+   SetStage(920)
+ElseIf GetStageDone(275)
+   SetStage(920)
+Else 
+   SetStage(910)
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0920_Item_00
 Function Fragment_Stage_0920_Item_00()
-  Alias_RockpilePackin.GetRef().AddItem(LL_Quest_Reward_GrabBag_Small as Form, 1, False)
-  Alias_RewardMarker.GetRef().AddItem(LL_Quest_Reward_GrabBag_Small as Form, 1, False)
+;BEGIN CODE
+Alias_RockpilePackin.GetRef().AddItem(LL_Quest_Reward_GrabBag_Small)
+Alias_RewardMarker.GetRef().AddItem(LL_Quest_Reward_GrabBag_Small)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property Credits Auto Const
+
+RefCollectionAlias Property Alias_Predators_FactionA_Herd Auto Const Mandatory
+
+Scene Property OE_AustinF_ProspectorScene01 Auto Const
+
+ReferenceAlias Property Alias_NPCDialogue01 Auto Const Mandatory
+
+Weapon Property Cutter Auto Const
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+LeveledItem Property LL_Quest_Reward_GrabBag_Small Auto Const Mandatory
+
+ReferenceAlias Property Alias_RockpilePackin Auto Const Mandatory
+
+ReferenceAlias Property Alias_RewardMarker Auto Const Mandatory

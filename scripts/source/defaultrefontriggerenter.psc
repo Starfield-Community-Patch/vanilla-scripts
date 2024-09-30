@@ -1,30 +1,30 @@
-ScriptName defaultrefontriggerenter Extends DefaultRef default
-{ Sets stage when THIS object entered.
+Scriptname DefaultRefOnTriggerEnter extends DefaultRef Default
+{Sets stage when THIS object entered.
 <RefToCheck> is the reference triggering THIS Object.
-<LocationToCheck> is the current location of THIS object. }
+<LocationToCheck> is the current location of THIS object.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Bool Property DeleteWhenTriggeredSuccessfully = False Auto Const
-  { (Default: false) If true, delete THIS object when triggered successfully. }
+	Bool Property DeleteWhenTriggeredSuccessfully = false Auto Const
+	{(Default: false) If true, delete THIS object when triggered successfully.}
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
 Event OnInit()
-  SkipBusyState = True
+	SkipBusyState = true ;we need to process all trigger events
 EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akActionRef, Self.GetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnTriggerEnter() akActionRef: " + akActionRef, ShowTraces)
+
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akActionRef, LocationToCheck = GetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnTriggerEnter() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent
 
-Function DoSpecificThing(defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams, ObjectReference RefToDoThingWith, Bool LastRefToDoThingWith)
-  If DeleteWhenTriggeredSuccessfully && LastRefToDoThingWith
-    Self.Delete()
-  EndIf
+;Reimplementing Parent's empty function
+;CHILDREN SCRIPTS RE-IMPLEMENTING THIS SHOULD CALL THE PARENT VERSION
+Function DoSpecificThing(DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams, ObjectReference RefToDoThingWith = None, bool LastRefToDoThingWith = true)
+	if DeleteWhenTriggeredSuccessfully && LastRefToDoThingWith
+		Delete()
+	endif
 EndFunction

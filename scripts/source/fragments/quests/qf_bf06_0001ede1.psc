@@ -1,102 +1,173 @@
-ScriptName Fragments:Quests:QF_BF06_0001EDE1 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_BF06_0001EDE1 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property BF06Suggest Auto Const mandatory
-Message Property BF06_Stage30Temp_Message Auto Const mandatory
-Message Property BF06_Stage50Temp_Message Auto Const mandatory
-Message Property BF06_Stage160Temp_Message Auto Const mandatory
-Message Property BF06_Stage200Temp_Message Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Self.SetStage(10)
+;BEGIN CODE
+SetStage(10)
+;
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(10,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(10,1)
+SetObjectiveDisplayed(20,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
-  BF06_Stage30Temp_Message.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+SetObjectiveCompleted(20,1)
+SetObjectiveDisplayed(30,1)
+BF06_Stage30Temp_Message.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveDisplayed(40, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(30,1)
+SetObjectiveDisplayed(40,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveDisplayed(50, True, False)
-  Self.SetObjectiveDisplayed(60, True, False)
-  Self.SetObjectiveDisplayed(70, True, False)
-  BF06_Stage50Temp_Message.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+SetObjectiveCompleted(40,1)
+SetObjectiveDisplayed(50,1)
+SetObjectiveDisplayed(60,1)
+SetObjectiveDisplayed(70,1)
+BF06_Stage50Temp_Message.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveDisplayed(80, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(80,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  Self.SetObjectiveCompleted(80, True)
-  Self.SetObjectiveDisplayed(90, True, False)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(80,1)
+SetObjectiveDisplayed(90,1)
+SetObjectiveDisplayed(100,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0120_Item_00
 Function Fragment_Stage_0120_Item_00()
-  Self.SetObjectiveCompleted(90, True)
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(110, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(90,1)
+SetObjectiveCompleted(100,1)
+SetObjectiveDisplayed(110,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0130_Item_00
 Function Fragment_Stage_0130_Item_00()
-  Self.SetObjectiveCompleted(110, True)
-  Self.SetStage(150)
+;BEGIN CODE
+SetObjectiveCompleted(110,1)
+SetStage(150)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveDisplayed(120, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(50,1)
+SetObjectiveDisplayed(120,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0160_Item_00
 Function Fragment_Stage_0160_Item_00()
-  Self.SetObjectiveCompleted(120, True)
-  Self.SetObjectiveDisplayed(130, True, False)
-  BF06_Stage160Temp_Message.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+SetObjectiveCompleted(120,1)
+SetObjectiveDisplayed(130,1)
+BF06_Stage160Temp_Message.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0180_Item_00
 Function Fragment_Stage_0180_Item_00()
-  Self.SetObjectiveCompleted(130, True)
-  Self.SetObjectiveDisplayed(140, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(130,1)
+SetObjectiveDisplayed(140,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(140, True)
-  Self.SetObjectiveDisplayed(150, True, False)
-  BF06_Stage200Temp_Message.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+SetObjectiveCompleted(140,1)
+SetObjectiveDisplayed(150,1)
+BF06_Stage200Temp_Message.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0210_Item_00
 Function Fragment_Stage_0210_Item_00()
-  Self.SetObjectiveCompleted(150, True)
-  Self.SetObjectiveDisplayed(160, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(150,1)
+SetObjectiveDisplayed(160,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0220_Item_00
 Function Fragment_Stage_0220_Item_00()
-  Self.SetObjectiveCompleted(160, True)
-  Self.SetObjectiveDisplayed(170, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(160,1)
+SetObjectiveDisplayed(170,1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0255_Item_00
 Function Fragment_Stage_0255_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property BF06Suggest Auto Const Mandatory
+
+Message Property BF06_Stage30Temp_Message Auto Const Mandatory
+
+Message Property BF06_Stage50Temp_Message Auto Const Mandatory
+
+Message Property BF06_Stage160Temp_Message Auto Const Mandatory
+
+Message Property BF06_Stage200Temp_Message Auto Const Mandatory

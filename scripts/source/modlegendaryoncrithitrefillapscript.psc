@@ -1,12 +1,9 @@
-ScriptName ModLegendaryOnCritHitRefillAPScript Extends ActiveMagicEffect Const
+Scriptname ModLegendaryOnCritHitRefillAPScript extends ActiveMagicEffect Const
 
-;-- Variables ---------------------------------------
+ActorValue Property ActionPoints const auto
 
-;-- Properties --------------------------------------
-ActorValue Property ActionPoints Auto Const
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	debug.trace(self + "akTarget:" + akTarget + " , akCaster" + akCaster)
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  akCaster.RestoreValue(ActionPoints, 999.0)
+	akCaster.RestoreValue(ActionPoints, 999)
 EndEvent

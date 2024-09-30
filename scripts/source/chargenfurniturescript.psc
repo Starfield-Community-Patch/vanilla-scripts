@@ -1,18 +1,17 @@
-ScriptName CharGenFurnitureScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname CharGenFurnitureScript extends ObjectReference Const
 
 Event OnLoad()
-  Self.RegisterForAnimationEvent(Game.GetPlayer() as ObjectReference, "CharacterGenStart")
+	RegisterForAnimationEvent(Game.GetPlayer(), "CharacterGenStart")
 EndEvent
 
-Event OnAnimationEvent(ObjectReference akSource, String asEventName)
-  Self.UnRegisterForAnimationEvent(Game.GetPlayer() as ObjectReference, "CharacterGenStart")
-  Game.ShowRaceMenu(None, 0, None, None, None)
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+	UnRegisterForAnimationEvent(Game.GetPlayer(), "CharacterGenStart")
+	Game.ShowRaceMenu()
 EndEvent
 
 Event OnExitFurniture(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Self.RegisterForAnimationEvent(Game.GetPlayer() as ObjectReference, "CharacterGenStart")
-  EndIf
+	;register for animation again
+	If akActionRef == Game.GetPlayer()
+		RegisterForAnimationEvent(Game.GetPlayer(), "CharacterGenStart")
+	EndIf
 EndEvent

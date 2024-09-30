@@ -1,17 +1,12 @@
-ScriptName LC070PowerCellTerminalScript Extends ReferenceAlias Const
+Scriptname LC070PowerCellTerminalScript extends ReferenceAlias Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property COM_Quest_SarahMorgan_Q01 Auto Const mandatory
-ReferenceAlias Property PowerCellReceptacleAlias Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property COM_Quest_SarahMorgan_Q01 Auto Const Mandatory
+ReferenceAlias Property PowerCellReceptacleAlias Auto Const Mandatory
 
 Event OnLoad()
-  Self.RegisterForRemoteEvent(PowerCellReceptacleAlias.getref() as ScriptObject, "OnPowerOn")
+    RegisterForRemoteEvent(PowerCellReceptacleAlias.getref(), "OnPowerOn")
 EndEvent
 
 Event ObjectReference.OnPowerOn(ObjectReference akSender, ObjectReference akPowerGenerator)
-  COM_Quest_SarahMorgan_Q01.setstage(100)
-EndEvent
+        COM_Quest_SarahMorgan_Q01.setstage(100)
+endEvent

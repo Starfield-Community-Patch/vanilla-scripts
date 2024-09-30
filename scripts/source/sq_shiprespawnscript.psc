@@ -1,128 +1,157 @@
-ScriptName SQ_ShipRespawnScript Extends Quest
+Scriptname SQ_ShipRespawnScript extends Quest
 
-;-- Variables ---------------------------------------
-Int respawnAliasTimerID = 1 Const
-ReferenceAlias[] respawnAliases
-Int respawnShipTimerID = 2 Const
-spaceshipreference[] respawnShips
+ReferenceAlias property ShipRespawnPoint auto const mandatory
+{ where to respawn ships }
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
+RefCollectionAlias property ShipRespawnCollection auto Const
+{ OPTIONAL - if respawning ships in a ref collection }
+
+int respawnAliasTimerID = 1 Const
+int respawnShipTimerID = 2 Const
+
+float property respawnTimeSeconds = 120.0 auto const
+{ how long between respawn tries }
+
+; TEMP
+ActorValue property SpaceshipCrew auto const
+
 Guard respawnArrayGuard
 
-;-- Properties --------------------------------------
-ReferenceAlias Property ShipRespawnPoint Auto Const mandatory
-{ where to respawn ships }
-RefCollectionAlias Property ShipRespawnCollection Auto Const
-{ OPTIONAL - if respawning ships in a ref collection }
-Float Property respawnTimeSeconds = 120.0 Auto Const
-{ how long between respawn tries }
-ActorValue Property SpaceshipCrew Auto Const
-
-;-- Functions ---------------------------------------
+ReferenceAlias[] respawnAliases RequiresGuard(respawnArrayGuard)
+SpaceshipReference[] respawnShips RequiresGuard(respawnArrayGuard)
 
 Event OnQuestInit()
-  Guard respawnArrayGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    respawnAliases = new ReferenceAlias[0]
-    respawnShips = new spaceshipreference[0]
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+    LockGuard respawnArrayGuard
+        respawnAliases = new ReferenceAlias[0]
+        respawnShips = new SpaceshipReference[0]
+    EndLockGuard
 EndEvent
 
-Function HandleShipDeath(ReferenceAlias shipAlias)
-  If Self.AllowRespawn()
-    Guard respawnArrayGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      Self.RespawnShip(shipAlias.GetShipRef(), shipAlias)
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  Else
-    Self.AddToRespawnArray(shipAlias)
-  EndIf
-EndFunction
-
-Function HandleShipDeathCollection(spaceshipreference shipRef)
-  If Self.AllowRespawn()
-    Guard respawnArrayGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      Self.RespawnShip(shipRef, None)
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-  Else
-    Self.AddToRespawnShipArray(shipRef)
-  EndIf
-EndFunction
-
-Bool Function AllowRespawn()
-  Bool bAllowRespawn = False
-  ObjectReference respawnMarker = ShipRespawnPoint.GetRef()
-  If respawnMarker
-    planet respawnPlanet = respawnMarker.GetCurrentPlanet()
-    spaceshipreference playerShipRef = Game.GetPlayer().GetCurrentShipRef()
-    If playerShipRef == None || playerShipRef.IsInSpace() == False || playerShipRef.GetCurrentPlanet() != respawnPlanet
-      bAllowRespawn = True
+function HandleShipDeath(ReferenceAlias shipAlias)
+    debug.trace(self + " HandleShipDeath " + shipAlias)
+    if AllowRespawn()
+        ; respawn ship
+        LockGuard respawnArrayGuard
+            RespawnShip(shipAlias.GetShipRef(), shipAlias)
+        EndLockGuard
+    Else
+        ; add to respawn array and run timer
+        AddToRespawnArray(shipAlias)
     EndIf
-  EndIf
-  Return bAllowRespawn
 EndFunction
 
-Function RespawnShip(spaceshipreference shipRef, ReferenceAlias shipAlias)
-  ObjectReference respawnMarker = ShipRespawnPoint.GetRef()
-  If respawnMarker as Bool && shipRef as Bool
-    spaceshipbase baseShip = shipRef.GetBaseObject() as spaceshipbase
-    If baseShip
-      spaceshipreference newShipRef = respawnMarker.PlaceShipAtMe(baseShip as Form, 4, True, False, False, True, None, None, None, True)
-      If shipAlias
-        shipAlias.ForceRefTo(newShipRef as ObjectReference)
-      Else
-        ShipRespawnCollection.RemoveRef(shipRef as ObjectReference)
-        ShipRespawnCollection.AddRef(newShipRef as ObjectReference)
-      EndIf
-      Int index = respawnAliases.find(shipAlias, 0)
-      If index > -1
-        respawnAliases.remove(index, 1)
-      EndIf
-      index = respawnShips.find(shipRef, 0)
-      If index > -1
-        respawnShips.remove(index, 1)
-      EndIf
+function HandleShipDeathCollection(SpaceshipReference shipRef)
+    debug.trace(self + " HandleShipDeathCollection " + shipRef)
+    if AllowRespawn()
+        ; respawn ship
+        LockGuard respawnArrayGuard
+            RespawnShip(shipRef)
+        EndLockGuard
+    Else
+        ; add to respawn array and run timer
+        AddToRespawnShipArray(shipRef)
     EndIf
-  EndIf
+EndFunction
+
+bool function AllowRespawn()
+    bool bAllowRespawn = false
+    ObjectReference respawnMarker = ShipRespawnPoint.GetRef()
+    if respawnMarker
+        ; don't respawn if player is in same orbit as respawn point
+        Planet respawnPlanet = respawnMarker.GetCurrentPlanet()
+        ; get player's current ship if any
+        SpaceshipReference playerShipRef = Game.GetPlayer().GetCurrentShipRef()
+        if playerShipRef == NONE || playerShipRef.IsInSpace() == false || playerShipRef.GetCurrentPlanet() != respawnPlanet
+            bAllowRespawn = true
+        EndIf
+    Else
+        Game.Warning(self + " AllowRespawn: No respawn marker - unable to respawn ships")
+    EndIf
+    debug.trace(self + " AllowRespawn=" + bAllowRespawn)
+    return bAllowRespawn
+EndFunction
+
+; if shipAlias is not provided, will respawn into ShipRespawnCollection
+Function RespawnShip(SpaceshipReference shipRef, ReferenceAlias shipAlias=NONE) RequiresGuard(respawnArrayGuard)
+    ObjectReference respawnMarker = ShipRespawnPoint.GetRef()
+    debug.trace(self + " RespawnShip shipRef=" + shipRef + " shipAlias=" + shipAlias + " spaceshipCrew=" + shipRef.GetValue(SpaceshipCrew))
+    if respawnMarker && shipRef
+        ; get base ship
+        SpaceshipBase baseShip = shipRef.GetBaseObject() as SpaceshipBase
+        debug.trace(self + " RespawnShip: baseShip=" + baseShip)
+        if baseShip
+            SpaceshipReference newShipRef = respawnMarker.PlaceShipAtMe(baseShip)
+            if shipAlias
+                shipAlias.ForceRefTo(newShipRef)
+            Else
+                ShipRespawnCollection.RemoveRef(shipRef)
+                ShipRespawnCollection.AddRef(newShipRef)
+            endif
+            ; remove this alias from respawnAliases (might not be in it)
+            int index = respawnAliases.Find(shipAlias)
+            if index > -1
+                respawnAliases.Remove(index)
+            endif
+            ; remove this ship from respawnShips (might not be in it)
+            index = respawnShips.Find(shipRef)
+            if index > -1
+                respawnShips.Remove(index)
+            endif
+        Else
+            Game.Warning(self + " RespawnShip: Unable to create new ship for ship " + shipRef)
+        endif
+    Else
+        Game.Warning(self + " RespawnShip: No respawn marker - unable to respawn ship for ship " + shipRef)    
+    endif
 EndFunction
 
 Function AddToRespawnArray(ReferenceAlias shipAlias)
-  Guard respawnArrayGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If respawnAliases.find(shipAlias, 0) < 0
-      respawnAliases.add(shipAlias, 1)
-      Self.StartTimer(respawnTimeSeconds, respawnAliasTimerID)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+    debug.Trace(self + " AddToRespawnArray " + shipAlias)
+    LockGuard respawnArrayGuard
+        ; if not already in the array, add it and start (restart) the timer
+        if respawnAliases.Find(shipAlias) < 0
+            respawnAliases.Add(shipAlias)
+            StartTimer(respawnTimeSeconds, respawnAliasTimerID)
+        endif
+    EndLockGuard
+endFunction
 
-Function AddToRespawnShipArray(spaceshipreference shipRef)
-  Guard respawnArrayGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If respawnShips.find(shipRef, 0) < 0
-      respawnShips.add(shipRef, 1)
-      Self.StartTimer(respawnTimeSeconds, respawnShipTimerID)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+Function AddToRespawnShipArray(SpaceshipReference shipRef)
+    debug.Trace(self + " AddtoRespawnShipArray " + shipRef)
+    LockGuard respawnArrayGuard
+        ; if not already in the array, add it and start (restart) the timer
+        if respawnShips.Find(shipRef) < 0
+            respawnShips.Add(shipRef)
+            StartTimer(respawnTimeSeconds, respawnShipTimerID)
+        endif
+    EndLockGuard
+endFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == respawnAliasTimerID || aiTimerID == respawnShipTimerID
-    If Self.AllowRespawn()
-      Guard respawnArrayGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-        If aiTimerID == respawnAliasTimerID
-          Int I = respawnAliases.Length - 1
-          While I > -1
-            Self.RespawnShip(respawnAliases[I].GetShipRef(), respawnAliases[I])
-            I -= 1
-          EndWhile
-        ElseIf aiTimerID == respawnShipTimerID
-          Int i = respawnShips.Length - 1
-          While i > -1
-            Self.RespawnShip(respawnShips[i], None)
-            i -= 1
-          EndWhile
-        EndIf
-      EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-    Else
-      Self.StartTimer(respawnTimeSeconds, aiTimerID)
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+    debug.Trace(self + " OnTimer " + aiTimerID)
+    if aiTimerID == respawnAliasTimerID || aiTimerID == respawnShipTimerID
+        if AllowRespawn()
+            LockGuard respawnArrayGuard
+                if aiTimerID == respawnAliasTimerID
+                    ; count down from top of array since we're removing elements as we go
+                    int i = respawnAliases.Length - 1
+                    while i > -1 
+                        RespawnShip(respawnAliases[i].GetShipRef(), respawnAliases[i])
+                        i -= 1 ; decrement
+                    endWhile
+                elseif aiTimerID == respawnShipTimerID
+                    ; count down from top of array since we're removing elements as we go
+                    int i = respawnShips.Length - 1
+                    while i > -1 
+                        RespawnShip(respawnShips[i])
+                        i -= 1 ; decrement
+                    endWhile
+                endif
+            EndLockGuard
+        Else
+            ; run timer again
+            debug.trace(self + " OnTimer: restarting timer " + aiTimerID)
+            StartTimer(respawnTimeSeconds, aiTimerID)
+        endif
+    endif
 EndEvent

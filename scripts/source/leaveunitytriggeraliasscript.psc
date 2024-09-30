@@ -1,95 +1,111 @@
-ScriptName LeaveUnityTriggerAliasScript Extends ReferenceAlias
+Scriptname LeaveUnityTriggerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property PlayerShip Const Mandatory Auto
+ReferenceAlias Property PlayerShipPilotSeat Mandatory Const Auto
+ReferenceAlias Property PlayerShipCockpitEntrance Mandatory Const Auto
+ReferenceAlias Property Armillary Mandatory Const Auto
+Int Property TalkedToUnityStage=100 Const Auto
+Int Property LeftUnityStage=300 Const Auto
+ObjectReference Property LodgeStartMarker Mandatory Const Auto
+Quest Property MQ00 Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ReferenceAlias Property PlayerShip Auto Const mandatory
-ReferenceAlias Property PlayerShipPilotSeat Auto Const mandatory
-ReferenceAlias Property PlayerShipCockpitEntrance Auto Const mandatory
-ReferenceAlias Property Armillary Auto Const mandatory
-Int Property TalkedToUnityStage = 100 Auto Const
-Int Property LeftUnityStage = 300 Auto Const
-ObjectReference Property LodgeStartMarker Auto Const mandatory
-Quest Property MQ00 Auto Const mandatory
-Int Property EnterUnityObjective = 100 Auto Const
-Int Property LeaveUnityObjective = 110 Auto Const
-Int Property ReturnUnityObjective = 120 Auto Const
-Scene Property MQ305_002_Unity_04 Auto Const
-GlobalVariable Property MQ305FinalSceneInt Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerEmissary Auto Const mandatory
-ObjectReference Property Mq305EndingMarkerHunter Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerNeither Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerCF_SysDef Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerCF_Delgado Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerFSC_HopeDead Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerFSC_HopeNotDead Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerFSC_HopeLetGo Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerRI_NeuroAmp Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerRI_NeuroAmp_Masako Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerRI_NeuroAmp_Ularu Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerRI_NoNeuroAmp Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerRI_NoNeuroAmp_Masako Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerRI_NoNeuroAmp_Ularu Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerConstellation Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerUC_Terrormorph Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerUC_Aceles Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerAndreja Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerBarrett Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerSamCoe Auto Const mandatory
-ObjectReference Property MQ305EndingMarkerSarahMorgan Auto Const mandatory
-ReferenceAlias Property HomeShipArmillaryScreen Auto Const mandatory
+Int Property EnterUnityObjective = 100 Const Auto
+Int Property LeaveUnityObjective = 110 Const Auto
+Int Property ReturnUnityObjective = 120 Const Auto
 
-;-- Functions ---------------------------------------
+Scene Property MQ305_002_Unity_04 Const Auto
+
+GlobalVariable Property MQ305FinalSceneInt Mandatory Const Auto
+
+ObjectReference Property MQ305EndingMarkerEmissary Mandatory Const Auto
+ObjectReference Property Mq305EndingMarkerHunter Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerNeither Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerCF_SysDef Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerCF_Delgado Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerFSC_HopeDead Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerFSC_HopeNotDead Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerFSC_HopeLetGo Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerRI_NeuroAmp Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerRI_NeuroAmp_Masako Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerRI_NeuroAmp_Ularu Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerRI_NoNeuroAmp Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerRI_NoNeuroAmp_Masako Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerRI_NoNeuroAmp_Ularu Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerConstellation Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerUC_Terrormorph Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerUC_Aceles Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerAndreja Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerBarrett Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerSamCoe Mandatory Const Auto
+ObjectReference Property MQ305EndingMarkerSarahMorgan Mandatory Const Auto
+ReferenceAlias Property HomeShipArmillaryScreen Mandatory Const Auto
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  Actor PlayerREF = Game.GetPlayer()
-  Quest myMQ305 = Self.GetOwningQuest()
-  If (akActionRef == PlayerREF as ObjectReference) && myMQ305.GetStageDone(TalkedToUnityStage)
-    MQ305_002_Unity_04.Stop()
-    MQ305FinalSceneInt.SetValueInt(0)
-    (myMQ305 as mq305script).MQ305EnableLayer.DisablePlayerControls(True, True, True, False, False, True, True, False, True, True, False)
-    Game.FadeOutGame(True, False, 0.0, 1.0, True)
-    Utility.Wait(1.0)
-    Mq305EndingMarkerHunter.DisableNoWait(False)
-    MQ305EndingMarkerEmissary.DisableNoWait(False)
-    MQ305EndingMarkerNeither.DisableNoWait(False)
-    MQ305EndingMarkerAndreja.DisableNoWait(False)
-    MQ305EndingMarkerBarrett.DisableNoWait(False)
-    MQ305EndingMarkerSamCoe.DisableNoWait(False)
-    MQ305EndingMarkerSarahMorgan.DisableNoWait(False)
-    MQ305EndingMarkerCF_SysDef.DisableNoWait(False)
-    MQ305EndingMarkerCF_Delgado.DisableNoWait(False)
-    MQ305EndingMarkerFSC_HopeDead.DisableNoWait(False)
-    MQ305EndingMarkerFSC_HopeNotDead.DisableNoWait(False)
-    MQ305EndingMarkerFSC_HopeLetGo.DisableNoWait(False)
-    MQ305EndingMarkerRI_NoNeuroAmp.DisableNoWait(False)
-    MQ305EndingMarkerRI_NoNeuroAmp_Masako.DisableNoWait(False)
-    MQ305EndingMarkerRI_NoNeuroAmp_Ularu.DisableNoWait(False)
-    MQ305EndingMarkerRI_NeuroAmp.DisableNoWait(False)
-    MQ305EndingMarkerRI_NeuroAmp_Masako.DisableNoWait(False)
-    MQ305EndingMarkerRI_NeuroAmp_Ularu.DisableNoWait(False)
-    MQ305EndingMarkerUC_Aceles.DisableNoWait(False)
-    MQ305EndingMarkerUC_Terrormorph.DisableNoWait(False)
-    MQ305EndingMarkerConstellation.DisableNoWait(False)
-    ObjectReference ArmillaryREF = Armillary.GetRef()
-    (ArmillaryREF as armillaryscript).PackupArmillary(PlayerREF)
-    ArmillaryREF.Disable(False)
-    ObjectReference myShipCockpitEntrance = PlayerShipCockpitEntrance.GetRef()
-    If myShipCockpitEntrance == None
-      PlayerREF.moveto(LodgeStartMarker, 0.0, 0.0, 0.0, True, False)
-    Else
-      PlayerREF.moveto(myShipCockpitEntrance, 0.0, 0.0, 0.0, True, False)
-      PlayerREF.WaitFor3DLoad()
-      HomeShipArmillaryScreen.GetRef().PlayAnimation("Play02")
-      PlayerShip.GetShipRef().SetGhost(False)
+    Actor PlayerREF = Game.GetPlayer()
+    Quest myMQ305 = GetOwningQuest()
+    If (akActionRef == PlayerREF) && (myMQ305.GetStageDone(TalkedToUnityStage))
+	    ;make sure the Unity recap scene is off so we don't accidentally trigger the ending
+	    MQ305_002_Unity_04.Stop()
+        MQ305FinalSceneInt.SetValueInt(0)
+        
+        ;make sure the player can't move
+        (myMQ305 as MQ305Script).MQ305EnableLayer.DisablePlayerControls(abCamSwitch=True)
+
+        ;fade out, put the player back in their ship
+        Game.FadeOutGame(true, false, 0.0, 1.0, true)
+	    Utility.Wait(1.0) ; give the fade a second to process
+
+        ;disable ending markers for when the player comes back
+        MQ305EndingMarkerHunter.DisableNoWait()
+        MQ305EndingMarkerEmissary.DisableNoWait()
+        MQ305EndingMarkerNeither.DisableNoWait()
+        MQ305EndingMarkerAndreja.DisableNoWait()
+        MQ305EndingMarkerBarrett.DisableNoWait()
+        MQ305EndingMarkerSamCoe.DisableNoWait()
+        MQ305EndingMarkerSarahMorgan.DisableNoWait()
+        MQ305EndingMarkerCF_SysDef.DisableNoWait()
+        MQ305EndingMarkerCF_Delgado.DisableNoWait()
+        MQ305EndingMarkerFSC_HopeDead.DisableNoWait()
+        MQ305EndingMarkerFSC_HopeNotDead.DisableNoWait()
+        MQ305EndingMarkerFSC_HopeLetGo.DisableNoWait()
+        MQ305EndingMarkerRI_NoNeuroAmp.DisableNoWait()
+        MQ305EndingMarkerRI_NoNeuroAmp_Masako.DisableNoWait()
+        MQ305EndingMarkerRI_NoNeuroAmp_Ularu.DisableNoWait()
+        MQ305EndingMarkerRI_NeuroAmp.DisableNoWait()
+        MQ305EndingMarkerRI_NeuroAmp_Masako.DisableNoWait()
+        MQ305EndingMarkerRI_NeuroAmp_Ularu.DisableNoWait()
+        MQ305EndingMarkerUC_Aceles.DisableNoWait()
+        MQ305EndingMarkerUC_Terrormorph.DisableNoWait()
+        MQ305EndingMarkerConstellation.DisableNoWait()
+
+        ;pack up the Armillary on the ship
+        ObjectReference ArmillaryREF = Armillary.GetRef()
+        (ArmillaryREF as ArmillaryScript).PackupArmillary(PlayerREF)
+        ArmillaryREF.Disable()
+
+        ;move the player back to their ship. if for some reason the ship doesn't exist, move to the Lodge
+        ObjectReference myShipCockpitEntrance = PlayerShipCockpitEntrance.GetRef()
+        If myShipCockpitEntrance == None
+            PlayerREF.moveto(LodgeStartMarker)
+        Else
+            ;move player to ship
+            PlayerREF.moveto(myShipCockpitEntrance)
+            PlayerREF.WaitFor3DLoad()
+            HomeShipArmillaryScreen.GetRef().PlayAnimation("Play02") ;turn screen off
+            ;failsafe make sure the player ship is no longer ghosted from the Unity Jump scene
+            PlayerShip.GetShipRef().SetGhost(False)
+        EndIf
+
+        If myMQ305.GetStageDone(LeftUnityStage) == 0
+            myMQ305.SetStage(LeftUnityStage)
+        Else
+            ;if we're leaving the Unity again after the first time, reset objectives
+            myMQ305.SetObjectiveDisplayed(EnterUnityObjective, abDisplayed=False)
+            myMQ305.SetObjectiveCompleted(LeaveUnityObjective)
+            myMQ305.SetObjectiveCompleted(ReturnUnityObjective, abCompleted=False)
+        EndIf
+
+        ;player can now move
+        (myMQ305 as MQ305Script).UnlockPlayerControlUnity()
     EndIf
-    If myMQ305.GetStageDone(LeftUnityStage) == False
-      myMQ305.SetStage(LeftUnityStage)
-    Else
-      myMQ305.SetObjectiveDisplayed(EnterUnityObjective, False, False)
-      myMQ305.SetObjectiveCompleted(LeaveUnityObjective, True)
-      myMQ305.SetObjectiveCompleted(ReturnUnityObjective, False)
-    EndIf
-    (myMQ305 as mq305script).UnlockPlayerControlUnity()
-  EndIf
 EndEvent

@@ -1,13 +1,16 @@
-ScriptName Fragments:Terminals:TERM_DR033TerminalJackpotCom_002276DD Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_DR033TerminalJackpotCom_002276DD Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property Credits Auto Const
-GlobalVariable Property CreditsRewardRadiantQuestLarge Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_01
 Function Fragment_TerminalMenu_01(ObjectReference akTerminalRef)
-  Game.GetPlayer().AddItem(Credits as Form, CreditsRewardRadiantQuestLarge.getvalue() as Int, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(Credits, CreditsRewardRadiantQuestLarge.getvalue() as int)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property Credits Auto Const
+
+GlobalVariable Property CreditsRewardRadiantQuestLarge Auto Const

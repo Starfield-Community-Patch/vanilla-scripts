@@ -1,6 +1,3 @@
-ScriptName NewAtlantis_TransitQuestScript Extends Quest
+Scriptname NewAtlantis_TransitQuestScript extends Quest 
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property DestinationInt Auto conditional
+Int Property DestinationInt Auto Conditional

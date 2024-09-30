@@ -1,26 +1,26 @@
-ScriptName sq_playerhousescript Extends Quest
+Scriptname SQ_PlayerHouseScript extends Quest
 { Handle common functionality when player homes are purchased. }
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group autofill
-  LeveledItem Property LL_HousePurchase_BuildingSupplies Auto Const mandatory
-  { The building supplies to grant the player when purchasing a home. }
-  Message Property HousePurchaseBuildingMaterialsMessage Auto Const mandatory
-  { The message to display when depositing building materials into their ship cargo hold. }
-EndGroup
+    LeveledItem property LL_HousePurchase_BuildingSupplies auto const mandatory
+    { The building supplies to grant the player when purchasing a home. }
 
+    Message property HousePurchaseBuildingMaterialsMessage auto const mandatory
+    { The message to display when depositing building materials into their ship cargo hold. }
+endGroup
 
-;-- Functions ---------------------------------------
+function PurchaseHouse(GlobalVariable purchaseAmount = None, Key houseKey = None)
+    ; Remove the player's credits, if the house has a cost.
+    if purchaseAmount
+        Game.GetPlayer().RemoveItem(Game.GetCredits(), purchaseAmount.GetValueInt())
+    endif
+    
+    ;Grant them a key, if there is one.
+    if houseKey
+        Game.GetPlayer().AddItem(houseKey)
+    endif
 
-Function PurchaseHouse(GlobalVariable purchaseAmount, Key houseKey)
-  If purchaseAmount
-    Game.GetPlayer().RemoveItem(Game.GetCredits() as Form, purchaseAmount.GetValueInt(), False, None)
-  EndIf
-  If houseKey
-    Game.GetPlayer().AddItem(houseKey as Form, 1, False)
-  EndIf
-  Game.GetPlayerHomeSpaceShip().AddItem(LL_HousePurchase_BuildingSupplies as Form, 1, False)
-  HousePurchaseBuildingMaterialsMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-EndFunction
+    ; When a house is purchased, grant an allotment of building supplies and let the player know.
+    Game.GetPlayerHomeSpaceShip().AddItem(LL_HousePurchase_BuildingSupplies)
+    HousePurchaseBuildingMaterialsMessage.Show()
+endFunction

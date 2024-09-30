@@ -1,14 +1,12 @@
-ScriptName SG01PlayerShipScript Extends ReferenceAlias
+Scriptname SG01PlayerShipScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 ActorValue Property ShipSystem Auto Const
 
-;-- Functions ---------------------------------------
+Event OnShipSystemDamaged(ActorValue akSystem, int aBlocksLost, bool aElectromagneticDamage, bool aFullyDamaged)
 
-Event OnShipSystemDamaged(ActorValue akSystem, Int aBlocksLost, Bool aElectromagneticDamage, Bool aFullyDamaged)
-  If akSystem == ShipSystem && aFullyDamaged && Self.GetOwningQuest().GetStageDone(700)
-    Self.GetOwningQuest().SetStage(750)
-  EndIf
+    ; When the player's engines are out - then their match is ended
+    if akSystem == ShipSystem && aFullyDamaged && GetOwningQuest().GetStageDone(700)
+        GetOwningQuest().SetStage(750)
+    EndIf
+
 EndEvent

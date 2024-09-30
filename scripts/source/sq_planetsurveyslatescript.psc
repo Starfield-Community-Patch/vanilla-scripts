@@ -1,7 +1,4 @@
-ScriptName SQ_PlanetSurveySlateScript Extends ObjectReference
+Scriptname SQ_PlanetSurveySlateScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-planet Property myPlanet Auto hidden
+Planet property myPlanet auto hidden
 { set by SQ_ParentScript when the slate is created }

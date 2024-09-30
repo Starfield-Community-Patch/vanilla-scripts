@@ -1,12 +1,14 @@
-ScriptName Fragments:Quests:QF_SE_KT08_000FB6BD Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_KT08_000FB6BD Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property SE_KT08_DoneOnceGlobal Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  SE_KT08_DoneOnceGlobal.SetValue(1.0)
+;BEGIN CODE
+SE_KT08_DoneOnceGlobal.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property SE_KT08_DoneOnceGlobal Auto Const

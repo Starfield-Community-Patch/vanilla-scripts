@@ -1,34 +1,29 @@
-ScriptName DialogueECSConstantQuestScript Extends Quest
+Scriptname DialogueECSConstantQuestScript extends Quest
 
-;-- Structs -----------------------------------------
+ReferenceAlias Property ECSConstantShip Mandatory Const Auto
+RefCollectionAlias Property GenericNPCs Mandatory Const Auto
+
 Struct NPCData
-  ReferenceAlias NPCAlias
-  { The Alias for the NPC we want to move }
-  ReferenceAlias MarkerAlias
-  { The Marker Alias we're moving the NPC to }
+    ReferenceAlias NPCAlias
+    {The Alias for the NPC we want to move}
+    ReferenceAlias MarkerAlias
+    {The Marker Alias we're moving the NPC to}
 EndStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property ECSConstantShip Auto Const mandatory
-RefCollectionAlias Property GenericNPCs Auto Const mandatory
-dialogueecsconstantquestscript:npcdata[] Property NPCDatum Auto Const mandatory
-
-;-- Functions ---------------------------------------
+NPCData[] Property NPCDatum Mandatory Const Auto
 
 Function MoveNPCs()
-  Int I = 0
-  Int iLength = NPCDatum.Length
-  While I < iLength
-    Actor myNPC = NPCDatum[I].NPCAlias.GetActorRef()
-    ObjectReference myMarker = NPCDatum[I].MarkerAlias.GetRef()
-    myNPC.MoveTo(myMarker, 0.0, 0.0, 0.0, True, False)
-    I += 1
-  EndWhile
+    Int i = 0
+    Int iLength = NPCDatum.Length
+    While i < iLength
+        Actor myNPC = (NPCDatum[i].NPCAlias).GetActorRef()
+        ObjectReference myMarker = (NPCDatum[i].MarkerAlias).GetRef()
+        myNPC.MoveTo(myMarker)
+        i+= 1
+    EndWhile
 EndFunction
 
+
 Event OnQuestInit()
-  ECSConstantShip.GetShipReference().SetValue(Game.GetInvulnerableAV(), 1.0)
+     ECSConstantShip.GetShipReference().SetValue(Game.GetInvulnerableAV(), 1)
 EndEvent

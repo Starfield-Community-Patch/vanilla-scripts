@@ -1,6 +1,6 @@
-ScriptName Fragments:Terminals:TERM_MS06_EngineeringSubTerm_010012BB Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_MS06_EngineeringSubTerm_010012BB Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-GlobalVariable Property MS06ReactorValue Auto Const mandatory
+GlobalVariable Property MS06ReactorValue Auto Const Mandatory

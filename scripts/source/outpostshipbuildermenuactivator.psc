@@ -1,39 +1,46 @@
-ScriptName OutpostShipbuilderMenuActivator Extends OutpostEventHandlerParent
+Scriptname OutpostShipbuilderMenuActivator extends OutpostEventHandlerParent
 
-;-- Variables ---------------------------------------
+Message Property OutpostShipbuilderMessage auto const mandatory
+{ message box listing options}
 
-;-- Properties --------------------------------------
-Message Property OutpostShipbuilderMessage Auto Const mandatory
-{ message box listing options }
-ActorBase Property OutpostShipbuilderVendor Auto Const mandatory
+ActorBase property OutpostShipbuilderVendor auto const mandatory
 { vendor to create when built }
-shipvendorscript Property myVendor Auto hidden
 
-;-- Functions ---------------------------------------
+ShipVendorScript property myVendor auto hidden
 
+; override parent function
 Function HandleOnWorkshopObjectPlaced(ObjectReference akReference)
-  myVendor = Self.PlaceAtMe(OutpostShipbuilderVendor as Form, 1, False, True, True, None, None, True) as shipvendorscript
-  ObjectReference myLandingMarker = Self.GetLinkedRef(None)
-  myVendor.Initialize(myLandingMarker)
+    debug.trace(self + " OnWorkshopObjectPlaced")
+    ; create vendor
+    myVendor = PlaceAtMe(OutpostShipbuilderVendor, abInitiallyDisabled=true) as ShipVendorScript
+    ObjectReference myLandingMarker = GetLinkedRef()
+    debug.trace(self + "   myLandingMarker=" + myLandingMarker)
+    ; link to landing marker and reinitialize
+    myVendor.Initialize(myLandingMarker)
 EndFunction
 
+; override parent function
 Function HandleOnWorkshopObjectRemoved(ObjectReference akReference)
-  If myVendor
-    myVendor.Delete()
-    myVendor = None
-  EndIf
+    debug.trace(self + " OnWorkshopObjectRemoved")
+    if myVendor
+        myVendor.Delete()
+        myVendor = NONE
+    EndIf
 EndFunction
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    shipvendorscript theShipServicesActor = myVendor
-    If theShipServicesActor
-      Int messageIndex = OutpostShipbuilderMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      If messageIndex == 0
-        theShipServicesActor.myLandingMarker.ShowHangarMenu(0, theShipServicesActor as Actor, None, False)
-      ElseIf messageIndex == 1
-        theShipServicesActor.myLandingMarker.ShowHangarMenu(0, theShipServicesActor as Actor, None, True)
-      EndIf
-    EndIf
-  EndIf
+    debug.trace(self + " OnActivate " + akActionRef)
+    if akActionRef == Game.GetPlayer()
+        ShipVendorScript theShipServicesActor = myVendor as ShipVendorScript
+        if theShipServicesActor
+            int messageIndex = OutpostShipbuilderMessage.Show()
+            if messageIndex == 0
+                theShipServicesActor.myLandingMarker.ShowHangarMenu(0, theShipServicesActor, abOpenToAvailableTab = false)
+            elseif messageIndex == 1
+                theShipServicesActor.myLandingMarker.ShowHangarMenu(0, theShipServicesActor, abOpenToAvailableTab = true)
+            elseif messageIndex == 2
+                theShipServicesActor.myLandingMarker.ShowHangarMenu(1, theShipServicesActor)
+            endif
+        endif
+    endif
 EndEvent

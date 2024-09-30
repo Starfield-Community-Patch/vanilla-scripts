@@ -1,12 +1,7 @@
-ScriptName setOutfitForRefAlias Extends ReferenceAlias
+Scriptname setOutfitForRefAlias extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Outfit Property OutfitToEquip Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  Self.getActorReference().setOutfit(OutfitToEquip, False)
+    self.getActorReference().setOutfit(OutfitToEquip)
 EndEvent

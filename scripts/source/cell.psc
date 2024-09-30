@@ -1,35 +1,50 @@
-ScriptName Cell Extends Form Native hidden
+Scriptname Cell extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Enables/disables fast travel in this cell
+Function EnableFastTravel(bool abEnable = true) native
 
-Function EnableFastTravel(Bool abEnable) Native
+; Gets the actor that owns this cell (or none if not owned by an actor)
+ActorBase Function GetActorOwner() native
 
-ActorBase Function GetActorOwner() Native
+; Gets the faction that owns this cell (or none if not owned by a faction)
+Faction Function GetFactionOwner() native
 
-Faction Function GetFactionOwner() Native
+; Gets the 'parent' reference for this cell, if any (i.e. the ship if this is a ship interior/exterior cell)
+ObjectReference Function GetParentRef() native
 
-ObjectReference Function GetParentRef() Native
+; Is this cell "attached"? (In the loaded area)
+bool Function IsAttached() native
 
-Bool Function IsAttached() Native
+; Is this cell an interior cell?
+bool Function IsInterior() native
 
-Bool Function IsInterior() Native
+; Is this cell currently loaded?
+bool Function IsLoaded() native
 
-Bool Function IsLoaded() Native
+; Flags the cell for reset on next load
+Function Reset() native
 
-Function Reset() Native
+; Sets this cell's owner as the specified actor
+Function SetActorOwner(ActorBase akActor) native
 
-Function SetActorOwner(ActorBase akActor) Native
+; Sets this cell's owner as the specified faction
+Function SetFactionOwner(Faction akFaction) native
 
-Function SetFactionOwner(Faction akFaction) Native
+; Sets the fog color for this cell (interior, non-sky-lit cells only)
+Function SetFogColor(int aiNearRed, int aiNearGreen, int aiNearBlue, \
+	int aiFarRed, int aiFarGreen, int aiFarBlue) native
 
-Function SetFogColor(Int aiNearRed, Int aiNearGreen, Int aiNearBlue, Int aiFarRed, Int aiFarGreen, Int aiFarBlue) Native
+; Adjusts this cell's fog near and far planes (interior, non-sky-lit cells only)
+Function SetFogPlanes(float afNear, float afFar) native
 
-Function SetFogPlanes(Float afNear, Float afFar) Native
+; Sets the fog power for this cell (interior, non-sky-lit cells only)
+Function SetFogPower(float afPower) native
 
-Function SetFogPower(Float afPower) Native
+; Sets the gravity scale on this cell, works on interiors only
+Function SetGravityScale(float aScale) native
 
-Function SetGravityScale(Float aScale) Native
+; Sets the OffLimits flag on this cell
+Function SetOffLimits(bool abOffLimits = true) native
 
-Function SetOffLimits(Bool abOffLimits) Native
-
-Function SetPublic(Bool abPublic) Native
+; Sets this cell as public or private
+Function SetPublic(bool abPublic = true) native

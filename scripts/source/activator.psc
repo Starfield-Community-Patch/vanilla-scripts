@@ -1,5 +1,4 @@
-ScriptName Activator Extends Form Native hidden
+Scriptname Activator extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Bool Function IsRadio() Native
+; Returns whether this activator is a radio or not
+bool Function IsRadio() Native

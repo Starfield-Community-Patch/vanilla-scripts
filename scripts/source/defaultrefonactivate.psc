@@ -1,11 +1,12 @@
-ScriptName DefaultRefOnActivate Extends DefaultRef default
-{ Sets stage if a reference is activated.
+Scriptname DefaultRefOnActivate extends DefaultRef Default
+{Sets stage if a reference is activated.
 <RefToCheck> is the reference activating THIS Object.
-<LocationToCheck> is the current location of THIS object. }
-
-;-- Functions ---------------------------------------
+<LocationToCheck> is the current location of THIS object.}
 
 Event OnActivate(ObjectReference akActionRef)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akActionRef, Self.GetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnActivate() akActionRef: " + akActionRef, ShowTraces)
+
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akActionRef, LocationToCheck = GetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnActivate() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
 EndEvent

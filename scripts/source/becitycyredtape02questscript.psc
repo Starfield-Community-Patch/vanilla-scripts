@@ -1,63 +1,62 @@
-ScriptName BECityCYRedTape02QuestScript Extends Quest
+Scriptname BECityCYRedTape02QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Int Property TimesUpStage = 32 Const Auto
+Int Property GaveFuelStage = 41 Const Auto
+Int Property SabotagedFuelStage = 42 Const Auto
+ActorValue Property ShipSystemEngineHealth Mandatory Const Auto
+Potion Property ShipRepairKit Mandatory Const Auto
+ReferenceAlias Property PlayerShip Mandatory Const Auto
+ReferenceAlias Property EnemyShip Mandatory Const Auto
+Topic Property BE_City_CY_RedTape02_Ship_JumpTopic Mandatory Const Auto
 Int CountdownTimerID = 1
+Float Property CountdownTimerLength = 20.0 Const Auto
 Int UndockTimerID = 2
+Float Property UndockTimerLength = 5.0 Const Auto
 
-;-- Properties --------------------------------------
-Int Property TimesUpStage = 32 Auto Const
-Int Property GaveFuelStage = 41 Auto Const
-Int Property SabotagedFuelStage = 42 Auto Const
-ActorValue Property ShipSystemEngineHealth Auto Const mandatory
-Potion Property ShipRepairKit Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const mandatory
-ReferenceAlias Property EnemyShip Auto Const mandatory
-Topic Property BE_City_CY_RedTape02_Ship_JumpTopic Auto Const mandatory
-Float Property CountdownTimerLength = 20.0 Auto Const
-Float Property UndockTimerLength = 5.0 Auto Const
-
-;-- Functions ---------------------------------------
 
 Function StartCountdown()
-  Self.StartTimer(CountdownTimerLength, CountdownTimerID)
+    StartTimer(CountdownTimerLength, CountdownTimerID)
 EndFunction
 
 Function StopCountdown()
-  Self.CancelTimer(CountdownTimerID)
+    CancelTimer(CountdownTimerID)
 EndFunction
 
 Function ShipUndock()
-  If Self.GetStageDone(GaveFuelStage) || Self.GetStageDone(SabotagedFuelStage)
-    Self.StartTimer(UndockTimerLength, UndockTimerID)
-  EndIf
+    If GetStageDone(GaveFuelStage) || GetStageDone(SabotagedFuelStage)
+        StartTimer(UndockTimerLength, UndockTimerID)
+    EndIf
 EndFunction
 
 Function ShipGoodbye()
-  spaceshipreference myEnemyShip = EnemyShip.GetShipRef()
-  myEnemyShip.Say(BE_City_CY_RedTape02_Ship_JumpTopic, None, False, None)
-  If Self.GetStageDone(GaveFuelStage)
-    myEnemyShip.EnablePartRepair(ShipSystemEngineHealth, True)
-    myEnemyShip.RestoreValue(ShipSystemEngineHealth, 100000.0)
-    myEnemyShip.DisableWithGravJump()
-  ElseIf Self.GetStageDone(SabotagedFuelStage)
-    myEnemyShip.Kill(None)
-  EndIf
+    SpaceshipReference myEnemyShip = EnemyShip.GetShipRef()
+    myEnemyShip.Say(BE_City_CY_RedTape02_Ship_JumpTopic)
+    If GetStageDone(GaveFuelStage)
+        myEnemyShip.EnablePartRepair(ShipSystemEngineHealth, true)
+        myEnemyShip.RestoreValue(ShipSystemEngineHealth, 100000)
+        myEnemyShip.DisableWithGravJump()
+    ElseIf GetStageDone(SabotagedFuelStage)
+        myEnemyShip.Kill()
+    EndIf
 EndFunction
+
 
 Function RemoveShipParts()
-  Actor myPlayer = Game.GetPlayer()
-  spaceshipreference myShip = PlayerShip.GetShipReference()
-  If myPlayer.GetItemCount(ShipRepairKit as Form) >= 1
-    myPlayer.RemoveItem(ShipRepairKit as Form, 1, False, None)
-  ElseIf myShip.GetItemCount(ShipRepairKit as Form) >= 1
-    myShip.RemoveItem(ShipRepairKit as Form, 1, False, None)
-  EndIf
+    Actor myPlayer = Game.GetPlayer()
+    SpaceshipReference myShip = PlayerShip.GetShipReference()
+
+    If myPlayer.GetItemCount(ShipRepairKit) >= 1
+        myPlayer.RemoveItem(ShipRepairKit, 1)
+    ElseIf myShip.GetItemCount(ShipRepairKit) >= 1
+        myShip.RemoveItem(ShipRepairKit, 1)
+    EndIf
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == CountdownTimerID
-    Self.SetStage(TimesUpStage)
-  ElseIf aiTimerID == UndockTimerID
-    Self.ShipGoodbye()
-  EndIf
+
+Event OnTimer(int aiTimerID)
+    If aiTimerID == CountdownTimerID
+        SetStage(TimesUpStage)
+    ElseIf aiTimerID == UndockTimerID
+        ShipGoodbye()
+    EndIf
 EndEvent

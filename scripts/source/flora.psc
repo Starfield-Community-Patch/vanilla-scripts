@@ -1,1 +1,1 @@
-ScriptName Flora Extends Activator Native hidden
+Scriptname Flora extends Activator Native Hidden

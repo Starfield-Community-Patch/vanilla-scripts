@@ -1,27 +1,38 @@
-ScriptName defaultSpawnOnActivateSCRIPT Extends ObjectReference hidden
+Scriptname defaultSpawnOnActivateSCRIPT extends ObjectReference Hidden
 
-;-- Variables ---------------------------------------
-Bool done = False
+ACTORBASE PROPERTY ActorToSpawn AUTO
 
-;-- Properties --------------------------------------
-ActorBase Property ActorToSpawn Auto
-ObjectReference Property SpawnAtReference Auto
-Bool Property PlayerActivateOnly Auto
-Bool Property DoOnce Auto
+OBJECTREFERENCE PROPERTY SpawnAtReference AUTO
 
-;-- Functions ---------------------------------------
+BOOL PROPERTY PlayerActivateOnly AUTO
 
-Event onACTIVATE(ObjectReference akActionRef)
-  If !done
-    If PlayerActivateOnly
-      If akActionRef == Game.getPlayer() as ObjectReference
-        SpawnAtReference.placeAtMe(ActorToSpawn as Form, 1, False, False, True, None, None, True)
-      EndIf
-    ElseIf !PlayerActivateOnly
-      SpawnAtReference.placeAtMe(ActorToSpawn as Form, 1, False, False, True, None, None, True)
-    EndIf
-    If DoOnce
-      done = True
-    EndIf
-  EndIf
-EndEvent
+BOOL PROPERTY DoOnce AUTO
+
+
+BOOL done=FALSE
+
+EVENT onACTIVATE(OBJECTREFERENCE akActionRef)
+
+	IF(!done)
+
+		; //Check to see if we're player activate only
+		IF(PlayerActivateOnly)
+
+			IF(akActionRef == game.getPlayer())
+				SpawnAtReference.placeAtMe(ActorToSpawn)
+
+			ENDIF
+
+		ELSEIF(!PlayerActivateOnly)
+			SpawnAtReference.placeAtMe(ActorToSpawn)
+
+		ENDIF
+
+		; //if we're DoOnce set it up so we only go round once
+		IF(DoOnce)
+			done = TRUE
+		ENDIF
+
+	ENDIF
+
+ENDEVENT

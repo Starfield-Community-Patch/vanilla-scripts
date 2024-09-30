@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_CF07_KryxFinalLog_001EBE7F Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_CF07_KryxFinalLog_001EBE7F Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property CF07 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  CF07.SetStage(290)
+;BEGIN CODE
+CF07.SetStage(290)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property CF07 Auto Const Mandatory

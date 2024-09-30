@@ -1,12 +1,8 @@
-ScriptName ImprovingSwordSCRIPT Extends ActiveMagicEffect
+Scriptname ImprovingSwordSCRIPT extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property pImprovingSword Auto
-
-;-- Functions ---------------------------------------
+GLOBALVARIABLE PROPERTY pImprovingSword AUTO
 
 Event OnDying(ObjectReference akKiller)
-  pImprovingSword.setValue(pImprovingSword.getValue() + 1.0)
+	pImprovingSword.setValue(pImprovingSword.getValue() + 1)
+	
 EndEvent

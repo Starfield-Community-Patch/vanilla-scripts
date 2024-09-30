@@ -1,18 +1,14 @@
-ScriptName TestBountyBoardScript Extends ObjectReference Const
+Scriptname TestBountyBoardScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Quest[] Property Missions Auto Const
 
-;-- Functions ---------------------------------------
-
+;every time the terminal loads, try to start the mission board quests if they are not running.
 Event OnLoad()
-  Int currentElement = 0
-  While currentElement < Missions.Length
-    If Missions[currentElement].IsRunning() == False
-      Missions[currentElement].Start()
-    EndIf
-    currentElement += 1
-  EndWhile
+	int currentElement = 0
+	while (currentElement < Missions.Length)
+		If Missions[currentElement].IsRunning() == False
+			Missions[currentElement].Start()
+		EndIf
+		currentElement += 1
+	EndWhile
 EndEvent

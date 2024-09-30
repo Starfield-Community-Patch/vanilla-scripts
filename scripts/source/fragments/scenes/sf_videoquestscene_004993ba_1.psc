@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_VideoQuestScene_004993BA_1 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_VideoQuestScene_004993BA_1 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property VideoDoor Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_03_End
 Function Fragment_Phase_03_End()
-  VideoDoor.GetRef().SetOpen(True)
+;BEGIN CODE
+VideoDoor.GetRef().SetOpen()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property VideoDoor Auto Const

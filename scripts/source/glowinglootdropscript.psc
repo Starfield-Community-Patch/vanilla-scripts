@@ -1,17 +1,18 @@
-ScriptName glowingLootDropSCRIPT Extends ActiveMagicEffect
+Scriptname glowingLootDropSCRIPT extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-Actor caster
+LeveledItem PROPERTY list AUTO
 
-;-- Properties --------------------------------------
-LeveledItem Property list Auto
+ACTOR caster
 
-;-- Functions ---------------------------------------
+EVENT OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  caster = akCaster
-EndEvent
+	caster = akCaster
 
-Event onDying(ObjectReference akKiller)
-  caster.additem(list as Form, 1, False)
-EndEvent
+ENDEVENT
+
+EVENT onDying(ObjectReference akKiller)
+
+	caster.additem(list)
+	debug.trace("farts")
+
+ENDEVENT

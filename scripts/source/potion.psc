@@ -1,5 +1,4 @@
-ScriptName Potion Extends Form Native hidden
+Scriptname Potion extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Bool Function IsHostile() Native
+; Is this postion classified as hostile?
+bool Function IsHostile() native

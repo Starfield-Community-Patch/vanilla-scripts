@@ -1,1 +1,1 @@
-ScriptName ConstructibleObject Extends MiscObject Native hidden
+Scriptname ConstructibleObject extends MiscObject Native Hidden

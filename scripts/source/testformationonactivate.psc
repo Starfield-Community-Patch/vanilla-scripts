@@ -1,8 +1,5 @@
-ScriptName TestFormationOnActivate Extends ObjectReference Const
+Scriptname TestFormationOnActivate extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 GlobalVariable Property TestFormationGlobal Auto Const
 Actor Property Leader Auto Const
 Actor Property Follower01 Auto Const
@@ -11,13 +8,13 @@ Actor Property Follower03 Auto Const
 Actor Property Follower04 Auto Const
 Int Property GlobalSetValue = 1 Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  TestFormationGlobal.SetValue(GlobalSetValue as Float)
-  Leader.EvaluatePackage(False)
-  Follower01.EvaluatePackage(False)
-  Follower02.EvaluatePackage(False)
-  Follower03.EvaluatePackage(False)
-  Follower04.EvaluatePackage(False)
+
+	TestFormationGlobal.SetValue(GlobalSetValue)
+	Leader.EvaluatePackage()
+	Follower01.EvaluatePackage()
+	Follower02.EvaluatePackage()
+	Follower03.EvaluatePackage()
+	Follower04.EvaluatePackage()
+
 EndEvent

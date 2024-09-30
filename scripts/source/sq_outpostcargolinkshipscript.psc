@@ -1,131 +1,164 @@
-ScriptName SQ_OutpostCargoLinkShipScript Extends SpaceshipReference
+Scriptname SQ_OutpostCargoLinkShipScript extends SpaceshipReference
 
-;-- Variables ---------------------------------------
-Float WaitForFuelGameHours
-Float WaitToLoadCargoGameHours
-Float WaitToTakeoffGameHours
-Float fCalendarTimeScaleGround
-Bool timersInitialized
+SQ_OutpostCargoLinkScript property SQ_OutpostCargoLink auto const mandatory
 
-;-- Properties --------------------------------------
-sq_outpostcargolinkscript Property SQ_OutpostCargoLink Auto Const mandatory
-Keyword Property LinkOutpostCargoShipLandingMarker01 Auto Const mandatory
-Keyword Property LinkOutpostCargoShipLandingMarker02 Auto Const mandatory
-Keyword Property LinkOutpostCargoShipLandingMarkerCurrent Auto Const mandatory
-Keyword Property LandingMarkerKeyword Auto Const mandatory
+Keyword property LinkOutpostCargoShipLandingMarker01 auto const mandatory
+Keyword property LinkOutpostCargoShipLandingMarker02 auto const mandatory
+
+Keyword property LinkOutpostCargoShipLandingMarkerCurrent auto const mandatory
+
+Keyword Property LandingMarkerKeyword Auto Mandatory Const
 { used to find landing marker }
-Keyword Property LandingZoneTriggerKeyword Auto Const mandatory
+
+Keyword Property LandingZoneTriggerKeyword Auto Mandatory Const
 { used to find landing zone trigger }
-ActorValue Property OutpostCargoLinkShipDestination Auto Const mandatory
+
+ActorValue property OutpostCargoLinkShipDestination auto const mandatory
 { use to condition packages }
-Bool Property RequiresFuel = False Auto hidden
+
+bool property RequiresFuel = false auto hidden
 { if false, ignore CanProduce checks
-    set by script when created }
-String Property fCalendarTimeScaleGroundString = "fCalendarTimeScaleGround" Auto Const
+    set by script when created  }
+
+String property fCalendarTimeScaleGroundString="fCalendarTimeScaleGround" auto Const
 { gamesetting for time scale multiplier on real time for game time: game time = real time * fCalendarTimeScaleGround }
-Int Property WaitToLoadCargoTimerID = 0 Auto Const
-Float Property WaitToLoadCargoSeconds = 30.0 Auto Const
-{ 0.04 game hours = 30 seconds of real time }
-Int Property WaitToTakeoffTimerID = 1 Auto Const
-Float Property WaitToTakeoffSeconds = 15.0 Auto Const
-{ 0.02 game hours = 15 seconds of real time }
-Int Property WaitForFuelTimerID = 2 Auto Const
-Float Property WaitForFuelSeconds = 30.0 Auto Const
+
+int property WaitToLoadCargoTimerID = 0 auto const 
+float property WaitToLoadCargoSeconds = 30.0 auto Const
 { 0.04 game hours = 30 seconds of real time }
 
-;-- Functions ---------------------------------------
+int property WaitToTakeoffTimerID = 1 auto const 
+float property WaitToTakeoffSeconds = 15.0 auto Const
+{ 0.02 game hours = 15 seconds of real time }
+
+int property WaitForFuelTimerID = 2 auto const 
+float property WaitForFuelSeconds = 30.0 auto Const
+{ 0.04 game hours = 30 seconds of real time }
+
+float fCalendarTimeScaleGround
+float WaitToLoadCargoGameHours
+float WaitToTakeoffGameHours
+float WaitForFuelGameHours
+
+bool timersInitialized
 
 Event OnInit()
-  Self.InitializeTimers()
+    InitializeTimers()
 EndEvent
 
-Function InitializeTimers()
-  If timersInitialized == False
-    timersInitialized = True
-    fCalendarTimeScaleGround = Game.GetGameSettingFloat(fCalendarTimeScaleGroundString)
-    Float secondsToHours = 3600.0
-    WaitToLoadCargoGameHours = WaitToLoadCargoSeconds / secondsToHours * fCalendarTimeScaleGround
-    WaitToTakeoffGameHours = WaitToTakeoffSeconds / secondsToHours * fCalendarTimeScaleGround
-    WaitForFuelGameHours = WaitForFuelSeconds / secondsToHours * fCalendarTimeScaleGround
-  EndIf
+function InitializeTimers()
+    if timersInitialized  == false
+        timersInitialized = true
+        fCalendarTimeScaleGround = Game.GetGameSettingFloat(fCalendarTimeScaleGroundString)
+        float secondsToHours = 60*60
+        WaitToLoadCargoGameHours = WaitToLoadCargoSeconds/secondsToHours * fCalendarTimeScaleGround
+        WaitToTakeoffGameHours = WaitToTakeoffSeconds/secondsToHours * fCalendarTimeScaleGround
+        WaitForFuelGameHours = WaitForFuelSeconds/secondsToHours * fCalendarTimeScaleGround
+
+        debug.trace(self + " OnInit: WaitToLoadCargoGameHours=" + WaitToLoadCargoGameHours + " WaitToTakeoffGameHours=" + WaitToTakeoffGameHours + " WaitForFuelGameHours=" + WaitForFuelGameHours)
+    endif
 EndFunction
 
-Function CancelTimers()
-  Self.CancelTimerGameTime(WaitToLoadCargoTimerID)
-  Self.CancelTimerGameTime(WaitForFuelTimerID)
-  Self.CancelTimerGameTime(WaitToTakeoffTimerID)
+; called when ship is deleted
+function CancelTimers()
+    CancelTimerGameTime(WaitToLoadCargoTimerID)
+    CancelTimerGameTime(WaitForFuelTimerID)
+    CancelTimerGameTime(WaitToTakeoffTimerID)
 EndFunction
 
-Function ArriveAtOutpost()
-  Bool canproduce = Self.TransferCargo(True)
-  If canproduce || RequiresFuel == False
-    Float gameTimeHours = WaitToLoadCargoGameHours
-    Self.StartTimerGameTime(gameTimeHours, WaitToLoadCargoTimerID)
-  Else
-    Float gametimehours = WaitForFuelGameHours
-    Self.StartTimerGameTime(gametimehours, WaitForFuelTimerID)
-  EndIf
+function ArriveAtOutpost()
+    debug.trace(self + "ArriveAtOutpost")
+    ; unload cargo
+    bool canproduce = TransferCargo(true)
+    if canProduce || RequiresFuel == false
+        debug.trace(self + " fuel available - start load timer")
+        ; start timer to load cargo
+        float gameTimeHours = WaitToLoadCargoGameHours
+        debug.trace(self + " running timer " + WaitToLoadCargoTimerID + " for " + gameTimeHours + " game hours")
+        StartTimerGameTime(gameTimeHours, WaitToLoadCargoTimerID)
+    Else
+        debug.trace(self + " NO fuel available - start idle timer")
+        ; start idle timer to wait for fuel
+        float gameTimeHours = WaitForFuelGameHours
+        debug.trace(self + " running timer " + WaitForFuelTimerID + " for " + gameTimeHours + " game hours")
+        StartTimerGameTime(gameTimeHours, WaitForFuelTimerID)
+    endif
 EndFunction
 
-Function LeaveOutpost()
-  ObjectReference landingMarker01Ref = Self.GetLinkedRef(LinkOutpostCargoShipLandingMarker01)
-  ObjectReference landingMarker02Ref = Self.GetLinkedRef(LinkOutpostCargoShipLandingMarker02)
-  ObjectReference landingMarkerCurrent = Self.GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent)
-  Bool bAtOutpost01 = False
-  If landingMarkerCurrent == landingMarker01Ref
-    bAtOutpost01 = True
-    Self.SetLinkedRef(landingMarker02Ref, LinkOutpostCargoShipLandingMarkerCurrent, True)
-    Self.SetValue(OutpostCargoLinkShipDestination, 1.0)
-  Else
-    bAtOutpost01 = False
-    Self.SetLinkedRef(landingMarker01Ref, LinkOutpostCargoShipLandingMarkerCurrent, True)
-    Self.SetValue(OutpostCargoLinkShipDestination, 0.0)
-  EndIf
-  Self.EvaluatePackage(False)
-  SQ_OutpostCargoLink.ShipLanding(Self as SpaceshipReference, bAtOutpost01, SQ_OutpostCargoLink.stateEnum02_landing)
-EndFunction
+function LeaveOutpost()
+    debug.trace(self + "LeaveOutpost")
+    ; switch linked ref to other outpost
+    ObjectReference landingMarker01Ref = GetLinkedRef(LinkOutpostCargoShipLandingMarker01)
+    ObjectReference landingMarker02Ref = GetLinkedRef(LinkOutpostCargoShipLandingMarker02)
 
-Bool Function TransferCargo(Bool bUnloadCargo)
-  Bool bAtOutpost01 = Self.GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent) == Self.GetLinkedRef(LinkOutpostCargoShipLandingMarker01)
-  Bool canproduce = SQ_OutpostCargoLink.TransferCargo(Self, bAtOutpost01, bUnloadCargo)
-  Return canproduce
-EndFunction
+    ObjectReference landingMarkerCurrent = GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent)
 
-Event OnTimerGameTime(Int aiTimerID)
-  Self.InitializeTimers()
-  If Self.IsDisabled()
-    Return 
-  EndIf
-  If aiTimerID == WaitToLoadCargoTimerID
-    Self.TransferCargo(False)
-    Float gameTimeHours = WaitToTakeoffGameHours
-    Self.StartTimerGameTime(gameTimeHours, WaitToTakeoffTimerID)
-  ElseIf aiTimerID == WaitToTakeoffTimerID
-    Self.LeaveOutpost()
-  ElseIf aiTimerID == WaitForFuelTimerID
-    Self.ArriveAtOutpost()
-  EndIf
-EndEvent
-
-Event OnShipLanding(Bool abComplete)
-  Bool bAtOutpost01 = Self.GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent) == Self.GetLinkedRef(LinkOutpostCargoShipLandingMarker01)
-  If abComplete == False
-    ObjectReference landingMarker = Self.GetLinkedRef(LandingMarkerKeyword)
-    If landingMarker
-      landingzonetriggerscript landingZoneTrigger = landingMarker.GetLinkedRef(LandingZoneTriggerKeyword) as landingzonetriggerscript
-      If landingZoneTrigger
-        landingZoneTrigger.BeginLanding(Self as SpaceshipReference, landingMarker)
-      EndIf
+    bool bAtOutpost01
+    if landingMarkerCurrent == landingMarker01Ref
+        bAtOutpost01 = true
+        SetLinkedRef(landingMarker02Ref, LinkOutpostCargoShipLandingMarkerCurrent)
+        SetValue(OutpostCargoLinkShipDestination, 1)
+    Else
+        bAtOutpost01 = false
+        SetLinkedRef(landingMarker01Ref, LinkOutpostCargoShipLandingMarkerCurrent)
+        SetValue(OutpostCargoLinkShipDestination, 0)
     EndIf
-    SQ_OutpostCargoLink.ShipLanding(Self as SpaceshipReference, bAtOutpost01, SQ_OutpostCargoLink.stateEnum02_landing)
-  Else
-    SQ_OutpostCargoLink.ShipLanding(Self as SpaceshipReference, bAtOutpost01, SQ_OutpostCargoLink.stateEnum03_landed)
-  EndIf
+    EvaluatePackage()
+    SQ_OutpostCargoLink.ShipLanding(self, bAtOutpost01, SQ_OutpostCargoLink.stateEnum02_landing) ; taking off
+endFunction
+
+bool function TransferCargo(bool bUnloadCargo = true)
+    debug.trace(self + "TransferCargo bUnloadCargo=" + bUnloadCargo)
+    bool bAtOutpost01 = (GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent) == GetLinkedRef(LinkOutpostCargoShipLandingMarker01))
+    bool canProduce = SQ_OutpostCargoLink.TransferCargo(self, bAtOutpost01, bUnloadCargo)
+    return canProduce
+EndFunction
+
+Event OnTimerGameTime(int aiTimerID)
+    debug.trace(self + " OnTimerGameTime " + aiTimerID)
+    InitializeTimers()
+    
+    if IsDisabled()
+        Return
+    EndIf
+
+    if aiTimerID == WaitToLoadCargoTimerID
+        ; load cargo
+        TransferCargo(false)
+        ; start takeoff timer
+        float gameTimeHours = WaitToTakeoffGameHours
+        debug.trace(self + " running timer " + WaitToTakeoffTimerID + " for " + gameTimeHours + " game hours")
+        StartTimerGameTime(gameTimeHours, WaitToTakeoffTimerID)
+    elseif aiTimerID == WaitToTakeoffTimerID
+        LeaveOutpost()
+    elseif aiTimerID == WaitForFuelTimerID
+        ArriveAtOutpost()
+    endif
 EndEvent
 
-Event OnShipTakeOff(Bool abComplete)
-  If abComplete
-    Bool bAtOutpost01 = Self.GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent) == Self.GetLinkedRef(LinkOutpostCargoShipLandingMarker02)
-    SQ_OutpostCargoLink.ShipLanding(Self as SpaceshipReference, bAtOutpost01, SQ_OutpostCargoLink.stateEnum01_linked)
-  EndIf
+Event OnShipLanding(bool abComplete)
+    bool bAtOutpost01 = (GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent) == GetLinkedRef(LinkOutpostCargoShipLandingMarker01))
+    if abComplete == false
+		ObjectReference landingMarker = GetLinkedRef(LandingMarkerKeyword)
+        debug.trace(self + " OnShipLanding landingMarker=" + landingMarker)
+        if landingMarker
+            ; if this landing marker has a landing zone trigger, tell it we're coming in
+            LandingZoneTriggerScript landingZoneTrigger = landingMarker.GetLinkedRef(LandingZoneTriggerKeyword) as LandingZoneTriggerScript
+            if landingZoneTrigger
+                landingZoneTrigger.BeginLanding(self, landingMarker)
+            endif
+        endif
+        SQ_OutpostCargoLink.ShipLanding(self, bAtOutpost01, SQ_OutpostCargoLink.stateEnum02_landing) ; landing
+    Else
+        SQ_OutpostCargoLink.ShipLanding(self, bAtOutpost01, SQ_OutpostCargoLink.stateEnum03_landed) ; landed
+    endif
 EndEvent
+
+Event OnShipTakeOff(bool abComplete)
+    if abComplete
+        bool bAtOutpost01 = (GetLinkedRef(LinkOutpostCargoShipLandingMarkerCurrent) == GetLinkedRef(LinkOutpostCargoShipLandingMarker02)) ; if we're currently linked to marker02, we're "at" (leaving) outpost01
+        SQ_OutpostCargoLink.ShipLanding(self, bAtOutpost01, SQ_OutpostCargoLink.stateEnum01_linked) ; back to linked state
+    EndIf
+EndEvent
+
+

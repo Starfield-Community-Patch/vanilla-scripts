@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_CF06_00186F12 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_CF06_00186F12 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueFCNeon Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  DialogueFCNeon.SetStage(400)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+DialogueFCNeon.SetStage(400)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueFCNeon Auto Const Mandatory

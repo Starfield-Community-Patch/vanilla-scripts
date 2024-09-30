@@ -1,7 +1,5 @@
-ScriptName TestSpeechChallengeScript Extends Quest conditional
+Scriptname TestSpeechChallengeScript extends Quest Conditional
 
-;-- Functions ---------------------------------------
-
-Event OnSpeechChallengeCompletion(speechchallengeobject akSpeechChallenge, Bool abSuccess)
-  ; Empty function
+Event OnSpeechChallengeCompletion(SpeechChallengeObject akSpeechChallenge, bool abSuccess)
+	debug.trace(self + " OnSpeechChallengeCompletion: " + akSpeechChallenge + " abSuccess=" + abSuccess)
 EndEvent

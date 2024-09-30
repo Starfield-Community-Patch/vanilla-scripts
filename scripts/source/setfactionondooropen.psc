@@ -1,16 +1,11 @@
-ScriptName SetFactionOnDoorOpen Extends ObjectReference Const
+Scriptname SetFactionOnDoorOpen extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property FactionToSet Auto Const
-Keyword Property TargetActorKeyword Auto Const
-
-;-- Functions ---------------------------------------
+Faction property FactionToSet auto const
+Keyword property TargetActorKeyword auto const
 
 Event OnOpen(ObjectReference akActionRef)
-  Actor targetActor = Self.GetLinkedRef(TargetActorKeyword) as Actor
-  If targetActor != None
-    targetActor.AddToFaction(FactionToSet)
-  EndIf
+    Actor targetActor = GetLinkedRef(TargetActorKeyword) as Actor
+    if(targetActor != None)
+        targetActor.AddToFaction(FactionToSet)
+    endIf
 EndEvent

@@ -1,25 +1,21 @@
-ScriptName TestJeffBMournScript Extends Actor conditional
+Scriptname TestJeffBMournScript extends Actor Conditional
 
-;-- Variables ---------------------------------------
-Actor myParent
-Actor player
-
-;-- Properties --------------------------------------
-Bool Property isParentDead = False Auto conditional
-Bool Property amParent = False Auto
+Bool Property isParentDead = FALSE Auto Conditional
+Bool Property amParent = FALSE Auto
+;ObjectReference Property myParent Auto
 Keyword Property myKeyword Auto
 
-;-- Functions ---------------------------------------
-
+Actor myParent
+Actor player
 Event OnLoad()
-  If amParent == False
-    myParent = Self.getLinkedRef(myKeyword) as Actor
-    Self.RegisterForRemoteEvent(myParent as ScriptObject, "OnDeath")
-  EndIf
+	if(amParent == FALSE)
+		myParent = getLinkedRef(myKeyword) as Actor
+		RegisterForRemoteEvent(myParent, "OnDeath")
+	EndIf
 EndEvent
 
 Event Actor.OnDeath(Actor akSender, ObjectReference akActionRef)
-  isParentDead = True
-  Self.stopcombat()
-  Self.EvaluatePackage(False)
-EndEvent
+	isParentDead = True
+	stopcombat()
+	EvaluatePackage()
+endEvent

@@ -1,24 +1,37 @@
-ScriptName Fragments:Quests:QF__01006B02 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF__01006B02 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-Scene Property Attack01_100a_DefenderHailStart Auto Const mandatory
-MiscObject Property InorgCommonHelium3 Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Alias_HailingShip.RefillAlias()
-  Attack01_100a_DefenderHailStart.Start()
+;BEGIN CODE
+Alias_HailingShip.RefillAlias()
+Attack01_100a_DefenderHailStart.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0175_Item_00
 Function Fragment_Stage_0175_Item_00()
-  Game.GetPlayer().AddItem(InorgCommonHelium3 as Form, 3, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(InorgCommonHelium3, 3)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0180_Item_00
 Function Fragment_Stage_0180_Item_00()
-  Game.GetPlayer().AddItem(Credits as Form, 350, False)
+;BEGIN CODE
+Game.GetPlayer().AddItem(Credits, 350)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+Scene Property Attack01_100a_DefenderHailStart Auto Const Mandatory
+
+MiscObject Property InorgCommonHelium3 Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory

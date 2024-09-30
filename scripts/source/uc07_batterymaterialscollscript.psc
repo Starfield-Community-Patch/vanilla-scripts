@@ -1,41 +1,47 @@
-ScriptName UC07_BatteryMaterialsCollScript Extends RefCollectionAlias
+Scriptname UC07_BatteryMaterialsCollScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
+Keyword Property UC07_BatteryComponent Mandatory Const Auto
+{Keyword used to designate this is one of the quest item battery components}
 
-;-- Properties --------------------------------------
-Keyword Property UC07_BatteryComponent Auto Const mandatory
-{ Keyword used to designate this is one of the quest item battery components }
-RefCollectionAlias Property BatteryContainers Auto Const mandatory
-{ Ref collection that contains all the battery component containers }
-Int Property PrereqStage = 105 Auto Const
-{ Prereq stage used to know it's okay to start tracking container changed events }
+RefCollectionAlias Property BatteryContainers Mandatory Const Auto
+{Ref collection that contains all the battery component containers}
 
-;-- Functions ---------------------------------------
+int Property PrereqStage = 105 Auto Const
+{Prereq stage used to know it's okay to start tracking container changed events}
 
 Event OnQuickContainerOpened(ObjectReference akSenderRef)
-  If Self.GetOwningQuest().GetStageDone(PrereqStage)
-    If akSenderRef.GetItemCount(UC07_BatteryComponent as Form) <= 0
-      BatteryContainers.RemoveRef(akSenderRef)
-    EndIf
-  EndIf
+    trace(self, "Quick Container event received. Sending container: " + akSenderRef)
+    if GetOwningQuest().GetStageDone(PrereqStage)
+        if akSenderRef.GetItemCount(UC07_BatteryComponent) <= 0
+            trace(self, "Quick Container opened. Old container: " + akSenderRef + " has no more quest items in it. Pull it from the list.")
+            BatteryContainers.RemoveRef(akSenderRef)
+        endif
+    endif
 EndEvent
 
 Event OnActivate(ObjectReference akSenderRef, ObjectReference akActionRef)
-  If Self.GetOwningQuest().GetStageDone(PrereqStage)
-    If akSenderRef.GetItemCount(UC07_BatteryComponent as Form) <= 0
-      BatteryContainers.RemoveRef(akSenderRef)
-    EndIf
-  EndIf
+    if GetOwningQuest().GetStageDone(PrereqStage)
+        if akSenderRef.GetItemCount(UC07_BatteryComponent) <= 0
+            trace(self, "OnActivate: Old container: " + akSenderRef + " has no more quest items in it. Pull it from the list.")
+            BatteryContainers.RemoveRef(akSenderRef)
+        endif
+    endif
 EndEvent
 
 Event OnContainerChanged(ObjectReference akSenderRef, ObjectReference akNewContainer, ObjectReference akOldContainer)
-  If Self.GetOwningQuest().GetStageDone(PrereqStage)
-    If akOldContainer.GetItemCount(UC07_BatteryComponent as Form) <= 0
-      BatteryContainers.RemoveRef(akOldContainer)
-    EndIf
-  EndIf
+    trace(self, "Object: " + akSenderRef + " change from container: " + akOldContainer + " to: " + akNewContainer+ ". Quest item count: " + akOldContainer.GetItemCount(UC07_BatteryComponent))
+
+    if GetOwningQuest().GetStageDone(PrereqStage)
+        if akOldContainer.GetItemCount(UC07_BatteryComponent) <= 0
+            trace(self, "OnContainerChanged: Old container: " + akOldContainer + " has no more quest items in it. Pull it from the list.")
+            BatteryContainers.RemoveRef(akOldContainer)
+        endif
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC07", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

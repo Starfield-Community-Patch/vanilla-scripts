@@ -1,10 +1,11 @@
-ScriptName DefaultAliasOnEnterBleedout Extends DefaultAliasParent default
-{ {Sets stage when THIS Alias enters bleedout.
-<QuestToSetOrCheck> is THIS Alias's GetOwningQuest() }
-
-;-- Functions ---------------------------------------
+Scriptname DefaultAliasOnEnterBleedout extends DefaultAliasParent Default
+{{Sets stage when THIS Alias enters bleedout.
+<QuestToSetOrCheck> is THIS Alias's GetOwningQuest()}
 
 Event OnEnterBleedout()
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(Game.GetPlayer() as ObjectReference, Self.TryToGetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnEnterBleedout()", ShowTraces)
+
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = Game.GetPlayer(), LocationToCheck = TryToGetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnEnterBleedout() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)		
 EndEvent

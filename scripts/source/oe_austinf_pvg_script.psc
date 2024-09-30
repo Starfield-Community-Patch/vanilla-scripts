@@ -1,20 +1,15 @@
-ScriptName OE_AustinF_PvG_Script Extends Quest
+Scriptname OE_AustinF_PvG_Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property BoardingShip Auto Const
-bescript Property BoardingScript Auto hidden
-sq_parentscript Property SQ_Parent Auto Const
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property BoardingShip Auto const
+BEScript Property BoardingScript Auto Hidden
+SQ_ParentScript Property SQ_Parent Auto const
 
 Event OnQuestInit()
-  Self.RegisterForCustomEvent(SQ_Parent as ScriptObject, "sq_parentscript_SQ_BEStarted")
+    RegisterForCustomEvent(SQ_Parent, "SQ_BEStarted")
 EndEvent
 
-Event SQ_ParentScript.SQ_BEStarted(sq_parentscript akSource, Var[] akArgs)
-  If akArgs[0] as spaceshipreference == BoardingShip.GetShipRef()
-    BoardingScript = akArgs[1] as bescript
-  EndIf
+Event SQ_ParentScript.SQ_BEStarted(SQ_ParentScript akSource, Var[] akArgs)
+     if ((akArgs[0] as SpaceshipReference) == BoardingShip.GetShipRef())
+          BoardingScript = akArgs[1] as BEScript
+     EndIf
 EndEvent

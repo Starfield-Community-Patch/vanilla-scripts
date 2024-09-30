@@ -1,1 +1,1 @@
-ScriptName Shout Extends Form Native hidden
+Scriptname Shout extends Form Native Hidden

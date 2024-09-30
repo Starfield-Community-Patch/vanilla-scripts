@@ -1,21 +1,31 @@
-ScriptName Fragments:Quests:QF_OE_AustinF_DeployMicrobe_0001575C Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_OE_AustinF_DeployMicrobe_0001575C Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_VanguardNPC Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Alias_VanguardNPC.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_VanguardNPC.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Alias_VanguardNPC.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_VanguardNPC.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0999_Item_00
 Function Fragment_Stage_0999_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_VanguardNPC Auto Const Mandatory

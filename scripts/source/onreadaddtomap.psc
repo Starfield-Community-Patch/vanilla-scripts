@@ -1,12 +1,8 @@
-ScriptName OnReadAddToMap Extends ObjectReference Const
+Scriptname OnReadAddToMap extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 ObjectReference Property MapMarker Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnRead()
-  MapMarker.AddToMapScanned(False)
+	debug.trace(Self +" has been read")
+    Mapmarker.AddToMapScanned()
 EndEvent

@@ -1,48 +1,52 @@
-ScriptName DefaultActivateLinkOnUnlock Extends DefaultRef default
-{ Activates the specified linked ref when THIS object is Unlocked.
+Scriptname DefaultActivateLinkOnUnlock extends DefaultRef Default
+{Activates the specified linked ref when THIS object is Unlocked.
 <RefToCheck> is the PLAYER.
-<LocationToCheck> is the current location of THIS object. }
+<LocationToCheck> is the current location of THIS object.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Group Quest_Properties collapsedonbase collapsedonref
-{ Double-Click to EXPAND }
-  Bool Property xxxPlaceHolderForEmptyGroup2xxx Auto Const hidden
-  { `TTP-27034: Papyrus: Need a way to manage groups across parents and children` }
+Group Quest_Properties collapsed
+{Double-Click to EXPAND}
+	bool Property xxxPlaceHolderForEmptyGroup2xxx Const Auto HIDDEN
+	{`TTP-27034: Papyrus: Need a way to manage groups across parents and children`}
 EndGroup
 
 Group Script_Specific_Properties
-  Keyword Property LinkedRefKeyword Auto Const
-  { The Keyword of the LinkedRef you want to unlock when this activated. }
-  Bool Property ShouldUseLinkedRefChain = False Auto Const
-  { (Default: false) If true, will execute over the entire Linked Ref Chain. }
-  Bool Property ActivatorIsRefToCheck = True Auto Const
-  { If true (default), Activate function's akActivator param will be <RefToCheck>. If false, akActivator param will be THIS object. }
+	Keyword Property LinkedRefKeyword Auto Const
+	{The Keyword of the LinkedRef you want to unlock when this activated.}
+
+	bool Property ShouldUseLinkedRefChain = false Const Auto
+	{(Default: false) If true, will execute over the entire Linked Ref Chain.}
+
+	bool Property ActivatorIsRefToCheck = true Const Auto 
+	{If true (default), Activate function's akActivator param will be <RefToCheck>. If false, akActivator param will be THIS object.}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnLockStateChanged()
-  If !Self.IsLocked()
-    defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(Game.GetPlayer() as ObjectReference, Self.GetCurrentLocation(), None)
-    Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
-  EndIf
+	if !IsLocked()
+		DefaultScriptFunctions.Trace(self, "OnLockStateChanged()", ShowTraces)
+
+		DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = Game.GetPlayer(), LocationToCheck = GetCurrentLocation())
+		DefaultScriptFunctions.Trace(self, "OnLockStateChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+		CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	endif
 EndEvent
 
+;Reimplementing Parent's empty function
 ObjectReference[] Function GetRefsToDoSpecificThingsWith()
-  If ShouldUseLinkedRefChain
-    Return Self.GetLinkedRefChain(LinkedRefKeyword, 100)
-  Else
-    Return Self.GetLinkedRef(LinkedRefKeyword).GetSingleRefArray()
-  EndIf
+	if ShouldUseLinkedRefChain
+		DefaultScriptFunctions.Trace(self, "GetRefsToDoSpecificThingsWith() returning linked ref chain.", ShowTraces)
+		return GetLinkedRefChain(LinkedRefKeyword)
+	else
+		return GetLinkedRef(LinkedRefKeyword).GetSingleRefArray()
+	endif
 EndFunction
 
-Function DoSpecificThing(defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams, ObjectReference RefToDoThingWith, Bool LastRefToDoThingWith)
-  ObjectReference ActivatorRef = Self as ObjectReference
-  If ActivatorIsRefToCheck
-    ActivatorRef = ParentScriptFunctionParams.RefToCheck
-  EndIf
-  RefToDoThingWith.Activate(ActivatorRef, False)
+;Reimplementing Parent's empty function
+Function DoSpecificThing(DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams, ObjectReference RefToDoThingWith = None, bool LastRefToDoThingWith = true)
+	ObjectReference ActivatorRef = self
+	if ActivatorIsRefToCheck
+		ActivatorRef = ParentScriptFunctionParams.RefToCheck
+	endif
+	
+	DefaultScriptFunctions.trace(self, "DoSpecificThing() ActivatorRef: " + ActivatorRef + " is activating RefToDoThingWith: " + RefToDoThingWith, ShowTraces)
+	RefToDoThingWith.Activate(ActivatorRef)
 EndFunction

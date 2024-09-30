@@ -1,13 +1,28 @@
-ScriptName Fragments:Scenes:SF_MQ302_196_ShiftTriggerCom_0015578E Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ302_196_ShiftTriggerCom_0015578E Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  kmyQuest.SetPlayerControlsEnabled(False)
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Lock player movement.
+kMyQuest.SetPlayerControlsEnabled(False)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  kmyQuest.SetPlayerControlsEnabled(True)
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+;Unlock player movement.
+kMyQuest.SetPlayerControlsEnabled(True)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

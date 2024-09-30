@@ -1,55 +1,89 @@
-ScriptName Fragments:Quests:QF_FFNewAtlantis02_0024C46C Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNewAtlantis02_0024C46C Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property Credits Auto Const mandatory
-GlobalVariable Property FFNewAtlantis02_Credits_Medium Auto Const mandatory
-GlobalVariable Property FFNewAtlantis02_Credits_Small Auto Const mandatory
-ReferenceAlias Property Alias_PackageActivator Auto Const mandatory
-ReferenceAlias Property Alias_Package Auto Const mandatory
-MiscObject Property FFNewAtlantis02_Package Auto Const mandatory
-Quest Property FFNewAtlantis04 Auto Const mandatory
-Quest Property City_NA_GuardPointer_NA02 Auto Const mandatory
-Quest Property FFNewAtlantis02 Auto Const mandatory
-Quest Property FFNewAtlantis02TopLevels Auto Const mandatory
-Quest Property FFNewAtlantis02Misc Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  FFNewAtlantis02.Start()
-  FFNewAtlantis02TopLevels.Start()
-  FFNewAtlantis02Misc.Start()
+;BEGIN CODE
+FFNewAtlantis02.Start()
+FFNewAtlantis02TopLevels.Start()
+FFNewAtlantis02Misc.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Actor PlayerREF = Game.GetPlayer()
-  Self.SetObjectiveDisplayed(10, True, False)
-  If Self.GetStageDone(15) == True
-    PlayerREF.AddItem(Credits as Form, FFNewAtlantis02_Credits_Medium.GetValueInt(), False)
-  Else
-    PlayerREF.AddItem(Credits as Form, FFNewAtlantis02_Credits_Small.GetValueInt(), False)
-  EndIf
-  City_NA_GuardPointer_NA02.SetStage(200)
-EndFunction
+;BEGIN CODE
+Actor PlayerREF = Game.GetPlayer()
 
+SetObjectiveDisplayed(10)
+
+If GetStageDone(15) == 1
+  PlayerREF.AddItem(Credits, FFNewAtlantis02_Credits_Medium.GetValueInt()) ;player gets extra if they used the Bouncer trait
+Else
+  PlayerREF.AddItem(Credits, FFNewAtlantis02_Credits_Small.GetValueInt())
+EndIf
+
+; Pointer complete
+City_NA_GuardPointer_NA02.SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Alias_PackageActivator.GetRef().EnableNoWait(False)
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(40, True, False)
+;BEGIN CODE
+Alias_PackageActivator.GetRef().EnableNoWait()
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Alias_PackageActivator.GetRef().DisableNoWait(False)
-  Game.GetPlayer().AddAliasedItem(FFNewAtlantis02_Package as Form, Alias_Package as Alias, 1, True)
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveDisplayed(50, True, False)
-EndFunction
+;BEGIN CODE
+Alias_PackageActivator.GetRef().DisableNoWait()
 
-Function Fragment_Stage_0100_Item_00()
-  Game.GetPlayer().RemoveItem(Alias_Package.GetRef() as Form, 1, False, None)
-  Self.CompleteAllObjectives()
-  FFNewAtlantis04.Start()
-  Self.Stop()
+Game.GetPlayer().AddAliasedItem(FFNewAtlantis02_Package, Alias_Package)
+
+SetObjectiveCompleted(40)
+SetObjectiveDisplayed(50)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
+Function Fragment_Stage_0100_Item_00()
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Alias_Package.GetRef())
+CompleteAllObjectives()
+FFNewAtlantis04.Start()
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property Credits Auto Const Mandatory
+
+GlobalVariable Property FFNewAtlantis02_Credits_Medium Auto Const Mandatory
+
+GlobalVariable Property FFNewAtlantis02_Credits_Small Auto Const Mandatory
+
+ReferenceAlias Property Alias_PackageActivator Auto Const Mandatory
+
+ReferenceAlias Property Alias_Package Auto Const Mandatory
+
+MiscObject Property FFNewAtlantis02_Package Auto Const Mandatory
+
+Quest Property FFNewAtlantis04 Auto Const Mandatory
+
+Quest Property City_NA_GuardPointer_NA02 Auto Const Mandatory
+
+Quest Property FFNewAtlantis02 Auto Const Mandatory
+
+Quest Property FFNewAtlantis02TopLevels Auto Const Mandatory
+
+Quest Property FFNewAtlantis02Misc Auto Const Mandatory

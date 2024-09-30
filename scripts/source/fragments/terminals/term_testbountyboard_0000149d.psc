@@ -1,17 +1,24 @@
-ScriptName Fragments:Terminals:TERM_TestBountyBoard_0000149D Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_TestBountyBoard_0000149D Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property BountyQuestFar01 Auto Const mandatory
-Quest Property BountyQuestLocal01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_02
 Function Fragment_Terminal_02(ObjectReference akTerminalRef)
-  BountyQuestLocal01.SetStage(10)
+;BEGIN CODE
+BountyQuestLocal01.SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Terminal_03
 Function Fragment_Terminal_03(ObjectReference akTerminalRef)
-  BountyQuestFar01.SetStage(10)
+;BEGIN CODE
+BountyQuestFar01.SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property BountyQuestFar01 Auto Const Mandatory
+
+Quest Property BountyQuestLocal01 Auto Const Mandatory

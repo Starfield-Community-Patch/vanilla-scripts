@@ -1,307 +1,394 @@
-ScriptName MQ207CShiftingQuestScript Extends Quest
-{ Quest script for MQ207C, Entangled. }
+Scriptname MQ207CShiftingQuestScript extends Quest
+{Quest script for MQ207C, Entangled.}
+;
+;This script handles MQ207C's universe shifting. See the other quest script, MQ207CQuestScript, for quest event logic.
+;In this quest, the player is 'shifting' between two alternate-universe versions of the same space.
 
-;-- Variables ---------------------------------------
-Int CONST_DistanceFromDistortionToForceFallback = 8 Const
-Int CONST_EmergencyShutdownStage = 720 Const
-Int NishinaIIx
-Int NishinaIx
-ObjectReference[] distortionRefs
-Actor player
-mq207cquestscript selfAsQuestScript
-ObjectReference shiftingActivatorRef
-ObjectReference[] shiftingTriggerRefs
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard ShiftingGuard
-
-;-- Properties --------------------------------------
 Group ShiftingSystemProperties
-  ReferenceAlias Property NishinaIOriginMarker Auto Const mandatory
-  { A marker representing the position of Nishina I, set below the minimum X coordinate for Nishina I. Used to calculate the position offset to Nishina II, and to determine which Nishina the player is in. }
-  ReferenceAlias Property NishinaIIOriginMarker Auto Const mandatory
-  { A marker representing the position of Nishina II, set below the minimum X coordinate for Nishina II. Used to calculate the position offset to Nishina I, and to determine which Nishina the player is in. }
-  ReferenceAlias Property ShiftingActivator Auto Const mandatory
-  { Activator that handles the shifting imagespace animation. }
-  Scene[] Property ScenesToStopOnShift Auto Const
-  { List of scenes to force-stop when the player shifts. }
+	ReferenceAlias property NishinaIOriginMarker Auto Const Mandatory
+	{A marker representing the position of Nishina I, set below the minimum X coordinate for Nishina I. Used to calculate the position offset to Nishina II, and to determine which Nishina the player is in.}
+
+	ReferenceAlias property NishinaIIOriginMarker Auto Const Mandatory
+	{A marker representing the position of Nishina II, set below the minimum X coordinate for Nishina II. Used to calculate the position offset to Nishina I, and to determine which Nishina the player is in.}
+
+	ReferenceAlias property ShiftingActivator Auto Const Mandatory
+	{Activator that handles the shifting imagespace animation.}
+
+	Scene[] property ScenesToStopOnShift Auto Const
+	{List of scenes to force-stop when the player shifts.}
 EndGroup
 
 Group AutofillProperties
-  RefCollectionAlias Property ShiftingTriggers Auto Const mandatory
-  RefCollectionAlias Property Distortions01 Auto Const mandatory
-  RefCollectionAlias Property Distortions02 Auto Const mandatory
-  RefCollectionAlias Property Nishina01_CreaturesAll_II Auto Const mandatory
-  RefCollectionAlias Property Nishina02_SecurityCameras_I Auto Const mandatory
-  RefCollectionAlias Property Nishina02_CreaturesAll_II Auto Const mandatory
-  RefCollectionAlias Property Nishina02_RobotsAndTurrets_All_I Auto Const mandatory
-  Cell Property LC116Nishina01 Auto Const mandatory
-  wwiseevent Property WwiseEvent_QSTMQ207C_ShiftToA Auto Const mandatory
-  wwiseevent Property WwiseEvent_QSTMQ207C_ShiftToB Auto Const mandatory
-  Keyword Property MQ207CLinkTarget Auto Const mandatory
-  Static Property XMarker Auto Const mandatory
+	RefCollectionAlias property ShiftingTriggers Auto Const Mandatory
+	RefCollectionAlias property Distortions01 Auto Const Mandatory
+	RefCollectionAlias property Distortions02 Auto Const Mandatory
+	RefCollectionAlias property Nishina01_CreaturesAll_II Auto Const Mandatory
+	RefCollectionAlias property Nishina02_SecurityCameras_I Auto Const Mandatory
+	RefCollectionAlias property Nishina02_CreaturesAll_II Auto Const Mandatory
+	RefCollectionAlias property Nishina02_RobotsAndTurrets_All_I Auto Const Mandatory
+	Cell property LC116Nishina01 Auto Const Mandatory
+	WWiseEvent property WwiseEvent_QSTMQ207C_ShiftToA Auto Const Mandatory
+	WWiseEvent property WwiseEvent_QSTMQ207C_ShiftToB Auto Const Mandatory
+	Keyword property MQ207CLinkTarget Auto Const Mandatory
+	Static property XMarker Auto Const Mandatory
 EndGroup
 
-Int Property NishinaOffset Auto hidden
+;Local Properties
+int property NishinaOffset Auto Hidden 		;X-Delta between NishinaI and NishinaII; amount to add if the player is moving from I->II, or to subtract if moving from II->I.
 
-;-- Functions ---------------------------------------
+;Local Variables
+MQ207CQuestScript selfAsQuestScript			;This script, recast to MQ207CQuestScript.
+Actor player 								;The player.
+int NishinaIx 								;X-Coordinate of NishinaIOriginMarker
+int NishinaIIx 								;X-Coordinate of NishinaIIOriginMarker
+ObjectReference shiftingActivatorRef 		;The Shifting Activator ref.
+ObjectReference[] shiftingTriggerRefs 		;Refs in ShiftingTriggers.
+ObjectReference[] distortionRefs			;Refs in Distortions.
 
-Event ObjectReference.OnTriggerEnter(ObjectReference akSource, ObjectReference akTriggerRef)
-  ; Empty function
-EndEvent
+;Local Consts
+int CONST_DistanceFromDistortionToForceFallback = 8 Const
+int CONST_EmergencyShutdownStage = 720 Const
+
+;Guards
+Guard ShiftingGuard ProtectsFunctionLogic
+
+
+
+;-------------------------------------
+;Initialization & Event Registration
+;------------------------------------
 
 Event OnQuestInit()
-  selfAsQuestScript = (Self as Quest) as mq207cquestscript
-  player = Game.GetPlayer()
-  NishinaIx = NishinaIOriginMarker.GetRef().GetPositionX() as Int
-  NishinaIIx = NishinaIIOriginMarker.GetRef().GetPositionX() as Int
-  NishinaOffset = NishinaIIx - NishinaIx
-  shiftingActivatorRef = ShiftingActivator.GetRef()
-  shiftingTriggerRefs = ShiftingTriggers.GetArray()
-  Int I = 0
-  While I < shiftingTriggerRefs.Length
-    Self.RegisterForRemoteEvent(shiftingTriggerRefs[I] as ScriptObject, "OnTriggerEnter")
-    I += 1
-  EndWhile
-  distortionRefs = Distortions01.GetArray()
-  ObjectReference[] distortionRefs2 = Distortions02.GetArray()
-  I = 0
-  While I < distortionRefs2.Length
-    distortionRefs.add(distortionRefs2[I], 1)
-    I += 1
-  EndWhile
-  I = 0
-  While I < distortionRefs.Length
-    distortionRefs[I].BlockActivation(True, True)
-    distortionRefs[I].DisableNoWait(False)
-    I += 1
-  EndWhile
+	;Set up local variables and properties.
+	selfAsQuestScript = (Self as Quest) as MQ207CQuestScript
+	player = Game.GetPlayer()
+	NishinaIx = NishinaIOriginMarker.GetRef().GetPositionX() as int
+	NishinaIIx = NishinaIIOriginMarker.GetRef().GetPositionX() as int
+	NishinaOffset = NishinaIIx - NishinaIx
+	;Set up the Shift Marker
+	shiftingActivatorRef = ShiftingActivator.GetRef()
+	;Set up Shifting Triggers
+	shiftingTriggerRefs = ShiftingTriggers.GetArray()
+	int i = 0
+	While (i < shiftingTriggerRefs.Length)
+		RegisterForRemoteEvent(shiftingTriggerRefs[i], "OnTriggerEnter")
+		i = i + 1
+	EndWhile
+	;Set up Distortions
+	distortionRefs = Distortions01.GetArray()
+	ObjectReference[] distortionRefs2 = Distortions02.GetArray()
+	i = 0
+	While (i < distortionRefs2.Length)
+		distortionRefs.Add(distortionRefs2[i])
+		i = i + 1
+	EndWhile
+	i = 0
+	While (i < distortionRefs.Length)
+		distortionRefs[i].BlockActivation(True, True)
+		distortionRefs[i].DisableNoWait()
+		i = i + 1
+	EndWhile
+EndEvent
+
+
+;-------------------------------------
+;Shifting
+;---------
+
+Auto State WaitingForShift
+	;Shifting Triggers.
+	Event ObjectReference.OnTriggerEnter(ObjectReference akSource, ObjectReference akTriggerRef)
+		GoToState("ProcessingShift")
+		LockGuard ShiftingGuard
+			MQ207CShiftingObjectScript shiftingObject = akSource as MQ207CShiftingObjectScript
+			if ((shiftingObject != None) && (shiftingTriggerRefs.Find(shiftingObject) >= 0) && (ShouldPerformShift(akTriggerRef, shiftingObject)))
+				Private_Shift(shiftingObject, True)
+			EndIf
+		EndLockGuard
+		GoToState("WaitingForShift")
+	EndEvent
+
+	;Distortions.
+	Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
+		GoToState("ProcessingShift")
+		LockGuard ShiftingGuard
+			MQ207CShiftingObjectScript shiftingObject = akSource as MQ207CShiftingObjectScript
+			if ((shiftingObject != None) && (distortionRefs.Find(shiftingObject) >= 0) && (ShouldPerformShift(akActivator, shiftingObject)))
+				Private_Shift(shiftingObject, False)
+			EndIf
+		EndLockGuard
+		GoToState("WaitingForShift")
+	EndEvent
+EndState
+
+State ProcessingShift
+	;Ignore further trigger or distortion activation events until we've finished processing the last one.
+EndState
+
+Event ObjectReference.OnTriggerEnter(ObjectReference akSource, ObjectReference akTriggerRef)
 EndEvent
 
 Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
-  ; Empty function
 EndEvent
 
-Bool Function ShouldPerformShift(ObjectReference akSource, mq207cshiftingobjectscript shiftingObject)
-  If akSource != player as ObjectReference
-    Return False
-  ElseIf shiftingObject.PrereqStage >= 0 && !Self.GetStageDone(shiftingObject.PrereqStage)
-    Return False
-  ElseIf shiftingObject.TurnOffStage >= 0 && Self.GetStage() > shiftingObject.TurnOffStage
-    Return False
-  ElseIf Self.GetStageDone(CONST_EmergencyShutdownStage)
-    Return False
-  Else
-    Return True
-  EndIf
+
+;Should this object trigger a shift?
+bool Function ShouldPerformShift(ObjectReference akSource, MQ207CShiftingObjectScript shiftingObject)
+	if (akSource != player)
+		return False
+	ElseIf ((shiftingObject.PrereqStage >= 0) && (!GetStageDone(shiftingObject.PrereqStage)))
+		return False
+	ElseIf ((shiftingObject.TurnOffStage >= 0) && (GetStage() > shiftingObject.TurnOffStage))
+		return False
+	ElseIf (GetStageDone(CONST_EmergencyShutdownStage))
+		return False
+	Else
+		return True
+	EndIf
 EndFunction
 
-Function Shift(mq207cshiftingobjectscript shiftingObject, Bool shiftingObjectIsTrigger, Bool shouldForceFallback, Int additionalStageToSet, ObjectReference shiftToMarker)
-  Guard ShiftingGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.Private_Shift(shiftingObject, shiftingObjectIsTrigger, shouldForceFallback, additionalStageToSet, shiftToMarker, False, False)
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+
+;Scripted shifts.
+Function Shift(MQ207CShiftingObjectScript shiftingObject=None, bool shiftingObjectIsTrigger=False, bool shouldForceFallback=False, int additionalStageToSet=-1, ObjectReference shiftToMarker=None)
+	LockGuard ShiftingGuard
+		Private_Shift(shiftingObject, shiftingObjectIsTrigger, shouldForceFallback, additionalStageToSet, shiftToMarker, useCollisionCheck=False)
+	EndLockGuard
 EndFunction
 
-Function ShiftNoFX(mq207cshiftingobjectscript shiftingObject, Bool shiftingObjectIsTrigger, Bool shouldForceFallback, Int additionalStageToSet, ObjectReference shiftToMarker)
-  Guard ShiftingGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.Private_Shift(shiftingObject, shiftingObjectIsTrigger, shouldForceFallback, additionalStageToSet, shiftToMarker, True, True)
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Function ShiftNoFX(MQ207CShiftingObjectScript shiftingObject=None, bool shiftingObjectIsTrigger=False, bool shouldForceFallback=False, int additionalStageToSet=-1, ObjectReference shiftToMarker=None)
+	LockGuard ShiftingGuard
+		Private_Shift(shiftingObject, shiftingObjectIsTrigger, shouldForceFallback, additionalStageToSet, shiftToMarker, omitFX=True)
+	EndLockGuard
 EndFunction
 
-Function Private_Shift(mq207cshiftingobjectscript shiftingObject, Bool shiftingObjectIsTrigger, Bool shouldForceFallback, Int additionalStageToSet, ObjectReference shiftToMarker, Bool useCollisionCheck, Bool omitFX)
-  Int currentUniverse = Self.GetCurrentUniverse()
-  Int newUniverse = 0
-  If currentUniverse == 1
-    newUniverse = 2
-  Else
-    newUniverse = 1
-  EndIf
-  If !omitFX
-    If currentUniverse == 1
-      WwiseEvent_QSTMQ207C_ShiftToB.Play(player as ObjectReference, None, None)
-    Else
-      WwiseEvent_QSTMQ207C_ShiftToA.Play(player as ObjectReference, None, None)
-    EndIf
-    If shiftingObjectIsTrigger || shiftingObject == None
-      shiftingActivatorRef.MoveTo(player as ObjectReference, 0.0, 0.0, 0.0, True, False)
-    Else
-      shiftingActivatorRef.MoveTo(shiftingObject as ObjectReference, 0.0, 0.0, 0.0, True, False)
-    EndIf
-    shiftingActivatorRef.PlayAnimationAndWait("Play01", "Done")
-  EndIf
-  Var[] akArgs = new Var[1]
-  akArgs[0] = newUniverse as Var
-  Self.CallFunctionNoWait("StopCombatOnShift", akArgs)
-  Int offset = 0
-  If currentUniverse == 1
-    offset = NishinaOffset
-  Else
-    offset = -NishinaOffset
-  EndIf
-  If shiftingObject != None
-    If shiftingObject.shouldForceFallback
-      shouldForceFallback = True
-      shiftToMarker = shiftingObject.GetLinkedRef(MQ207CLinkTarget)
-    ElseIf shiftingObjectIsTrigger && !shiftingObject.IsInTrigger(player as ObjectReference)
-      shouldForceFallback = True
-    ElseIf !shiftingObjectIsTrigger && (player.GetDistance(shiftingObject as ObjectReference) > CONST_DistanceFromDistortionToForceFallback as Float)
-      shouldForceFallback = True
-    EndIf
-  EndIf
-  If shiftToMarker != None
-    Game.PopPlayerTo(shiftToMarker, 0.0, 0.0, 0.0, True, False)
-  ElseIf shouldForceFallback
-    Self.PerformFallbackShift(shiftingObject as ObjectReference, offset)
-  ElseIf omitFX
-    Game.PopPlayerTo(player as ObjectReference, offset as Float, 0.0, 0.0, True, False)
-  Else
-    Bool popSuccessful = Game.PopPlayerTo(player as ObjectReference, offset as Float, 0.0, 0.0, True, useCollisionCheck)
-    If !popSuccessful
-      Self.PerformFallbackShift(shiftingObject as ObjectReference, offset)
-    EndIf
-  EndIf
-  Int I = 0
-  While I < ScenesToStopOnShift.Length
-    ScenesToStopOnShift[I].Stop()
-    I += 1
-  EndWhile
-  If shiftingObject != None && shiftingObject.StageToSetOnShift > 0
-    Self.SetStage(shiftingObject.StageToSetOnShift)
-  EndIf
-  If additionalStageToSet > 0
-    Self.SetStage(additionalStageToSet)
-  EndIf
-  If shiftingObjectIsTrigger
-    selfAsQuestScript.UpdateGuidanceTriggerAV()
-  EndIf
-  selfAsQuestScript.SilenceNishina02AlarmsNoWait()
-  selfAsQuestScript.Private_UpdateLabResearchLabStateOnShift(newUniverse)
-  If !omitFX
-    shiftingActivatorRef.PlayAnimation("Stop01")
-  EndIf
+;Perform the shift.
+Function Private_Shift(MQ207CShiftingObjectScript shiftingObject=None, bool shiftingObjectIsTrigger=False, bool shouldForceFallback=False, int additionalStageToSet=-1, ObjectReference shiftToMarker=None, bool useCollisionCheck=True, bool omitFX=False) RequiresGuard(ShiftingGuard)
+	;Determine which universe we're in, and which one we're shifting to.
+	int currentUniverse = GetCurrentUniverse()
+	int newUniverse
+	if (currentUniverse == 1)
+		newUniverse = 2
+	Else
+		newUniverse = 1
+	EndIf
+
+	;Play initial VFX & SFX.
+	if (!omitFX)
+		if (currentUniverse == 1)
+			WwiseEvent_QSTMQ207C_ShiftToB.Play(player)
+		Else
+			WwiseEvent_QSTMQ207C_ShiftToA.Play(player)
+		EndIf
+
+		if (shiftingObjectIsTrigger || (shiftingObject == None))
+			shiftingActivatorRef.MoveTo(player)
+		Else
+			shiftingActivatorRef.MoveTo(shiftingObject)
+		EndIf
+		shiftingActivatorRef.PlayAnimationAndWait("Play01", "Done")
+	EndIf
+
+	;Stop combat. If you were fighting something before, you're not now.
+	Var[] akArgs = new Var[1]
+	akArgs[0] = newUniverse
+	CallFunctionNoWait("StopCombatOnShift", akArgs)
+
+	;Calculate our offset.
+	int offset
+	if (currentUniverse == 1)
+		offset = NishinaOffset
+	Else
+		offset = -NishinaOffset
+	EndIf
+
+	;If we're shifting based on a trigger or a distortion (as opposed to a quest script call), make sure the
+	;player is still in the trigger or near the distortion. If not, force a fallback to make sure they end
+	;up in a reasonable place.
+	if (shiftingObject != None)
+		if (shiftingObject.ShouldForceFallback)
+			shouldForceFallback = True
+			shiftToMarker = shiftingObject.GetLinkedRef(MQ207CLinkTarget)
+		ElseIf (shiftingObjectIsTrigger && (!shiftingObject.IsInTrigger(player)))
+			shouldForceFallback = True
+		ElseIf (!shiftingObjectIsTrigger && player.GetDistance(shiftingObject) > CONST_DistanceFromDistortionToForceFallback)
+			shouldForceFallback = True
+		EndIf
+	EndIf
+
+	;Perform the shift.
+	if (shiftToMarker != None)
+		;If we want to shift the player to some specific marker, just do that.
+		Game.PopPlayerTo(shiftToMarker)
+	ElseIf (shouldForceFallback)
+		PerformFallbackShift(shiftingObject, offset)
+	ElseIf (omitFX)
+		Game.PopPlayerTo(player, afXOffset=offset, abCheckForCollision=False)
+	Else
+		bool popSuccessful = Game.PopPlayerTo(player, afXOffset=offset, abCheckForCollision=useCollisionCheck)
+		if (!popSuccessful)
+			PerformFallbackShift(shiftingObject, offset)
+		EndIf
+	EndIf
+
+	;Stop scenes.
+	int i = 0
+	While (i < ScenesToStopOnShift.Length)
+		ScenesToStopOnShift[i].Stop()
+		i = i + 1
+	EndWhile
+
+	;Set any stages we need to set, based on our shifting object.
+	if ((shiftingObject != None) && (shiftingObject.StageToSetOnShift > 0))
+		SetStage(shiftingObject.StageToSetOnShift)
+	EndIf
+
+	;Set any additional stages.
+	if (additionalStageToSet > 0)
+		SetStage(additionalStageToSet)
+	EndIf
+
+	;If we're shifting based on a trigger, update the Nishina01 Guidenace Trigger AV if needed.
+	if (shiftingObjectIsTrigger)
+		selfAsQuestScript.UpdateGuidanceTriggerAV()
+	EndIf
+
+	;Update Alarm SFX on shift.
+	selfAsQuestScript.SilenceNishina02AlarmsNoWait()
+	
+	;Update the Research Lab event on shift.
+	selfAsQuestScript.Private_UpdateLabResearchLabStateOnShift(newUniverse)
+
+	;End VFX.
+	if (!omitFX)
+		shiftingActivatorRef.PlayAnimation("Stop01")
+	EndIf
 EndFunction
 
-Function PerformFallbackShift(ObjectReference shiftingObject, Int offset)
-  If shiftingObject == None
-    
-  Else
-    ObjectReference fallbackLink = shiftingObject.GetLinkedRef(MQ207CLinkTarget)
-    If fallbackLink != None
-      Game.PopPlayerTo(fallbackLink, 0.0, 0.0, 0.0, True, False)
-    Else
-      ObjectReference marker = shiftingObject.PlaceAtMe(XMarker as Form, 1, False, False, True, None, None, True)
-      marker.MoveTo(marker, offset as Float, 0.0, 0.0, True, False)
-      marker.MoveToNearestNavmeshLocation()
-      marker.SetAngle(0.0, 0.0, player.GetAngleZ())
-      Game.PopPlayerTo(marker, 0.0, 0.0, 0.0, True, False)
-      marker.Delete()
-    EndIf
-  EndIf
+;Helper function for Shift.
+Function PerformFallbackShift(ObjectReference shiftingObject, int offset) RequiresGuard(ShiftingGuard)
+	if (shiftingObject == None)
+		Debug.Trace("ERROR: MQ207CShiftingQuestScript was asked to perform a fallback shift, but does not have a shifting object. Shifting will fail.", 2)
+	Else
+		ObjectReference fallbackLink = shiftingObject.GetLinkedRef(MQ207CLinkTarget)
+		if (fallbackLink != None)
+			Game.PopPlayerTo(fallbackLink)
+			Debug.Trace("Shift: Fallback to link " + fallbackLink)
+		Else
+			;Debug.Trace("MQ207C: Called PerformFallbackShift")
+			ObjectReference marker = shiftingObject.PlaceAtMe(XMarker)
+			marker.MoveTo(marker, afXOffset=offset)
+			marker.MoveToNearestNavmeshLocation()
+			marker.SetAngle(0, 0, player.GetAngleZ())
+			Game.PopPlayerTo(marker)
+			Debug.Trace("Shift: Fallback to " + marker.GetPositionX() + " " + marker.GetPositionY() + " " + marker.GetPositionZ())
+			marker.Delete()
+		EndIf
+	EndIf
 EndFunction
 
-Function StopCombatOnShift(Int newUniverse)
-  player.StopCombat()
-  If player.GetParentCell() == LC116Nishina01
-    If newUniverse == 1
-      Nishina01_CreaturesAll_II.StopCombat()
-    EndIf
-  ElseIf newUniverse == 1
-    Nishina02_CreaturesAll_II.StopCombat()
-  Else
-    Nishina02_SecurityCameras_I.StopCombat()
-    Nishina02_RobotsAndTurrets_All_I.StopCombat()
-  EndIf
+;Helper function for Shift.
+Function StopCombatOnShift(int newUniverse)
+	Debug.Trace("Stop combat start.")
+	player.StopCombat()
+	if (player.GetParentCell() == LC116Nishina01)
+		if (newUniverse == 1)
+			Nishina01_CreaturesAll_II.StopCombat()
+		EndIf
+		;If newUniverse == 2, nothing to do.
+	Else
+		if (newUniverse == 1)
+			Nishina02_CreaturesAll_II.StopCombat()
+		Else
+			Nishina02_SecurityCameras_I.StopCombat()
+			Nishina02_RobotsAndTurrets_All_I.StopCombat()
+		EndIf
+	EndIf
+	Debug.Trace("Stop combat done.")
 EndFunction
+
+;-------------------------------------
+;Ending III Functions
+;----------------------------------
 
 Function PlaySpecialEndingFadeOut()
-  shiftingActivatorRef.MoveTo(player as ObjectReference, 0.0, 0.0, 0.0, True, False)
-  shiftingActivatorRef.PlayAnimationAndWait("Play01", "Done")
-  WwiseEvent_QSTMQ207C_ShiftToA.Play(player as ObjectReference, None, None)
+	shiftingActivatorRef.MoveTo(player)
+	shiftingActivatorRef.PlayAnimationAndWait("Play01", "Done")
+	WwiseEvent_QSTMQ207C_ShiftToA.Play(player)
 EndFunction
 
 Function PlaySpecialEndingFadeIn()
-  shiftingActivatorRef.MoveTo(player as ObjectReference, 0.0, 0.0, 0.0, True, False)
-  shiftingActivatorRef.PlayAnimation("Stop01")
+	shiftingActivatorRef.MoveTo(player)
+	shiftingActivatorRef.PlayAnimation("Stop01")
 EndFunction
 
-Function EnableShiftingTriggers(Bool shouldBeEnabled)
-  Int I = 0
-  While I < shiftingTriggerRefs.Length
-    If shouldBeEnabled
-      shiftingTriggerRefs[I].EnableNoWait(False)
-    Else
-      shiftingTriggerRefs[I].DisableNoWait(False)
-    EndIf
-    I += 1
-  EndWhile
+
+;-------------------------------------
+;Shifting Object Utility Functions
+;----------------------------------
+
+;Enable or disable all of the shifting triggers.
+Function EnableShiftingTriggers(bool shouldBeEnabled)
+	int i = 0
+	While (i < shiftingTriggerRefs.Length)
+		if (shouldBeEnabled)
+			shiftingTriggerRefs[i].EnableNoWait()
+		Else
+			shiftingTriggerRefs[i].DisableNoWait()
+		EndIf
+		i = i + 1
+	EndWhile
 EndFunction
 
-Function EnableDistortions(Bool shouldBeEnabled)
-  Int I = 0
-  While I < distortionRefs.Length
-    If shouldBeEnabled
-      distortionRefs[I].EnableNoWait(False)
-    Else
-      distortionRefs[I].DisableNoWait(False)
-    EndIf
-    I += 1
-  EndWhile
+;Enable or disable all of the distortions.
+Function EnableDistortions(bool shouldBeEnabled)
+	int i = 0
+	While (i < distortionRefs.Length)
+		if (shouldBeEnabled)
+			Debug.Trace("Enabling " + distortionRefs[i])
+			distortionRefs[i].EnableNoWait()
+		Else
+			Debug.Trace("Disabling " + distortionRefs[i])
+			distortionRefs[i].DisableNoWait()
+		EndIf
+		i = i + 1
+	EndWhile
 EndFunction
 
-Function SetDistortionsActivationBlocked(Bool shouldBeActivationBlocked)
-  Int I = 0
-  While I < distortionRefs.Length
-    distortionRefs[I].BlockActivation(shouldBeActivationBlocked, shouldBeActivationBlocked)
-    If shouldBeActivationBlocked
-      Self.UnregisterForRemoteEvent(distortionRefs[I] as ScriptObject, "OnActivate")
-    Else
-      Self.RegisterForRemoteEvent(distortionRefs[I] as ScriptObject, "OnActivate")
-    EndIf
-    I += 1
-  EndWhile
+;Block or unblock activation on all of the distortions.
+Function SetDistortionsActivationBlocked(bool shouldBeActivationBlocked)
+	int i = 0
+	While (i < distortionRefs.Length)
+		distortionRefs[i].BlockActivation(shouldBeActivationBlocked, shouldBeActivationBlocked)
+		if (shouldBeActivationBlocked)
+			UnregisterForRemoteEvent(distortionRefs[i], "OnActivate")
+		Else
+			RegisterForRemoteEvent(distortionRefs[i], "OnActivate")
+		EndIf
+		i = i + 1
+	EndWhile
 EndFunction
 
-Int Function GetCurrentUniverse()
-  If player.GetPositionX() < NishinaIIx as Float
-    Return 1
-  Else
-    Return 2
-  EndIf
+
+;-------------------------------------
+;Utility & Debug Functions
+;--------------------------
+
+;Return the player's current universe.
+int Function GetCurrentUniverse()
+	if (player.GetPositionX() < NishinaIIx)
+		return 1
+	Else
+		return 2
+	EndIf
 EndFunction
+
+
+;-------------------------------------
+;Shutdown
+;---------
 
 Function ClearVariables()
-  shiftingActivatorRef = None
-  shiftingTriggerRefs = None
-  distortionRefs = None
+	shiftingActivatorRef = None
+	shiftingTriggerRefs = None
+	distortionRefs = None
 EndFunction
-
-;-- State -------------------------------------------
-State ProcessingShift
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForShift
-
-  Event ObjectReference.OnActivate(ObjectReference akSource, ObjectReference akActivator)
-    Self.GoToState("ProcessingShift")
-    Guard ShiftingGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      mq207cshiftingobjectscript shiftingObject = akSource as mq207cshiftingobjectscript
-      If shiftingObject != None && distortionRefs.find(shiftingObject as ObjectReference, 0) >= 0 && Self.ShouldPerformShift(akActivator, shiftingObject)
-        Self.Private_Shift(shiftingObject, False, False, -1, None, True, False)
-      EndIf
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-    Self.GoToState("WaitingForShift")
-  EndEvent
-
-  Event ObjectReference.OnTriggerEnter(ObjectReference akSource, ObjectReference akTriggerRef)
-    Self.GoToState("ProcessingShift")
-    Guard ShiftingGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-      mq207cshiftingobjectscript shiftingObject = akSource as mq207cshiftingobjectscript
-      If shiftingObject != None && shiftingTriggerRefs.find(shiftingObject as ObjectReference, 0) >= 0 && Self.ShouldPerformShift(akTriggerRef, shiftingObject)
-        Self.Private_Shift(shiftingObject, True, False, -1, None, True, False)
-      EndIf
-    EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-    Self.GoToState("WaitingForShift")
-  EndEvent
-EndState

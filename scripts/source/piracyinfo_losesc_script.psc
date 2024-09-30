@@ -1,8 +1,7 @@
-ScriptName PiracyInfo_LoseSC_Script Extends TopicInfo Const
+Scriptname PiracyInfo_LoseSC_Script extends TopicInfo const
 
-;-- Functions ---------------------------------------
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  spaceshipreference shipRef = akSpeakerRef as spaceshipreference
-  (Self.GetOwningQuest() as dialoguegenericpiracyshipqscript).PiracyLoseSpeechChallenge(shipRef)
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    SpaceshipReference shipRef = akSpeakerRef as SpaceshipReference
+    debug.trace(self + " akSpeakerRef=" + akSpeakerRef + " shipRef=" + shipRef)
+    (GetOwningQuest() as DialogueGenericPiracyShipQScript).PiracyLoseSpeechChallenge(shipRef)
 EndEvent

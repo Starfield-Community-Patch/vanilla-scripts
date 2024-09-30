@@ -1,16 +1,22 @@
-ScriptName Fragments:Scenes:SF_FFClinicR02Pointer_Scene_001C2BB9 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_FFClinicR02Pointer_Scene_001C2BB9 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFClinicR02 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_Begin
 Function Fragment_Phase_02_Begin()
-  FFClinicR02.Start()
+;BEGIN CODE
+FFClinicR02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_03_End
 Function Fragment_Phase_03_End()
-  FFClinicR02.SetStage(10)
+;BEGIN CODE
+FFClinicR02.SetStage(10)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFClinicR02 Auto Const Mandatory

@@ -1,29 +1,31 @@
-ScriptName CF05_TerminalActivationScript Extends ReferenceAlias
-{ Script to prevent player from taking item that Guard is standing right in front of }
+Scriptname CF05_TerminalActivationScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+{Script to prevent player from taking item that Guard is standing right in front of}
 
-;-- Properties --------------------------------------
-Scene Property BlockingScene Auto Const mandatory
-Int Property AlarmStage Auto Const mandatory
-ReferenceAlias Property Alias_Guard Auto Const mandatory
+Scene Property BlockingScene Auto Const Mandatory
+
+Int Property AlarmStage Auto Const Mandatory
+
+ReferenceAlias Property Alias_Guard Auto Const Mandatory
+
 Float Property DistanceCheck = 8.0 Auto Const
-Faction Property LC043SY01Faction Auto Const mandatory
 
-;-- Functions ---------------------------------------
+Faction Property LC043SY01Faction Auto Const Mandatory
 
 Event OnAliasInit()
-  Self.GetRef().BlockActivation(True, False)
+    GetRef().BlockActivation(true, false)
 EndEvent
 
+
 Event OnActivate(ObjectReference akActionRef)
-  Quest myQuest = Self.GetOwningQuest()
-  Actor PlayerRef = Game.GetPlayer()
-  If akActionRef == PlayerRef as ObjectReference
-    If !PlayerRef.IsInFaction(LC043SY01Faction) && !myQuest.GetStageDone(AlarmStage) && Self.GetRef().GetDistance(Alias_Guard.GetRef()) < DistanceCheck
-      BlockingScene.Start()
-    Else
-      Self.GetRef().Activate(PlayerRef as ObjectReference, True)
-    EndIf
-  EndIf
-EndEvent
+    Quest myQuest = GetOwningQuest()
+    Actor PlayerRef = Game.GetPlayer()
+    if akActionRef == PlayerRef
+        if !PlayerRef.IsInFaction(LC043SY01Faction) && !myQuest.GetStageDone(AlarmStage) && GetRef().GetDistance(Alias_Guard.GetRef()) < DistanceCheck
+            BlockingScene.Start()
+        else
+            GetRef().Activate(PlayerRef, true)
+        endif
+    endif
+endEvent
+

@@ -1,41 +1,44 @@
-ScriptName RL066_SoundTriggerScript Extends ObjectReference default
-{ Plays a random sound at a random interval }
+ScriptName RL066_SoundTriggerScript Extends ObjectReference Default
+{Plays a random sound at a random interval}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Required_Properties
-  wwiseevent[] Property SoundToPlayEvent Auto Const mandatory
-  { The sounds to be played. }
-  Keyword Property LinkCustom01 Auto Const
-  { play the sound from this link }
-  Bool Property StopSound = False Auto
-  { stops playing sounds if true }
+	WwiseEvent[] property SoundToPlayEvent Auto Const Mandatory
+	{The sounds to be played.}
+
+	Keyword property LinkCustom01 Auto Const
+	{play the sound from this link}
+
+	Bool property StopSound = FALSE Auto
+	{stops playing sounds if true}
 EndGroup
 
+;*****************************************************
 
-;-- State -------------------------------------------
-State Done
+Auto State Waiting
+	Event OnTriggerEnter(ObjectReference triggerRef)
+		if (triggerRef == Game.GetPlayer())
+			ObjectReference soundSource = GetLinkedRef(LinkCustom01)
+			if (soundSource == None)
+				soundSource = triggerRef
+			EndIf
+			While(StopSound == FALSE)
+				int index = Utility.RandomInt(0, SoundToPlayEvent.Length - 1)
+				SoundToPlayEvent[index].Play(soundSource)
+				;Debug.Notification("Playing sound from " +soundSource)
+				float waitTime = Utility.RandomFloat(1.0, 5.0)
+				Utility.Wait(waitTime)
+			EndWhile
+
+			if (StopSound == TRUE)
+				;stop the sounds and go to done state
+				GoToState("Done")
+			EndIf
+		EndIf
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
+;*****************************************************
 
-  Event OnTriggerEnter(ObjectReference triggerRef)
-    If triggerRef == Game.GetPlayer() as ObjectReference
-      ObjectReference soundSource = Self.GetLinkedRef(LinkCustom01)
-      If soundSource == None
-        soundSource = triggerRef
-      EndIf
-      While StopSound == False
-        Int index = Utility.RandomInt(0, SoundToPlayEvent.Length - 1)
-        SoundToPlayEvent[index].Play(soundSource, None, None)
-        Float waitTime = Utility.RandomFloat(1.0, 5.0)
-        Utility.Wait(waitTime)
-      EndWhile
-      If StopSound == True
-        Self.GoToState("Done")
-      EndIf
-    EndIf
-  EndEvent
+State Done
+	; do nothing
 EndState

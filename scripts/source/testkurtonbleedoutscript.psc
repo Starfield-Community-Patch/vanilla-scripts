@@ -1,18 +1,15 @@
-ScriptName TestKurtOnBleedoutScript Extends Actor Const
+Scriptname TestKurtOnBleedoutScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property StoryEventKeyword Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnRecoverFromBleedout()
-  ; Empty function
-EndEvent
+keyword property StoryEventKeyword auto const
 
 Event OnEnterBleedout()
-  If StoryEventKeyword
-    StoryEventKeyword.SendStoryEvent(None, Self as ObjectReference, None, 0, 0)
-  EndIf
+    debug.trace(self + " entering bleedout: IsBleedingOut=" + IsBleedingOut())
+    if StoryEventKeyword
+        StoryEventKeyword.SendStoryEvent(akref1=self)
+    endif
 EndEvent
+
+Event OnRecoverFromBleedout()
+    debug.trace(self + " recovering from bleedout: IsBleedingOut=" + IsBleedingOut())
+EndEvent
+

@@ -1,14 +1,16 @@
-ScriptName Fragments:Scenes:SF_Gang03_0400_GangEncounter_00224FF9 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_Gang03_0400_GangEncounter_00224FF9 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property City_Neon_Gang03 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  If City_Neon_Gang03.GetStageDone(410) == False
-    City_Neon_Gang03.SetStage(430)
-  EndIf
+;BEGIN CODE
+if City_Neon_Gang03.GetStageDone(410) == 0
+City_Neon_Gang03.SetStage(430)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property City_Neon_Gang03 Auto Const Mandatory

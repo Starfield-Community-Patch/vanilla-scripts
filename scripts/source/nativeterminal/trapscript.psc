@@ -1,74 +1,89 @@
-ScriptName NativeTerminal:TrapScript Extends TerminalMenu
-{ handles traps via native terminal }
+Scriptname NativeTerminal:TrapScript extends TerminalMenu
+{handles traps via native terminal}
 
-;-- Variables ---------------------------------------
-Bool anyActive = False
+Keyword property LinkTerminalTrap auto const mandatory
 
-;-- Properties --------------------------------------
 Group autofillProperties
-  ActorValue Property NativeTerminalTrap_AnyActive Auto Const mandatory
-  { autofill }
+    ActorValue property NativeTerminalTrap_AnyActive auto const mandatory
+    { autofill }
 EndGroup
 
-Keyword Property LinkTerminalTrap Auto Const mandatory
-Int Property menuItemID_TurnOn = 1 Auto Const
-Int Property menuItemID_TurnOff = 2 Auto Const
+; enums
+int property menuItemID_TurnOn = 1 auto const
+int property menuItemID_TurnOff = 2 auto const
 
-;-- Functions ---------------------------------------
+; script variables
+bool anyActive = false  ; set to true if any traps are active
 
+; check linked refs to set up conditional actor values for what options the menu should show
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  Self.UpdateAllTerminalVariables(akTerminalRef)
+    debug.trace(self + " OnTerminalMenuEnter " + akTerminalRef)
+    UpdateAllTerminalVariables(akTerminalRef)
 EndEvent
 
-Function UpdateAllTerminalVariables(ObjectReference akTerminalRef)
-  trapbase[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalTrap, 100) as trapbase[]
-  trapbase[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalTrap, None) as trapbase[]
-  anyActive = False
-  If linkedRefChain.Length > 0
-    Self.UpdateTerminalVariablesForArray(linkedRefChain)
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.UpdateTerminalVariablesForArray(linkedRefChildren)
-  EndIf
-  akTerminalRef.SetValue(NativeTerminalTrap_AnyActive, (anyActive as Int) as Float)
-EndFunction
+function UpdateAllTerminalVariables(ObjectReference akTerminalRef)
+    debug.trace(self + " UpdateAllTerminalVariables " + akTerminalRef)
+    ; handle things linked either way
+    TrapBase[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalTrap) as TrapBase[]
+    TrapBase[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalTrap) as TrapBase[]
 
-Function UpdateTerminalVariablesForArray(trapbase[] trapArray)
-  Int I = 0
-  While I < trapArray.Length
-    trapbase theTrap = trapArray[I]
-    If theTrap.bActive
-      anyActive = True
+    ; these will be set to true by UpdateTerminalVariablesForArray if any traps fall into these categories
+    anyActive = false  ; set to true if any traps are active
+
+    if linkedRefChain.Length > 0
+        UpdateTerminalVariablesForArray(linkedRefChain)
     EndIf
-    I += 1
-  EndWhile
+    if linkedRefChildren.Length > 0
+        UpdateTerminalVariablesForArray(linkedRefChildren)
+    EndIf
+    debug.trace(self + " actor values set:")
+    debug.trace(self + "   NativeTerminalTrap_AnyActive: " + anyActive)
+
+    akTerminalRef.SetValue(NativeTerminalTrap_AnyActive, anyActive as int)
+endFunction
+
+function UpdateTerminalVariablesForArray(TrapBase[] trapArray)
+    debug.trace(self + " UpdateTerminalVariablesForArray " + trapArray)
+    int i = 0
+    while i < trapArray.Length
+        TrapBase theTrap = trapArray[i]
+        debug.trace(self + "  checking " + theTrap)
+        if theTrap.bActive
+            anyActive = true
+        endif
+        i += 1
+    EndWhile
 EndFunction
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  trapbase[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalTrap, 100) as trapbase[]
-  trapbase[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalTrap, None) as trapbase[]
-  If linkedRefChain.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, linkedRefChain, akTerminalRef)
-  EndIf
-  If linkedRefChildren.Length > 0
-    Self.HandleMenuItem(auiMenuItemID, linkedRefChildren, akTerminalRef)
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+    ; handle things linked either way
+    TrapBase[] linkedRefChain = akTerminalRef.GetLinkedRefChain(LinkTerminalTrap) as TrapBase[]
+    TrapBase[] linkedRefChildren = akTerminalRef.GetRefsLinkedToMe(LinkTerminalTrap) as TrapBase[]
+    if linkedRefChain.Length > 0
+        HandleMenuItem(auiMenuItemID, linkedRefChain, akTerminalRef)
+    EndIf
+    if linkedRefChildren.Length > 0
+        HandleMenuItem(auiMenuItemID, linkedRefChildren, akTerminalRef)
+    EndIf
 EndEvent
 
-Function HandleMenuItem(Int auiMenuItemID, trapbase[] trapArray, ObjectReference akTerminalRef)
-  If auiMenuItemID == menuItemID_TurnOn
-    Int I = 0
-    While I < trapArray.Length
-      trapArray[I].SetActive(True)
-      I += 1
-    EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  ElseIf auiMenuItemID == menuItemID_TurnOff
-    Int i = 0
-    While i < trapArray.Length
-      trapArray[i].SetActive(False)
-      i += 1
-    EndWhile
-    Self.UpdateAllTerminalVariables(akTerminalRef)
-  EndIf
+function HandleMenuItem(int auiMenuItemID, TrapBase[] trapArray, ObjectReference akTerminalRef)
+    if auiMenuItemID == menuItemID_TurnOn
+        int i = 0
+        While i < trapArray.Length
+            trapArray[i].SetActive(true)
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    elseif auiMenuItemID == menuItemID_TurnOff
+        int i = 0
+        While i < trapArray.Length
+            trapArray[i].SetActive(false)
+            i += 1
+        EndWhile
+        ; update terminal variables
+        UpdateAllTerminalVariables(akTerminalRef)
+    EndIf
 EndFunction

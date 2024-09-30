@@ -1,20 +1,21 @@
-ScriptName DR030_UnlockDoorScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname DR030_UnlockDoorScript extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference doorRef = Self.GetLinkedRef(None)
-  If doorRef != None
-    If doorRef.IsLocked()
-      doorRef.Unlock(False)
-      doorRef.SetOpen(True)
-    Else
-      Int OpenState = doorRef.GetOpenState()
-      If OpenState == 1
-        doorRef.SetOpen(False)
-      EndIf
-      doorRef.SetOpen(False)
-      doorRef.Lock(True, False, True)
-    EndIf
-  EndIf
+	ObjectReference doorRef = GetLinkedRef()
+
+	if(doorRef != None)
+		if(doorRef.IsLocked())
+       	 	doorRef.Unlock()
+			doorRef.SetOpen()
+		else
+			int OpenState = doorRef.GetOpenState()
+
+			if(openState == 1)
+				doorRef.SetOpen(false)
+			endIf
+
+			doorRef.SetOpen(false)
+			doorRef.Lock()
+		endIf
+    endIf
 EndEvent

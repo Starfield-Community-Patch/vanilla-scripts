@@ -1,31 +1,24 @@
-ScriptName MQ305GhostScript Extends Actor
+Scriptname MQ305GhostScript extends Actor
 
-;-- Variables ---------------------------------------
+Spell Property AbStarbornTeleport Mandatory Const Auto
+VisualEffect Property UnityActorEffect Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Spell Property AbStarbornTeleport Auto Const mandatory
-VisualEffect Property UnityActorEffect Auto Const mandatory
+Auto State WaitingForLoad
+    Event OnLoad()
+        GotoState("HasLoaded")
+        UnityActorEffect.Play(Self)
+        Self.AddSpell(AbStarbornTeleport)
+        ;Utility.Wait(3.0)
+        ;SetRestrained()
+    EndEvent
+EndState
 
-;-- Functions ---------------------------------------
+State HasLoaded
+    Event OnLoad()
+        ;do nothing
+    EndEvent
+EndState
 
 Event OnLoad()
-  ; Empty function
+    ;do nothing
 EndEvent
-
-;-- State -------------------------------------------
-State HasLoaded
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForLoad
-
-  Event OnLoad()
-    Self.GotoState("HasLoaded")
-    UnityActorEffect.Play(Self as ObjectReference, -1.0, None)
-    Self.AddSpell(AbStarbornTeleport, True)
-  EndEvent
-EndState

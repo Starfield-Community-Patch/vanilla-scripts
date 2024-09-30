@@ -1,1 +1,1 @@
-ScriptName ImpactDataSet Extends Form Native hidden
+Scriptname ImpactDataSet extends Form Native Hidden

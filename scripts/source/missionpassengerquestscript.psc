@@ -1,332 +1,451 @@
-ScriptName MissionPassengerQuestScript Extends MissionQuestScript conditional
-{ passenger delivery quest script }
+Scriptname MissionPassengerQuestScript extends MissionQuestScript Conditional
+{passenger delivery quest script}
 
-;-- Variables ---------------------------------------
-Int startupTimerID = 1 Const
+group MissionTypeData
+	RefCollectionAlias property SourceCollection auto const mandatory
+	{ collection holding all valid source refs }
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard passengerChangeGuard
+	RefCollectionAlias property Passengers auto const Mandatory
+	{ collection holding passengers }
 
-;-- Properties --------------------------------------
-Group MissionTypeData
-  RefCollectionAlias Property SourceCollection Auto Const mandatory
-  { collection holding all valid source refs }
-  RefCollectionAlias Property Passengers Auto Const mandatory
-  { collection holding passengers }
-  ReferenceAlias Property PassengerMarker Auto Const mandatory
-  { alias holding marker in player's ship where passengers will be created }
-  ReferenceAlias Property DestinationMarker Auto Const mandatory
-  { alias holding marker where passengers will path to when disembarking }
-  ReferenceAlias Property DisembarkMarker Auto Const mandatory
-  { alias for finding nearby disembark marker when player lands (for failed missions) }
-  LocationAlias Property SourceLocation Auto Const mandatory
-  { alias with source location }
-  ActorValue Property MissionBoardDisembark Auto Const mandatory
-  { flags passengers to run disembark package }
-  Message Property MissionBoardPassengerNoSpaceMessage Auto Const mandatory
-  { if you don't have space on your ship for these passengers }
-  sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-  { holds player home ship }
-  Keyword Property MissionStoryKeywordPassengerDestination Auto Const mandatory
-  { keyword to use to start this quest's passenger destination finder quest }
-  Keyword Property LocTypeStarStation Auto Const mandatory
-  { for checking for docking }
-  Keyword Property LocTypeStarstationExterior Auto Const mandatory
-  { keyword to check if you've docked with a starstation }
-  Float Property DestinationCheckDistance = 50000.0 Auto Const
-  { if UseDistanceCheckForDestinationCheck = true, count as "at destination" if destination marker is within this distance }
-  GlobalVariable Property PlayerPassengerSpaceCurrent Auto Const mandatory
-  { used for text replacement - needs to be updated when player ship passengers changes }
-  GlobalVariable Property PlayerPassengerSpaceTotal Auto Const mandatory
-  { used for text replacement }
-  Bool Property hasPassengerSpace = False Auto hidden
-  { updated by UpdatePlayerPassengerSpace }
-EndGroup
+	ReferenceAlias property PassengerMarker auto const Mandatory
+	{ alias holding marker in player's ship where passengers will be created }
 
+	ReferenceAlias property DestinationMarker auto const Mandatory
+	{ alias holding marker where passengers will path to when disembarking }
 
-;-- Functions ---------------------------------------
+	ReferenceAlias property DisembarkMarker auto const Mandatory
+	{ alias for finding nearby disembark marker when player lands (for failed missions) }
 
-Event OnQuestTimerStart(Int aiReason)
-  ; Empty function
-EndEvent
+	LocationAlias Property SourceLocation Auto Const Mandatory
+	{ alias with source location }
 
-Function debugQuestTimeRemaining()
-  ; Empty function
-EndFunction
+	ActorValue property MissionBoardDisembark auto const Mandatory
+	{ flags passengers to run disembark package }
+
+	Message property MissionBoardPassengerNoSpaceMessage auto const Mandatory
+	{ if you don't have space on your ship for these passengers }
+
+	SQ_PlayerShipScript property SQ_PlayerShip auto const Mandatory
+	{ holds player home ship }
+
+	Keyword property MissionStoryKeywordPassengerDestination auto const mandatory
+	{ keyword to use to start this quest's passenger destination finder quest }	
+
+    Keyword property LocTypeStarStation auto const mandatory
+    { for checking for docking }
+
+	Keyword property LocTypeStarstationExterior auto const mandatory
+	{ keyword to check if you've docked with a starstation }
+
+	float property DestinationCheckDistance = 50000.0 auto Const
+	{ if UseDistanceCheckForDestinationCheck = true, count as "at destination" if destination marker is within this distance }
+
+	GlobalVariable Property PlayerPassengerSpaceCurrent Auto Const Mandatory
+	{used for text replacement - needs to be updated when player ship passengers changes }
+
+	GlobalVariable Property PlayerPassengerSpaceTotal Auto Const Mandatory
+	{used for text replacement }
+
+    bool property hasPassengerSpace = false auto hidden
+    { updated by UpdatePlayerPassengerSpace }
+endGroup
+
+int startupTimerID = 1 Const
 
 Event OnQuestStarted()
-  Self.StartTimer(0.5, startupTimerID)
+	debug.trace(self + " OnQuestStarted")
+	StartTimer(0.5, startupTimerID)
 EndEvent
 
+; move this out of OnQuestStarted so it doesn't block quest from starting up
 Function InitializePassengers()
-  Bool foundValidDestination = False
-  If DestinationMarker.GetRef()
-    foundValidDestination = True
-  Else
-    missionparentscript:missionlocreftype[] passengerTypes = new missionparentscript:missionlocreftype[MissionParent.passengerTypes.Length]
-    Int I = 0
-    While I < MissionParent.passengerTypes.Length
-      passengerTypes[I] = MissionParent.passengerTypes[I]
-      I += 1
-    EndWhile
-    missiondestinationfinderscript finderQuest = None
-    missiondestinationfinderscript[] startedQuests = MissionStoryKeywordPassengerDestination.SendStoryEventAndWait(SourceLocation.GetLocation(), SourceCollection.GetAt(0), None, 0, 0) as missiondestinationfinderscript[]
-    If startedQuests.Length > 0
-      finderQuest = startedQuests[0]
-      While finderQuest.IsStarting()
-        
-      EndWhile
-      foundValidDestination = finderQuest.FindMatchingDestination(passengerTypes, SourceCollection, PrimaryRef, DestinationMarker, TargetLocation)
-      TargetSystemLocation.RefillAlias()
-      TargetPlanetLocation.RefillAlias()
-      DisembarkMarker.ClearAndRefillAlias()
-      finderQuest.Stop()
-    EndIf
-  EndIf
-  If foundValidDestination
-    missionboardpassengersourcescript passengerTypeRef = PrimaryRef.GetRef() as missionboardpassengersourcescript
-    Int passengerCountMax = passengerTypeRef.passengerCountMax
-    ObjectReference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetRef()
-    If PlayerShipRef
-      Int currentPassengerSlots = SQ_PlayerShip.GetPassengerSlots(False)
-      If currentPassengerSlots < passengerCountMax && currentPassengerSlots >= passengerTypeRef.PassengerCountMin
-        passengerCountMax = currentPassengerSlots
-      EndIf
-    EndIf
-    Int passengerCount = Utility.RandomInt(passengerTypeRef.PassengerCountMin, passengerCountMax)
-    MissionIntValue01.SetValue(passengerCount as Float)
-    Self.UpdateCurrentInstanceGlobal(MissionIntValue01)
-    Parent.OnQuestStarted()
-  Else
-    Self.Stop()
-  EndIf
+	debug.trace(self + "InitializePassengers")
+
+	bool foundValidDestination = false
+
+	if DestinationMarker.GetRef()
+		foundValidDestination = true
+	else
+		MissionParentScript:MissionLocRefType[] passengerTypes = new MissionParentScript:MissionLocRefType[MissionParent.passengerTypes.Length]
+		; copy the array
+		int i = 0
+		while i < MissionParent.passengerTypes.Length
+			passengerTypes[i] = MissionParent.passengerTypes[i]
+			i += 1
+		EndWhile
+
+		MissionDestinationFinderScript finderQuest
+		debug.trace(self + " starting finderQuest with akLoc=" + SourceLocation.GetLocation() + " akRef1=" + SourceCollection.GetAt(0))
+		MissionDestinationFinderScript[] startedQuests = MissionStoryKeywordPassengerDestination.SendStoryEventAndWait(akLoc = SourceLocation.GetLocation(), akRef1 = SourceCollection.GetAt(0)) as MissionDestinationFinderScript[]
+		debug.trace(self + " tried to start finderQuest: startedQuests = " + startedQuests)
+		if startedQuests.Length > 0
+			debug.trace(self + " passenger finder quest started...")
+			finderQuest = startedQuests[0]
+			while finderQuest.IsStarting()
+				debug.trace(self + " ... " + finderQuest + " still starting...")
+			endWhile
+			foundValidDestination = finderQuest.FindMatchingDestination(passengerTypes, SourceCollection, PrimaryRef, DestinationMarker, targetLocation)
+			; now fill other aliases
+			TargetSystemLocation.RefillAlias()
+			TargetPlanetLocation.RefillAlias()
+			DisembarkMarker.ClearAndRefillAlias()
+			finderQuest.Stop()
+		EndIf
+	EndIf
+	
+	if foundValidDestination
+		; set number of passengers based on data on ref
+		MissionBoardPassengerSourceScript passengerTypeRef = PrimaryRef.GetRef() as MissionBoardPassengerSourceScript
+		; don't create mission with more slots than player can handle if possible
+		int passengerCountMax = passengerTypeRef.PassengerCountMax
+		ObjectReference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetRef()
+		if PlayerShipRef
+			int currentPassengerSlots = SQ_PlayerShip.GetPassengerSlots()
+			debug.trace(self + " currentPassengerSlots=" + currentPassengerSlots + " passengerCountMax=" + passengerCountMax)
+
+			if currentPassengerSlots < passengerCountMax && currentPassengerSlots >= passengerTypeRef.PassengerCountMin
+				passengerCountMax = currentPassengerSlots
+			endif
+		EndIf
+		
+		int passengerCount = Utility.RandomInt(passengerTypeRef.PassengerCountMin, passengerCountMax)
+		MissionIntValue01.SetValue(passengerCount)
+		UpdateCurrentInstanceGlobal(MissionIntValue01)
+
+		debug.trace(self + " passengerCountMax=" + passengerCountMax + ", passengerCount=" + passengerCount)
+
+    	Parent.OnQuestStarted()
+	Else
+		; no valid destination
+		debug.trace(self + " no valid destination found")
+		
+		Stop()
+	endif
 EndFunction
 
 Function HandlePlayerShipLanding()
-  Self.CheckForPassengerUnloading()
-EndFunction
+	CheckForPassengerUnloading()
+endFunction
 
-Function HandlePlayerShipDocking(spaceshipreference akParent)
-  Self.CheckForPassengerUnloading()
-EndFunction
+Function HandlePlayerShipDocking(SpaceshipReference akParent)
+    debug.trace(self + "HandlePlayerShipDocking akParent=" + akParent + " akParent.GetCurrentLocation()")
+	CheckForPassengerUnloading()
+endFunction
 
 Function HandlePlayerLocationChange(Location akOldLoc, Location akNewLoc)
-  If Self.IsInTargetLocation(akNewLoc)
-    Self.CheckForPassengerUnloading()
-  EndIf
+	debug.trace(self + " HandlePlayerLocationChange akOldLoc=" + akOldLoc + " akNewLoc=" + akNewLoc)
+	; if this is the target location, check for completion
+	if IsInTargetLocation(akNewLoc)
+		CheckForPassengerUnloading()
+	endif
 EndFunction
 
-Function CheckForPassengerUnloading()
-  Guard passengerChangeGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If PlayerCompletedQuest == False
-      spaceshipreference PlayerShipRef = PlayerShip.GetShipRef()
-      Location currentShipLocation = PlayerShipRef.GetCurrentLocation()
-      If PlayerFailedQuest
-        TargetLocation.ForceLocationTo(currentShipLocation)
-        DisembarkMarker.ClearAndRefillAlias()
-        ObjectReference disembarkRef = DisembarkMarker.GetRef()
-        If disembarkRef
-          DestinationMarker.ForceRefTo(disembarkRef)
-          Self.HandlePassengersDisembark()
-        EndIf
-      ElseIf PlayerAcceptedQuest
-        If Self.IsInTargetLocation(currentShipLocation)
-          Self.HandlePassengersDisembark()
-        Else
-          ObjectReference destinationMarkerRef = DestinationMarker.GetRef()
-          If PlayerShipRef.GetDistance(destinationMarkerRef) < DestinationCheckDistance
-            Self.HandlePassengersDisembark()
-          EndIf
-        EndIf
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+Guard passengerChangeGuard ProtectsFunctionLogic
 
-Bool Function IsInTargetLocation(Location locationToCheck)
-  Location theTargetLocation = TargetLocation.GetLocation()
-  Bool returnVal = locationToCheck.IsSameLocation(theTargetLocation, None) || locationToCheck.IsSameLocation(theTargetLocation, LocTypeStarStation) || locationToCheck.IsSameLocation(theTargetLocation, LocTypeStarstationExterior)
-  Return returnVal
-EndFunction
+function CheckForPassengerUnloading()
+	LockGuard passengerChangeGuard
+		if PlayerCompletedQuest == false
+			; get current ship location
+			SpaceshipReference playerShipRef = PlayerShip.GetShipRef()
+			Location currentShipLocation = playerShipRef.GetCurrentLocation()
+			debug.trace(self + " CheckForPassengerUnloading currentShipLocation=" + currentShipLocation)
 
-Function HandlePlayerShipTakeOff()
-  Passengers.SetValue(MissionBoardDisembark, 0.0)
-  Passengers.SetValue(MissionParent.RQ_AV_Hello, MissionParent.RQ_Hello_AboardShipValue.GetValueInt() as Float)
-  Self.CheckForShutdown()
-EndFunction
+			if PlayerFailedQuest
+				debug.trace(self + " CheckForPassengerUnloading: mission failed, checking if passengers can disembark here")
+				; watch for player to land on a settled planet
+				; see if this planet has an exit marker
+				TargetLocation.ForceLocationTo(currentShipLocation)
+				DisembarkMarker.ClearAndRefillAlias()
+				ObjectReference disembarkRef = DisembarkMarker.GetRef()
 
-Function HandleOnQuestRejected()
-  Self.CheckForPassengerUnloading()
-  Parent.HandleOnQuestRejected()
-EndFunction
+				debug.trace(self + " CheckForPassengerUnloading: DisembarkMarker=" + disembarkRef)
+				if disembarkRef
+					DestinationMarker.ForceRefTo(disembarkRef)
+					HandlePassengersDisembark()
+				endif
+			elseif PlayerAcceptedQuest
+				; if you land in the target location, tell passengers to disembark
+				if IsInTargetLocation(currentShipLocation)
+					debug.trace(self + " CheckForPassengerUnloading: at target location - disembark passengers")
+					; disembark passengers
+					HandlePassengersDisembark()
+				else
+					debug.trace(self + " CheckForPassengerUnloading: use distance check")
+					; use distance check
+					ObjectReference destinationMarkerRef = DestinationMarker.GetRef()
+					if playerShipRef.GetDistance(destinationMarkerRef) < DestinationCheckDistance
+						debug.trace(self + " CheckForPassengerUnloading: within distance of destination marker - disembark passengers")
+						; disembark passengers
+						HandlePassengersDisembark()
+					endif
+				endif
+			endif
+		Else
+			debug.trace(self + " CheckForPassengerUnloading: quest already completed - do nothing")
+		endif
+	EndLockGuard
+endFunction
+
+bool function IsInTargetLocation(Location locationToCheck)
+	Location theTargetLocation = targetLocation.GetLocation()
+	bool returnVal = (locationToCheck.IsSameLocation(theTargetLocation) || locationToCheck.IsSameLocation(theTargetLocation, LocTypeStarStation)  || locationToCheck.IsSameLocation(theTargetLocation, LocTypeStarstationExterior))
+	debug.trace(self + " IsInTargetLocation locationToCheck=" + locationToCheck + " theTargetLocation=" + theTargetLocation + " return: " + returnVal)
+	return returnVal
+endFunction
+
+function HandlePlayerShipTakeOff()
+	debug.trace(self + " HandlePlayerShipTakeOff")
+	; we're not landed - clear disembark flag
+	Passengers.SetValue(MissionBoardDisembark, 0)
+	; set aboard ship hello AV
+	Passengers.SetValue(MissionParent.RQ_AV_Hello, MissionParent.RQ_Hello_AboardShipValue.GetValueInt())
+	; always check for shutdown after taking off
+	CheckForShutdown()
+endFunction
+
+
+function HandleOnQuestRejected()
+	debug.trace(self + " HandleOnQuestRejected")
+	CheckForPassengerUnloading() ; in case ship is landed or docked currently
+
+	Parent.HandleOnQuestRejected()
+endFunction
 
 Function UpdatePlayerPassengerSpace()
-  spaceshipreference PlayerShipRef = PlayerShip.GetShipRef()
-  If PlayerShipRef
-    Int totalPassengerSlots = SQ_PlayerShip.GetPassengerSlots(True)
-    Int availablePassengerSlots = SQ_PlayerShip.GetPassengerSlots(False)
-    Int usedPassengerSlots = totalPassengerSlots - availablePassengerSlots
-    Int newPassengers = MissionIntValue01.GetValueInt()
-    hasPassengerSpace = newPassengers <= availablePassengerSlots
-    PlayerPassengerSpaceCurrent.SetValue(usedPassengerSlots as Float)
-    PlayerPassengerSpaceTotal.SetValue(totalPassengerSlots as Float)
-    Self.UpdateCurrentInstanceGlobal(PlayerPassengerSpaceCurrent)
-    Self.UpdateCurrentInstanceGlobal(PlayerPassengerSpaceTotal)
-  EndIf
+	SpaceshipReference PlayerShipRef = PlayerShip.GetShipRef()
+	if PlayerShipRef
+		; check if it has passenger space
+		int totalPassengerSlots = SQ_PlayerShip.GetPassengerSlots(true)
+		int availablePassengerSlots = SQ_PlayerShip.GetPassengerSlots(false) ; current passenger space on player home ship
+		int usedPassengerSlots = totalPassengerSlots - availablePassengerSlots
+		int newPassengers = MissionIntValue01.GetValueInt()
+		hasPassengerSpace = (newPassengers <= availablePassengerSlots)
+
+		debug.trace(self + " UpdatePlayerPassengerSpace: newPassengers=" + newPassengers + " availablePassengerSlots=" + availablePassengerSlots + " totalPassengerSlots=" + totalPassengerSlots + " usedPassengerSlots=" + usedPassengerSlots)
+
+		PlayerPassengerSpaceCurrent.SetValue(usedPassengerSlots)
+		PlayerPassengerSpaceTotal.SetValue(totalPassengerSlots)
+		UpdateCurrentInstanceGlobal(PlayerPassengerSpaceCurrent)
+		UpdateCurrentInstanceGlobal(PlayerPassengerSpaceTotal)
+	endif
 EndFunction
 
+; OVERRIDE parent function
 Function HandleOnMissionAccepted()
-  ObjectReference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetRef()
-  If PlayerShipRef
-    Self.UpdatePlayerPassengerSpace()
-    If hasPassengerSpace
-      Parent.HandleOnMissionAccepted()
-    Else
-      MissionBoardPassengerNoSpaceMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    EndIf
-  Else
-    MissionBoardPassengerNoSpaceMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
-EndFunction
+	; get player ship right now
+	ObjectReference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetRef()
+	debug.trace(self + "HandleOnMissionAccepted PlayerShipRef=" + PlayerShipRef)
 
-Function MissionAccepted(Bool bAccepted)
-  If bAccepted
-    missionboardpassengersourcescript passengerSourceRef = PrimaryRef.GetRef() as missionboardpassengersourcescript
-    If passengerSourceRef
-      Int newPassengers = MissionIntValue01.GetValueInt()
-      passengerSourceRef.CreatePassengers(Passengers, PassengerMarker.GetRef(), newPassengers)
-      Self.RegisterForRemoteEvent(Passengers as ScriptObject, "OnExitShipInterior")
-      Self.RegisterForRemoteEvent(Passengers as ScriptObject, "OnUnload")
-      Self.RegisterForRemoteEvent(Passengers as ScriptObject, "OnDeath")
-      If MissionTimeHoursActual as Bool && MissionTimeHoursActual.GetValue() > 0.0
-        Self.StartQuestTimer(MissionTimeHoursActual.GetValue())
-      EndIf
-      SQ_PlayerShip.AddPassengers(Passengers)
-      Passengers.SetValue(MissionParent.RQ_AV_Hello, MissionParent.RQ_Hello_AboardShipValue.GetValueInt() as Float)
-    EndIf
-  EndIf
-  Parent.MissionAccepted(bAccepted)
-EndFunction
+	if PlayerShipRef
+		; check if it has passenger space
+		UpdatePlayerPassengerSpace()
+		if hasPassengerSpace
+			Parent.HandleOnMissionAccepted()
+		else
+			; not enough space
+			MissionBoardPassengerNoSpaceMessage.Show()
+		endif
+	; otherwise, give "no space" message
+	else
+		MissionBoardPassengerNoSpaceMessage.Show()
+	endif
+endFunction
 
+; OVERRIDE parent function
+Function MissionAccepted(bool bAccepted)
+	if bAccepted
+		; create passengers and accept mission
+		MissionBoardPassengerSourceScript passengerSourceRef = PrimaryRef.GetRef() as MissionBoardPassengerSourceScript
+		debug.trace(self + " HandleOnMissionAccepted: passenger source marker=" + passengerSourceRef)
+		if passengerSourceRef
+			int newPassengers = MissionIntValue01.GetValueInt()
+			passengerSourceRef.CreatePassengers(Passengers, PassengerMarker.GetRef(), newPassengers)
+			RegisterForRemoteEvent(Passengers, "OnExitShipInterior")
+			RegisterForRemoteEvent(Passengers, "OnUnload")
+			RegisterForRemoteEvent(Passengers, "OnDeath")
+			if MissionTimeHoursActual && MissionTimeHoursActual.GetValue() > 0
+				StartQuestTimer(MissionTimeHoursActual.GetValue())
+			endif
+			; add passengers to player home ship
+			SQ_PlayerShip.AddPassengers(Passengers)
+			; set hello AV
+			Passengers.SetValue(MissionParent.RQ_AV_Hello, MissionParent.RQ_Hello_AboardShipValue.GetValueInt())
+		else
+			; something went wrong
+			debug.trace(self + " HandleOnMissionAccepted: FAILED - invalid PrimaryRef marker")
+		endif
+	EndIf
+	Parent.MissionAccepted(bAccepted)
+endFunction
+
+; override parent function
 Function MissionShutdown()
-  Self.CheckForShutdown()
+	debug.trace(self + " MissionShutdown")
+	CheckForShutdown()
 EndFunction
 
-Int Function GetActualReward()
-  missionboardpassengersourcescript passengerSourceRef = PrimaryRef.GetRef() as missionboardpassengersourcescript
-  ActorValue rewardMultAV = MissionParent.MissionRewardMultiplier
-  Float reward = (RewardAmountGlobal.GetValue() + (MissionIntValue01.GetValue() * passengerSourceRef.ExtraRewardPerPassenger as Float)) * (1.0 + PrimaryRef.GetRef().GetValue(rewardMultAV))
-  Return reward as Int
-EndFunction
+; OVERRIDE parent function
+int Function GetActualReward()
+	; RewardAmountGlobal is the base reward, add in an additional amount per passenger from data on the source ref
+	MissionBoardPassengerSourceScript passengerSourceRef = PrimaryRef.GetRef() as MissionBoardPassengerSourceScript
+	debug.trace(self + " GetActualReward: passengerSourceRef=" + passengerSourceRef)
+	ActorValue rewardMultAV = MissionParent.MissionRewardMultiplier
+	float reward = ( RewardAmountGlobal.GetValue() + MissionIntValue01.GetValue() * passengerSourceRef.ExtraRewardPerPassenger ) * (1.0 + PrimaryRef.GetRef().GetValue(rewardMultAV))
+	debug.trace(self + "GetActualReward=" + reward)
+	return reward as int
+endFunction
 
+; OVERRIDE parent function
 Function SetActualMissionTime()
-  missionboardpassengersourcescript passengerSourceRef = PrimaryRef.GetRef() as missionboardpassengersourcescript
-  If passengerSourceRef
-    If (MissionTimeHours as Bool && MissionTimeHoursActual as Bool) && MissionTimeHours.GetValue() > 0.0
-      MissionTimeHoursActual.SetValue(MissionTimeHours.GetValue() * passengerSourceRef.MissionTimeMult)
-    EndIf
-  EndIf
+	MissionBoardPassengerSourceScript passengerSourceRef = PrimaryRef.GetRef() as MissionBoardPassengerSourceScript
+	if passengerSourceRef
+		if MissionTimeHours && MissionTimeHoursActual && MissionTimeHours.GetValue() > 0
+			MissionTimeHoursActual.SetValue(MissionTimeHours.GetValue() * passengerSourceRef.MissionTimeMult)
+			debug.trace(self + " SetActualMissionTime: MissionTimeHoursActual=" + MissionTimeHoursActual.GetValue())
+		endif
+	endif
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == startupTimerID
-    Self.InitializePassengers()
-  EndIf
+Event OnTimer(int aiTimerID)
+	if aiTimerID == startupTimerID
+		InitializePassengers()
+	endif
 EndEvent
 
-Event OnQuestTimerEnd(Int aiReason)
-  If aiReason == 0
-    Self.MissionFailed()
-  EndIf
+;Event received when the quest timer has ended
+Event OnQuestTimerEnd(int aiReason)
+	debug.trace(self + " OnQuestTimerEnd aiReason=" + aiReason)
+	if aiReason == 0 ; timer expired
+   		MissionFailed()
+	endif
 EndEvent
 
-Function debugStartQuestTimer(Float questtime)
-  If questtime <= 0.0
-    Self.StartQuestTimer(-1.0)
-  Else
-    Self.StartQuestTimer(questtime)
-  EndIf
-EndFunction
+Event OnQuestTimerStart(int aiReason)
+	debug.trace(self + " OnQuestTimerStart aiReason=" + aiReason + " time remaining=" + GetQuestTimeRemaining())
+EndEvent
+
+Function debugQuestTimeRemaining()
+	debug.trace(self + " QuestTimeRemaining=" + GetQuestTimeRemaining())
+endFunction
+
+function debugStartQuestTimer(float questtime)
+	if questtime <= 0
+		StartQuestTimer()
+	Else
+		StartQuestTimer(questtime)
+	endif
+	debug.trace(self + " starting quest timer: time remaining=" + GetQuestTimeRemaining())
+endFunction
 
 Function HandlePassengersDisembark()
-  Passengers.SetValue(MissionBoardDisembark, 1.0)
-  Passengers.SetValue(MissionParent.RQ_AV_Hello, MissionParent.RQ_Hello_DepartingShipValue.GetValueInt() as Float)
-  Passengers.EvaluateAll()
-  Self.CheckForCompletion()
-EndFunction
+	debug.trace(self + " HandlePassengersDisembark")
+	Passengers.SetValue(MissionBoardDisembark, 1)
+	Passengers.SetValue(MissionParent.RQ_AV_Hello, MissionParent.RQ_Hello_DepartingShipValue.GetValueInt())
+
+	Passengers.EvaluateAll()
+	; check for completion/shutdown
+	debug.trace(self + " HandlePassengersDisembark: calling CheckForCompletion")
+	CheckForCompletion()
+endFunction
 
 Event RefCollectionAlias.OnUnload(RefCollectionAlias akSender, ObjectReference akSenderRef)
-  If Self.CheckForPassengerDisembark(akSenderRef as Actor)
-    akSenderRef.Disable(False)
-    Self.CheckForCompletion()
-  EndIf
+	debug.trace(self + " OnUnload " + akSenderRef)
+	; if passenger is not in the ship, disable
+	if CheckForPassengerDisembark(akSenderRef as Actor)
+		akSenderRef.Disable()
+		debug.trace(self + " RefCollectionAlias.OnUnload: calling CheckForCompletion")
+		CheckForCompletion()
+	endif
 EndEvent
 
 Event RefCollectionAlias.OnDeath(RefCollectionAlias akSender, ObjectReference akSenderRef, ObjectReference akKiller)
-  Self.MissionFailed()
-  Self.CheckForShutdown()
+	; if a passenger dies before the quest is completed, fail mission
+	MissionFailed()
+	CheckForShutdown()
 EndEvent
 
 Event RefCollectionAlias.OnExitShipInterior(RefCollectionAlias akSender, ObjectReference akSenderRef, ObjectReference akShip)
-  If Self.CheckForPassengerDisembark(akSenderRef as Actor)
-    Self.CheckForCompletion()
-  EndIf
+	debug.trace(self + " OnExitShipInterior " + akSenderRef)
+	; if passenger exits the ship, remove as passenger
+	if CheckForPassengerDisembark(akSenderRef as Actor)
+		debug.trace(self + " RefCollectionAlias.OnExitShipInterior: calling CheckForCompletion")
+		CheckForCompletion()
+	endif
 EndEvent
 
-Bool Function CheckForPassengerDisembark(Actor passengerRef)
-  Bool disembark = False
-  spaceshipreference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
-  spaceshipreference passengerShipRef = passengerRef.GetCurrentShipRef()
-  If passengerShipRef != PlayerShipRef
-    SQ_PlayerShip.RemovePassenger(passengerRef)
-    disembark = True
-  EndIf
-  Return disembark
+; return true if passenger is not on player ship
+bool Function CheckForPassengerDisembark(Actor passengerRef)
+	bool disembark = false
+	SpaceshipReference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
+	SpaceshipReference passengerShipRef = passengerRef.GetCurrentShipRef()
+	debug.trace(self + " CheckForPassengerDisembark " + passengerRef + " playerShipRef=" + playerShipRef + " passengerShipRef=" + passengerShipRef)
+	if passengerShipRef != playerShipRef
+		debug.trace(self + "     " + passengerRef + " is not on " + playerShipRef + " - count as disembarked")
+		; restore the passenger value to release a passenger slot
+		SQ_PlayerShip.RemovePassenger(passengerRef)
+		disembark = true
+	endif
+	return disembark
 EndFunction
 
 Function CheckForCompletion()
-  spaceshipreference PlayerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
-  Bool disablePassengersOnShip = False
-  If Game.GetPlayer().GetCurrentShipRef() != PlayerShipRef
-    disablePassengersOnShip = True
-  EndIf
-  Int passengerCount = Passengers.GetCount()
-  Int disembarkedCount = 0
-  Int I = 0
-  While I < passengerCount
-    Actor passengerRef = Passengers.GetActorAt(I)
-    If passengerRef.GetCurrentShipRef() != PlayerShipRef
-      disembarkedCount += 1
-    ElseIf disablePassengersOnShip
-      passengerRef.Disable(False)
-      SQ_PlayerShip.RemovePassenger(passengerRef)
-      disembarkedCount += 1
-    EndIf
-    I += 1
-  EndWhile
-  If disembarkedCount >= passengerCount
-    Self.MissionComplete()
-  EndIf
-  Self.CheckForShutdown()
+	debug.trace(self + " CheckForCompletion")
+
+	SpaceshipReference playerShipRef = SQ_PlayerShip.PlayerShip.GetShipRef()
+	debug.trace(self + "     playerShipRef=" + playerShipRef)
+
+	bool disablePassengersOnShip = false
+	; if player is not in the ship, disable all passenger still on ship and count quest complete
+	if Game.GetPlayer().GetCurrentShipRef() != playerShipRef
+		disablePassengersOnShip = true
+	EndIf
+
+	int passengerCount = Passengers.GetCount()
+	int disembarkedCount = 0
+	int i = 0
+	while i < passengerCount
+		Actor passengerRef = Passengers.GetActorAt(i)
+		if passengerRef.GetCurrentShipRef() != playerShipRef 
+			disembarkedCount += 1
+		Elseif disablePassengersOnShip
+			passengerRef.Disable()
+			; restore the passenger value to release a passenger slot
+			SQ_PlayerShip.RemovePassenger(passengerRef)
+			disembarkedCount += 1
+		endif
+		i += 1
+	EndWhile
+
+	if disembarkedCount >= passengerCount
+		MissionComplete()
+	endif
+
+	CheckForShutdown()
 EndFunction
 
 Function CheckForShutdown()
-  Int passengerCount = Passengers.GetCount()
-  Int disabledCount = Passengers.GetCountDisabled()
-  If disabledCount >= passengerCount
-    Self.Stop()
-  Else
-    Int deadCount = Passengers.GetCountDead()
-    If deadCount >= passengerCount
-      Self.Stop()
-    EndIf
-  EndIf
-EndFunction
+	int passengerCount = Passengers.GetCount()
+
+	int disabledCount = Passengers.GetCountDisabled()
+	debug.trace(self + " CheckForShutdown disabledCount=" + disabledCount + " passengerCount=" + passengerCount)
+	if disabledCount >= passengerCount
+		Stop()
+	else
+		; check if all dead
+		int deadCount = Passengers.GetCountDead()
+		debug.trace(self + " CheckForShutdown deadCount=" + deadCount)
+		if deadCount >= passengerCount
+			Stop()
+		endif
+	endif
+endFunction
 
 Function MissionFailed()
-  Parent.MissionFailed()
-  If PlayerFailedQuest
-    Passengers.SetValue(MissionParent.RQ_AV_Hello, 0.0)
-  EndIf
-EndFunction
+	debug.trace(self + " MissionFailed")
+	Parent.MissionFailed()
+	if PlayerFailedQuest
+		; clear RQ hello value
+		Passengers.SetValue(MissionParent.RQ_AV_Hello, 0)
+	endif
+endFunction

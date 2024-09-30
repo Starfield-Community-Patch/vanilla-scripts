@@ -1,66 +1,78 @@
-ScriptName GenericBrawlOpponentAliasScript Extends ReferenceAlias
+Scriptname GenericBrawlOpponentAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-genericbrawlscript myQuest
+int property BrawlUpdateTimerID = 1 auto const
+float property BrawlUpdateTime = 2.0 auto const
 
-;-- Properties --------------------------------------
-Int Property BrawlUpdateTimerID = 1 Auto Const
-Float Property BrawlUpdateTime = 2.0 Auto Const
 Faction Property GenericBrawlFaction Auto
 
-;-- Functions ---------------------------------------
+import game
+
+GenericBrawlScript myQuest
 
 Event OnAliasInit()
-  myQuest = Self.GetOwningQuest() as genericbrawlscript
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Self.RegisterForMagicEffectApplyEvent(Self as ScriptObject, None, None, True)
+	debug.trace(self + " OnAliasInit")
+	myQuest = GetOwningQuest() as GenericBrawlScript
+	RegisterForHitEvent(self) ; let us know when anyone hits us
+	RegisterForMagicEffectApplyEvent(self) ; let us know when anyone hits us with a spell
 EndEvent
 
-Function StartUpdateTimer(Bool bStartTimer)
-  If bStartTimer
-    Self.StartTimer(BrawlUpdateTime, BrawlUpdateTimerID)
-  Else
-    Self.CancelTimer(BrawlUpdateTimerID)
-  EndIf
-EndFunction
+function StartUpdateTimer(bool bStartTimer = true)
+	if bStartTimer
+		StartTimer(BrawlUpdatetime, BrawlUpdateTimerID)
+	else
+		CancelTimer(BrawlUpdateTimerID)
+	endif
+endFunction
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == BrawlUpdateTimerID
-    Actor pActor = Self.GetActorRef()
-    If pActor.IsInCombat() == False && pActor.IsBleedingOut() == 0 && myQuest.GetStage() < 15
-      myQuest.SetStage(myQuest.PlayerDefeatedStage)
-    Else
-      Self.StartTimer(BrawlUpdateTime, BrawlUpdateTimerID)
-    EndIf
-  EndIf
-EndEvent
+Event OnTimer(int aiTimerID)
+	if aiTimerID == BrawlUpdateTimerID
+		actor pActor = GetActorRef()
+		if pActor.IsInCombat() == 0 && pActor.IsBleedingOut() == 0 && myQuest.GetStage() < 15
+	 		debug.trace(self + " is no longer in combat, ending brawl, player loses")
+			; end quest - player loses
+			myQuest.SetStage(myQuest.PlayerDefeatedStage)
+		else
+			StartTimer(BrawlUpdatetime, BrawlUpdateTimerID)
+		endif
+	endif
+endEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akWeapon, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  Actor pActor = Self.GetActorRef()
-  Actor pPlayer = Game.GetPlayer()
-  If (akAggressor == pPlayer as ObjectReference) || myQuest.PlayerAllies.Find(akAggressor) > -1
-    If akProjectile as Bool || (akWeapon as Bool && (akWeapon != myQuest.Unarmed as Form))
-      pPlayer.RemoveFromFaction(GenericBrawlFaction)
-      pActor.RemoveFromFaction(GenericBrawlFaction)
-      pActor.StopCombat()
-      pActor.SendAssaultAlarm()
-      pActor.StartCombat(Game.GetPlayer() as ObjectReference, False)
-      myQuest.SetStage(myQuest.CheatingStage)
-    Else
-      Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-    EndIf
-  Else
-    myQuest.SetStage(myQuest.CheatingStage)
-  EndIf
-EndEvent
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akWeapon, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+ 	debug.trace(self + " hit by " + akAggressor + " with weapon = " + akWeapon + ", Projectile = " + akProjectile)
+	; if the player hits with any weapon other than hands
+		Actor pActor = GetActorRef()
+		Actor pPlayer = GetPlayer()
+		if (akAggressor == pPlayer) || (myQuest.PlayerAllies.Find(akAggressor) > -1)
+; 			debug.trace(self + " hit with weapon = " + akWeapon + ", Projectile = " + akProjectile)
+			if akProjectile || (akWeapon && akWeapon != (myQuest as GenericBrawlScript).Unarmed)
+ 				debug.trace(self + " hit with weapon or projectile - end brawl")
+				pPlayer.RemoveFromFaction(GenericBrawlFaction)
+				pActor.RemoveFromFaction(GenericBrawlFaction)
+				pActor.StopCombat()
+				pActor.SendAssaultAlarm()
+				pActor.StartCombat(Game.GetPlayer())
+				myQuest.SetStage(myQuest.CheatingStage)
+			else
+				debug.trace(self + " fair hit - reregister for OnHit event")
+				RegisterForHitEvent(self) ; go around for another try
+			endif
+		else
+			; if hit by anybody else, end quest
+ 			debug.trace(self + " hit by " +akAggressor + " with weapon or projectile - end Intimidate")
+			myQuest.SetStage(myQuest.CheatingStage)
+		endif
+endEvent
 
 Event OnMagicEffectApply(ObjectReference akTarget, ObjectReference akCaster, MagicEffect akEffect)
-  If (akCaster == Game.GetPlayer() as ObjectReference) || myQuest.PlayerAllies.Find(akCaster) > -1
-    myQuest.SetStage(myQuest.CheatingStage)
-  EndIf
-EndEvent
+	; if player hits with any magic effect
+		if (akCaster == GetPlayer() || (myQuest.PlayerAllies.Find(akCaster) > -1))
+			debug.trace(self + " hit with magic effect " + akEffect + " from " + akCaster + " - end brawl")
+			myQuest.SetStage(myQuest.CheatingStage)
+		endif 	
+endEvent
 
 Event OnEnterBleedout()
-  myQuest.SetStage(myQuest.PlayerWinsStage)
-  Self.GetActorReference().EvaluatePackage(False)
+	debug.trace(self + "OnEnterBleedout")
+	myQuest.SetStage(myQuest.PlayerWinsStage)
+	GetActorReference().EvaluatePackage() ; to make sure the forcegreet happens
 EndEvent

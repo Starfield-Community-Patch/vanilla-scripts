@@ -1,18 +1,20 @@
-ScriptName TestJeffBEncounterSpawn Extends ObjectReference
-{ script the lives on an activator that spawns a ref at the linked ref }
+Scriptname TestJeffBEncounterSpawn extends ObjectReference
+{script the lives on an activator that spawns a ref at the linked ref}
 
-;-- Variables ---------------------------------------
-ObjectReference myLink
-
-;-- Properties --------------------------------------
 ActorBase Property myLeveledActor Auto
 
-;-- Functions ---------------------------------------
+ObjectReference myLink
+
+;******************************************************
 
 Event OnLoad()
-  myLink = Self.GetLinkedRef(None)
+    myLink = GetLinkedRef()
 EndEvent
 
+;******************************************************
+
 Event OnActivate(ObjectReference akActionRef)
-  myLink.PlaceAtMe(myLeveledActor as Form, 1, False, False, True, None, None, True)
+	myLink.PlaceAtMe(myLeveledActor, 1)
 EndEvent
+
+;******************************************************

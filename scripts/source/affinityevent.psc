@@ -1,7 +1,7 @@
-ScriptName AffinityEvent Extends Form Native hidden
+Scriptname AffinityEvent extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Run the affinity event on all actors that qualify
+Function Send(ObjectReference akTarget = None) native
 
-Function Reset() Native
-
-Function Send(ObjectReference akTarget) Native
+; Reset the flags and timers on this affinity event
+Function Reset( ) native

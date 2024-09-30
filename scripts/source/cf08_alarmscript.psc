@@ -1,18 +1,16 @@
-ScriptName CF08_AlarmScript Extends Quest
+Scriptname CF08_AlarmScript extends Quest
 
-;-- Variables ---------------------------------------
-Int alarmInstanceID
+WwiseEvent Property Wwise_Event_OBJ_Alarm_Ship_Battle_Prep Auto Const Mandatory
 
-;-- Properties --------------------------------------
-wwiseevent Property Wwise_Event_OBJ_Alarm_Ship_Battle_Prep Auto Const mandatory
-ObjectReference Property CF08_SysDef_WwiseAlarmRef Auto Const mandatory
+ObjectReference Property CF08_SysDef_WwiseAlarmRef Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+int alarmInstanceID
 
-Function PlayAlarm(Bool abPlay)
-  If abPlay == True
-    alarmInstanceID = Wwise_Event_OBJ_Alarm_Ship_Battle_Prep.Play(CF08_SysDef_WwiseAlarmRef, None, None)
-  Else
-    wwiseevent.StopInstance(alarmInstanceID)
-  EndIf
-EndFunction
+Function PlayAlarm(bool abPlay)
+    if abPlay == true
+        alarmInstanceID = Wwise_Event_OBJ_Alarm_Ship_Battle_Prep.Play(CF08_SysDef_WwiseAlarmRef)
+    else
+        WwiseEvent.StopInstance(alarmInstanceID)
+    endif
+endFunction
+

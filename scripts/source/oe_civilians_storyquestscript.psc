@@ -1,1 +1,1 @@
-ScriptName OE_Civilians_StoryQuestScript Extends Quest
+Scriptname OE_Civilians_StoryQuestScript extends Quest

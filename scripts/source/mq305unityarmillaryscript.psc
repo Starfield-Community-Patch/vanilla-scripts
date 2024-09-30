@@ -1,7 +1,5 @@
-ScriptName MQ305UnityArmillaryScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname MQ305UnityArmillaryScript extends ReferenceAlias
 
 Event OnLoad()
-  (Self.GetRef() as armillaryscript).BuildCompleteArmillary()
+    (Self.GetRef() as ArmillaryScript).BuildCompleteArmillary()
 EndEvent

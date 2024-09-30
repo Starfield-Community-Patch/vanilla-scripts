@@ -1,26 +1,24 @@
-ScriptName TestAudioObjectScript Extends ObjectReference Const
+Scriptname TestAudioObjectScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 ReferenceAlias Property TestAudioActor Auto Const
 Scene Property SceneToPlay Auto Const
 Scene[] Property AdditionalScenesToStop Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    SceneToPlay.Stop()
-    If AdditionalScenesToStop.Length > 0
-      Int I = 0
-      Int iLength = AdditionalScenesToStop.Length
-      While I < iLength
-        AdditionalScenesToStop[I].Stop()
-        I += 1
-      EndWhile
+    If akActionRef == Game.GetPlayer()
+	    SceneToPlay.Stop()
+
+        if AdditionalScenesToStop.Length > 0
+            int i = 0
+            int iLength = AdditionalScenesToStop.Length
+
+            while i < iLength
+                AdditionalScenesToStop[i].Stop()
+                i += 1
+            endwhile
+        endif
+
+        TestAudioActor.ForceRefTo(Self)
+        SceneToPlay.Start()
     EndIf
-    TestAudioActor.ForceRefTo(Self as ObjectReference)
-    SceneToPlay.Start()
-  EndIf
 EndEvent

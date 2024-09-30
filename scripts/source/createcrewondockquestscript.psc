@@ -1,49 +1,61 @@
-ScriptName CreateCrewOnDockQuestScript Extends Quest
+Scriptname CreateCrewOnDockQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property CrewCollection Auto Const
+RefCollectionAlias property CrewCollection auto const
 { collection of crew actors }
-ReferenceAlias[] Property CrewMarkers Auto Const
-{ array of marker aliases for all crew }
-ReferenceAlias[] Property CrewAliases Auto Const
-{ array of ref aliases for individual crew actors }
-ActorValue Property SpaceshipCrew Auto Const
-{ tracks number of crew on a ship }
-ReferenceAlias Property Ship Auto Const
-ReferenceAlias Property PilotChair Auto Const
 
-;-- Functions ---------------------------------------
+ReferenceAlias[] property CrewMarkers auto const
+{ array of marker aliases for all crew }
+
+ReferenceAlias[] property CrewAliases auto const
+{ array of ref aliases for individual crew actors }
+
+ActorValue property SpaceshipCrew auto const
+{ tracks number of crew on a ship }
+
+ReferenceAlias property Ship auto const
+
+ReferenceAlias property PilotChair auto const
 
 Event OnQuestStarted()
-  ObjectReference shipRef = Ship.GetRef()
-  Self.RegisterForRemoteEvent((shipRef as spaceshipreference) as ScriptObject, "OnShipUndock")
-  Int crewValue = shipRef.GetValue(SpaceshipCrew) as Int
-  crewValue += -1
-  Int I = 0
-  While I < crewValue && I < CrewCollection.GetCount()
-    Actor theCrew = CrewCollection.GetAt(I) as Actor
-    If I < CrewMarkers.Length
-      ObjectReference theMarker = CrewMarkers[I].GetRef()
-      If theMarker
-        theCrew.MoveTo(theMarker, 0.0, 0.0, 0.0, True, False)
-        CrewAliases[I].ForceRefTo(theCrew as ObjectReference)
-      EndIf
-    EndIf
-    theCrew.Enable(False)
-    I += 1
-  EndWhile
-  ObjectReference pilotChairRef = PilotChair.GetRef()
-  If pilotChairRef
-    pilotChairRef.BlockActivation(True, False)
-  EndIf
+	ObjectReference shipRef = Ship.GetRef()
+	; register for undocking so we can shut down quest
+	RegisterForRemoteEvent(shipRef as SpaceshipReference, "OnShipUndock")
+    int crewValue = shipRef.GetValue(SpaceshipCrew) as int
+    ; decrement - we always spawn pilot
+    crewValue += -1
+    debug.trace(self + "shipRef=" + shipRef + " crewValue=" + crewValue)
+    int i = 0
+    while i < crewValue && i < CrewCollection.GetCount()
+	    debug.trace(self + " i=" + i)
+    	; enable this crewman
+    	Actor theCrew = CrewCollection.GetAt(i) as Actor
+	    debug.trace(self + " i=" + i + ": enabling " + theCrew)
+    	; move to marker
+    	if i < CrewMarkers.Length
+    		ObjectReference theMarker = CrewMarkers[i].GetRef()
+    		if theMarker
+    			theCrew.MoveTo(theMarker)
+                CrewAliases[i].ForceRefTo(theCrew)
+    		endif
+    	endif
+    	theCrew.Enable()
+    	i += 1
+    EndWhile
+
+    ObjectReference pilotChairRef = PilotChair.GetRef()
+    if pilotChairRef
+        ; block activation - so terminal is needed to clear (very likely TEMP)
+        pilotChairRef.BlockActivation(abBlocked = true, abHideActivateText = false)
+    endif
 EndEvent
 
-Event SpaceshipReference.OnShipUndock(spaceshipreference akSource, Bool abComplete, spaceshipreference akUndocking, spaceshipreference akParent)
-  Self.Stop()
-EndEvent
+Event SpaceshipReference.OnShipUndock(SpaceshipReference akSource, bool abComplete, SpaceshipReference akUndocking, SpaceshipReference akParent)
+	debug.trace(self + " OnShipUndock akSource=" + akSource)
+	Stop()
+endEvent
 
-Function testShip()
-  ObjectReference shipRef = Ship.GetRef()
-EndFunction
+function testShip()
+    ObjectReference shipRef = Ship.GetRef()
+    debug.trace(self + " shipRef=" + shipref)
+endFunction
+

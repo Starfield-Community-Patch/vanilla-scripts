@@ -1,7 +1,12 @@
-ScriptName Fragments:Scenes:SF_SpeechScene01_01002E0C Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_SpeechScene01_01002E0C Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_02_End
 Function Fragment_Phase_02_End()
-  ; Empty function
+;BEGIN CODE
+debug.trace(self + " phase 1")
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

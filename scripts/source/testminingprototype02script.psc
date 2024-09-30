@@ -1,61 +1,62 @@
-ScriptName TestMiningPrototype02Script Extends ObjectReference
-{ Allow player to loot ore once deposit has "broken up" }
+Scriptname TestMiningPrototype02Script extends ObjectReference
+{Allow player to loot ore once deposit has "broken up"}
 
-;-- Variables ---------------------------------------
-Bool CanLootOre = False
-Int MineralAmount = 6
+Faction Property CurrentCompanionFaction Auto Const Mandatory
+Int MineralAmount=6
+MiscObject Property MineralType Auto Const Mandatory
+effectshader Property MiningShader Auto Const
+Weapon Property MiningWeapon Auto Const Mandatory
+Bool CanLootOre=False
+Message Property TestMiningPrototypeMSG Auto Const Mandatory
+WwiseEvent Property FXMineOreIronALPMEvent Auto Const Mandatory
+WwiseEvent Property FXMineOreIronBBreakEvent Auto Const Mandatory
 Int SoundInstanceID
 
-;-- Properties --------------------------------------
-Faction Property CurrentCompanionFaction Auto Const mandatory
-MiscObject Property MineralType Auto Const mandatory
-EffectShader Property MiningShader Auto Const
-Weapon Property MiningWeapon Auto Const mandatory
-Message Property TestMiningPrototypeMSG Auto Const mandatory
-wwiseevent Property FXMineOreIronALPMEvent Auto Const mandatory
-wwiseevent Property FXMineOreIronBBreakEvent Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
 Function myRegisterForHit()
-  Self.RegisterForHitEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, None, None, -1, -1, -1, -1, True)
-  Self.RegisterForHitEvent(Self as ScriptObject, CurrentCompanionFaction as ScriptObject, None, None, -1, -1, -1, -1, True)
+	;we want to know if the player or the player's companion ever hits the Mineral Deposit
+	RegisterForHitEvent(self, Game.GetPlayer())
+	RegisterForHitEvent(self, CurrentCompanionFaction)
 EndFunction
 
 Event OnLoad()
-  Self.myRegisterForHit()
+	myRegisterForHit()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  If akSource == MiningWeapon as Form
-    Self.DamageObject(1.100000024)
-  Else
-    TestMiningPrototypeMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    Self.myRegisterForHit()
-  EndIf
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+	;only damage it if the player hits it with the right weapon 
+	;otherwise, pop a message telling him what weapon to use
+	If akSource == MiningWeapon
+		Self.DamageObject(1.1)
+	Else
+		TestMiningPrototypeMSG.Show()
+		myRegisterForHit()
+	EndIf
 EndEvent
 
-Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-  If aiCurrentStage == 2
-    If MiningShader
-      MiningShader.play(Self as ObjectReference, -1.0)
-      SoundInstanceID = FXMineOreIronALPMEvent.play(Self as ObjectReference, None, None)
-    EndIf
-  EndIf
-  If aiCurrentStage >= 3
-    CanLootOre = True
-    wwiseevent.StopInstance(SoundInstanceID)
-    FXMineOreIronBBreakEvent.play(Self as ObjectReference, None, None)
-    Utility.Wait(0.200000003)
-    MiningShader.stop(Self as ObjectReference)
-  EndIf
+Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+	if aiCurrentStage == 2
+		if MiningShader
+			MiningShader.play(Self)
+			SoundInstanceID = FXMineOreIronALPMEvent.Play(self) ;play looping sound
+		EndIf
+	EndIf
+	if aiCurrentStage >= 3
+		;allow the player to activate ore to loot it
+		CanLootOre=True
+		WwiseEvent.StopInstance(SoundInstanceID)
+		FXMineOreIronBBreakEvent.Play(self)
+		Utility.Wait(0.2)
+		MiningShader.stop(Self)
+  	endif
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && CanLootOre == False
-    TestMiningPrototypeMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Else
-    Self.Disable(False)
-    akActionRef.AddItem(MineralType as Form, MineralAmount, False)
-  EndIf
+	;if the mineral deposit is damaged enough (see OnDestructionStateChanged event), then add the minerals to whoever activates the deposit
+	;Otherwise, show the message to the player that the mineral deposit needs to be attacked
+	If (akActionRef== game.GetPlayer()) && (CanLootOre == False)
+		TestMiningPrototypeMSG.Show()
+	Else
+		Self.Disable()
+		akActionRef.AddItem(MineralType, MineralAmount)
+	EndIf
 EndEvent

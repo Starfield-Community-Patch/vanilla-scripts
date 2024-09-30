@@ -1,29 +1,20 @@
-ScriptName MQ305EyesClosedScript Extends Actor
+Scriptname MQ305EyesClosedScript extends Actor
 
-;-- Variables ---------------------------------------
+Keyword Property AnimFaceArchetypeEyesClosed Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property AnimFaceArchetypeEyesClosed Auto Const mandatory
+Auto State WaitingForLoad
+    Event OnLoad()
+        GotoState("HasLoaded")
+        Self.ChangeAnimFaceArchetype(AnimFaceArchetypeEyesClosed)
+    EndEvent
+EndState
 
-;-- Functions ---------------------------------------
+State HasLoaded
+    Event OnLoad()
+        ;do nothing
+    EndEvent
+EndState
 
 Event OnLoad()
-  ; Empty function
+    ;do nothing
 EndEvent
-
-;-- State -------------------------------------------
-State HasLoaded
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitingForLoad
-
-  Event OnLoad()
-    Self.GotoState("HasLoaded")
-    Self.ChangeAnimFaceArchetype(AnimFaceArchetypeEyesClosed)
-  EndEvent
-EndState

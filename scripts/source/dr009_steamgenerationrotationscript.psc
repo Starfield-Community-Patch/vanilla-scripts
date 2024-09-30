@@ -1,20 +1,18 @@
-ScriptName DR009_SteamGenerationRotationScript Extends ObjectReference Const
+Scriptname DR009_SteamGenerationRotationScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Float Property level0Speed Auto Const
-Float Property level1Speed Auto Const
-
-;-- Functions ---------------------------------------
+float property level0Speed auto Const
+float property level1Speed auto Const
 
 Event OnCellLoad()
-  ObjectReference[] rotationHelpers = Self.GetLinkedRefChain(None, 100)
-  Self.PlayRotationAnimation(rotationHelpers[0], level0Speed)
-  Self.PlayRotationAnimation(rotationHelpers[1], level1Speed)
+    ObjectReference[] rotationHelpers = GetLinkedRefChain()
+
+    PlayRotationAnimation(rotationHelpers[0], level0Speed)
+    PlayRotationAnimation(rotationHelpers[1], level1Speed)
 EndEvent
 
-Function PlayRotationAnimation(ObjectReference roationHelper, Float speed)
-  roationHelper.SetAnimationVariableFloat("speed", speed)
-  roationHelper.PlayAnimation("RotateCW_Loop")
-EndFunction
+function PlayRotationAnimation(ObjectReference roationHelper, float speed)
+
+    roationHelper.SetAnimationVariableFloat("Speed", speed)
+    roationHelper.PlayAnimation("RotateCW_Loop")
+
+endFunction

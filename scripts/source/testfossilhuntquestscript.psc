@@ -1,37 +1,41 @@
-ScriptName TestFossilHuntQuestScript Extends Quest
+Scriptname TestFossilHuntQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LocTypeFossilTarget Auto Const mandatory
+Keyword Property LocTypeFossilTarget auto const mandatory
 { keyword on location we're looking for }
-LocationAlias Property FossilPlanetLocation Auto Const mandatory
-{ planet we're looking for fossil on }
-LocationAlias Property FossilOverlayLocation Auto Const mandatory
-{ overlay the player needs to enter to complete objective }
-ReferenceAlias Property PlayerShip Auto Const mandatory
-Int Property FossilScanStage = 50 Auto Const
-Int Property FossilCollectStage = 100 Auto Const
 
-;-- Functions ---------------------------------------
+LocationAlias property FossilPlanetLocation auto const mandatory
+{ planet we're looking for fossil on }
+
+LocationAlias property FossilOverlayLocation auto const mandatory
+{ overlay the player needs to enter to complete objective }
+
+ReferenceAlias property PlayerShip auto const mandatory
+
+int property FossilScanStage = 50 auto const
+
+int property FossilCollectStage = 100 auto const
 
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnShipScan")
-EndEvent
+	; register for events
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+    RegisterForRemoteEvent(PlayerShip, "OnShipScan")
+endEvent
 
 Event ReferenceAlias.OnShipScan(ReferenceAlias akSource, Location aPlanet, ObjectReference[] aMarkersArray)
-  If aPlanet == FossilPlanetLocation.GetLocation()
-    Self.SetStage(FossilScanStage)
-    Self.UnregisterForRemoteEvent(PlayerShip as ScriptObject, "OnShipScan")
-  EndIf
+    if aPlanet == FossilPlanetLocation.GetLocation()
+        SetStage(FossilScanStage)
+        UnregisterForRemoteEvent(PlayerShip, "OnShipScan")
+    endif
 EndEvent
 
 Event Actor.OnLocationChange(Actor akSender, Location akOldLoc, Location akNewLoc)
-  If akSender == Game.GetPlayer() || (akSender as ObjectReference == PlayerShip.GetRef())
-    If akNewLoc.HasKeyword(LocTypeFossilTarget) && FossilPlanetLocation.GetLocation().IsChild(akNewLoc) && akNewLoc == FossilOverlayLocation.GetLocation()
-      Self.SetStage(FossilCollectStage)
-      Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnLocationChange")
-    EndIf
-  EndIf
+    debug.trace(self + " OnLocationChange " + akSender)
+	; watch for player to change location
+	if akSender == Game.GetPlayer() || akSender == PlayerShip.GetRef()
+        ; check location for keyword we're looking for
+        if akNewLoc.HasKeyword(LocTypeFossilTarget) && FossilPlanetLocation.GetLocation().IsChild(akNewLoc) && akNewLoc == FossilOverlayLocation.GetLocation()
+            SetStage(FossilCollectStage)
+            UnregisterForRemoteEvent(Game.GetPlayer(), "OnLocationChange")
+        endif
+	endif
 EndEvent

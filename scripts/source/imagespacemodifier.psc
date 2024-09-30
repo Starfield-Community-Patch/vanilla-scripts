@@ -1,13 +1,16 @@
-ScriptName ImageSpaceModifier Extends Form Native hidden
+Scriptname ImageSpaceModifier extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Applies this modifier with the specified strength (which is not clamped)
+Function Apply(float afStrength = 1.0) native
 
-Function Apply(Float afStrength) Native
+; Adds this modifier to the cross-fade chain, removing the previous modifier, and fading over the specified duration (in seconds)
+Function ApplyCrossFade(float afFadeDuration = 1.0) native
 
-Function ApplyCrossFade(Float afFadeDuration) Native
+; Disables this modifier and enables the new one, "popping" between the two. Will not interrupt any running cross-fade (if the modifiers aren't the ones fading)
+Function PopTo(ImageSpaceModifier akNewModifier, float afStrength = 1.0) native
 
-Function PopTo(ImageSpaceModifier akNewModifier, Float afStrength) Native
+; Removes this modifier
+Function Remove() native
 
-Function Remove() Native
-
-Function RemoveCrossFade(Float afFadeDuration) Global Native
+; Removes whatever modifier is on the cross-fade chain, fading it out
+Function RemoveCrossFade(float afFadeDuration = 1.0) native global

@@ -1,26 +1,19 @@
-ScriptName TrapCatwalkScript Extends ObjectReference
-{ Breakable Catwalk trap script, catwalk breaks when it it hit by enough damage to exceed a threshold. }
+Scriptname TrapCatwalkScript extends ObjectReference
+{Breakable Catwalk trap script, catwalk breaks when it it hit by enough damage to exceed a threshold.}
 
-;-- Variables ---------------------------------------
+Keyword Property LinkNavCutPrimitive Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property LinkNavCutPrimitive Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnReset()
-  Self.ClearDestruction()
-EndEvent
-
-;-- State -------------------------------------------
-State Done
+auto State Waiting
+    Event OnDestroyed(ObjectReference akDestroyer)
+            GoToState("Done")
+            GetLinkedRef(LinkNavCutPrimitive).Enable()
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
+Event OnReset()
+    self.ClearDestruction()
+EndEvent
 
-  Event OnDestroyed(ObjectReference akDestroyer)
-    Self.GoToState("Done")
-    Self.GetLinkedRef(LinkNavCutPrimitive).Enable(False)
-  EndEvent
+State Done
+    ;Do Nothing
 EndState

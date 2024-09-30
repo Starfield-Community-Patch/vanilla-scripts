@@ -1,5 +1,4 @@
-ScriptName Scroll Extends Form Native hidden
+Scriptname Scroll extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Function Cast(ObjectReference akSource, ObjectReference akTarget) Native
+; Cast this scroll from an ObjectReference, optionally toward another.
+Function Cast(ObjectReference akSource, ObjectReference akTarget=NONE) native	

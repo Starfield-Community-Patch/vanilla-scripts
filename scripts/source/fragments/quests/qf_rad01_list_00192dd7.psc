@@ -1,76 +1,120 @@
-ScriptName Fragments:Quests:QF_Rad01_LIST_00192DD7 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_Rad01_LIST_00192DD7 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Papers Auto Const mandatory
-GlobalVariable Property Rad01_RecruitTutorialComplete Auto Const mandatory
-Book Property Rad01_Book Auto Const mandatory
-Book Property Rad01_Book01 Auto Const
-
-;-- Functions ---------------------------------------
-
-Function Fragment_Stage_0900_Item_00()
-  ; Empty function
-EndFunction
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  Alias_Papers.TryToEnable()
+;BEGIN CODE
+Alias_Papers.TryToEnable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Game.GetPlayer().additem(Rad01_Book as Form, 1, False)
-  Game.GetPlayer().additem(Rad01_Book01 as Form, 1, False)
-  Self.SetStage(100)
-  Self.SetStage(200)
+;BEGIN CODE
+Game.GetPlayer().additem(Rad01_Book)
+Game.GetPlayer().additem(Rad01_Book01)
+SetStage(100)
+SetStage(200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0190_Item_00
 Function Fragment_Stage_0190_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(190, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(190)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0199_Item_00
 Function Fragment_Stage_0199_Item_00()
-  If Self.IsObjectiveDisplayed(190) == False
-    Self.SetObjectiveDisplayed(190, True, False)
-    Self.SetObjectiveCompleted(190, True)
-  EndIf
-  If Self.IsObjectiveDisplayed(190) == True
-    Self.SetObjectiveCompleted(190, True)
-  EndIf
-  If Self.IsObjectiveCompleted(100) == False
-    Self.SetObjectiveSkipped(100)
-  EndIf
-  If Self.GetStageDone(299) || Self.GetStageDone(500)
-    Self.SetStage(900)
-  EndIf
-EndFunction
+;BEGIN CODE
+if IsObjectiveDisplayed(190) == 0
+ SetObjectiveDisplayed(190)
+ SetObjectiveCompleted(190)
+endif
 
+if IsObjectiveDisplayed(190) == 1
+SetObjectiveCompleted(190)
+endif
+
+if IsObjectiveCompleted(100) == 0
+ SetObjectiveSkipped(100) 
+endif
+
+if GetStageDone(299) || GetStageDone(500)
+   SetStage(900)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveDisplayed(200, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(250, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(250)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0299_Item_00
 Function Fragment_Stage_0299_Item_00()
-  Self.SetObjectiveCompleted(250, True)
-  Rad01_RecruitTutorialComplete.SetValue(1.0)
-  If Self.GetStageDone(199)
-    Self.SetStage(900)
-  EndIf
+;BEGIN CODE
+SetObjectiveCompleted(250)
+Rad01_RecruitTutorialComplete.SetValue(1)
+if GetStageDone(199)
+   SetStage(900)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetObjectiveFailed(250, True)
-  Rad01_RecruitTutorialComplete.SetValue(1.0)
-  If Self.GetStageDone(199)
-    Self.SetStage(900)
-  EndIf
+;BEGIN CODE
+SetObjectiveFailed(250)
+Rad01_RecruitTutorialComplete.SetValue(1)
+if GetStageDone(199)
+   SetStage(900)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
+Function Fragment_Stage_0900_Item_00()
+;BEGIN CODE
+;we are leaving this quest running for other dialogue, etc.
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Papers Auto Const Mandatory
+
+GlobalVariable Property Rad01_RecruitTutorialComplete Auto Const Mandatory
+
+Book Property Rad01_Book Auto Const Mandatory
+
+Book Property Rad01_Book01 Auto Const

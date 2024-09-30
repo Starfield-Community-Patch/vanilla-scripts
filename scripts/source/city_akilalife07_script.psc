@@ -1,16 +1,18 @@
-ScriptName City_AkilaLife07_Script Extends Quest
+Scriptname City_AkilaLife07_Script extends Quest
 
-;-- Variables ---------------------------------------
+GlobalVariable Property AkilaLife06_DocPending Auto Const Mandatory
 
-;-- Properties --------------------------------------
-GlobalVariable Property AkilaLife06_DocPending Auto Const mandatory
+; If any of the trove documents are found - then process them
+Function GotObject(int nStage)
+    ; Flag the quest that a document can be turned in
+    AkilaLife06_DocPending.SetValue(1.0)
 
-;-- Functions ---------------------------------------
+    ; If you know about the quest, get an objective
+    if ( GetStageDone(100) )
+        SetObjectiveDisplayed(nStage)
+    EndIf
 
-Function GotObject(Int nStage)
-  AkilaLife06_DocPending.SetValue(1.0)
-  If Self.GetStageDone(100)
-    Self.SetObjectiveDisplayed(nStage, True, False)
-  EndIf
-  Self.SetStage(nStage)
+    ; Set the stage - this case is for getting the books ahead of time
+    ;   The stage will be called twice after the quest starts - but that doesn't hurt anything
+    SetStage(nStage)
 EndFunction

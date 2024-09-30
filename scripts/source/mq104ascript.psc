@@ -1,18 +1,13 @@
-ScriptName MQ104AScript Extends Quest
+Scriptname MQ104AScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property TemplePuzzleTrigger Auto Const mandatory
-Int Property StageToSet = 500 Auto Const
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property TemplePuzzleTrigger Mandatory Const Auto
+Int Property StageToSet = 500 Const Auto
 
 Function TempleArrived()
-  Self.RegisterForCustomEvent((TemplePuzzleTrigger.GetRef() as sbringpuzzlenewscript) as ScriptObject, "sbringpuzzlenewscript_PuzzleSolvedEvent")
+    RegisterForCustomEvent((TemplePuzzleTrigger.GetRef() as SBRingPuzzleNEWScript), "PuzzleSolvedEvent")
 EndFunction
 
-Event SBRingPuzzleNEWScript.PuzzleSolvedEvent(sbringpuzzlenewscript akSender, Var[] akArgs)
-  Self.SetStage(StageToSet)
-  Self.UnRegisterForCustomEvent((TemplePuzzleTrigger.GetRef() as sbringpuzzlenewscript) as ScriptObject, "sbringpuzzlenewscript_PuzzleSolvedEvent")
+Event SBRingPuzzleNEWScript.PuzzleSolvedEvent(SBRingPuzzleNEWScript akSender, Var[] akArgs)
+    SetStage(StageToSet)
+    UnRegisterForCustomEvent((TemplePuzzleTrigger.GetRef() as SBRingPuzzleNEWScript), "PuzzleSolvedEvent")
 EndEvent

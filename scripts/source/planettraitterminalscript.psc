@@ -1,15 +1,13 @@
-ScriptName PlanetTraitTerminalScript Extends ObjectReference conditional
-{ for now (?) holds data used by PlanetTraitTerminalMenuScript }
+Scriptname PlanetTraitTerminalScript extends ObjectReference conditional
+{for now (?) holds data used by PlanetTraitTerminalMenuScript}
 
-;-- Variables ---------------------------------------
+Keyword property traitKeywordToDiscover auto hidden
 
-;-- Properties --------------------------------------
-Keyword Property traitKeywordToDiscover Auto hidden
-planet Property planetToCheck Auto hidden
-Bool Property traitDataAwarded = False Auto conditional hidden
+Planet property planetToCheck auto hidden
 
-;-- Functions ---------------------------------------
+bool property traitDataAwarded = false auto hidden conditional
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, terminalmenu akTerminalBase, ObjectReference akTerminalRef)
-  ; Empty function
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase + " akTerminalRef=" + akTerminalRef)
 EndEvent
+

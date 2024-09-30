@@ -1,24 +1,22 @@
-ScriptName LC044_LightSwitchAliasScript Extends ReferenceAlias
+Scriptname LC044_LightSwitchAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property LightsToEnable Auto Const mandatory
-ReferenceAlias Property LightsToDisable Auto Const
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property LightsToEnable Auto Const Mandatory
+ReferenceAlias Property LightsToDisable Auto Const 
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference LightsEnableRef = LightsToEnable.GetRef()
-  If LightsEnableRef.IsEnabled()
-    LightsEnableRef.Disable(False)
-    If LightsToDisable.GetRef() != None
-      LightsToDisable.GetRef().Enable(False)
+
+    ObjectReference LightsEnableRef = LightsToEnable.GetRef()
+
+    If LightsEnableRef.IsEnabled()
+        LightsEnableRef.Disable()
+        If LightsToDisable.GetRef() != None
+            LightsToDisable.GetRef().Enable()
+        EndIf
+    Else
+        LightsEnableRef.Enable()
+        If LightsToDisable.GetRef() != None
+            LightsToDisable.GetRef().Disable()
+        EndIf
     EndIf
-  Else
-    LightsEnableRef.Enable(False)
-    If LightsToDisable.GetRef() != None
-      LightsToDisable.GetRef().Disable(False)
-    EndIf
-  EndIf
+
 EndEvent

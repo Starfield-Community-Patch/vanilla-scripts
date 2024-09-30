@@ -1,16 +1,12 @@
-ScriptName CF03LockDoorAliasScript Extends ReferenceAlias
-{ Dismiss the player's follower when they enter the Lock. }
+Scriptname CF03LockDoorAliasScript extends ReferenceAlias
+{Dismiss the player's follower when they enter the Lock.}
 
-;-- Variables ---------------------------------------
+SQ_FollowersScript property SQ_Followers Auto Const Mandatory
+ReferenceAlias property CF03_PlayerShipPilotSeat Auto Const Mandatory
 
-;-- Properties --------------------------------------
-sq_followersscript Property SQ_Followers Auto Const mandatory
-ReferenceAlias Property CF03_PlayerShipPilotSeat Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;When the player activates the exterior load door, send all of their followers back to their ship to wait.
 Event OnActivate(ObjectReference akActivator)
-  If akActivator == Game.GetPlayer() as ObjectReference
-    SQ_Followers.AllFollowersWait(CF03_PlayerShipPilotSeat.GetRef(), True, False)
-  EndIf
+    if (akActivator == Game.GetPlayer())
+        SQ_Followers.AllFollowersWait(CF03_PlayerShipPilotSeat.GetRef())
+    EndIf
 EndEvent

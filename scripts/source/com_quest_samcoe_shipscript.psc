@@ -1,23 +1,23 @@
-ScriptName COM_Quest_SamCoe_ShipScript Extends ReferenceAlias
+Scriptname COM_Quest_SamCoe_ShipScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+LocationAlias Property PlayerShipInteriorLocation Auto Const Mandatory
 
-;-- Properties --------------------------------------
-LocationAlias Property PlayerShipInteriorLocation Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShipModule Auto Const mandatory
-ReferenceAlias Property LillianSceneMarker Auto Const mandatory
-ReferenceAlias Property LillianHart Auto Const mandatory
-Int Property LillianOnShipStage Auto Const mandatory
-Int Property LillianOffShipStage Auto Const mandatory
+ReferenceAlias Property Alias_PlayerShipModule Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+ReferenceAlias Property LillianSceneMarker Auto Const Mandatory
+
+ReferenceAlias Property LillianHart Auto Const Mandatory
+
+int Property LillianOnShipStage Auto Const Mandatory
+
+int Property LillianOffShipStage Auto Const Mandatory
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If akNewLoc == PlayerShipInteriorLocation.GetLocation()
-    Alias_PlayerShipModule.RefillDependentAliases()
-    Quest myQuest = Self.GetOwningQuest()
-    If myQuest.GetStageDone(LillianOnShipStage) && !myQuest.GetStageDone(LillianOffShipStage)
-      LillianHart.GetRef().MoveTo(LillianSceneMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-    EndIf
-  EndIf
+	if akNewLoc == PlayerShipInteriorLocation.GetLocation()
+		Alias_PlayerShipModule.RefillDependentAliases()
+		Quest myQuest = GetOwningQuest()
+		if myQuest.GetStageDone(LillianOnShipStage) && !myQuest.GetStageDone(LillianOffShipStage)
+			LillianHart.GetRef().MoveTo(LillianSceneMarker.GetRef())
+		endif
+	endif
 EndEvent

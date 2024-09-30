@@ -1,15 +1,12 @@
-ScriptName HavokCorpseOnLoad Extends Actor
+Scriptname HavokCorpseOnLoad extends Actor
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Bool Property DoOnce = False Auto
 
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  If DoOnce == False
-    DoOnce = True
-    Self.ApplyHavokImpulse(1.0, 1.0, 1.0, 1.0)
-  EndIf
+
+    If (DoOnce == 0)
+        DoOnce = 1
+        self.ApplyHavokImpulse(1, 1, 1, 1)
+    EndIf
+
 EndEvent

@@ -1,35 +1,32 @@
-ScriptName MQ101ShipInventoryScript Extends ReferenceAlias
+Scriptname MQ101ShipInventoryScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property PrereqStage=680 Const Auto
+Int Property TurnOffStage=900 Const Auto
+Int Property StageToSet=690 Const Auto
+
 Int HeliumCount = 10
-
-;-- Properties --------------------------------------
-Int Property PrereqStage = 680 Auto Const
-Int Property TurnOffStage = 900 Auto Const
-Int Property StageToSet = 690 Auto Const
 MiscObject Property InorgCommonHelium3 Auto
-Int Property HeliumStage = 680 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property HeliumStage=680 Const Auto
 
 Event OnAliasInit()
-  Self.AddInventoryEventFilter(InorgCommonHelium3 as Form)
+	AddInventoryEventFilter(InorgCommonHelium3)
 EndEvent
 
 Event OnQuickContainerOpened()
-  Quest myQuest = Self.GetOwningQuest()
-  If myQuest.GetStageDone(PrereqStage) && !myQuest.GetStageDone(TurnOffStage)
-    myQuest.SetStage(StageToSet)
-  EndIf
+    Quest myQuest = GetOwningQuest()
+    If (myQuest.GetStageDone(PrereqStage)) && !(myQuest.GetStageDone(TurnOffStage))
+        myQuest.SetStage(StageToSet)
+    EndIf
 EndEvent
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  Quest myQuest = Self.GetOwningQuest()
-  ObjectReference myRef = Self.GetRef()
-  If akBaseItem == InorgCommonHelium3 as Form
-    If myRef.GetItemCount(InorgCommonHelium3 as Form) >= HeliumCount
-      myQuest.SetStage(HeliumStage)
-      Self.RemoveInventoryEventFilter(InorgCommonHelium3 as Form)
-    EndIf
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+	Quest myQuest = GetOwningQuest()
+    ObjectReference myRef = Self.GetRef()
+
+	If (akBaseItem == InorgCommonHelium3)
+		If myRef.GetItemCount(InorgCommonHelium3) >= HeliumCount
+			myQuest.SetStage(HeliumStage)
+			RemoveInventoryEventFilter(InorgCommonHelium3)
+		EndIf
+	EndIF
 EndEvent

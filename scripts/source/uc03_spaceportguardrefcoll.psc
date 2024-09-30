@@ -1,17 +1,22 @@
-ScriptName UC03_SpaceportGuardRefColl Extends RefCollectionAlias
+Scriptname UC03_SpaceportGuardRefColl extends RefCollectionAlias
 
-;-- Functions ---------------------------------------
+Function MarkCollectionIgnoreFriendlyHits(RefCollectionAlias akTargetCollection, bool bIgnore = true)
+    int i = 0
+    int iCount = akTargetCollection.GetCount()
+    trace(self, "Collection count to make friendly: " + iCount)
 
-Function MarkCollectionIgnoreFriendlyHits(RefCollectionAlias akTargetCollection, Bool bIgnore)
-  Int I = 0
-  Int iCount = akTargetCollection.GetCount()
-  While I < iCount
-    ObjectReference currObj = akTargetCollection.GetAt(I)
-    currObj.IgnoreFriendlyHits(bIgnore)
-    I += 1
-  EndWhile
+    while i < iCount
+        ObjectReference currObj = akTargetCollection.GetAt(i)
+        currObj.IgnoreFriendlyHits(bIgnore)
+        trace(self, "NPC: " + currObj + " is now marked to IgnoreFriendlyHits:" + currObj.IsIgnoringFriendlyHits() )
+
+        i += 1
+    endwhile
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC04", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

@@ -1,13 +1,8 @@
-ScriptName DebugSound_SwitchAliasScript Extends ReferenceAlias
+Scriptname DebugSound_SwitchAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property ButtonIndex Auto Const mandatory
-{ Which button functionality this object should trigger }
-
-;-- Functions ---------------------------------------
+int Property ButtonIndex Mandatory Const Auto
+{Which button functionality this object should trigger}
 
 Event OnActivate(ObjectReference akActionRef)
-  (Self.GetOwningQuest() as debugsoundscriptingquest).TriggerButtonBehavior(ButtonIndex)
+    (GetOwningQuest() as DebugSoundScriptingQuest).TriggerButtonBehavior(ButtonIndex)
 EndEvent

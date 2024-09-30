@@ -1,33 +1,58 @@
-ScriptName Fragments:Quests:QF_FFDenZ01_001E7941 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFDenZ01_001E7941 Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0015_Item_00
 Function Fragment_Stage_0015_Item_00()
-  Self.SetObjectiveDisplayed(15, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(15)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  If Self.IsObjectiveDisplayed(15)
-    Self.SetObjectiveCompleted(15, True)
-  EndIf
-  Self.SetObjectiveDisplayed(20, True, False)
+;BEGIN CODE
+If IsObjectiveDisplayed(15)
+SetObjectiveCompleted(15)
+endif
+SetObjectiveDisplayed(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(30)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(30)
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetStage(200)
+;BEGIN CODE
+SetStage(200)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

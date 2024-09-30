@@ -1,21 +1,24 @@
-ScriptName TerminalMenu Extends Form Native hidden
+Scriptname TerminalMenu extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Event called when a terminal menu item is run, with the specified target and terminal owner (in parallel with the fragment)
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+EndEvent
 
-Function AddDynamicBodyTextItem(ObjectReference aTerminalRef, Int aiTemplateIndex, Int aiItemID, Form[] akTagReplacementForms) Native
-
-Function AddDynamicMenuItem(ObjectReference aTerminalRef, Int aiTemplateIndex, Int aiItemID, Form[] akTagReplacementForms) Native
-
-Function ClearDynamicBodyTextItems(ObjectReference aTerminalRef) Native
-
-Function ClearDynamicMenuItems(ObjectReference aTerminalRef) Native
-
-ObjectReference Function GetCurrentTerminalObjectRef() Global Native
-
+; Event called when this terminal menu is entered, with the specified target
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  ; Empty function
 EndEvent
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  ; Empty function
-EndEvent
+; Adds a dynamic menu item to the TerminalMenu of the specified reference
+Function AddDynamicMenuItem(ObjectReference aTerminalRef, int aiTemplateIndex, int aiItemID, Form[] akTagReplacementForms) native
+
+; Adds a dynamic body text item to the TerminalMenu of the specified reference
+Function AddDynamicBodyTextItem(ObjectReference aTerminalRef, int aiTemplateIndex, int aiItemID, Form[] akTagReplacementForms) native
+
+; Clears all dynamic menu items from the specified reference
+Function ClearDynamicMenuItems(ObjectReference aTerminalRef) native
+
+; Clears all dynamic body text items from the specified reference
+Function ClearDynamicBodyTextItems(ObjectReference aTerminalRef) native
+
+; Get the current terminal reference being used by the player
+ObjectReference Function GetCurrentTerminalObjectRef() native global

@@ -1,36 +1,33 @@
-ScriptName MQ105_ApplyPerkAliasScript Extends ReferenceAlias
+Scriptname MQ105_ApplyPerkAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Perk Property MQ105_CompanionStealth Auto Const mandatory
-{ Perk to apply to the NPC }
-
-;-- Functions ---------------------------------------
+Perk Property MQ105_CompanionStealth Mandatory Const Auto
+{Perk to apply to the NPC}
 
 Event OnAliasInit()
-  Actor currAct = Self.GetActorRef()
-  If currAct != None
-    currAct.AddPerk(MQ105_CompanionStealth, False)
-  EndIf
+    Actor currAct = GetActorRef()
+    if currAct != none
+        currAct.AddPerk(MQ105_CompanionStealth)
+    endif
 EndEvent
 
-Event OnAliasChanged(ObjectReference akObject, Bool abRemove)
-  Actor currAct = akObject as Actor
-  If currAct != None
-    If abRemove
-      If currAct.HasPerk(MQ105_CompanionStealth)
-        currAct.RemovePerk(MQ105_CompanionStealth)
-      EndIf
-    ElseIf !currAct.HasPerk(MQ105_CompanionStealth)
-      currAct.AddPerk(MQ105_CompanionStealth, False)
-    EndIf
-  EndIf
+Event OnAliasChanged(ObjectReference akObject, bool abRemove)
+    Actor currAct = akObject as Actor
+    if currAct != none
+        if abRemove
+            if currAct.HasPerk(MQ105_CompanionStealth)
+                currAct.RemovePerk(MQ105_CompanionStealth)
+            endif
+        else
+            if !currAct.HasPerk(MQ105_CompanionStealth)
+                currAct.AddPerk(MQ105_CompanionStealth)
+            endif
+        endif
+    endif
 EndEvent
 
 Event OnAliasShutdown()
-  Actor currAct = Self.GetActorRef()
-  If currAct != None && currAct.HasPerk(MQ105_CompanionStealth)
-    currAct.RemovePerk(MQ105_CompanionStealth)
-  EndIf
+    Actor currAct = GetActorRef()
+    if currAct != none && currAct.HasPerk(MQ105_CompanionStealth)
+        currAct.RemovePerk(MQ105_CompanionStealth)
+    endif
 EndEvent

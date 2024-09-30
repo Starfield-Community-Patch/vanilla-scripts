@@ -1,46 +1,49 @@
-ScriptName FXScripts:DebugImpactEffectRaycaster Extends ObjectReference
-{ Test script for ImpactEffect Object. }
+Scriptname FXScripts:DebugImpactEffectRaycaster extends ObjectReference
+{Test script for ImpactEffect Object.}
 
-;-- Variables ---------------------------------------
-Int ImpactTimer = 10
+ImpactDataSet Property ImpactEffectRef01 Auto Const Mandatory
+{The impact set that will be spawned from the ship thrusters.}
+ImpactDataSet Property ImpactEffectRef02 Auto Const Mandatory
+{The impact set that will be spawned very close from the ship thrusters.}
+ImpactDataSet Property ImpactEffectRef03 Auto Const Mandatory
+{The impact set that will be spawned very close from the ship thrusters.}
+
+float Property ImpactRecastDelay = 0.1 Auto Const 
+float Property Impact01Range = 50.0 Auto Const 
+float Property Impact02Range = 15.0 Auto Const 
+float Property Impact03Range = 20.0 Auto Const 
+
+bool bPlayImpactEffects = false
+int ImpactTimer = 10
 ObjectReference ObjRef
-Bool bPlayImpactEffects = False
 
-;-- Properties --------------------------------------
-ImpactDataSet Property ImpactEffectRef01 Auto Const mandatory
-{ The impact set that will be spawned from the ship thrusters. }
-ImpactDataSet Property ImpactEffectRef02 Auto Const mandatory
-{ The impact set that will be spawned very close from the ship thrusters. }
-ImpactDataSet Property ImpactEffectRef03 Auto Const mandatory
-{ The impact set that will be spawned very close from the ship thrusters. }
-Float Property ImpactRecastDelay = 0.100000001 Auto Const
-Float Property Impact01Range = 50.0 Auto Const
-Float Property Impact02Range = 15.0 Auto Const
-Float Property Impact03Range = 20.0 Auto Const
 
-;-- Functions ---------------------------------------
+
+; Event OnInit()
+; 	ObjRef = Self as ObjectReference
+; EndEvent
 
 Event OnLoad()
-  If !Self.IsDisabled()
-    bPlayImpactEffects = True
-    Self.StartTimer(ImpactRecastDelay, ImpactTimer)
-  EndIf
-EndEvent
+  if !IsDisabled()
+  		bPlayImpactEffects = True
+		StartTimer(ImpactRecastDelay, ImpactTimer)
+  endif
+endEvent
 
 Event OnUnLoad()
-  bPlayImpactEffects = False
+	bPlayImpactEffects = False
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If Self.IsDisabled()
-    bPlayImpactEffects = False
-  EndIf
-  If aiTimerID == ImpactTimer
-    If bPlayImpactEffects == True
-      Self.PlayImpactEffect(ImpactEffectRef01, "", 0.0, 0.0, -1.0, Impact01Range, True, False)
-      Self.PlayImpactEffect(ImpactEffectRef02, "", 0.0, 0.0, -1.0, Impact02Range, True, False)
-      Self.PlayImpactEffect(ImpactEffectRef03, "", 0.0, 0.0, -1.0, Impact03Range, True, False)
-      Self.StartTimer(ImpactRecastDelay, ImpactTimer)
-    EndIf
-  EndIf
+Event OnTimer(int aiTimerID)
+	if IsDisabled()
+		bPlayImpactEffects = False
+	endif
+	if aiTimerID == ImpactTimer
+		if bPlayImpactEffects == True
+			Self.PlayImpactEffect(ImpactEffectRef01, "", 0, 0, -1, Impact01Range, true, false)
+			Self.PlayImpactEffect(ImpactEffectRef02, "", 0, 0, -1, Impact02Range, true, false)
+			Self.PlayImpactEffect(ImpactEffectRef03, "", 0, 0, -1, Impact03Range, true, false)
+			StartTimer(ImpactRecastDelay, ImpactTimer)
+		endif
+	endif
 EndEvent

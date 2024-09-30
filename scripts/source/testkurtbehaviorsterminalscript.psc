@@ -1,63 +1,73 @@
-ScriptName TestKurtBehaviorsTerminalScript Extends TerminalMenu
+Scriptname TestKurtBehaviorsTerminalScript extends TerminalMenu
 
-;-- Variables ---------------------------------------
-testkurtcreaturebehaviorscript myQuest
+TerminalMenu property TestKurtCreatureBehavior_BehaviorList auto const mandatory
+{ terminal for behaviors }
+
+TerminalMenu property TestKurtCreatureBehavior_RigList auto const mandatory
+{ terminal for rigs }
+
+Keyword Property TestKurtCreatureBehaviorKeyword auto const
+
+TestKurtCreatureBehaviorScript myQuest
+
+int property CreatureRigIndex = 7 auto
+{ what rig to create from this button? }
+
+int property Behavior_ResetID = 12 auto Const
+
 ObjectReference myTerminal
 
-;-- Properties --------------------------------------
-TerminalMenu Property TestKurtCreatureBehavior_BehaviorList Auto Const mandatory
-{ terminal for behaviors }
-TerminalMenu Property TestKurtCreatureBehavior_RigList Auto Const mandatory
-{ terminal for rigs }
-Keyword Property TestKurtCreatureBehaviorKeyword Auto Const
-Int Property CreatureRigIndex = 7 Auto
-{ what rig to create from this button? }
-Int Property Behavior_ResetID = 12 Auto Const
-
-;-- Functions ---------------------------------------
-
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If myTerminal == None
-    myTerminal = akTerminalRef
-    Self.RegisterForRemoteEvent(akTerminalRef as ScriptObject, "OnUnload")
-    Self.StartQuest()
-  EndIf
+    if myTerminal == NONE
+        myTerminal = akTerminalRef
+        RegisterForRemoteEvent(akTerminalRef, "OnUnload")
+        StartQuest()
+    endif
 EndEvent
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  If akTerminalBase == TestKurtCreatureBehavior_BehaviorList
-    If auiMenuItemID == Behavior_ResetID
-      myQuest.ResetCreatures()
-    Else
-      Int creatureIndex = auiMenuItemID - 1
-      myQuest.CreateCreature(creatureIndex)
-    EndIf
-  ElseIf akTerminalBase == TestKurtCreatureBehavior_RigList
-    Self.ChangeRig(auiMenuItemID - 1)
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase)
+    if akTerminalBase == TestKurtCreatureBehavior_BehaviorList
+        if auiMenuItemID == Behavior_ResetID
+            debug.trace(self + " Resetting creatures")
+            myQuest.ResetCreatures()
+        else
+            int creatureIndex = auiMenuItemID-1
+            debug.trace(self + " CreateCreature " + creatureIndex)
+            myQuest.CreateCreature(creatureIndex)
+        endif
+    ElseIf akTerminalBase == TestKurtCreatureBehavior_RigList
+        ChangeRig(auiMenuItemID-1)
+    endif
 EndEvent
 
-Function ChangeRig(Int newRigIndex)
-  myQuest.ResetCreatures()
-  myQuest.Stop()
-  myQuest = None
-  CreatureRigIndex = newRigIndex
-  Self.StartQuest()
-EndFunction
 
-Function StartQuest()
-  If myQuest == None
-    Quest[] questArray = TestKurtCreatureBehaviorKeyword.SendStoryEventAndWait(None, myTerminal, myTerminal.GetLinkedRef(None), CreatureRigIndex, 0)
-    If questArray.Length > 0
-      myQuest = questArray[0] as testkurtcreaturebehaviorscript
-    EndIf
-  EndIf
-EndFunction
-
-Event ObjectReference.OnUnload(ObjectReference akSource)
-  If myQuest
+function ChangeRig(int newRigIndex)
+    debug.trace(self + " ChangeRig newRigIndex=" + newRigIndex)
+    myQuest.ResetCreatures()
     myQuest.Stop()
     myQuest = None
-  EndIf
-  myTerminal = None
+    CreatureRigIndex = newRigIndex
+    StartQuest()
+endFunction
+
+function StartQuest()
+    debug.trace(self + " StartQuest myQuest=" + myQuest)
+    if myQuest == NONE
+        Quest[] questArray = TestKurtCreatureBehaviorKeyword.SendStoryEventAndWait(akRef1 = myTerminal, akRef2 = myTerminal.GetLinkedRef(), aiValue1=CreatureRigIndex)
+        debug.trace(self + " questArray=" + questArray)
+        if questArray.Length > 0
+            myQuest = questArray[0] as TestKurtCreatureBehaviorScript
+            debug.trace(self + " started quest: myQuest=" + myQuest)
+        endif
+    endif
+endFunction
+
+Event ObjectReference.OnUnload(ObjectReference akSource)
+    ; stop the quest so we can use it elsewhere
+    if myQuest
+        myQuest.Stop()
+        myQuest = NONE
+    endif
+    myTerminal = NONE
 EndEvent

@@ -1,27 +1,29 @@
-ScriptName LC102LifeSupportSwitchScript Extends ObjectReference
+Scriptname LC102LifeSupportSwitchScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool lifeSupportMachineReset = False
+GlobalVariable property LC102LifeSupportResetCount auto const
+WwiseEvent property WwiseEvent_QST_CF04_LifeSupport_Power_Off auto const
+WwiseEvent property LifeSupportMachineOffEvent auto const
 
-;-- Properties --------------------------------------
-GlobalVariable Property LC102LifeSupportResetCount Auto Const
-wwiseevent Property WwiseEvent_QST_CF04_LifeSupport_Power_Off Auto Const
-wwiseevent Property LifeSupportMachineOffEvent Auto Const
+bool lifeSupportMachineReset = false
 
-;-- Functions ---------------------------------------
+event OnActivate(ObjectReference akActionRef)
+    if(lifeSupportMachineReset == false)
+        self.BlockActivation(true, true)
 
-Event OnActivate(ObjectReference akActionRef)
-  If lifeSupportMachineReset == False
-    Self.BlockActivation(True, True)
-    ObjectReference machineRunningSoundMarker = Self.GetLinkedRef(None)
-    If machineRunningSoundMarker
-      machineRunningSoundMarker.Disable(False)
-    EndIf
-    LifeSupportMachineOffEvent.Play(Self as ObjectReference, None, None)
-    LC102LifeSupportResetCount.value = LC102LifeSupportResetCount.value + 1.0
-    If LC102LifeSupportResetCount.value >= 3.0
-      WwiseEvent_QST_CF04_LifeSupport_Power_Off.Play(Self as ObjectReference, None, None)
-    EndIf
-    lifeSupportMachineReset = True
-  EndIf
-EndEvent
+        ObjectReference machineRunningSoundMarker = GetLinkedRef()
+
+        if(machineRunningSoundMarker)
+            machineRunningSoundMarker.Disable()
+        endIf
+
+        LifeSupportMachineOffEvent.Play(self)
+
+        LC102LifeSupportResetCount.value += 1
+
+        if(LC102LifeSupportResetCount.value >= 3)
+            WwiseEvent_QST_CF04_LifeSupport_Power_Off.Play(self)
+        endIf
+
+        lifeSupportMachineReset = true
+    endIf
+endEvent

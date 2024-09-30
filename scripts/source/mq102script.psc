@@ -1,19 +1,16 @@
-ScriptName MQ102Script Extends Quest
+Scriptname MQ102Script extends Quest
 
-;-- Variables ---------------------------------------
-inputenablelayer MQ102EnableLayer
-
-;-- Functions ---------------------------------------
+InputEnableLayer MQ102EnableLayer
 
 Function BlockSpaceTravel()
-  Game.SetInChargen(True, False, False)
-  MQ102EnableLayer = inputenablelayer.Create()
-  MQ102EnableLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
-  MQ102EnableLayer.EnableFastTravel(False)
-  MQ102EnableLayer.EnableFarTravel(False)
+    Game.SetInChargen(abDisableSaving=True, abDisableWaiting=False, abShowControlsDisabledMessage=False)
+    MQ102EnableLayer = InputEnableLayer.Create()
+    MQ102EnableLayer.DisablePlayerControls()
+    MQ102EnableLayer.EnableFastTravel(False)
+    MQ102EnableLayer.EnableFarTravel(False)
 EndFunction
 
 Function UnblockSpaceTravel()
-  MQ102EnableLayer = None
-  Game.SetInChargen(False, False, False)
+    MQ102EnableLayer = None
+    Game.SetInChargen(abDisableSaving=False, abDisableWaiting=False, abShowControlsDisabledMessage=False)
 EndFunction

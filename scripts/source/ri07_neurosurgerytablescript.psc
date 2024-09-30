@@ -1,14 +1,12 @@
-ScriptName RI07_NeurosurgeryTableScript Extends ObjectReference Const
+Scriptname RI07_NeurosurgeryTableScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property RI07 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property RI07 Auto Const Mandatory
 
 Event OnLoad()
-  If !RI07.GetStageDone(700) || RI07.GetStageDone(800)
-    Self.BlockActivation(True, True)
-  EndIf
+Debug.Trace(Self + " RI07_NeurosurgeryTable: OnLoad event fired")
+    If !RI07.GetStageDone(700) || RI07.GetStageDone(800)
+        Debug.Trace(Self + " RI07_NeurosurgeryTable: BlockActivation conditions passed")
+        BlockActivation(True, True)
+    EndIf
 EndEvent
+

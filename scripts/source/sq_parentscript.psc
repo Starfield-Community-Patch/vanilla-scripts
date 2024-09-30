@@ -1,1270 +1,1772 @@
-ScriptName SQ_ParentScript Extends Quest
-{ holds overall system data/functionality }
+Scriptname SQ_ParentScript extends Quest
+{holds overall system data/functionality}
 
-;-- Structs -----------------------------------------
-Struct ActorValueDatum
-  ActorValue ActorValueToDamage
-  { An actor value to damage. }
-  Float DamagePercent = 1.0
-  { The percent to damage the value by, 0-1, with 1 being 100% damage. }
+struct SurveySite
+	ObjectReference siteMarker
+	{ map marker (?) that holds survey site information }
 EndStruct
 
-Struct OutpostAttackSpecialCase
-  conditionform specialCaseCondition
-  Float specialCaseAttackChance
-  Keyword storyEventKeyword
+struct SurveySiteType
+	Activator siteTypeMarker
+	GlobalVariable siteTypeCount
 EndStruct
 
-Struct PlanetAbundanceData
-  Keyword planetKeyword
-  Float surveyDifficulty = 1.0
-EndStruct
+group SurveySiteGroup
+	SurveySite[] property SurveySites auto
+	{ array holds survey sites that the player has discovered but not used }
 
-Struct PlanetSurveySlateData
-  Book planetSurveySlate
-  Int minTraitValue = 0
-  Float minSurveyPercent = 0.25
-  GlobalVariable RewardXP
-EndStruct
+	Message property SQ_SurveySiteDiscoveredMessage auto const Mandatory
 
-Struct PlanetTraitData
-  Keyword PlanetTrait
-  ActorValue PlanetTraitAV
-  ObjectReference TraitNameMarker
-  ObjectReference TraitCategoryMarker
-  Perk AssociatedSkill
-  Perk AssociatedSkill02
-  Int discoverCountRequired = 1
-EndStruct
-
-Struct RandomShipDamageDatum
-  ActorValue ActorValueToDamage
-  { The ship system actor value to damage. }
-  Float ChanceDestroyed = 0.5
-  { Chance that this ship system is fully destroyed. }
-  Float MinDamagePercent = 0.0
-  { If this system is not destroyed, the minimum amount to damage it by. }
-  Float MaxDamagePercent = 1.0
-  { If this system is not destroyed, the maximum amount to damage it by. }
-EndStruct
-
-Struct SurveySite
-  ObjectReference siteMarker
-  { map marker (?) that holds survey site information }
-EndStruct
-
-Struct SurveySiteType
-  Activator siteTypeMarker
-  GlobalVariable siteTypeCount
-EndStruct
-
-Struct SystemSurveyData
-  Int minTraitValue = 0
-  GlobalVariable RewardXP
-EndStruct
-
-Struct TutorialMessage
-  Int tutorialID
-  Message TutorialMessage
-EndStruct
-
-Struct mapMarkerName
-  Keyword groupTypeKeyword
-  Form nameMarker
-EndStruct
-
-
-;-- Variables ---------------------------------------
-Float attackChanceBase = 0.100000001 Const
-Float attackChanceCargoLinkMult = 0.050000001 Const
-Float attackChanceCreature = 0.079999998 Const
-Float attackChanceResourceMult = 0.01 Const
-Int criticalHitType0_Reactor = 0 Const
-Int criticalHitType1_Crew = 1 Const
-Int criticalHitType2_Hull = 2 Const
-Int criticalHitType3_System = 3 Const
-Int criticalHitType4_EM = 4 Const
-Int criticalHitType5_Engine = 5 Const
-Int criticalHitType6_Shield = 6 Const
-Float minDaysSinceLastAttack = 7.0 Const
-Float minDaysSinceLastAttackRoll = 0.039999999 Const
-defaulttutorialquestscript tutorialQuest
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard ShipCriticalHitGuard
-Guard computersAchievementGuard
-Guard discoverMatchingTraitsBusy
-Guard harvestLock
-Guard planetSurveyLock
-Guard tutorialMessageGuard
-
-;-- Properties --------------------------------------
-Group SurveySiteGroup
-  sq_parentscript:surveysite[] Property SurveySites Auto
-  { array holds survey sites that the player has discovered but not used }
-  Message Property SQ_SurveySiteDiscoveredMessage Auto Const mandatory
-  sq_parentscript:surveysitetype[] Property surveySiteTypes Auto Const
+	SurveySiteType[] property surveySiteTypes const auto ; array of survey site type data
 EndGroup
 
-Group PlanetTraitGroup
-  RefCollectionAlias Property SurveySlates Auto Const mandatory
-  { holds planet survey slates until player sells them }
-  sq_parentscript:planettraitdata[] Property PlanetTraits Auto Const
-  sq_parentscript:planetabundancedata[] Property PlanetAbundanceKeywords Auto Const
-  Message Property SQ_ParentPlanetTraitScanMessage Auto Const mandatory
-  Message Property SQ_ParentPlanetTraitUpdateMessage Auto Const mandatory
-  Message Property SQ_ParentPlanetTraitDiscoverMessage Auto Const mandatory
-  Message Property SQ_ParentPlanetTraitExploreMessage Auto Const mandatory
-  Int Property KeywordType_PlanetTrait = 44 Auto Const hidden
-  { used to get PlanetTrait keyword types using GetKeywordTypeList native function }
-  Int Property KeywordType_PlanetFloraAbundance = 47 Auto Const hidden
-  { used to get Flora Abundance keyword types using GetKeywordTypeList native function }
-  Int Property KeywordType_PlanetFaunaAbundance = 48 Auto Const hidden
-  { used to get Flora Abundance keyword types using GetKeywordTypeList native function }
-  ReferenceAlias Property PlanetTraitCategory Auto Const mandatory
-  { used for message text replacement }
-  ReferenceAlias Property PlanetTraitName Auto Const mandatory
-  { used for message text replacement }
-  LocationRefType Property PlanetTraitScanTargetLocRef Auto Const mandatory
-  { used to count planet trait scan targets in a location }
-  ReferenceAlias Property ScanTarget Auto Const mandatory
-  { used for stamping scan target with "real name" after scanning }
-  ReferenceAlias Property ScanTargetName Auto Const mandatory
-  { used for stamping scan target with "real name" after scanning }
-  ActorValue Property PlanetTraitLocationScanCount Auto Const mandatory
-  { actor value used to count how many scan targets have been scanned on a location }
-  ActorValue Property PlanetTraitLocationScanCountRequired Auto Const mandatory
-  { actor value used to set total number of scan targets in location (default AV used by UI) }
-  ActorValue Property SQ_PlanetLastSurveyReward Auto Const mandatory
-  { actor value used to stamp the last survey reward slate % on a planet }
-  ActorValue Property SurveyingTraitBonus Auto Const mandatory
-  { used to reduce number of POIs needed to discover a trait }
-  ReferenceAlias Property SurveySlate Auto Const mandatory
-  { used for stamping survey slate with the planet name }
-  sq_parentscript:planetsurveyslatedata[] Property PlanetSurveySlates Auto Const
-  { array of planet survey slate data
-	  NOTE: needs to be ordered with highest value slate in 0 position and going down in value from there }
-  Float[] Property SurveyRewardThresholds Auto Const
-  { if new survey % goes above one of these, time to reward a survey slate }
-  sq_parentscript:systemsurveydata[] Property SystemSurveyRewards Auto Const
-  { array of rewards for completing system surveys }
-  GlobalVariable Property PlanetTraitXPReward Auto Const mandatory
-  GlobalVariable Property PlanetTraitXPRewardSkillBonus Auto Const mandatory
-  GlobalVariable Property PlanetTraitXPRewardAstrophysicsMult Auto Const mandatory
-  GlobalVariable Property Skill_Astrophysics_DiscoverTraitChance Auto Const mandatory
-  { chance to discover a trait when scanning a planet }
-  Keyword Property SQ_PlanetTraitOverrideLink Auto Const mandatory
-  { keyword used to link scan targets to map marker for cases where the location can work for multiple planet traits }
-  conditionform Property SQ_PlanetIsHabitable Auto Const mandatory
-  { used to determine if a planet is habitable }
-  Keyword Property SQ_PlanetIsHabitableKeyword Auto Const mandatory
-  { stamp survey slates with this keyword for habitable planets }
-  missionparentscript Property MB_Parent Auto Const mandatory
-  { mission parent quest }
-  Location[] Property SystemsFullySurveyed Auto
-  { array that will be updated to hold system locations that have been completely surveyed - all planets at 100% }
-  Keyword Property SQ_SurveySlateEvent Auto Const mandatory
-  { keyword used to start SQ_SurveySlate quests to stamp survey slates with the correct name }
+struct PlanetTraitData
+	Keyword PlanetTrait					; planet trait keyword
+	ActorValue PlanetTraitAV 			; used to track discover count per planet (on planet location)
+	ObjectReference TraitNameMarker		; used for text replacement (trait name)
+	ObjectReference TraitCategoryMarker	; used for text replacement (trait category)
+	Perk AssociatedSkill				; if player has this skill, get XP bonus for trait discovery
+	Perk AssociatedSkill02				; if player has this skill, get XP bonus for trait discovery
+	int discoverCountRequired = 1
+endStruct
+
+struct PlanetAbundanceData
+	Keyword planetKeyword 
+	float surveyDifficulty = 1.0
+endStruct
+
+struct PlanetSurveySlateData
+	Book planetSurveySlate ; book to give player when planet survey is complete
+	int minTraitValue = 0  ; min total "trait value" to get this book - array will be ordered from highest to lowest
+	float minSurveyPercent = 0.25 ; when survey % gets at least this much, reward this book
+	GlobalVariable RewardXP ; how much XP to award for this slate at 100%
+endStruct
+
+struct SystemSurveyData
+	int minTraitValue = 0  ; min total "trait value" to get this reward - array will be ordered from highest to lowest
+	GlobalVariable RewardXP ; how much XP to award
+endStruct
+
+struct ActorValueDatum
+	ActorValue ActorValueToDamage
+	{An actor value to damage.}
+	float DamagePercent = 1.0
+	{The percent to damage the value by, 0-1, with 1 being 100% damage.}
+EndStruct
+
+struct RandomShipDamageDatum
+	ActorValue ActorValueToDamage
+	{The ship system actor value to damage.}
+	float ChanceDestroyed = 0.5
+	{Chance that this ship system is fully destroyed.}
+	float MinDamagePercent = 0.0
+	{If this system is not destroyed, the minimum amount to damage it by.}
+	float MaxDamagePercent = 1.0
+	{If this system is not destroyed, the maximum amount to damage it by.}
+endStruct
+
+group PlanetTraitGroup
+	RefCollectionAlias property SurveySlates auto const mandatory
+	{ holds planet survey slates until player sells them }
+
+	PlanetTraitData[] property PlanetTraits const auto ; array of planet trait data
+
+	PlanetAbundanceData[] property PlanetAbundanceKeywords const auto ; array of planet flora/fauna abundance data
+
+	Message property SQ_ParentPlanetTraitScanMessage auto const mandatory
+	Message property SQ_ParentPlanetTraitUpdateMessage auto const mandatory
+	Message property SQ_ParentPlanetTraitDiscoverMessage auto const mandatory
+	Message property SQ_ParentPlanetTraitExploreMessage auto const mandatory
+
+	int property KeywordType_PlanetTrait = 44 auto const hidden
+	{ used to get PlanetTrait keyword types using GetKeywordTypeList native function }
+
+	int property KeywordType_PlanetFloraAbundance = 47 auto const hidden
+	{ used to get Flora Abundance keyword types using GetKeywordTypeList native function }
+
+	int property KeywordType_PlanetFaunaAbundance = 48 auto const hidden
+	{ used to get Flora Abundance keyword types using GetKeywordTypeList native function }
+
+	ReferenceAlias property PlanetTraitCategory auto const mandatory
+	{ used for message text replacement}
+	ReferenceAlias property PlanetTraitName auto const mandatory
+	{ used for message text replacement}
+
+	LocationRefType property PlanetTraitScanTargetLocRef auto const mandatory
+	{ used to count planet trait scan targets in a location }
+
+	ReferenceAlias property ScanTarget auto const mandatory
+	{ used for stamping scan target with "real name" after scanning }
+	
+	ReferenceAlias property ScanTargetName auto const mandatory
+	{ used for stamping scan target with "real name" after scanning }
+
+	ActorValue property PlanetTraitLocationScanCount auto const mandatory
+	{ actor value used to count how many scan targets have been scanned on a location }
+
+	ActorValue property PlanetTraitLocationScanCountRequired auto const mandatory
+	{ actor value used to set total number of scan targets in location (default AV used by UI)}
+
+	ActorValue property SQ_PlanetLastSurveyReward auto const mandatory
+	{ actor value used to stamp the last survey reward slate % on a planet }
+
+	ActorValue property SurveyingTraitBonus auto const mandatory
+	{ used to reduce number of POIs needed to discover a trait }
+
+	ReferenceAlias property SurveySlate auto const mandatory
+	{ used for stamping survey slate with the planet name }
+
+	PlanetSurveySlateData[] property PlanetSurveySlates const auto
+	{ array of planet survey slate data
+	  NOTE: needs to be ordered with highest value slate in 0 position and going down in value from there
+	}
+
+	float[] property SurveyRewardThresholds const Auto
+	{ if new survey % goes above one of these, time to reward a survey slate }
+
+	SystemSurveyData[] property SystemSurveyRewards const Auto
+	{ array of rewards for completing system surveys }
+
+	GlobalVariable property PlanetTraitXPReward auto const mandatory
+	GlobalVariable property PlanetTraitXPRewardSkillBonus auto const mandatory
+	GlobalVariable property PlanetTraitXPRewardAstrophysicsMult auto const mandatory
+
+	GlobalVariable property Skill_Astrophysics_DiscoverTraitChance auto const mandatory
+	{ chance to discover a trait when scanning a planet }
+
+	Keyword property SQ_PlanetTraitOverrideLink auto const mandatory
+	{ keyword used to link scan targets to map marker for cases where the location can work for multiple planet traits }
+
+	ConditionForm property SQ_PlanetIsHabitable auto const mandatory
+	{ used to determine if a planet is habitable }
+
+	Keyword property SQ_PlanetIsHabitableKeyword auto const mandatory
+	{ stamp survey slates with this keyword for habitable planets }
+
+	MissionParentScript Property MB_Parent Auto Const Mandatory
+	{ mission parent quest }
+
+	Location[] property SystemsFullySurveyed Auto
+	{ array that will be updated to hold system locations that have been completely surveyed - all planets at 100% }
+
+	Keyword property SQ_SurveySlateEvent auto const mandatory
+	{ keyword used to start SQ_SurveySlate quests to stamp survey slates with the correct name }
 EndGroup
 
 Group TextReplacement
-  ReferenceAlias Property PlanetReference Auto Const mandatory
-  Keyword Property LocTypeMajorOrbital Auto Const mandatory
-  Keyword Property LocTypeStarSystem Auto Const mandatory
-  LocationAlias Property PlanetReferencePlanetLocation Auto Const mandatory
-  { current planet matching PlanetReference }
-  LocationAlias Property PlanetReferenceSystemLocation Auto Const mandatory
-  { current system location matching PlanetReference }
-  ReferenceAlias Property PlayerShip Auto Const mandatory
-  { player current ship }
-  LocationAlias[] Property SystemPlanets Auto Const
-  { array of location aliases for all planets in current system - many will be empty }
-EndGroup
+	ReferenceAlias property PlanetReference auto const Mandatory
+
+	Keyword property LocTypeMajorOrbital auto const Mandatory
+	Keyword property LocTypeStarSystem auto const Mandatory
+
+	LocationAlias property PlanetReferencePlanetLocation auto const Mandatory
+	{ current planet matching PlanetReference }
+
+	LocationAlias property PlanetReferenceSystemLocation auto const Mandatory
+	{ current system location matching PlanetReference }
+
+    ReferenceAlias property PlayerShip auto const mandatory
+    { player current ship }
+
+	LocationAlias[] property SystemPlanets auto Const
+	{ array of location aliases for all planets in current system - many will be empty }
+endGroup
 
 Group Skills
-  ActorValue Property ZoologyNonLethalHarvestCount Auto Const mandatory
-  { used to track how many times the player has harvested from a creature }
-  GlobalVariable Property ZoologyNonLethalHarvestCountMax Auto Const mandatory
-  { current max harvest count }
-EndGroup
+	ActorValue property ZoologyNonLethalHarvestCount auto const mandatory
+	{ used to track how many times the player has harvested from a creature }
+
+	GlobalVariable property ZoologyNonLethalHarvestCountMax auto const mandatory
+	{ current max harvest count }
+endGroup
 
 Group Companions
-  companionaffinityeventsscript Property SQ_Companions Auto Const mandatory
-  { autofill }
+	CompanionAffinityEventsScript Property SQ_Companions Mandatory Const Auto
+	{autofill}
 EndGroup
 
 Group Quests
-  rad01_list_questscript Property Rad01_LIST Auto Const mandatory
-  { autofill }
+	Rad01_LIST_QuestScript Property Rad01_LIST Mandatory Const Auto
+	{autofill}
 EndGroup
 
 Group DerelictShips
-  sq_parentscript:randomshipdamagedatum[] Property RandomShipDamageData Auto Const mandatory
-  ReferenceAlias Property DerelictShipNameAlias Auto Const mandatory
-  Keyword Property BEDerelict Auto Const mandatory
-  Message Property DerelictShipNameOverrideMessage Auto Const mandatory
-  ActorValue Property SpaceshipCrew Auto Const mandatory
-  ActorValue Property SpaceshipExternalLightsDisabledValue Auto Const mandatory
+	RandomShipDamageDatum[] property RandomShipDamageData Auto Const Mandatory
+	ReferenceAlias property DerelictShipNameAlias Auto Const Mandatory
+	Keyword property BEDerelict Auto Const Mandatory
+	Message property DerelictShipNameOverrideMessage Auto Const Mandatory
+	ActorValue property SpaceshipCrew Auto Const Mandatory
+	ActorValue property SpaceshipExternalLightsDisabledValue Auto Const Mandatory
 EndGroup
 
-Group outpostAttacks
-  ActorValue Property OutpostLastAttackTimestamp Auto Const mandatory
-  { used to timestamp last outpost attack }
-  ActorValue Property OutpostLastAttackRollTimestamp Auto Const mandatory
-  { used to timestamp last outpost attack roll }
-  ActorValue Property OutpostCargoLinkAV Auto Const mandatory
-  { used to weight attacks based on cargo links at the outpost }
-  Keyword Property SQ_OutpostEventAttack Auto Const mandatory
-  { used to trigger outpost attacks by NPCs }
-  Keyword Property SQ_OutpostEventAttackCreatures Auto Const mandatory
-  { used to trigger outpost attacks by creatures }
-  sq_parentscript:outpostattackspecialcase[] Property OutpostAttackSpecialCases Auto Const
-  { used to increase attack chance for special cases }
-EndGroup
+struct OutpostAttackSpecialCase
+    ConditionForm specialCaseCondition  ; if this condition passes, add specialCaseAttackChance to attack chance
+    float specialCaseAttackChance
+	Keyword storyEventKeyword ; optional - if not included will use normal keyword
+endStruct
 
-Group OE_CivilianData
-  sq_parentscript:mapmarkername[] Property MapMarkerNames Auto Const
-  { array to use to rename map marker based on keyword on location }
-  Keyword Property MapMarkerLinkedRefNameOverride Auto Const mandatory
-  { use to link to override name }
-  FormList Property OE_CiviliansVisibleFromStarmapKeywords Auto Const mandatory
-  { locations with one of these keywords are visible on starmap }
-EndGroup
+group outpostAttacks
+    ActorValue property OutpostLastAttackTimestamp auto const mandatory
+    { used to timestamp last outpost attack }
 
-Group Tutorials
-  sq_parentscript:tutorialmessage[] Property TutorialMessages Auto
-  { array of tutorial messages. Array entries are removed after the message has been triggered. }
-EndGroup
+    ActorValue property OutpostLastAttackRollTimestamp auto const mandatory
+    { used to timestamp last outpost attack roll }
 
-Group Achievements
-  Int Property ComputersAchievementID = 35 Auto Const
-  ActorValue Property ComputersAchievementAV Auto Const mandatory
-  { AV on player to track number of terminals accessed }
-  GlobalVariable Property ComputersAchievementCount Auto Const mandatory
-  { how many computers accessed required for achievement? }
-  Bool Property ComputersAchievementAwarded = False Auto hidden
-  { set to true when player gets this achievement }
-EndGroup
+    ActorValue property OutpostCargoLinkAV auto const mandatory
+    { used to weight attacks based on cargo links at the outpost }
 
-Group SmugglingMinigame
-  Message Property SQ_GuardShipSmugglingMinigameSuccess Auto Const mandatory
-  { temp message box for smuggling minigame }
-  Message Property SQ_GuardShipSmugglingMinigameFailure Auto Const mandatory
-  { temp message box for smuggling minigame }
-  Float Property fSmugglingBaseChance = 60.0 Auto
-  Float Property fSmugglingTargetSkillMult = -5.0 Auto Const
-  Float Property fSmugglingCapacityMult = 1.0 Auto Const
-  Float Property fSmugglingWeightPower = 0.5 Auto Const
-  Float Property fSmugglingWeightMult = -1.0 Auto Const
-  Float Property fSmugglingWeightMax = 2000.0 Auto Const
-  Float Property fSmugglingMaxChance = 90.0 Auto Const
-  Float Property fSmugglingMinChance = 10.0 Auto Const
-  Float[] Property ScanJammerMults Auto Const mandatory
-  { this will hold the values to use in the formula for each level of SpaceshipScanJammer, which will be ints }
-  Float[] Property PlayerSkillMults Auto Const mandatory
-  { this will hold the values to use in the formula for each level of player skill, which will be ints }
-  ActorValue Property CarryWeightShielded Auto Const mandatory
-  ActorValue Property Perception Auto Const mandatory
-  ActorValue Property PayloadLevel Auto Const mandatory
-  { player's Payloads skill }
-  ActorValue Property SpaceshipScanJammer Auto Const mandatory
-  { ship's scan jammer level }
-  Int Property SmugglingAchievementID = 45 Auto Const
-EndGroup
+    Keyword property SQ_OutpostEventAttack auto const mandatory
+    { used to trigger outpost attacks by NPCs }
 
-Group ShipCriticalHits
-  ActorValue Property ShipSystemReactorHealth Auto Const mandatory
-  { reactor system health }
-  ActorValue Property Health Auto Const mandatory
-  { ship health }
-  ActorValue Property ShipSystemEngineHealth Auto Const mandatory
-  { engine system health - needed if crew goes to 0 }
-  ActorValue Property SpaceshipCriticalHitCrew Auto Const mandatory
-  { set to 1 when crew is wiped out by a critical }
-  Int Property maxCrewDamage = 6 Auto Const
-  { max number of crew that can be killed in a single critical hit }
-  Float Property minReactorHealthDamage = 0.100000001 Auto Const
-  { min % of reactor health to damage }
-  Float Property maxReactorHealthDamage = 0.25 Auto Const
-  { max % of reactor health to damage }
-  Float Property minHullHealthDamage = 0.100000001 Auto Const
-  { min % of Hull health to damage }
-  Float Property maxHullHealthDamage = 0.25 Auto Const
-  { max % of reactor health to damage }
-  Float Property minSystemHealthDamage = 1.0 Auto Const
-  { min % of system health to damage }
-  Float Property maxSystemHealthDamage = 1.25 Auto Const
-  { max % of system health to damage }
-  ActorValue[] Property SystemHealthAVs Auto Const
-  { system health actor values }
-  ActorValue[] Property SystemEMHealthAVs Auto Const
-  { system EM health actor values }
-  Message[] Property CriticalHitMessages Auto Const
-  { array of critical hit messages - index matches the hit type }
-  wwiseevent Property UICriticalHitShip Auto Const mandatory
-  { critical hit sound }
-EndGroup
+    Keyword property SQ_OutpostEventAttackCreatures auto const mandatory
+    { used to trigger outpost attacks by creatures }
+
+	OutpostAttackSpecialCase[] property OutpostAttackSpecialCases auto Const
+	{ used to increase attack chance for special cases }
+endGroup
+
+struct mapMarkerName
+	Keyword groupTypeKeyword
+	Form nameMarker
+EndStruct
+
+group OE_CivilianData
+	mapMarkerName[] property MapMarkerNames auto const
+	{ array to use to rename map marker based on keyword on location }
+
+	Keyword property MapMarkerLinkedRefNameOverride auto const mandatory
+	{ use to link to override name }
+
+	FormList Property OE_CiviliansVisibleFromStarmapKeywords Mandatory Const Auto
+	{ locations with one of these keywords are visible on starmap }
+endGroup
+
+struct TutorialMessage
+	int tutorialID 			; used to trigger this message
+	Message tutorialMessage		; the message to display
+endStruct
 
 
-;-- Functions ---------------------------------------
+group Tutorials 
+	TutorialMessage[] property TutorialMessages auto
+	{ array of tutorial messages. Array entries are removed after the message has been triggered. }
+endGroup
 
-Function TestGetBaseActor(Actor testActor)
-  ; Empty function
-EndFunction
+group Achievements
+	int property ComputersAchievementID = 35 auto const
 
-Function TestGetEditorLocation(ObjectReference testRef)
-  ; Empty function
-EndFunction
+	ActorValue property ComputersAchievementAV auto const mandatory
+	{ AV on player to track number of terminals accessed }
 
-Function TestGetMatchingActorBase(Actor theActor)
-  ; Empty function
-EndFunction
+	GlobalVariable property ComputersAchievementCount auto const mandatory
+	{ how many computers accessed required for achievement? }
 
-Function TestIsInSameLocation(ObjectReference refToTest, Location locationToTest, Keyword locationKeyword)
-  ; Empty function
-EndFunction
+	bool property ComputersAchievementAwarded = false auto hidden
+	{ set to true when player gets this achievement }
+endGroup
 
-Function testConditionForm(ObjectReference testRef, conditionform testCondition)
-  ; Empty function
-EndFunction
-
-Function testGetRefsLinkedToMe(ObjectReference refToCheck, Keyword keywordToCheck)
-  ; Empty function
-EndFunction
-
-Function testRandomInt(Int Min, Int Max)
-  ; Empty function
-EndFunction
+DefaultTutorialQuestScript tutorialQuest
 
 Event OnQuestInit()
-  SurveySites = new sq_parentscript:surveysite[0]
-  tutorialQuest = (Self as Quest) as defaulttutorialquestscript
-  Actor playerRef = Game.GetPlayer()
-  Self.RegisterForRemoteEvent(playerRef as ScriptObject, "OnPlayerPlanetSurveyComplete")
-  Self.RegisterForRemoteEvent(playerRef as ScriptObject, "OnPlayerScannedObject")
-  SystemsFullySurveyed = new Location[0]
+	SurveySites = new SurveySite[0]
+	tutorialQuest = ((self as Quest) as DefaultTutorialQuestScript)
+	Actor playerRef = Game.GetPlayer()
+	RegisterForRemoteEvent(playerRef, "OnPlayerPlanetSurveyComplete")
+	RegisterForRemoteEvent(playerRef, "OnPlayerScannedObject")
+	SystemsFullySurveyed = new Location[0]
 EndEvent
 
-Event Actor.OnPlayerPlanetSurveyComplete(Actor akSource, planet akPlanet)
-  Self.CheckCompletePlanetSurvey(akPlanet, False)
+Event Actor.OnPlayerPlanetSurveyComplete(Actor akSource, Planet akPlanet)
+	debug.trace(self + "OnPlayerPlanetSurveyComplete " + akPlanet)
+	CheckCompletePlanetSurvey(akPlanet)
 EndEvent
 
 Event Actor.OnPlayerScannedObject(Actor akSource, ObjectReference akScannedRef)
-  Self.CheckCompletePlanetSurvey(akScannedRef.GetCurrentPlanet(), False)
+	debug.trace(self + "OnPlayerScannedObject " + akScannedRef)
+	CheckCompletePlanetSurvey(akScannedRef.GetCurrentPlanet())
 EndEvent
 
 Event ObjectReference.OnSell(ObjectReference akSource, Actor akSeller)
-  Int index = SurveySlates.Find(akSource)
-  If index > -1
-    Self.UnregisterForRemoteEvent(akSource as ScriptObject, "OnSell")
-    SurveySlates.RemoveRef(akSource)
-  EndIf
+	; if this ref is in SurveySlates, remove it
+	int index = SurveySlates.Find(akSource)
+	if index > -1
+		UnregisterForRemoteEvent(akSource, "OnSell")
+		SurveySlates.RemoveRef(akSource)
+	endif
 EndEvent
 
-Function SendPlanetTraitDiscoveredEvent(planet traitPlanet, Keyword PlanetTrait, Int discoverCountCurrent, Int discoverCountRequired)
-  Var[] kargs = new Var[4]
-  kargs[0] = traitPlanet as Var
-  kargs[1] = PlanetTrait as Var
-  kargs[2] = discoverCountCurrent as Var
-  kargs[3] = discoverCountRequired as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_PlanetTraitDiscovered", kargs)
+;******************* CUSTOM EVENTS ***************************
+CustomEvent SQ_SurveySiteDiscovered
+
+CustomEvent SQ_PlanetTraitDiscovered ; sent when the player discovers a planet trait
+
+CustomEvent SQ_PlanetTraitUpdated	; sent when the player fully explores a planet trait overlay (updating planet trait discovery progress)
+
+CustomEvent SQ_BEStarted
+
+CustomEvent SQ_BEForceStop ; DEBUG: Force-stop all active BE Quests.
+
+CustomEvent SQ_NativeTerminalActor_Unconscious
+
+CustomEvent SQ_NativeTerminalActor_Ally
+
+CustomEvent SQ_NativeTerminalActor_Frenzy
+
+CustomEvent SQ_AlarmTriggeredOn
+
+CustomEvent SQ_AlarmTriggeredOff
+
+CustomEvent SQ_PiracyEvent		; sent when the player attempts to commit piracy
+
+CustomEvent SQ_ContrabandConfiscated		; sent when the player pays fine or goes to jail and contraband is confiscated
+
+function SendPlanetTraitDiscoveredEvent(Planet traitPlanet, Keyword planetTrait, int discoverCountCurrent, int discoverCountRequired)
+	; Send the planet trait event
+	Var[] kargs = new Var[4]
+	kargs[0] = traitPlanet
+	kargs[1] = planetTrait
+	kargs[2] = discoverCountCurrent
+	kargs[3] = discoverCountRequired
+	SendCustomEvent("SQ_PlanetTraitDiscovered", kargs)
+endFunction
+
+function SendPlanetTraitUpdatedEvent(Planet traitPlanet, Keyword planetTrait, int discoverCountCurrent, int discoverCountRequired)
+	; Send the planet trait updated event - this is NOT sent when the planet trait is discovered
+	Var[] kargs = new Var[4]
+	kargs[0] = traitPlanet
+	kargs[1] = planetTrait
+	kargs[2] = discoverCountCurrent
+	kargs[3] = discoverCountRequired
+	SendCustomEvent("SQ_PlanetTraitUpdated", kargs)
+endFunction
+
+function SendBEStartedEvent(ObjectReference enemyShip, BEScript BEQuest)
+	Var[] kargs = new Var[2]
+	kargs[0] = enemyShip
+	kargs[1] = BEQuest
+	debug.trace(self + " SendBEStartedEvent kargs=" + kargs)
+	SendCustomEvent("SQ_BEStarted", kargs)
 EndFunction
 
-Function SendPlanetTraitUpdatedEvent(planet traitPlanet, Keyword PlanetTrait, Int discoverCountCurrent, Int discoverCountRequired)
-  Var[] kargs = new Var[4]
-  kargs[0] = traitPlanet as Var
-  kargs[1] = PlanetTrait as Var
-  kargs[2] = discoverCountCurrent as Var
-  kargs[3] = discoverCountRequired as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_PlanetTraitUpdated", kargs)
+function SendBEForceStopEvent()
+	SendCustomEvent("SQ_BEForceStop")
 EndFunction
 
-Function SendBEStartedEvent(ObjectReference enemyShip, bescript BEQuest)
-  Var[] kargs = new Var[2]
-  kargs[0] = enemyShip as Var
-  kargs[1] = BEQuest as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_BEStarted", kargs)
+function SendNativeTerminalActorUnconsciousEvent(ObjectReference terminalRef, Actor actorRef, bool bSetUnconscious)
+	; Send the native terminal actor unconscious event
+	Var[] kargs = new Var[3]
+	kargs[0] = terminalRef
+	kargs[1] = actorRef
+	kargs[2] = bSetUnconscious
+	SendCustomEvent("SQ_NativeTerminalActor_Unconscious", kargs)
+endFunction
+
+function SendNativeTerminalActorAllyEvent(ObjectReference terminalRef, Actor actorRef)
+	; Send the native terminal actor Ally event
+	Var[] kargs = new Var[2]
+	kargs[0] = terminalRef
+	kargs[1] = actorRef
+	SendCustomEvent("SQ_NativeTerminalActor_Ally", kargs)
+endFunction
+
+function SendNativeTerminalActorFrenzyEvent(ObjectReference terminalRef, Actor actorRef)
+	; Send the native terminal actor Frenzy event
+	Var[] kargs = new Var[2]
+	kargs[0] = terminalRef
+	kargs[1] = actorRef
+	SendCustomEvent("SQ_NativeTerminalActor_Frenzy", kargs)
+endFunction
+
+
+function SendAlarmTriggeredOnEvent(ObjectReference alarmRef, Actor alarmActor, SQ_AlarmScript SQ_AlarmQuest)
+	debug.trace(self + "SendAlarmTriggeredOnEvent alarmRef=" + alarmRef + " alarmActor=" + alarmActor + " SQ_AlarmQuest=" + SQ_AlarmQuest)
+	if alarmRef && SQ_AlarmQuest
+		Var[] kargs = new Var[4]
+		kargs[0] = alarmRef.GetCurrentLocation()
+		kargs[1] = SQ_AlarmQuest
+		kargs[2] = alarmRef
+		kargs[3] = alarmActor
+		SendCustomEvent("SQ_AlarmTriggeredOn", kargs)
+	Else
+		debug.trace(self + " SendAlarmTriggeredOnEvent NOT SENT: bad parameters: alarmRef=" + alarmRef + " SQ_AlarmQuest=" + SQ_AlarmQuest)
+	EndIf
 EndFunction
 
-Function SendBEForceStopEvent()
-  Self.SendCustomEvent("sq_parentscript_SQ_BEForceStop", None)
+function SendAlarmTriggeredOffEvent(ObjectReference alarmRef, SQ_AlarmScript SQ_AlarmQuest)
+	debug.trace(self + "SendAlarmTriggeredOnEvent alarmRef=" + alarmRef + " SQ_AlarmQuest=" + SQ_AlarmQuest)
+	if alarmRef && SQ_AlarmQuest
+		Var[] kargs = new Var[3]
+		kargs[0] = alarmRef.GetCurrentLocation()
+		kargs[1] = SQ_AlarmQuest
+		kargs[2] = alarmRef
+		SendCustomEvent("SQ_AlarmTriggeredOff", kargs)
+	Else
+		debug.trace(self + " SendAlarmTriggeredOffEvent NOT SENT: bad parameters: alarmRef=" + alarmRef + " SQ_AlarmQuest=" + SQ_AlarmQuest)
+	EndIf
 EndFunction
 
-Function SendNativeTerminalActorUnconsciousEvent(ObjectReference terminalRef, Actor actorRef, Bool bSetUnconscious)
-  Var[] kargs = new Var[3]
-  kargs[0] = terminalRef as Var
-  kargs[1] = actorRef as Var
-  kargs[2] = bSetUnconscious as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_NativeTerminalActor_Unconscious", kargs)
+function SendPiracyEvent(ObjectReference piratedShip, bool piracySuccess)
+	Var[] kargs = new Var[2]
+	kargs[0] = piratedShip
+	kargs[1] = piracySuccess
+	debug.trace(self + " SendPiracyEvent kargs=" + kargs)
+	SendCustomEvent("SQ_PiracyEvent", kargs)
 EndFunction
 
-Function SendNativeTerminalActorAllyEvent(ObjectReference terminalRef, Actor actorRef)
-  Var[] kargs = new Var[2]
-  kargs[0] = terminalRef as Var
-  kargs[1] = actorRef as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_NativeTerminalActor_Ally", kargs)
+function SendContrabandConfiscatedEvent(Faction crimeFaction)
+	debug.trace(self + " SQ_ContrabandConfiscated")
+	SendCustomEvent("SQ_ContrabandConfiscated")
 EndFunction
 
-Function SendNativeTerminalActorFrenzyEvent(ObjectReference terminalRef, Actor actorRef)
-  Var[] kargs = new Var[2]
-  kargs[0] = terminalRef as Var
-  kargs[1] = actorRef as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_NativeTerminalActor_Frenzy", kargs)
+; **************** CUSTOM EVENTS END ************************************
+; update text replacement aliases from a Planet
+; will NOT update PlanetReference
+function UpdateTextReplacementAliasesPlanet(Planet planetToUse)
+	Location planetLocation = planetToUse.GetLocation()
+	Location systemLocation = planetLocation.GetParentLocations(LocTypeStarSystem)[0]
+
+   	PlanetReferencePlanetLocation.ForceLocationTo(planetLocation)
+   	PlanetReferenceSystemLocation.ForceLocationTo(systemLocation)
+   	Debug.trace(self + " UpdateTextReplacementAliasesPlanet: planetLocation=" + planetLocation + " systemLocation=" + systemLocation)
 EndFunction
 
-Function SendAlarmTriggeredOnEvent(ObjectReference alarmRef, Actor alarmActor, sq_alarmscript SQ_AlarmQuest)
-  If alarmRef as Bool && SQ_AlarmQuest as Bool
-    Var[] kargs = new Var[4]
-    kargs[0] = alarmRef.GetCurrentLocation() as Var
-    kargs[1] = SQ_AlarmQuest as Var
-    kargs[2] = alarmRef as Var
-    kargs[3] = alarmActor as Var
-    Self.SendCustomEvent("sq_parentscript_SQ_AlarmTriggeredOn", kargs)
-  EndIf
+function UpdateTextReplacementAliases(ObjectReference siteMarkerRef)
+   	PlanetReference.ForceRefTo(siteMarkerRef)
+	Location siteMarkerLocation = siteMarkerRef.GetCurrentLocation()
+	Location sitePlanetLocation = siteMarkerLocation.GetParentLocations(LocTypeMajorOrbital)[0]
+	Location siteSystemLocation = siteMarkerLocation.GetParentLocations(LocTypeStarSystem)[0]
+
+   	PlanetReferencePlanetLocation.ForceLocationTo(sitePlanetLocation)
+   	PlanetReferenceSystemLocation.ForceLocationTo(siteSystemLocation)
+   	Debug.trace(self + " UpdateTextReplacementAliases: siteMarkerRef=" + siteMarkerRef + ", planetLocation=" + sitePlanetLocation + " systemLocation=" + siteSystemLocation)
+endFunction
+
+PlanetTraitData function GetPlanetTraitData(ObjectReference refToCheck)
+	debug.trace(self + " GetPlanetTraitData refToCheck=" + refToCheck)
+
+	; rename ref with "real name"
+	PlanetTraitScanTargetScript scanTargetRef = refToCheck as PlanetTraitScanTargetScript
+
+	; get planet trait data
+	PlanetTraitData theData
+	Planet planetToCheck = refToCheck.GetCurrentPlanet()
+	Location locationToCheck = refToCheck.GetCurrentLocation()
+
+	; do we get the keyword from the location or somewhere else?
+	MapMarkerPlanetTraitScript mapMarkerRef
+	; if I'm a scan target, I might be linked to a map marker with an override trait keyword
+	if scanTargetRef && scanTargetRef.GetLinkedRef(SQ_PlanetTraitOverrideLink) is MapMarkerPlanetTraitScript
+		mapMarkerRef = scanTargetRef.GetLinkedRef(SQ_PlanetTraitOverrideLink) as MapMarkerPlanetTraitScript
+	Else
+		mapMarkerRef = refToCheck as MapMarkerPlanetTraitScript
+	EndIf
+
+	if mapMarkerRef && mapMarkerRef.LocationTraitOverride
+		; use the trait override
+		theData = FindMatchingPlanetTraitForKeyword(mapMarkerRef.LocationTraitOverride, planetToCheck)
+	else 
+		; use the location
+		theData = FindMatchingPlanetTrait(locationToCheck, planetToCheck)
+	EndIf
+	return theData
 EndFunction
 
-Function SendAlarmTriggeredOffEvent(ObjectReference alarmRef, sq_alarmscript SQ_AlarmQuest)
-  If alarmRef as Bool && SQ_AlarmQuest as Bool
-    Var[] kargs = new Var[3]
-    kargs[0] = alarmRef.GetCurrentLocation() as Var
-    kargs[1] = SQ_AlarmQuest as Var
-    kargs[2] = alarmRef as Var
-    Self.SendCustomEvent("sq_parentscript_SQ_AlarmTriggeredOff", kargs)
-  EndIf
+; get planet trait keywords from locationToCheck that match planetToCheck
+Guard discoverMatchingTraitsBusy ProtectsFunctionLogic
+function DiscoverMatchingPlanetTraits(ObjectReference refToCheck, bool incrementScanCount = true)
+	debug.trace(self + " DiscoverMatchingPlanetTraits refToCheck=" + refToCheck)
+	LockGuard discoverMatchingTraitsBusy
+
+	; get planet trait data
+	PlanetTraitData theData = GetPlanetTraitData(refToCheck)
+
+	; rename ref with "real name"
+	PlanetTraitScanTargetScript scanTargetRef = refToCheck as PlanetTraitScanTargetScript
+	if scanTargetRef
+		ScanTargetName.ForceRefTo(scanTargetRef.PlanetTraitScanTargetRef)
+		ScanTarget.ForceRefTo(scanTargetRef)
+	endif
+
+	Location locationToCheck = refToCheck.GetCurrentLocation()
+
+	if theData
+		debug.trace(self + " found matching trait " + theData)
+
+		; increment scan count on trait location
+		int scanCountNeeded = locationToCheck.GetRefTypeAliveCount(PlanetTraitScanTargetLocRef)
+		int scanCount = (locationToCheck.GetValue(PlanetTraitLocationScanCount) as int)
+		if incrementScanCount
+			scanCount += 1
+		endif
+		debug.trace(self + "   scanCountNeeded=" + scanCountNeeded + ", scanCount=" + scanCount)
+		locationToCheck.SetValue(PlanetTraitLocationScanCount, scanCount)
+
+		; if scan count >= needed count, this location is "done"
+		if scanCount >= scanCountNeeded
+			if locationToCheck.IsExplored() == false
+				; count this location as explored
+				locationToCheck.SetExplored()
+
+				UpdatePlanetTraitDiscoveryPrivate(refToCheck, theData, 1)
+			EndIf
+		Else
+			UpdateTextReplacementAliases(refTocheck)
+			PlanetTraitCategory.ForceRefTo(theData.TraitCategoryMarker)
+			PlanetTraitName.ForceRefTo(theData.TraitNameMarker)
+
+			if incrementScanCount
+				; show scan message
+				;SQ_ParentPlanetTraitScanMessage.Show(scanCount, scanCountNeeded)
+			Elseif locationToCheck.IsExplored() == false
+				; show explore message
+				SQ_ParentPlanetTraitExploreMessage.Show(scanCount, scanCountNeeded)
+			endif
+		endif
+	endif
+	EndLockGuard
+endFunction
+
+; discover the specified trait on refToCheck's planet
+Function UpdatePlanetTraitDiscovery(ObjectReference refToCheck, PlanetTraitData theData, int incrementAmount)
+	debug.trace(self + " UpdatePlanetTraitDiscovery refToCheck=" + refToCheck)
+	LockGuard discoverMatchingTraitsBusy
+		UpdatePlanetTraitDiscoveryPrivate(refToCheck, theData, incrementAmount)
+	endLockGuard
 EndFunction
 
-Function SendPiracyEvent(ObjectReference piratedShip, Bool piracySuccess)
-  Var[] kargs = new Var[2]
-  kargs[0] = piratedShip as Var
-  kargs[1] = piracySuccess as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_PiracyEvent", kargs)
+Function UpdatePlanetTraitDiscoveryPrivate(ObjectReference refToCheck, PlanetTraitData theData, int incrementAmount) RequiresGuard(discoverMatchingTraitsBusy)
+	if theData && refToCheck
+		debug.trace(self + " trait data=" + theData)
+		Planet planetToCheck = refToCheck.GetCurrentPlanet()		
+		; get planet location
+		UpdateTextReplacementAliases(refTocheck)
+		Location planetLocation = PlanetReferencePlanetLocation.GetLocation()
+
+		PlanetTraitCategory.ForceRefTo(theData.TraitCategoryMarker)
+		PlanetTraitName.ForceRefTo(theData.TraitNameMarker)
+
+		; if trait is already discovered, just give message
+		if planetToCheck.IsTraitKnown(theData.PlanetTrait)
+			; show discover message
+			;SQ_ParentPlanetTraitDiscoverMessage.Show(planetToCheck.GetSurveyPercent()*100)
+		else
+			; increment actor value on planet location
+			int traitValue = (planetLocation.GetValue(theData.PlanetTraitAV) as int) + incrementAmount
+			debug.trace(self + "   found matching traitAV " + traitValue)
+
+			planetLocation.SetValue(theData.PlanetTraitAV, traitValue)
+
+			; surveying bonus
+			int surveyingBonus = Game.GetPlayer().GetValueInt(SurveyingTraitBonus)
+			; reduce required count by bonus, but never below 1
+;			int discoverCountRequiredActual = Math.Max(1, theData.discoverCountRequired - surveyingBonus) as int
+
+			int discoverCountRequiredActual = 1 ; all traits now require only 1 discovered location
+
+			debug.trace(self + "   discoverCountRequired=" + theData.discoverCountRequired + " surveyingBonus=" + surveyingBonus + "; traitValue=" + traitValue)
+
+			if traitValue >= discoverCountRequiredActual
+				debug.trace(self + "   discovered trait " + theData.PlanetTrait)
+				DiscoverPlanetTrait(planetToCheck, theData, traitValue)
+			Else
+				debug.trace(self + "   incremented trait " + theData.PlanetTrait)
+				; show update message
+				SQ_ParentPlanetTraitUpdateMessage.Show(traitValue, discoverCountRequiredActual)
+				; send custom event
+				SendPlanetTraitUpdatedEvent(planetToCheck, theData.PlanetTrait, traitValue, theData.discoverCountRequired)
+			endif
+		endif
+		debug.trace(self + "    planet trait known: " + planetToCheck.IsTraitKnown(theData.PlanetTrait))
+	endif
 EndFunction
 
-Function SendContrabandConfiscatedEvent(Faction crimeFaction)
-  Self.SendCustomEvent("sq_parentscript_SQ_ContrabandConfiscated", None)
-EndFunction
+Function DiscoverPlanetTrait(Planet planetToCheck, PlanetTraitData theData, int traitValue = 99, float xpMult = 1.0) RequiresGuard(discoverMatchingTraitsBusy)
+	debug.trace(self + " DiscoverPlanetTrait planetToCheck=" + planetToCheck + " trait=" + theData.PlanetTrait)
+	; make sure these are filled in for message
+	PlanetTraitCategory.ForceRefTo(theData.TraitCategoryMarker)
+	PlanetTraitName.ForceRefTo(theData.TraitNameMarker)
 
-Function UpdateTextReplacementAliasesPlanet(planet planetToUse)
-  Location planetLocation = planetToUse.GetLocation()
-  Location systemLocation = planetLocation.GetParentLocations(LocTypeStarSystem)[0]
-  PlanetReferencePlanetLocation.ForceLocationTo(planetLocation)
-  PlanetReferenceSystemLocation.ForceLocationTo(systemLocation)
-EndFunction
+	; planet trait is discovered
+	planetToCheck.SetTraitKnown(theData.PlanetTrait)
+	; show discover message
+	;SQ_ParentPlanetTraitDiscoverMessage.Show(planetToCheck.GetSurveyPercent()*100)
+	; reward XP
+	int xpReward = (PlanetTraitXPReward.GetValueInt() * xpMult ) as int
+	; does player get XP bonus?
+	Actor playerRef = Game.GetPlayer()
+	if (theData.AssociatedSkill && playerRef.HasPerk(theData.AssociatedSkill) ) || (theData.AssociatedSkill02 && playerRef.HasPerk(theData.AssociatedSkill) )
+		xpReward += PlanetTraitXPRewardSkillBonus.GetValueInt()
+	endif
+	;Game.RewardPlayerXP(xpReward * theData.discoverCountRequired)  ; all traits now require only 1 discovery location
+	Game.RewardPlayerXP(xpReward)
 
-Function UpdateTextReplacementAliases(ObjectReference siteMarkerRef)
-  PlanetReference.ForceRefTo(siteMarkerRef)
-  Location siteMarkerLocation = siteMarkerRef.GetCurrentLocation()
-  Location sitePlanetLocation = siteMarkerLocation.GetParentLocations(LocTypeMajorOrbital)[0]
-  Location siteSystemLocation = siteMarkerLocation.GetParentLocations(LocTypeStarSystem)[0]
-  PlanetReferencePlanetLocation.ForceLocationTo(sitePlanetLocation)
-  PlanetReferenceSystemLocation.ForceLocationTo(siteSystemLocation)
-EndFunction
-
-sq_parentscript:planettraitdata Function GetPlanetTraitData(ObjectReference refToCheck)
-  planettraitscantargetscript scanTargetRef = refToCheck as planettraitscantargetscript
-  sq_parentscript:planettraitdata theData = None
-  planet planetToCheck = refToCheck.GetCurrentPlanet()
-  Location locationToCheck = refToCheck.GetCurrentLocation()
-  mapmarkerplanettraitscript mapMarkerRef = None
-  If scanTargetRef as Bool && scanTargetRef.GetLinkedRef(SQ_PlanetTraitOverrideLink) is mapmarkerplanettraitscript
-    mapMarkerRef = scanTargetRef.GetLinkedRef(SQ_PlanetTraitOverrideLink) as mapmarkerplanettraitscript
-  Else
-    mapMarkerRef = refToCheck as mapmarkerplanettraitscript
-  EndIf
-  If mapMarkerRef as Bool && mapMarkerRef.LocationTraitOverride as Bool
-    theData = Self.FindMatchingPlanetTraitForKeyword(mapMarkerRef.LocationTraitOverride, planetToCheck)
-  Else
-    theData = Self.FindMatchingPlanetTrait(locationToCheck, planetToCheck)
-  EndIf
-  Return theData
-EndFunction
-
-Function DiscoverMatchingPlanetTraits(ObjectReference refToCheck, Bool incrementScanCount)
-  Guard discoverMatchingTraitsBusy ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    sq_parentscript:planettraitdata theData = Self.GetPlanetTraitData(refToCheck)
-    planettraitscantargetscript scanTargetRef = refToCheck as planettraitscantargetscript
-    If scanTargetRef
-      ScanTargetName.ForceRefTo(scanTargetRef.PlanetTraitScanTargetRef)
-      ScanTarget.ForceRefTo(scanTargetRef as ObjectReference)
-    EndIf
-    Location locationToCheck = refToCheck.GetCurrentLocation()
-    If theData
-      Int scanCountNeeded = locationToCheck.GetRefTypeAliveCount(PlanetTraitScanTargetLocRef)
-      Int scanCount = locationToCheck.GetValue(PlanetTraitLocationScanCount) as Int
-      If incrementScanCount
-        scanCount += 1
-      EndIf
-      locationToCheck.SetValue(PlanetTraitLocationScanCount, scanCount as Float)
-      If scanCount >= scanCountNeeded
-        If locationToCheck.IsExplored() == False
-          locationToCheck.SetExplored(True)
-          Self.UpdatePlanetTraitDiscoveryPrivate(refToCheck, theData, 1)
-        EndIf
-      Else
-        Self.UpdateTextReplacementAliases(refToCheck)
-        PlanetTraitCategory.ForceRefTo(theData.TraitCategoryMarker)
-        PlanetTraitName.ForceRefTo(theData.TraitNameMarker)
-        If incrementScanCount
-          
-        ElseIf locationToCheck.IsExplored() == False
-          SQ_ParentPlanetTraitExploreMessage.Show(scanCount as Float, scanCountNeeded as Float, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        EndIf
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
-
-Function UpdatePlanetTraitDiscovery(ObjectReference refToCheck, sq_parentscript:planettraitdata theData, Int incrementAmount)
-  Guard discoverMatchingTraitsBusy ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Self.UpdatePlanetTraitDiscoveryPrivate(refToCheck, theData, incrementAmount)
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
-
-Function UpdatePlanetTraitDiscoveryPrivate(ObjectReference refToCheck, sq_parentscript:planettraitdata theData, Int incrementAmount)
-  If theData as Bool && refToCheck as Bool
-    planet planetToCheck = refToCheck.GetCurrentPlanet()
-    Self.UpdateTextReplacementAliases(refToCheck)
-    Location planetLocation = PlanetReferencePlanetLocation.GetLocation()
-    PlanetTraitCategory.ForceRefTo(theData.TraitCategoryMarker)
-    PlanetTraitName.ForceRefTo(theData.TraitNameMarker)
-    If planetToCheck.IsTraitKnown(theData.PlanetTrait)
-      
-    Else
-      Int traitValue = planetLocation.GetValue(theData.PlanetTraitAV) as Int + incrementAmount
-      planetLocation.SetValue(theData.PlanetTraitAV, traitValue as Float)
-      Int surveyingBonus = Game.GetPlayer().GetValueInt(SurveyingTraitBonus)
-      Int discoverCountRequiredActual = 1
-      If traitValue >= discoverCountRequiredActual
-        Self.DiscoverPlanetTrait(planetToCheck, theData, traitValue, 1.0)
-      Else
-        SQ_ParentPlanetTraitUpdateMessage.Show(traitValue as Float, discoverCountRequiredActual as Float, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        Self.SendPlanetTraitUpdatedEvent(planetToCheck, theData.PlanetTrait, traitValue, theData.discoverCountRequired)
-      EndIf
-    EndIf
-  EndIf
-EndFunction
-
-Function DiscoverPlanetTrait(planet planetToCheck, sq_parentscript:planettraitdata theData, Int traitValue, Float xpMult)
-  PlanetTraitCategory.ForceRefTo(theData.TraitCategoryMarker)
-  PlanetTraitName.ForceRefTo(theData.TraitNameMarker)
-  planetToCheck.SetTraitKnown(theData.PlanetTrait, True)
-  Int xpReward = (PlanetTraitXPReward.GetValueInt() as Float * xpMult) as Int
-  Actor playerRef = Game.GetPlayer()
-  If (theData.AssociatedSkill as Bool && playerRef.HasPerk(theData.AssociatedSkill)) || (theData.AssociatedSkill02 as Bool && playerRef.HasPerk(theData.AssociatedSkill))
-    xpReward += PlanetTraitXPRewardSkillBonus.GetValueInt()
-  EndIf
-  Game.RewardPlayerXP(xpReward, False)
-  Self.SendPlanetTraitDiscoveredEvent(planetToCheck, theData.PlanetTrait, traitValue, theData.discoverCountRequired)
+	; send custom event
+	SendPlanetTraitDiscoveredEvent(planetToCheck, theData.PlanetTrait, traitValue, theData.discoverCountRequired)
 EndFunction
 
 Function CheckForScanTargetUpdate(ObjectReference refToCheck)
-  Location locationToCheck = refToCheck.GetCurrentLocation()
-  planet planetToCheck = refToCheck.GetCurrentPlanet()
-  sq_parentscript:planettraitdata theData = Self.FindMatchingPlanetTrait(locationToCheck, planetToCheck)
-  If theData
-    If planetToCheck.IsTraitKnown(theData.PlanetTrait)
-      Self.UpdateScanTarget(refToCheck)
-      locationToCheck.SetExplored(True)
-    EndIf
-  EndIf
+	Location locationToCheck = refToCheck.GetCurrentLocation()
+	Planet planetToCheck = refToCheck.GetCurrentPlanet()
+	PlanetTraitData theData = FindMatchingPlanetTrait(locationToCheck, planetToCheck)
+	if theData
+		; is this trait already known?
+		if planetToCheck.IsTraitKnown(theData.PlanetTrait)
+			; update name and mark the scan target as already scanned
+			UpdateScanTarget(refToCheck)
+			; mark location as explored so its name gets updated
+			locationToCheck.SetExplored()
+		endif
+	endif
 EndFunction
 
-Function UpdateScanTarget(ObjectReference refToCheck)
-  planettraitscantargetscript scanTargetRef = refToCheck as planettraitscantargetscript
-  If scanTargetRef
-    ScanTargetName.ForceRefTo(scanTargetRef.PlanetTraitScanTargetRef)
-    ScanTarget.ForceRefTo(scanTargetRef as ObjectReference)
-    scanTargetRef.SetScanned(True)
-  EndIf
+function UpdateScanTarget(ObjectReference refToCheck)
+	; rename ref with "real name"
+	PlanetTraitScanTargetScript scanTargetRef = refToCheck as PlanetTraitScanTargetScript
+	if scanTargetRef
+		ScanTargetName.ForceRefTo(scanTargetRef.PlanetTraitScanTargetRef)
+		ScanTarget.ForceRefTo(scanTargetRef)
+		scanTargetRef.SetScanned()
+	endif
 EndFunction
 
-sq_parentscript:planettraitdata Function FindMatchingPlanetTrait(Location locationToCheck, planet planetToCheck)
-  Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
-  sq_parentscript:planettraitdata theData = None
-  Int I = 0
-  While I < matchingKeywords.Length && theData == None
-    Keyword planetTraitKeyword = matchingKeywords[I]
-    If locationToCheck.HasKeyword(planetTraitKeyword)
-      Int planetTraitIndex = PlanetTraits.findstruct("PlanetTrait", planetTraitKeyword, 0)
-      If planetTraitIndex > -1
-        theData = PlanetTraits[planetTraitIndex]
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
-  Return theData
+PlanetTraitData Function FindMatchingPlanetTrait(Location locationToCheck, Planet planetToCheck)
+	Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
+	debug.trace(self + " FindMatchingPlanetTrait: " + locationToCheck + " " + planetToCheck + " " + matchingKeywords)
+
+	PlanetTraitData theData = NONE
+	; run through planet traits and check one that matches this location
+	int i = 0
+	while i < matchingKeywords.Length && theData == NONE
+		Keyword planetTraitKeyword = matchingKeywords[i]
+		debug.trace(self + "   checking keyword " + planetTraitKeyword)
+		if locationToCheck.HasKeyword(planetTraitKeyword)
+			debug.trace(self + "   location has this keyword - find in planet trait array")
+			; find this keyword in planet trait array
+			int planetTraitIndex = PlanetTraits.FindStruct("PlanetTrait", planetTraitKeyword)
+			if planetTraitIndex > -1
+				theData = PlanetTraits[planetTraitIndex]
+			Else
+				debug.trace(self + " WARNING: planet trait " + planetTraitKeyword + " NOT FOUND")
+			endif
+		endif
+		i += 1
+	endWhile
+
+	return theData
 EndFunction
 
-sq_parentscript:planettraitdata Function FindMatchingPlanetTraitForKeyword(Keyword keywordToCheck, planet planetToCheck)
-  Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
-  sq_parentscript:planettraitdata theData = None
-  Int I = 0
-  While I < matchingKeywords.Length && theData == None
-    Keyword planetTraitKeyword = matchingKeywords[I]
-    If keywordToCheck == planetTraitKeyword
-      Int planetTraitIndex = PlanetTraits.findstruct("PlanetTrait", planetTraitKeyword, 0)
-      If planetTraitIndex > -1
-        theData = PlanetTraits[planetTraitIndex]
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
-  Return theData
+PlanetTraitData Function FindMatchingPlanetTraitForKeyword(Keyword keywordToCheck, Planet planetToCheck)
+	Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
+	debug.trace(self + " FindMatchingPlanetTraitForKeyword: " + keywordToCheck + " " + planetToCheck + " " + matchingKeywords)
+
+	PlanetTraitData theData = NONE
+	; run through planet traits and check one that matches this keyword
+	int i = 0
+	while i < matchingKeywords.Length && theData == NONE
+		Keyword planetTraitKeyword = matchingKeywords[i]
+		debug.trace(self + "   checking keyword " + planetTraitKeyword)
+		if keywordToCheck == planetTraitKeyword
+			debug.trace(self + "   planet has this keyword - find in planet trait array")
+			; find this keyword in planet trait array
+			int planetTraitIndex = PlanetTraits.FindStruct("PlanetTrait", planetTraitKeyword)
+			if planetTraitIndex > -1
+				theData = PlanetTraits[planetTraitIndex]
+			Else
+				debug.trace(self + " WARNING: planet trait " + planetTraitKeyword + " NOT FOUND")
+			endif
+		endif
+		i += 1
+	endWhile
+	debug.trace(self + " FindMatchingPlanetTraitForKeyword: theData=" + theData)
+	return theData
 EndFunction
 
-Function OnPlayerScanPlanet(planet planetToCheck)
-  Int discoverTraitChance = Skill_Astrophysics_DiscoverTraitChance.GetValueInt()
-  If discoverTraitChance > 0
-    Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
-    If matchingKeywords.Length > 0
-      Int discoveryRoll = Utility.RandomInt(0, 100)
-      If discoveryRoll <= discoverTraitChance
-        Int I = matchingKeywords.Length - 1
-        While I > -1
-          If planetToCheck.IsTraitKnown(matchingKeywords[I])
-            matchingKeywords.remove(I, 1)
-          EndIf
-          I += -1
+Function OnPlayerScanPlanet(Planet planetToCheck)
+	; if player has Astrophysics, may uncover traits when scanning a planet
+	int discoverTraitChance = Skill_Astrophysics_DiscoverTraitChance.GetValueInt()
+	debug.trace(self + " OnPlayerScanPlanet: " + " " + planetToCheck + " discoverTraitChance=" + discoverTraitChance)
+
+	if discoverTraitChance > 0
+		Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
+		debug.trace(self + "   matchingKeywords=" + matchingKeywords)
+		if matchingKeywords.Length > 0
+			; roll for discovery
+			int discoveryRoll = Utility.RandomInt()
+			debug.trace(self + " Planet trait discover: chance=" + discoverTraitChance + ", roll=" + discoveryRoll)
+			if discoveryRoll <= discoverTraitChance
+				; find a trait that isn't known, if possible
+				int i = matchingKeywords.Length - 1
+				while i > -1 
+					if planetToCheck.IsTraitKnown(matchingKeywords[i])
+						matchingKeywords.Remove(i)
+					endif
+					i += -1
+				EndWhile
+				if matchingKeywords.Length > 0
+					int randomKeyword = Utility.RandomInt(0, matchingKeywords.Length-1)
+					Keyword traitToDiscover = matchingKeywords[randomKeyword]
+					debug.trace(self + " discover trait " + traitToDiscover)
+		            PlanetTraitData theData = FindMatchingPlanetTraitForKeyword(traitToDiscover, planetToCheck)
+					LockGuard discoverMatchingTraitsBusy
+						DiscoverPlanetTrait(planetToCheck, theData, xpMult = PlanetTraitXPRewardAstrophysicsMult.GetValue())
+					endLockGuard
+				Else
+					debug.trace(self + " no traits on this planet")
+				endif
+			endif
+		endif
+	endif
+
+	; now check for completing planet survey
+	CheckCompletePlanetSurvey(planetToCheck)
+endFunction
+
+; reward slate when planet survey reaches a completion threshold
+Guard planetSurveyLock ProtectsFunctionLogic
+
+Function CheckCompletePlanetSurvey(Planet planetToCheck, bool bForceCompletion = false)
+	debug.trace(self + " CheckCompletePlanetSurvey: " + planetToCheck + " bForceCompletion=" + bForceCompletion)
+
+	LockGuard planetSurveyLock
+	debug.trace(self + "   planetSurveyLock locked")
+
+	; first, is this even a planet?
+	if planetToCheck.HasKeyword(LocTypeMajorOrbital)
+		Location planetLocation = planetToCheck.GetLocation()
+		
+		; what was last survey reward slate given to the player?
+		float lastSurveyReward = planetLocation.GetValue(SQ_PlanetLastSurveyReward)
+		float currentSurvey = planetToCheck.GetSurveyPercent()
+		debug.trace(self + " currentSurvey=" + currentSurvey + " lastSurveyReward=" + lastSurveyReward)
+
+		if currentSurvey > lastSurveyReward
+			; survey % has increased, has it hit one of the thresholds?
+			float actualRewardThreshold = 0.0  ; actual reward threshold
+			float currentRewardThreshold = 0.0 ; what we'll use to determine which slate to give (may be less than actual threshold if player has sold a previous slate)
+
+			int i = 0
+			; SurveyRewardThresholds is ordered from highest to lowest, so as soon as we find one, we're done
+			while i < SurveyRewardThresholds.Length && actualRewardThreshold == 0
+				if currentSurvey >= SurveyRewardThresholds[i]
+					actualRewardThreshold = SurveyRewardThresholds[i]
+				endif
+				i += 1
+			endWhile
+			currentRewardThreshold = actualRewardThreshold
+			if bForceCompletion
+				currentRewardThreshold = 1.0
+			EndIf
+			debug.trace(self + " currentRewardThreshold=" + currentRewardThreshold)
+
+			if currentRewardThreshold > lastSurveyReward
+				debug.trace(self + " currentRewardThreshold is greater than " + lastSurveyReward + " - reward new slate")
+				; we've crossed a new threshold
+				; stamp the planet
+				planetLocation.SetValue(SQ_PlanetLastSurveyReward, currentRewardThreshold)
+
+				; reward a survey slate - either replace existing one with higher value, or new low value one if player has sold the previous one
+				SQ_PlanetSurveySlateScript slateToReplace = NONE
+
+				if lastSurveyReward > 0.0
+					; try to find existing slate in ref collection
+					SQ_PlanetSurveySlateScript[] surveySlateArray = SurveySlates.GetArray() as SQ_PlanetSurveySlateScript[]
+					i = 0
+					while i < surveySlateArray.Length && slateToReplace == NONE
+						SQ_PlanetSurveySlateScript theSlate = surveySlateArray[i]
+						if theSlate.myPlanet == planetToCheck
+							slateToReplace = theSlate
+							UnregisterForRemoteEvent(slateToReplace, "OnSell")
+						endif
+						i += 1
+					endWhile
+
+					if slateToReplace == NONE
+						; means player sold the slate - give reward based on the difference between slate % rather than full survey %
+						debug.trace(self + " found no existing slate - reducing reward % by " + lastSurveyReward)
+						currentRewardThreshold = currentRewardThreshold - lastSurveyReward
+					endif
+				EndIf
+
+				debug.trace(self + " currentRewardThreshold=" + currentRewardThreshold)
+
+				; now find new slate to give to player, based on currentRewardThreshold
+				int totalTraitValue = GetPlanetTraitValue(planetToCheck) + ( GetPlanetAbundanceValue(planetToCheck) as int)
+
+				; award data slate
+				debug.trace(self + "   Awarding survey slate for survey%=" + currentRewardThreshold + ", totalTraitValue=" + totalTraitValue)
+				Actor player = Game.GetPlayer()
+				SpaceshipReference playerShipRef = PlayerShip.GetShipRef()
+				if playerShipRef == NONE
+					; this will only happen during testing
+					debug.trace(self + "    No player ship - don't award slate.")
+				elseif MB_Parent.IsPlanetSurveyTarget(playerShipRef)
+					; don't award slate if it is target of survey mission - that gives its own reward
+					debug.trace(self + "    This planet is a current survey mission target - don't award slate.")
+				else
+					; find first matching slate (array is ordered from highest value to lowest)
+					Book planetSurveySlate = NONE
+					GlobalVariable rewardXP = NONE ; XP to reward if 100% survey
+					PlanetSurveySlateData theData = GetSurveySlateData(totalTraitValue, currentRewardThreshold)
+					if theData
+						planetSurveySlate = theData.planetSurveySlate
+						rewardXP = theData.RewardXP
+					endif
+					debug.trace(self + "   Awarding survey slate " + planetSurveySlate)
+					; try putting player ship in PlanetReference alias - should always be "at" the planet (on or in orbit)
+					UpdateTextReplacementAliasesPlanet(planetToCheck)
+					Keyword[] keywords = new Keyword[0]
+					if SQ_PlanetIsHabitable.IsTrue(playerShipRef)
+						debug.trace(self + "   adding keyword " + SQ_PlanetIsHabitableKeyword + " to slate")
+						keywords.Add(SQ_PlanetIsHabitableKeyword)
+
+						;tell Rad01_LIST quest survey of habitable planet is complete
+						Rad01_LIST.SurveyCompleted()
+					endif
+					; if existing slate, remove it
+					ObjectReference currentSlateContainer = player
+					if slateToReplace
+						currentSlateContainer = slateToReplace.GetContainer()
+					endif
+					
+					SQ_PlanetSurveySlateScript newSlate
+					bool addNewItem = false
+
+					if currentSlateContainer
+						; placing new slate into a container
+						addNewItem = true
+						if slateToReplace
+							SurveySlates.RemoveRef(slateToReplace)
+							currentSlateContainer.RemoveItem(slateToReplace, abSilent = true)
+							addNewItem = false
+						endif
+						newSlate = currentSlateContainer.AddAliasedItemWithKeywordsSingle(planetSurveySlate, SurveySlate, true, keywords) as SQ_PlanetSurveySlateScript
+					else
+						; placing new slate at existing slate
+						newSlate = slateToReplace.PlaceAtMe(planetSurveySlate, abInitiallyDisabled=true, akAliasToFill=SurveySlate) as SQ_PlanetSurveySlateScript
+						; add keywords
+						if keywords != NONE && keywords.Length > 0
+							i = 0
+							while i < keywords.Length
+								newSlate.AddKeyword(keywords[i])
+								i += 1
+							endWhile
+						endif
+						SurveySlates.RemoveRef(slateToReplace)
+						; disable old slate
+						slateToReplace.DisableNoWait()
+						newSlate.EnableNoWait()
+					EndIf
+					SurveySlates.AddRef(newSlate)
+					; stamp planet name on this slate
+					int rewardThresholdPercent = (actualRewardThreshold*100) as int
+					int addNewItemInt = 0
+					if addNewItem
+						addNewItemInt = 1
+					endif
+					Quest[] surveySlateQuests = SQ_SurveySlateEvent.SendStoryEventAndWait(aiValue1=addNewItemInt, aiValue2=rewardThresholdPercent)
+					if surveySlateQuests == NONE
+						debug.trace(self + " WARNING: no survey slate quest able to start - slate won't be stamped with planet name", aiSeverity = 1)
+					endif
+					; stamp new slate with this planet
+					newSlate.myPlanet = planetToCheck
+					RegisterForRemoteEvent(newSlate, "OnSell")
+					; if planet survey is 100%, reward XP
+					if currentSurvey >= 1.0
+						if rewardXP
+							Game.RewardPlayerXP(rewardXP.GetValueInt())
+						endif
+						; is entire system surveyed?
+						CheckCompleteSystemSurvey(planetToCheck)
+					endif
+				endif
+			endif
+		endif
+	else
+		debug.trace(self + " " + planetToCheck + " isn't a planet, ignoring")
+	endif
+
+	EndLockGuard
+	debug.trace(self + " CheckCompletePlanetSurvey DONE - lock released")
+endFunction
+
+PlanetSurveySlateData function GetSurveySlateData(int planetRewardValue, float currentRewardThreshold = 1.0)
+	PlanetSurveySlateData rewardSlateData
+
+	; find first matching slate (array is ordered from highest value to lowest)
+	int s = 0
+	while s < PlanetSurveySlates.Length && rewardSlateData == NONE
+		PlanetSurveySlateData theData = PlanetSurveySlates[s]
+		if theData.minTraitValue <= planetRewardValue && currentRewardThreshold >= theData.minSurveyPercent
+			rewardSlateData = theData
+		endif
+		s += 1
+	endWhile
+	debug.trace(self + " GetSurveySlateData " + rewardSlateData)
+	return rewardSlateData
+EndFunction
+
+function CheckCompleteSystemSurvey(Planet planetToCheck) RequiresGuard(planetSurveyLock)
+	Location currentSystem = PlanetReferenceSystemLocation.GetLocation()
+	debug.trace(self + " CheckCompleteSystemSurvey currentSystem=" + currentSystem)
+	if currentSystem
+		int i = 0
+		bool foundMatch = false
+		while i < SystemsFullySurveyed.Length && foundMatch == false
+			Location theSystem = SystemsFullySurveyed[i]
+			foundMatch = (theSystem == currentSystem)
+			i += 1
+		endWhile
+		if foundMatch == false
+			; not fully surveyed system - fill in planet aliases
+			; run through planets until we get one that isn't 100% surveyed
+			i = 0
+			float surveyPercentage = 1.0
+			int systemTraitValue = 0
+			while i < SystemPlanets.Length && surveyPercentage >= 1.0
+				LocationAlias planetAlias = SystemPlanets[i]
+				planetAlias.RefillAlias()
+				Location planetLocation = planetAlias.GetLocation()
+				if planetLocation
+					Planet thePlanet = planetLocation.GetCurrentPlanet()
+					surveyPercentage = thePlanet.GetSurveyPercent()
+					debug.trace(self + "   checking planet " + i + ": planetLocation=" + planetLocation + " has survey%=" + surveyPercentage)
+					if surveyPercentage >= 1.0
+						; add planet trait value to total
+						systemTraitValue += GetPlanetTraitValue(thePlanet)
+					endif
+				endif
+				i += 1
+			endWhile
+			debug.trace(self + " systemTraitValue=" + systemTraitValue)
+
+			; all planets at 100%
+			if surveyPercentage >= 1.0
+				debug.trace(" All planets at 100% - find reward XP")
+				; award XP based on systemTraitValue
+				i = 0
+				GlobalVariable rewardXP = NONE
+				while i < SystemSurveyRewards.Length && rewardXP == NONE
+					SystemSurveyData theRewardData = SystemSurveyRewards[i]
+					if systemTraitValue >= theRewardData.minTraitValue
+						rewardXP = theRewardData.RewardXP
+					endif
+					i += 1
+				endWhile
+				debug.trace(self + " rewardXP=" + rewardXP)
+				if rewardXP
+					Game.RewardPlayerXP(rewardXP.GetValueInt())
+				endif
+				SystemsFullySurveyed.Add(currentSystem)
+			endif
+		endif
+	endif
+EndFunction
+
+int function GetPlanetTraitValue(Planet planetToCheck)
+	Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
+	int i = 0
+	int totalTraitValue = 0 ; count trait value for this planet
+	while i < matchingKeywords.Length
+		Keyword planetTraitKeyword = matchingKeywords[i]
+		bool allTraitsKnown = planetToCheck.IsTraitKnown(planetTraitKeyword)
+		; find this keyword in planet trait array
+		int planetTraitIndex = PlanetTraits.FindStruct("PlanetTrait", planetTraitKeyword)
+		if planetTraitIndex > -1
+			PlanetTraitData theData = PlanetTraits[planetTraitIndex]
+			;totalTraitValue += theData.discoverCountRequired
+			totalTraitValue += 1
+		endif
+		debug.trace(self + "   keyword " + planetTraitKeyword + " known? " + allTraitsKnown)
+		i += 1
+	endWhile
+
+	return totalTraitValue
+endFunction
+
+float function GetPlanetAbundanceValue(Planet planetToCheck)
+	Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetFloraAbundance)
+	int i = 0
+	float totalSurveyValue = 0.0 ; count survey value for this planet from flora/fauna
+	while i < matchingKeywords.Length
+		Keyword planetKeyword = matchingKeywords[i]
+		; find this keyword in planet trait array
+		int planetTraitIndex = PlanetAbundanceKeywords.FindStruct("PlanetKeyword", planetKeyword)
+		if planetTraitIndex > -1
+			PlanetAbundanceData theData = PlanetAbundanceKeywords[planetTraitIndex]
+			totalSurveyValue += theData.surveyDifficulty
+			debug.trace(self + "   keyword " + planetKeyword + " surveyDifficulty= " + theData.surveyDifficulty)
+		endif
+		i += 1
+	endWhile
+
+	matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetFaunaAbundance)
+	i = 0
+	while i < matchingKeywords.Length
+		Keyword planetKeyword = matchingKeywords[i]
+		; find this keyword in planet trait array
+		int planetTraitIndex = PlanetAbundanceKeywords.FindStruct("PlanetKeyword", planetKeyword)
+		if planetTraitIndex > -1
+			PlanetAbundanceData theData = PlanetAbundanceKeywords[planetTraitIndex]
+			totalSurveyValue += theData.surveyDifficulty
+			debug.trace(self + "   keyword " + planetKeyword + " surveyDifficulty= " + theData.surveyDifficulty)
+		endif
+		i += 1
+	endWhile
+
+	debug.trace(self + " GetPlanetAbundanceValue for " + planetToCheck + ": " + totalSurveyValue)
+	return totalSurveyValue
+endFunction
+
+;************** OE_Civilian map marker renaming ****************
+
+function CheckForRenameMapMarker(ObjectReference mapMarkerRef)
+    Location myLocation = mapMarkerRef.GetCurrentLocation()
+    if myLocation && VisibleOnStarmap(myLocation)
+        ; placed by Scan request - rename
+        int i = 0
+        bool found = false
+        while found == false && i < MapMarkerNames.Length
+            mapMarkerName theMarkerNameData = MapMarkerNames[i]
+            found = myLocation.HasKeyword(theMarkerNameData.groupTypeKeyword)
+            if found
+                debug.trace(self + " renaming " + myLocation + " to " + theMarkerNameData.nameMarker)
+                ObjectReference myRenameMarker = mapMarkerRef.PlaceAtMe(theMarkerNameData.nameMarker)
+                mapMarkerRef.SetLinkedRef(myRenameMarker, MapMarkerLinkedRefNameOverride)
+            endif
+            i += 1
         EndWhile
-        If matchingKeywords.Length > 0
-          Int randomKeyword = Utility.RandomInt(0, matchingKeywords.Length - 1)
-          Keyword traitToDiscover = matchingKeywords[randomKeyword]
-          sq_parentscript:planettraitdata theData = Self.FindMatchingPlanetTraitForKeyword(traitToDiscover, planetToCheck)
-          Guard discoverMatchingTraitsBusy ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-            Self.DiscoverPlanetTrait(planetToCheck, theData, 99, PlanetTraitXPRewardAstrophysicsMult.GetValue())
-          EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-        EndIf
-      EndIf
-    EndIf
-  EndIf
-  Self.CheckCompletePlanetSurvey(planetToCheck, False)
-EndFunction
+    endif
+endFunction
 
-Function CheckCompletePlanetSurvey(planet planetToCheck, Bool bForceCompletion)
-  Guard planetSurveyLock ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If planetToCheck.HasKeyword(LocTypeMajorOrbital)
-      Location planetLocation = planetToCheck.GetLocation()
-      Float lastSurveyReward = planetLocation.GetValue(SQ_PlanetLastSurveyReward)
-      Float currentSurvey = planetToCheck.GetSurveyPercent()
-      If currentSurvey > lastSurveyReward
-        Float actualRewardThreshold = 0.0
-        Float currentRewardThreshold = 0.0
-        Int I = 0
-        While I < SurveyRewardThresholds.Length && actualRewardThreshold == 0.0
-          If currentSurvey >= SurveyRewardThresholds[I]
-            actualRewardThreshold = SurveyRewardThresholds[I]
-          EndIf
-          I += 1
-        EndWhile
-        currentRewardThreshold = actualRewardThreshold
-        If bForceCompletion
-          currentRewardThreshold = 1.0
-        EndIf
-        If currentRewardThreshold > lastSurveyReward
-          planetLocation.SetValue(SQ_PlanetLastSurveyReward, currentRewardThreshold)
-          sq_planetsurveyslatescript slateToReplace = None
-          If lastSurveyReward > 0.0
-            sq_planetsurveyslatescript[] surveySlateArray = SurveySlates.GetArray() as sq_planetsurveyslatescript[]
-            I = 0
-            While I < surveySlateArray.Length && slateToReplace == None
-              sq_planetsurveyslatescript theSlate = surveySlateArray[I]
-              If theSlate.myPlanet == planetToCheck
-                slateToReplace = theSlate
-                Self.UnregisterForRemoteEvent(slateToReplace as ScriptObject, "OnSell")
-              EndIf
-              I += 1
-            EndWhile
-            If slateToReplace == None
-              currentRewardThreshold -= lastSurveyReward
-            EndIf
-          EndIf
-          Int totalTraitValue = Self.GetPlanetTraitValue(planetToCheck) + Self.GetPlanetAbundanceValue(planetToCheck) as Int
-          Actor player = Game.GetPlayer()
-          spaceshipreference playerShipRef = PlayerShip.GetShipRef()
-          If playerShipRef == None
-            
-          ElseIf MB_Parent.IsPlanetSurveyTarget(playerShipRef as ObjectReference)
-            
-          Else
-            Book planetSurveySlate = None
-            GlobalVariable RewardXP = None
-            sq_parentscript:planetsurveyslatedata theData = Self.GetSurveySlateData(totalTraitValue, currentRewardThreshold)
-            If theData
-              planetSurveySlate = theData.planetSurveySlate
-              RewardXP = theData.RewardXP
-            EndIf
-            Self.UpdateTextReplacementAliasesPlanet(planetToCheck)
-            Keyword[] keywords = new Keyword[0]
-            If SQ_PlanetIsHabitable.IsTrue(playerShipRef as ObjectReference, None)
-              keywords.add(SQ_PlanetIsHabitableKeyword, 1)
-              Rad01_LIST.SurveyCompleted()
-            EndIf
-            ObjectReference currentSlateContainer = player as ObjectReference
-            If slateToReplace
-              currentSlateContainer = slateToReplace.GetContainer()
-            EndIf
-            sq_planetsurveyslatescript newSlate = None
-            Bool addNewItem = False
-            If currentSlateContainer
-              addNewItem = True
-              If slateToReplace
-                SurveySlates.RemoveRef(slateToReplace as ObjectReference)
-                currentSlateContainer.RemoveItem(slateToReplace as Form, 1, True, None)
-                addNewItem = False
-              EndIf
-              newSlate = currentSlateContainer.AddAliasedItemWithKeywordsSingle(planetSurveySlate as Form, SurveySlate as Alias, True, keywords) as sq_planetsurveyslatescript
-            Else
-              newSlate = slateToReplace.PlaceAtMe(planetSurveySlate as Form, 1, False, True, True, None, SurveySlate as Alias, True) as sq_planetsurveyslatescript
-              If keywords != None && keywords.Length > 0
-                I = 0
-                While I < keywords.Length
-                  newSlate.AddKeyword(keywords[I])
-                  I += 1
-                EndWhile
-              EndIf
-              SurveySlates.RemoveRef(slateToReplace as ObjectReference)
-              slateToReplace.DisableNoWait(False)
-              newSlate.EnableNoWait(False)
-            EndIf
-            SurveySlates.AddRef(newSlate as ObjectReference)
-            Int rewardThresholdPercent = (actualRewardThreshold * 100.0) as Int
-            Int addNewItemInt = 0
-            If addNewItem
-              addNewItemInt = 1
-            EndIf
-            Quest[] surveySlateQuests = SQ_SurveySlateEvent.SendStoryEventAndWait(None, None, None, addNewItemInt, rewardThresholdPercent)
-            If surveySlateQuests == None
-              
-            EndIf
-            newSlate.myPlanet = planetToCheck
-            Self.RegisterForRemoteEvent(newSlate as ScriptObject, "OnSell")
-            If currentSurvey >= 1.0
-              If RewardXP
-                Game.RewardPlayerXP(RewardXP.GetValueInt(), False)
-              EndIf
-              Self.CheckCompleteSystemSurvey(planetToCheck)
-            EndIf
-          EndIf
-        EndIf
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
-
-sq_parentscript:planetsurveyslatedata Function GetSurveySlateData(Int planetRewardValue, Float currentRewardThreshold)
-  sq_parentscript:planetsurveyslatedata rewardSlateData = None
-  Int S = 0
-  While S < PlanetSurveySlates.Length && rewardSlateData == None
-    sq_parentscript:planetsurveyslatedata theData = PlanetSurveySlates[S]
-    If theData.minTraitValue <= planetRewardValue && currentRewardThreshold >= theData.minSurveyPercent
-      rewardSlateData = theData
-    EndIf
-    S += 1
-  EndWhile
-  Return rewardSlateData
-EndFunction
-
-Function CheckCompleteSystemSurvey(planet planetToCheck)
-  Location currentSystem = PlanetReferenceSystemLocation.GetLocation()
-  If currentSystem
-    Int I = 0
-    Bool foundMatch = False
-    While I < SystemsFullySurveyed.Length && foundMatch == False
-      Location theSystem = SystemsFullySurveyed[I]
-      foundMatch = theSystem == currentSystem
-      I += 1
-    EndWhile
-    If foundMatch == False
-      I = 0
-      Float surveyPercentage = 1.0
-      Int systemTraitValue = 0
-      While I < SystemPlanets.Length && surveyPercentage >= 1.0
-        LocationAlias planetAlias = SystemPlanets[I]
-        planetAlias.RefillAlias()
-        Location planetLocation = planetAlias.GetLocation()
-        If planetLocation
-          planet thePlanet = planetLocation.GetCurrentPlanet()
-          surveyPercentage = thePlanet.GetSurveyPercent()
-          If surveyPercentage >= 1.0
-            systemTraitValue += Self.GetPlanetTraitValue(thePlanet)
-          EndIf
-        EndIf
-        I += 1
-      EndWhile
-      If surveyPercentage >= 1.0
-        I = 0
-        GlobalVariable RewardXP = None
-        While I < SystemSurveyRewards.Length && RewardXP == None
-          sq_parentscript:systemsurveydata theRewardData = SystemSurveyRewards[I]
-          If systemTraitValue >= theRewardData.minTraitValue
-            RewardXP = theRewardData.RewardXP
-          EndIf
-          I += 1
-        EndWhile
-        If RewardXP
-          Game.RewardPlayerXP(RewardXP.GetValueInt(), False)
-        EndIf
-        SystemsFullySurveyed.add(currentSystem, 1)
-      EndIf
-    EndIf
-  EndIf
-EndFunction
-
-Int Function GetPlanetTraitValue(planet planetToCheck)
-  Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetTrait)
-  Int I = 0
-  Int totalTraitValue = 0
-  While I < matchingKeywords.Length
-    Keyword planetTraitKeyword = matchingKeywords[I]
-    Bool allTraitsKnown = planetToCheck.IsTraitKnown(planetTraitKeyword)
-    Int planetTraitIndex = PlanetTraits.findstruct("PlanetTrait", planetTraitKeyword, 0)
-    If planetTraitIndex > -1
-      sq_parentscript:planettraitdata theData = PlanetTraits[planetTraitIndex]
-      totalTraitValue += 1
-    EndIf
-    I += 1
-  EndWhile
-  Return totalTraitValue
-EndFunction
-
-Float Function GetPlanetAbundanceValue(planet planetToCheck)
-  Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetFloraAbundance)
-  Int I = 0
-  Float totalSurveyValue = 0.0
-  While I < matchingKeywords.Length
-    Keyword planetKeyword = matchingKeywords[I]
-    Int planetTraitIndex = PlanetAbundanceKeywords.findstruct("planetKeyword", planetKeyword, 0)
-    If planetTraitIndex > -1
-      sq_parentscript:planetabundancedata theData = PlanetAbundanceKeywords[planetTraitIndex]
-      totalSurveyValue += theData.surveyDifficulty
-    EndIf
-    I += 1
-  EndWhile
-  matchingKeywords = planetToCheck.GetKeywordTypeList(KeywordType_PlanetFaunaAbundance)
-  I = 0
-  While I < matchingKeywords.Length
-    Keyword planetkeyword = matchingKeywords[I]
-    Int planettraitindex = PlanetAbundanceKeywords.findstruct("planetKeyword", planetkeyword, 0)
-    If planettraitindex > -1
-      sq_parentscript:planetabundancedata thedata = PlanetAbundanceKeywords[planettraitindex]
-      totalSurveyValue += thedata.surveyDifficulty
-    EndIf
-    I += 1
-  EndWhile
-  Return totalSurveyValue
-EndFunction
-
-Function CheckForRenameMapMarker(ObjectReference mapMarkerRef)
-  Location myLocation = mapMarkerRef.GetCurrentLocation()
-  If myLocation as Bool && Self.VisibleOnStarmap(myLocation)
-    Int I = 0
-    Bool found = False
-    While found == False && I < MapMarkerNames.Length
-      sq_parentscript:mapmarkername theMarkerNameData = MapMarkerNames[I]
-      found = myLocation.HasKeyword(theMarkerNameData.groupTypeKeyword)
-      If found
-        ObjectReference myRenameMarker = mapMarkerRef.PlaceAtMe(theMarkerNameData.nameMarker, 1, False, False, True, None, None, True)
-        mapMarkerRef.SetLinkedRef(myRenameMarker, MapMarkerLinkedRefNameOverride, True)
-      EndIf
-      I += 1
-    EndWhile
-  EndIf
-EndFunction
-
-Bool Function VisibleOnStarmap(Location locationToCheck)
-  Int I = 0
-  Bool isVisible = False
-  While I < OE_CiviliansVisibleFromStarmapKeywords.GetSize() && isVisible == False
-    Keyword theKeyword = OE_CiviliansVisibleFromStarmapKeywords.GetAt(I) as Keyword
-    isVisible = theKeyword as Bool && locationToCheck.HasKeyword(theKeyword)
-    I += 1
-  EndWhile
-  Return isVisible
-EndFunction
-
-Function HarvestActor(Actor HarvestActor)
-  Guard harvestLock ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Actor player = Game.GetPlayer()
-    If HarvestActor
-      If HarvestActor.GetValue(ZoologyNonLethalHarvestCount) < ZoologyNonLethalHarvestCountMax.GetValue()
-        HarvestActor.ModValue(ZoologyNonLethalHarvestCount, 1.0)
-        resource[] resources = HarvestActor.GetValueResources()
-        Int I = 0
-        While I < resources.Length
-          MiscObject harvestItem = resources[I].GetCreatedObject() as MiscObject
-          If harvestItem
-            player.AddItem(harvestItem as Form, 1, False)
-            SQ_Companions.SendAffinityEvent(SQ_Companions.COM_Event_Action_Harvest_Animal, None, False)
-          EndIf
-          I += 1
-        EndWhile
-        Game.RequestHUDRolloverRefresh()
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
-
-Function SetupDamagedShip(spaceshipreference damagedShip, Bool shouldBeDestroyed, Bool shouldBeDerelict, Bool shouldApplyDerelictName, Bool shouldDamageRandomSystems, Bool shouldDisableExteriorLights, Bool shouldBlockRepairOfDestroyedParts, sq_parentscript:actorvaluedatum[] additionalActorValuesToDamage)
-  If damagedShip == None
-    
-  ElseIf shouldBeDestroyed
-    damagedShip.KillSilent(None)
-  Else
-    If shouldBeDerelict
-      damagedShip.AddKeyword(BEDerelict)
-      damagedShip.DamageValue(SpaceshipCrew, damagedShip.GetValue(SpaceshipCrew))
-    EndIf
-    If shouldApplyDerelictName
-      DerelictShipNameAlias.ApplyToRef(damagedShip as ObjectReference)
-    EndIf
-    If shouldDamageRandomSystems
-      Int I = 0
-      While I < RandomShipDamageData.Length
-        Float DamagePercent = 0.0
-        If Utility.RandomFloat(0.0, 1.0) < RandomShipDamageData[I].ChanceDestroyed
-          DamagePercent = 1.0
-        Else
-          DamagePercent = 1.0 - Utility.RandomFloat(RandomShipDamageData[I].MinDamagePercent, RandomShipDamageData[I].MaxDamagePercent)
-        EndIf
-        damagedShip.DamageValue(RandomShipDamageData[I].ActorValueToDamage, damagedShip.GetValue(RandomShipDamageData[I].ActorValueToDamage) * DamagePercent)
-        I += 1
-      EndWhile
-    EndIf
-    If shouldDisableExteriorLights
-      damagedShip.SetValue(SpaceshipExternalLightsDisabledValue, 1.0)
-    EndIf
-    If shouldBlockRepairOfDestroyedParts
-      damagedShip.EnablePartRepair(None, False)
-    EndIf
-    If additionalActorValuesToDamage != None
-      Int i = 0
-      While i < additionalActorValuesToDamage.Length
-        damagedShip.DamageValue(additionalActorValuesToDamage[i].ActorValueToDamage, damagedShip.GetValue(additionalActorValuesToDamage[i].ActorValueToDamage) * additionalActorValuesToDamage[i].DamagePercent)
+bool function VisibleOnStarmap(Location locationToCheck)
+    int i = 0
+    bool isVisible = false
+    while i < OE_CiviliansVisibleFromStarmapKeywords.GetSize() && isVisible == false
+        Keyword theKeyword = OE_CiviliansVisibleFromStarmapKeywords.GetAt(i) as Keyword
+        isVisible = ( theKeyword && locationToCheck.HasKeyword(theKeyword) )
         i += 1
-      EndWhile
-    EndIf
-  EndIf
+    endWhile
+    debug.trace(self + " VisibleOnStarmap: locationToCheck=" + locationToCheck + ": " + isVisible)
+    return isVisible
+endFunction
+
+
+;************** SKILLS *****************************************
+Guard harvestLock ProtectsFunctionLogic
+
+function HarvestActor(Actor harvestActor)
+	debug.trace(self + " HarvestActor " + harvestActor)
+	LockGuard harvestLock
+
+	Actor player = Game.Getplayer()
+	if harvestActor
+		if harvestActor.GetValue(ZoologyNonLethalHarvestCount) < ZoologyNonLethalHarvestCountMax.GetValue()
+			; increment harvest count on actor
+			HarvestActor.ModValue(ZoologyNonLethalHarvestCount, 1)
+			Resource[] resources = HarvestActor.GetValueResources()
+			int i = 0
+			while i < resources.Length
+				MiscObject harvestItem = resources[i].GetCreatedObject() as MiscObject
+				if harvestItem
+					player.AddItem(harvestItem)
+
+					;send affinity event
+					SQ_Companions.Trace(self, "HarvestActor() harvestActor: " + harvestActor)
+					SQ_Companions.SendAffinityEvent(SQ_Companions.COM_Event_Action_Harvest_Animal)
+
+				endif
+				i += 1
+			EndWhile
+			Game.RequestHUDRolloverRefresh()
+		endif
+	endif
+	EndLockGuard
+endFunction
+
+;************** RANDOM SHIP DAMAGE *****************************
+
+;Called by: DefaultRefDamageSpaceshipOnLoad, DefaultAliasDamageSpaceshipOnInit, others.
+;Sets up a standard derelict ship.
+Function SetupDamagedShip(SpaceshipReference damagedShip, bool shouldBeDestroyed=False, bool shouldBeDerelict=True, bool shouldApplyDerelictName=True, bool shouldDamageRandomSystems=True, bool shouldDisableExteriorLights=True, bool shouldBlockRepairOfDestroyedParts=True, ActorValueDatum[] additionalActorValuesToDamage=None)
+	;debug.TraceFunction(self + " SetupDamagedShip")
+	if (damagedShip == None)
+		Game.Error("ERROR: SQ_ParentScript: SetupDerelictShip was called with a NONE ship.")
+	Else
+		if (shouldBeDestroyed)
+			debug.trace(self + "  killing silently")
+			damagedShip.KillSilent()
+		Else
+			if (shouldBeDerelict)
+				damagedShip.AddKeyword(BEDerelict)
+				damagedShip.DamageValue(SpaceshipCrew, damagedShip.GetValue(SpaceshipCrew))
+			EndIf
+			if (shouldApplyDerelictName)
+				DerelictShipNameAlias.ApplyToRef(damagedShip)
+			EndIf
+			if (shouldDamageRandomSystems)
+				int i = 0
+				While (i < RandomShipDamageData.Length)
+					float damagePercent
+					if (Utility.RandomFloat(0, 1) < RandomShipDamageData[i].ChanceDestroyed)
+						damagePercent = 1.0
+					Else
+						damagePercent = 1 - Utility.RandomFloat(RandomShipDamageData[i].MinDamagePercent, RandomShipDamageData[i].MaxDamagePercent)
+					EndIf
+					damagedShip.DamageValue(RandomShipDamageData[i].ActorValueToDamage, damagedShip.GetValue(RandomShipDamageData[i].ActorValueToDamage) * damagePercent)
+					i = i + 1
+				EndWhile
+			EndIf
+			if (shouldDisableExteriorLights)
+				damagedShip.SetValue(SpaceshipExternalLightsDisabledValue, 1)
+			EndIf
+			if (shouldBlockRepairOfDestroyedParts)
+				damagedShip.EnablePartRepair(None, False)
+			EndIf
+			if (additionalActorValuesToDamage != None)
+				int i = 0
+				While (i < additionalActorValuesToDamage.Length)
+					damagedShip.DamageValue(additionalActorValuesToDamage[i].ActorValueToDamage, damagedShip.GetValue(additionalActorValuesToDamage[i].ActorValueToDamage) * additionalActorValuesToDamage[i].DamagePercent)
+					i = i + 1
+				EndWhile
+			EndIf
+		EndIf
+	EndIf
+endFunction
+
+
+;************** SMUGGLING **************************************
+
+; Smuggling mingame properties
+group SmugglingMinigame
+	Message property SQ_GuardShipSmugglingMinigameSuccess auto const mandatory
+	{ temp message box for smuggling minigame }
+
+	Message property SQ_GuardShipSmugglingMinigameFailure auto const mandatory
+	{ temp message box for smuggling minigame }
+
+	float property fSmugglingBaseChance = 60.0 auto ;Const  - TEMP - so can change it for testing
+	float property fSmugglingTargetSkillMult = -5.00 auto Const
+	float property fSmugglingCapacityMult = 1.0 auto Const
+	float property fSmugglingWeightPower = 0.5 auto Const
+	float property fSmugglingWeightMult = -1.0 auto Const
+	float property fSmugglingWeightMax = 2000.0 auto Const
+	float property fSmugglingMaxChance = 90.0 auto Const
+	float property fSmugglingMinChance = 10.0 auto Const
+
+	float[] property ScanJammerMults auto const mandatory
+	{ this will hold the values to use in the formula for each level of SpaceshipScanJammer, which will be ints }
+
+	float[] property PlayerSkillMults auto const mandatory
+	{ this will hold the values to use in the formula for each level of player skill, which will be ints }
+
+	ActorValue property CarryWeightShielded auto const mandatory
+	ActorValue property Perception auto const mandatory
+	ActorValue property PayloadLevel auto const mandatory
+	{ player's Payloads skill }
+	ActorValue property SpaceshipScanJammer auto const mandatory
+	{ ship's scan jammer level }
+
+	int property SmugglingAchievementID = 45 auto const
+endGroup
+
+; returns chance for the player to evade the contraband check
+float function GetSmugglingChance(SpaceshipReference playerShipRef, SpaceshipReference scanningShipRef)
+	int contrabandStatus = playerShipRef.CheckContrabandStatus(true)
+	float realChance
+
+	if contrabandStatus < 0
+		; no contraband
+		debug.trace(self + " no contraband")
+		realChance = 100.0
+	elseif contrabandStatus > 0
+		debug.trace(self + " contraband over limit - no chance of evasion")
+		realChance = 0.0
+	Else
+		debug.trace(self + " shielded contraband - calculate chance")
+
+
+
+
+
+		float contrabandWeight = playerShipRef.GetContrabandWeight(abCheckWholeShip=false)
+		float contrabandWeightShip = playerShipRef.GetContrabandWeight(abCheckWholeShip=true)
+		float contrabandCapacity = playerShipRef.GetValue(CarryWeightShielded)
+		
+		int playerSmugglingSkillValue = Math.Clamp(Game.GetPlayer().GetValueInt(PayloadLevel), 0, PlayerSkillMults.Length-1) as int
+		float playerSmugglingSkillBonus = PlayerSkillMults[playerSmugglingSkillValue]
+
+		int playerScanJammerValue = Math.Clamp(playerShipRef.GetValueInt(SpaceshipScanJammer), 0, ScanJammerMults.Length-1) as int
+		float playerScanJammerBonus = ScanJammerMults[playerScanJammerValue]
+		
+		float scanningShipPerception = scanningShipRef.GetValue(Perception)
+		debug.trace(self + " SmugglingMinigame")
+		debug.trace(self + "     contrabandWeight=" + contrabandWeight)
+		debug.trace(self + "     contrabandWeightShip=" + contrabandWeightShip)
+		debug.trace(self + "     contrabandCapacity=" + contrabandCapacity)
+		debug.trace(self + "     playerSmugglingSkillBonus=" + playerSmugglingSkillBonus)
+		debug.trace(self + "     playerScanJammerBonus=" + playerScanJammerBonus)
+		debug.trace(self + "     scanningShipPerception=" + scanningShipPerception)
+
+		float targetSkillFactor = fSmugglingTargetSkillMult*scanningShipPerception
+		float contrabandWeightFactor = fSmugglingWeightMult*(Math.pow(contrabandWeight, fSmugglingWeightPower)) * contrabandWeight/contrabandCapacity
+
+		debug.trace(self + "   Smuggling chance calculation:")
+		debug.trace(self + "     fSmugglingBaseChance=" + fSmugglingBaseChance)
+		debug.trace(self + "     targetSkillFactor=" + targetSkillFactor)
+		debug.trace(self + "     contrabandWeightFactor=" + contrabandWeightFactor)
+
+		float baseChance = fSmugglingBaseChance + targetSkillFactor + contrabandWeightFactor
+		debug.trace(self + "     baseChance=" + baseChance)
+
+		realChance = baseChance * (1 + playerScanJammerBonus) * (1 + playerSmugglingSkillBonus)
+
+		realChance = Math.Max(realChance, fSmugglingMinChance)
+		realChance = Math.Min(realChance, fSmugglingMaxChance)
+	endif
+
+	debug.trace(self + "     realChance=" + realChance)
+	return realChance
 EndFunction
 
-Float Function GetSmugglingChance(spaceshipreference playerShipRef, spaceshipreference scanningShipRef)
-  Int contrabandStatus = playerShipRef.CheckContrabandStatus(True)
-  Float realChance = 0.0
-  If contrabandStatus < 0
-    realChance = 100.0
-  ElseIf contrabandStatus > 0
-    realChance = 0.0
-  Else
-    Float contrabandWeight = playerShipRef.GetContrabandWeight(False)
-    Float contrabandWeightShip = playerShipRef.GetContrabandWeight(True)
-    Float contrabandCapacity = playerShipRef.GetValue(CarryWeightShielded)
-    Int playerSmugglingSkillValue = Math.Clamp(Game.GetPlayer().GetValueInt(PayloadLevel) as Float, 0.0, (PlayerSkillMults.Length - 1) as Float) as Int
-    Float playerSmugglingSkillBonus = PlayerSkillMults[playerSmugglingSkillValue]
-    Int playerScanJammerValue = Math.Clamp(playerShipRef.GetValueInt(SpaceshipScanJammer) as Float, 0.0, (ScanJammerMults.Length - 1) as Float) as Int
-    Float playerScanJammerBonus = ScanJammerMults[playerScanJammerValue]
-    Float scanningShipPerception = scanningShipRef.GetValue(Perception)
-    Float targetSkillFactor = fSmugglingTargetSkillMult * scanningShipPerception
-    Float contrabandWeightFactor = fSmugglingWeightMult * Math.pow(contrabandWeight, fSmugglingWeightPower) * contrabandWeight / contrabandCapacity
-    Float baseChance = fSmugglingBaseChance + targetSkillFactor + contrabandWeightFactor
-    realChance = baseChance * (1.0 + playerScanJammerBonus) * (1.0 + playerSmugglingSkillBonus)
-    realChance = Math.Max(realChance, fSmugglingMinChance)
-    realChance = Math.Min(realChance, fSmugglingMaxChance)
-  EndIf
-  Return realChance
+bool Function SmugglingMinigame(SpaceshipReference playerShipRef, SpaceshipReference scanningShipRef)
+	float realChance = GetSmugglingChance(playerShipRef, scanningShipRef)
+
+	float dieRoll = Utility.RandomFloat(1.0, 100.0)
+	debug.trace(self + "     dieRoll=" + dieRoll)
+	bool bSuccess = (dieRoll <= realChance)
+	debug.trace(self + "   Success? " + bSuccess)
+
+;/
+Your ship is being scanned for contraband:
+
+Contraband weight: %.0f 
+Shielded cargo capacity: %.0f
+Scan jammer level: %.0f
+Payloads skill bonus: %.0f
+
+Chance to evade scan: %.0f
+
+Result: FAILURE - contraband detected
+
+		;SQ_GuardShipSmugglingMinigameSuccess.Show(contrabandWeight, contrabandCapacity, playerScanJammerBonus, playerSmugglingSkillBonus, realChance)
+		;SQ_GuardShipSmugglingMinigameFailure.Show(contrabandWeight, contrabandCapacity, playerScanJammerBonus, playerSmugglingSkillBonus, realChance)
+/;
+	if bSuccess
+		; achievement
+		Game.AddAchievement(SmugglingAchievementID)
+	endif
+
+	return bSuccess
 EndFunction
 
-Bool Function SmugglingMinigame(spaceshipreference playerShipRef, spaceshipreference scanningShipRef)
-  Float realChance = Self.GetSmugglingChance(playerShipRef, scanningShipRef)
-  Float dieRoll = Utility.RandomFloat(1.0, 100.0)
-  Bool bSuccess = dieRoll <= realChance
-  If bSuccess
-    Game.AddAchievement(SmugglingAchievementID)
-  EndIf
-  Return bSuccess
-EndFunction
+;************** OUTPOST ATTACKS ********************************
 
-Function CheckForAttack(outpostbeaconscript outpostRef, Bool bForceAttack, Int iForceAttackType, Float fDieRoll)
-  If outpostRef.AllowAttacks == False
-    Return 
-  EndIf
-  If Game.GetPlayer().GetCurrentPlanet() != outpostRef.GetCurrentPlanet()
-    Return 
-  EndIf
-  Location outpostLocation = outpostRef.GetCurrentLocation()
-  Location[] parentLocations = outpostLocation.GetParentLocations(LocTypeMajorOrbital)
-  If !parentLocations
-    Return 
-  EndIf
-  Location myPlanet = parentLocations[0]
-  Float lastAttackRoll = myPlanet.GetValue(OutpostLastAttackRollTimestamp)
-  Float daysSinceLastRoll = Utility.GetCurrentGameTime() - lastAttackRoll
-  If lastAttackRoll > 0.0 && minDaysSinceLastAttackRoll > daysSinceLastRoll && bForceAttack == False
-    Return 
-  EndIf
-  Float lastAttack = myPlanet.GetValue(OutpostLastAttackTimestamp)
-  Float daysSinceLastAttack = 0.0
-  If lastAttack <= 0.0
-    daysSinceLastAttack = minDaysSinceLastAttack + 1.0
-  Else
-    daysSinceLastAttack = Utility.GetCurrentGameTime() - lastAttack
-  EndIf
-  If minDaysSinceLastAttack > daysSinceLastAttack && bForceAttack == False
-    Return 
-  EndIf
-  Int I = 0
-  Float specialCaseRating = 0.0
-  While I < OutpostAttackSpecialCases.Length
-    sq_parentscript:outpostattackspecialcase theSpecialCase = OutpostAttackSpecialCases[I]
-    If theSpecialCase.specialCaseCondition.IsTrue(outpostRef as ObjectReference, None)
-      If theSpecialCase.storyEventKeyword
-        If Game.GetDieRollSuccess((theSpecialCase.specialCaseAttackChance * 100.0) as Int, 1, 100, -1, -1) || fDieRoll > 0.0 && fDieRoll <= theSpecialCase.specialCaseAttackChance
-          Quest[] specialCaseAttacks = theSpecialCase.storyEventKeyword.SendStoryEventAndWait(None, outpostRef as ObjectReference, None, 0, 0)
-          If specialCaseAttacks
-            Return 
-          EndIf
-        EndIf
-      Else
-        specialCaseRating += theSpecialCase.specialCaseAttackChance
-      EndIf
-    EndIf
-    I += 1
-  EndWhile
-  missionparentscript:missionsupplytype[] resourceAVs = MB_Parent.resourceAVs
-  Float resourceRating = 0.0
-  I = 0
-  While I < resourceAVs.Length
-    Float resourceValue = outpostRef.GetValue(resourceAVs[I].supplyAV)
-    If resourceValue > 0.0
-      resourceRating += resourceValue
-    EndIf
-    I += 1
-  EndWhile
-  Float cargoLinkRating = outpostRef.GetValue(OutpostCargoLinkAV)
-  Float attackChance = attackChanceBase + attackChanceResourceMult * resourceRating + attackChanceCargoLinkMult * cargoLinkRating + specialCaseRating
-  Float attackRoll = Utility.RandomFloat(0.0, 1.0)
-  If fDieRoll > 0.0
-    attackRoll = fDieRoll
-  EndIf
-  If attackRoll <= attackChanceCreature && iForceAttackType == 0 || iForceAttackType > 1
-    SQ_OutpostEventAttackCreatures.SendStoryEvent(None, outpostRef as ObjectReference, None, 0, 0)
-  ElseIf attackRoll <= attackChance || iForceAttackType == 1
-    SQ_OutpostEventAttack.SendStoryEvent(None, outpostRef as ObjectReference, None, 0, 0)
-  EndIf
-  myPlanet.SetValue(OutpostLastAttackRollTimestamp, Utility.GetCurrentGameTime())
-EndFunction
+; attack chance formula
+float attackChanceBase = 0.1 const					; base chance for any attack
+float attackChanceCreature = 0.08 const 			; base chance for a creature attack (anything above this that succeeds will be a human attack)
+float attackChanceResourceMult = 0.01 const
+float attackChanceCargoLinkMult = 0.05 const
+float minDaysSinceLastAttack = 7.0 const 			;	minimum days before another attack can happen
+float minDaysSinceLastAttackRoll = 0.04 const 		;	minimum days before another attack can be rolled for (0.04 = 1 game hour)
 
-Function ShowTutorialMessage(Int tutorialID)
-  Guard tutorialMessageGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int messageIndex = TutorialMessages.findstruct("tutorialID", tutorialID, 0)
-    If messageIndex > -1
-      sq_parentscript:tutorialmessage theMessage = TutorialMessages[messageIndex]
-      theMessage.TutorialMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      TutorialMessages.remove(messageIndex, 1)
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+function CheckForAttack(OutpostBeaconScript outpostRef, bool bForceAttack = false, int iForceAttackType = 0, float fDieRoll=0.0)
+	; bForceAttack = true - always roll for an attack
+	; iForceAttackType:
+	;		0 = roll normally
+	; 		1 = force human attack
+	; 		2 = force creature attack
+	; fDieRoll > 0 - use this die roll instead of rolling (only meaningful if bForceAttack = true and iForceAttackType = 0)
 
-Function IncrementComputersAchievement(ObjectReference terminalRef)
-  Guard computersAchievementGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If ComputersAchievementAwarded == False
-      If terminalRef.GetValue(ComputersAchievementAV) == 0.0
-        terminalRef.SetValue(ComputersAchievementAV, 1.0)
-        Actor playerRef = Game.GetPlayer()
-        playerRef.ModValue(ComputersAchievementAV, 1.0)
-        Int computerCount = playerRef.GetValueInt(ComputersAchievementAV)
-        If computerCount >= ComputersAchievementCount.GetValueInt()
-          Game.AddAchievement(ComputersAchievementID)
-          ComputersAchievementAwarded = True
-        EndIf
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
-EndFunction
+	debug.trace(self + "------------------------------------------------------------------------------ ")
+	debug.trace(self + "	Check for attack: " + outpostRef + " (bForceAttack=" + bForceAttack + ") + iForceAttackType=" + iForceAttackType)
+	debug.trace(self + "------------------------------------------------------------------------------ ")
 
-Function HandleCriticalHit(spaceshipreference targetShip, shipcriticalhiteffectscript:criticalhiteffect[] CriticalHitEffects)
-  TryGuard ShipCriticalHitGuard ;*** WARNING: Experimental syntax, may be incorrect: TryGuard 
-    Int totalCriticalHitEffectWeight = 0
-    Int I = 0
-    While I < CriticalHitEffects.Length
-      shipcriticalhiteffectscript:criticalhiteffect theCriticalHit = CriticalHitEffects[I]
-      totalCriticalHitEffectWeight += theCriticalHit.weight
-      I += 1
+	; attacks allowed at all?
+	if outpostRef.AllowAttacks == false
+		debug.trace(self + "		attacks not allowed - no attack roll for " + outpostRef)
+		return
+	EndIf
+
+	; is player still on this planet?
+	if Game.GetPlayer().GetCurrentPlanet() != outpostRef.GetCurrentPlanet()
+		debug.trace(self + "		no attack - player no longer on same planet as " + outpostRef)
+		return
+	endif
+
+	Location outpostLocation = outpostRef.GetCurrentLocation()
+    Location[] parentLocations = outpostLocation.GetParentLocations(LocTypeMajorOrbital)
+    if !parentLocations
+		debug.trace(self + "		attacks not allowed - no planet location for " + outpostRef)
+		return
+    endif
+    Location myPlanet = parentLocations[0]
+
+	; is another attack roll allowed?
+	float lastAttackRoll = myPlanet.GetValue(OutpostLastAttackRollTimestamp)
+	float daysSinceLastRoll = Utility.GetCurrentGameTime() - lastAttackRoll
+	if lastAttackRoll > 0 && minDaysSinceLastAttackRoll > daysSinceLastRoll && bForceAttack == false
+		; attack roll happened recently - don't roll again yet
+		debug.trace(self + " " + outpostRef + ":		" + daysSinceLastRoll + " days since last attack roll on " + myPlanet + " - no attack roll")
+		return
+	endif
+
+	; how many days since last attack on this planet
+    float lastAttack = myPlanet.GetValue(OutpostLastAttackTimestamp)
+	; if lastAttack = 0, means this is first outpost on the planet, so allow attacks immediately
+	float daysSinceLastAttack
+	if lastAttack <= 0
+		daysSinceLastAttack = minDaysSinceLastAttack + 1
+	else
+    	daysSinceLastAttack = Utility.GetCurrentGameTime() - lastAttack
+	endif
+
+	; NEW ATTACK:
+	if minDaysSinceLastAttack > daysSinceLastAttack && bForceAttack == false
+		; attack happened recently - no new attack
+		debug.trace(self + " " + outpostRef + ":		" + daysSinceLastAttack + " days since last attack on " + myPlanet + " - no attack roll")
+		return
+	endif
+
+    ; special cases:
+	int i = 0
+	float specialCaseRating = 0.0
+	while i < OutpostAttackSpecialCases.length
+		OutpostAttackSpecialCase theSpecialCase = OutpostAttackSpecialCases[i]
+		if theSpecialCase.specialCaseCondition.IsTrue(outpostRef)
+			if theSpecialCase.storyEventKeyword
+				debug.trace(self + " " + outpostRef + ":		rolling for special case attack: " + theSpecialCase.specialCaseAttackChance + " chance")
+				if Game.GetDieRollSuccess((theSpecialCase.specialCaseAttackChance*100) as int) || ( fDieRoll>0 && fDieRoll <= theSpecialCase.specialCaseAttackChance )
+					Quest[] specialCaseAttacks = theSpecialCase.storyEventKeyword.SendStoryEventAndWait(akRef1=outpostRef)
+					if specialCaseAttacks
+						debug.trace(self + "  special case attack started: " + specialCaseAttacks[0] + " - no additional attack rolls")
+						return
+					endif
+				endif
+			else
+				debug.trace(self + " " + outpostRef + ":		adding " + theSpecialCase.specialCaseAttackChance + " special case chance to normal attack roll")
+				specialCaseRating += theSpecialCase.specialCaseAttackChance
+			endif
+		endif
+		i += 1
+	EndWhile
+
+    ; get resource production
+
+	; create local pointer to WorkshopRatings array to speed things up
+	MissionParentScript:MissionSupplyType[] resourceAVs = MB_Parent.resourceAVs
+
+    float resourceRating = 0.0
+    i = 0
+    while i < resourceAVs.Length
+        float resourceValue = outpostRef.GetValue(resourceAVs[i].supplyAV)
+        if resourceValue > 0.0
+            debug.trace(self + " " + outpostRef + ": adding " + resourceValue + " for " + resourceAVs[i].supplyAV)
+            resourceRating += resourceValue
+        endif
+        i += 1
     EndWhile
-    Int criticalEffectRoll = Utility.RandomInt(1, totalCriticalHitEffectWeight)
-    I = 0
-    Int currentWeight = 0
-    Int criticalHitEffectIndex = -1
-    While I < CriticalHitEffects.Length && criticalHitEffectIndex < 0
-      shipcriticalhiteffectscript:criticalhiteffect thecriticalhit = CriticalHitEffects[I]
-      currentWeight += thecriticalhit.weight
-      If criticalEffectRoll <= currentWeight
-        criticalHitEffectIndex = I
-      EndIf
-      I += 1
+
+	; cargo links
+	float cargoLinkRating = outpostRef.GetValue(OutpostCargoLinkAV)
+
+	; chance of attack:
+	; 	base chance + resource production
+	debug.trace(self + " " + outpostRef + ":	Attack chance:")
+	debug.trace(self + " " + outpostRef + ":		base chance=" + attackChanceBase)
+	debug.trace(self + " " + outpostRef + ":		special cases=+" + specialCaseRating)
+	debug.trace(self + " " + outpostRef + ":		resources=+" + attackChanceResourceMult * resourceRating)
+	debug.trace(self + " " + outpostRef + ":		cargo links=+" + attackChanceCargoLinkMult * cargoLinkRating)
+
+	float attackChance = attackChanceBase + attackChanceResourceMult * resourceRating + attackChanceCargoLinkMult * cargoLinkRating + specialCaseRating
+	debug.trace(self + " " + outpostRef + ":		TOTAL=" + attackChance)
+
+	float attackRoll = Utility.RandomFloat()
+	if fDieRoll > 0
+		attackRoll = fDieRoll
+	endif
+	debug.trace(self + " " + outpostRef + ":	Attack roll = " + attackRoll)
+	; which kind of attack (if any)?
+	if (attackRoll <= attackChanceCreature && iForceAttackType==0) || iForceAttackType > 1
+		; creature attack
+        SQ_OutpostEventAttackCreatures.SendStoryEvent(akRef1=outpostRef)
+	elseif attackRoll <= attackChance || iForceAttackType == 1
+		; human attack
+        SQ_OutpostEventAttack.SendStoryEvent(akRef1=outpostRef)
+	endif
+	; timestamp this roll
+	myPlanet.SetValue(OutpostLastAttackRollTimestamp, Utility.GetCurrentGameTime())
+endFunction
+
+;************** Tutorial Messages ****************************************
+
+Guard tutorialMessageGuard ProtectsFunctionLogic
+
+function ShowTutorialMessage(int tutorialID)
+	LockGuard tutorialMessageGuard
+		int messageIndex = TutorialMessages.FindStruct("tutorialID", tutorialID)
+		if messageIndex > -1
+			TutorialMessage theMessage = TutorialMessages[messageIndex]
+			theMessage.tutorialMessage.Show()
+			; remove this from the array since it is done
+			TutorialMessages.Remove(messageIndex)
+		EndIf
+	EndLockGuard
+endFunction
+
+;************** Achievements ****************************************
+Guard computersAchievementGuard ProtectsFunctionLogic
+
+function IncrementComputersAchievement(ObjectReference terminalRef)
+	LockGuard computersAchievementGuard
+		if ComputersAchievementAwarded == false
+			if terminalRef.GetValue(ComputersAchievementAV) == 0
+				debug.trace(self + " first time accessing terminalRef " + terminalRef + ": increment count for achievement " + ComputersAchievementID)
+				; don't count the same terminal more than once
+				terminalRef.SetValue(ComputersAchievementAV, 1)
+
+				Actor playerRef = Game.GetPlayer()
+				playerRef.ModValue(ComputersAchievementAV, 1)
+				int computerCount = playerRef.GetValueInt(ComputersAchievementAV)
+				debug.trace(self + " new achievement count=" + computerCount)
+				if computerCount >= ComputersAchievementCount.GetValueInt()
+					; achievement
+					Game.AddAchievement(ComputersAchievementID)
+					ComputersAchievementAwarded = true
+				endif
+			endif
+		endif
+	endLockGuard
+endFunction
+
+;************** Ship Critical Hits ******************************
+
+Group ShipCriticalHits
+	ActorValue property ShipSystemReactorHealth auto const mandatory
+	{ reactor system health } 
+
+	ActorValue property Health auto const mandatory
+	{ ship health } 
+
+	ActorValue property ShipSystemEngineHealth auto const mandatory
+	{ engine system health - needed if crew goes to 0 } 
+
+	ActorValue property SpaceshipCriticalHitCrew auto const mandatory
+	{ set to 1 when crew is wiped out by a critical }
+
+	int property maxCrewDamage = 6 auto Const
+	{ max number of crew that can be killed in a single critical hit }
+
+	float property minReactorHealthDamage = 0.1 auto Const
+	{ min % of reactor health to damage }
+
+	float property maxReactorHealthDamage = 0.25 auto Const
+	{ max % of reactor health to damage }
+
+	float property minHullHealthDamage = 0.1 auto Const
+	{ min % of Hull health to damage }
+
+	float property maxHullHealthDamage = 0.25 auto Const
+	{ max % of reactor health to damage }
+
+	float property minSystemHealthDamage = 1.0 auto Const
+	{ min % of system health to damage }
+
+	float property maxSystemHealthDamage = 1.25 auto Const
+	{ max % of system health to damage }
+
+	ActorValue[] property SystemHealthAVs auto Const
+	{ system health actor values }
+
+	ActorValue[] property SystemEMHealthAVs auto Const
+	{ system EM health actor values }
+
+	Message[] property CriticalHitMessages auto Const
+	{ array of critical hit messages - index matches the hit type }
+
+	WwiseEvent Property UICriticalHitShip Auto Const Mandatory
+	{ critical hit sound }
+endGroup
+
+int criticalHitType0_Reactor = 0 Const
+int criticalHitType1_Crew = 1 Const
+int criticalHitType2_Hull = 2 Const
+int criticalHitType3_System = 3 Const
+int criticalHitType4_EM = 4 Const
+int criticalHitType5_Engine = 5 Const
+int criticalHitType6_Shield = 6 Const
+
+Guard ShipCriticalHitGuard ProtectsFunctionLogic
+
+Function HandleCriticalHit(SpaceshipReference targetShip, ShipCriticalHitEffectScript:CriticalHitEffect[] CriticalHitEffects)
+	; we skip this if the guard is already locked - no need for simultaneous critical hits
+	TryLockGuard ShipCriticalHitGuard
+		; get total critical hit effect weight (for random rolls)
+		int totalCriticalHitEffectWeight = 0
+		int i = 0
+		while i < CriticalHitEffects.Length
+			ShipCriticalHitEffectScript:CriticalHitEffect theCriticalHit = CriticalHitEffects[i] 
+			debug.trace(self + "  " + i + ": " + theCriticalHit)   
+			totalCriticalHitEffectWeight += theCriticalHit.weight
+			i += 1
+		EndWhile
+
+        int criticalEffectRoll = Utility.RandomInt(1, totalCriticalHitEffectWeight)
+        debug.trace(self + " HandleCriticalHit: critical effect roll=" + criticalEffectRoll)
+        ; run through array to find which critical hit we rolled
+        i = 0
+        int currentWeight
+        int criticalHitEffectIndex = -1
+        while i < CriticalHitEffects.Length && criticalHitEffectIndex < 0
+            ShipCriticalHitEffectScript:CriticalHitEffect theCriticalHit = CriticalHitEffects[i]
+            currentWeight += theCriticalHit.weight
+            if criticalEffectRoll <= currentWeight
+                criticalHitEffectIndex = i
+            endif
+            i += 1
+        EndWhile
+
+        if criticalHitEffectIndex > -1
+            ShipCriticalHitEffectScript:CriticalHitEffect theCriticalHit = CriticalHitEffects[criticalHitEffectIndex]
+            debug.trace(self + " HandleCriticalHit: rolled critical effect " + criticalHitEffectIndex + ": " + theCriticalHit)
+            ; do whatever the effect says to do
+            if theCriticalHit.criticalHitType == criticalHitType0_Reactor
+                ; reactor damage
+                float baseReactorHealth = targetShip.GetBaseValue(ShipSystemReactorHealth)
+                float minHealthDamage = baseReactorHealth*minReactorHealthDamage
+                float maxHealthDamage = baseReactorHealth*maxReactorHealthDamage
+
+                float damageHealth = utility.RandomFloat(minHealthDamage, maxHealthDamage)
+                debug.trace(self + " HandleCriticalHit: reactor damage! inflicting " + damageHealth + " damage")
+                targetShip.DamageValue(ShipSystemReactorHealth, damageHealth)
+            elseif theCriticalHit.criticalHitType == criticalHitType1_Crew
+                ; crew damage - from 1-current crew
+                if targetShip.GetValue(SpaceshipCrew) > 0
+                    int currentCrew = targetShip.GetValueInt(SpaceshipCrew)
+                    int crewDamage = utility.RandomInt(1, currentCrew)
+                    crewDamage = Math.Min(maxCrewDamage, crewDamage) as int
+                    debug.trace(self + " HandleCriticalHit: crew damage! inflicting " + crewDamage + " damage")
+                    targetShip.DamageValue(SpaceshipCrew, crewDamage)
+                    if targetShip.GetValueInt(SpaceshipCrew) == 0
+                        ; also damage engines fully so ship is visibly "out of action"
+                        float currentEngineHealth = targetShip.GetValue(ShipSystemEngineHealth)
+                        targetShip.DamageValue(ShipSystemEngineHealth, currentEngineHealth)
+						; flag ship as crew wiped out
+						targetShip.SetValue(SpaceshipCriticalHitCrew, 1)
+                    endif
+                endif
+            elseif theCriticalHit.criticalHitType == criticalHitType2_Hull
+                ; hull damage
+                float baseHullHealth = targetShip.GetBaseValue(Health)
+                float minHealthDamage = baseHullHealth*minHullHealthDamage
+                float maxHealthDamage = baseHullHealth*maxHullHealthDamage
+
+                float damageHealth = utility.RandomFloat(minHealthDamage, maxHealthDamage)
+                debug.trace(self + " HandleCriticalHit: Hull damage! inflicting " + damageHealth + " damage")
+                targetShip.DamageValue(Health, damageHealth)
+            elseif theCriticalHit.criticalHitType == criticalHitType3_System || theCriticalHit.criticalHitType == criticalHitType5_Engine || theCriticalHit.criticalHitType == criticalHitType6_Shield
+                ; system damage
+                debug.trace(self + " HandleCriticalHit: system damage")
+                
+                ActorValue systemAV = theCriticalHit.systemAV
+                if systemAV == NONE
+                    ; damage random system
+                    ActorValue[] validSystemAVs = GetValidSystemAVs(SystemHealthAVs, targetShip)
+                    int systemIndex = Utility.RandomInt(0, validSystemAVs.Length - 1)
+                    systemAV = validSystemAVs[systemIndex]
+                EndIf
+                
+                ; damage this system
+                float baseSystemHealth = targetShip.GetBaseValue(systemAV)
+                float minHealthDamage = baseSystemHealth*minSystemHealthDamage
+                float maxHealthDamage = baseSystemHealth*maxSystemHealthDamage
+
+                float damageHealth = utility.RandomFloat(minHealthDamage, maxHealthDamage)
+
+                debug.trace(self + " HandleCriticalHit: " + systemAV + " damage! inflicting " + damageHealth + " damage")
+                targetShip.DamageValue(systemAV, damageHealth)
+            elseif theCriticalHit.criticalHitType == criticalHitType4_EM
+                ; EM damage
+                debug.trace(self + " HandleCriticalHit: EM damage")
+                ActorValue systemAV = theCriticalHit.systemAV
+                if systemAV == NONE
+                    ; damage random system
+                    ActorValue[] validSystemAVs = GetValidSystemAVs(SystemEMHealthAVs, targetShip)
+                    int systemIndex = Utility.RandomInt(0, validSystemAVs.Length - 1)
+                    systemAV = validSystemAVs[systemIndex]
+                EndIf
+                ; fully damage this system
+                float baseSystemHealth = targetShip.GetBaseValue(systemAV)
+                debug.trace(self + " HandleCriticalHit: " + systemAV + " damage! inflicting " + baseSystemHealth + " damage")
+                targetShip.DamageValue(systemAV, baseSystemHealth)
+            endif
+            Message criticalHitMessage = CriticalHitMessages[theCriticalHit.criticalHitType]
+            if criticalHitMessage
+                debug.trace(self + " HandleCriticalHit: show message " + criticalHitMessage)
+                criticalHitMessage.Show()
+		        UICriticalHitShip.Play(Game.GetPlayer())
+            endif
+        endif
+	endTryLockGuard
+EndFunction
+
+; utility function to return an array of actor values that are > 0 on the targetShip
+ActorValue[] function GetValidSystemAVs(ActorValue[] systemAVs, SpaceshipReference targetShip)
+    ActorValue[] validSystemAVs = new ActorValue[0]
+    int i = 0
+    while i < systemAVs.Length
+        if targetShip.GetValue(systemAVs[i]) > 0
+            validSystemAVs.Add(systemAVs[i])
+        endif
+        i += 1
     EndWhile
-    If criticalHitEffectIndex > -1
-      shipcriticalhiteffectscript:criticalhiteffect thecriticalhit = CriticalHitEffects[criticalHitEffectIndex]
-      If thecriticalhit.criticalHitType == criticalHitType0_Reactor
-        Float baseReactorHealth = targetShip.GetBaseValue(ShipSystemReactorHealth)
-        Float minHealthDamage = baseReactorHealth * minReactorHealthDamage
-        Float maxHealthDamage = baseReactorHealth * maxReactorHealthDamage
-        Float damageHealth = Utility.RandomFloat(minHealthDamage, maxHealthDamage)
-        targetShip.DamageValue(ShipSystemReactorHealth, damageHealth)
-      ElseIf thecriticalhit.criticalHitType == criticalHitType1_Crew
-        If targetShip.GetValue(SpaceshipCrew) > 0.0
-          Int currentCrew = targetShip.GetValueInt(SpaceshipCrew)
-          Int crewDamage = Utility.RandomInt(1, currentCrew)
-          crewDamage = Math.Min(maxCrewDamage as Float, crewDamage as Float) as Int
-          targetShip.DamageValue(SpaceshipCrew, crewDamage as Float)
-          If targetShip.GetValueInt(SpaceshipCrew) == 0
-            Float currentEngineHealth = targetShip.GetValue(ShipSystemEngineHealth)
-            targetShip.DamageValue(ShipSystemEngineHealth, currentEngineHealth)
-            targetShip.SetValue(SpaceshipCriticalHitCrew, 1.0)
-          EndIf
-        EndIf
-      ElseIf thecriticalhit.criticalHitType == criticalHitType2_Hull
-        Float baseHullHealth = targetShip.GetBaseValue(Health)
-        Float minhealthdamage = baseHullHealth * minHullHealthDamage
-        Float maxhealthdamage = baseHullHealth * maxHullHealthDamage
-        Float damagehealth = Utility.RandomFloat(minhealthdamage, maxhealthdamage)
-        targetShip.DamageValue(Health, damagehealth)
-      ElseIf thecriticalhit.criticalHitType == criticalHitType3_System || thecriticalhit.criticalHitType == criticalHitType5_Engine || thecriticalhit.criticalHitType == criticalHitType6_Shield
-        ActorValue systemAV = thecriticalhit.systemAV
-        If systemAV == None
-          ActorValue[] validSystemAVs = Self.GetValidSystemAVs(SystemHealthAVs, targetShip)
-          Int systemIndex = Utility.RandomInt(0, validSystemAVs.Length - 1)
-          systemAV = validSystemAVs[systemIndex]
-        EndIf
-        Float baseSystemHealth = targetShip.GetBaseValue(systemAV)
-        Float minhealthdamage = baseSystemHealth * minSystemHealthDamage
-        Float maxhealthdamage = baseSystemHealth * maxSystemHealthDamage
-        Float damagehealth = Utility.RandomFloat(minhealthdamage, maxhealthdamage)
-        targetShip.DamageValue(systemAV, damagehealth)
-      ElseIf thecriticalhit.criticalHitType == criticalHitType4_EM
-        ActorValue systemav = thecriticalhit.systemAV
-        If systemav == None
-          ActorValue[] validsystemavs = Self.GetValidSystemAVs(SystemEMHealthAVs, targetShip)
-          Int systemindex = Utility.RandomInt(0, validsystemavs.Length - 1)
-          systemav = validsystemavs[systemindex]
-        EndIf
-        Float basesystemhealth = targetShip.GetBaseValue(systemav)
-        targetShip.DamageValue(systemav, basesystemhealth)
-      EndIf
-      Message criticalHitMessage = CriticalHitMessages[thecriticalhit.criticalHitType]
-      If criticalHitMessage
-        criticalHitMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        UICriticalHitShip.Play(Game.GetPlayer() as ObjectReference, None, None)
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+    debug.trace(self + " GetValidSystemAVs: " + validSystemAVs)
+    return validSystemAVs
+endFunction
+
+
+;************** TESTING ****************************************
+
+function TestGetMatchingActorBase(Actor theActor)
+	debug.trace(self + " GetMatchingPlanetActorBase for " + theActor + "=" + theActor.GetMatchingPlanetActorBase())
 EndFunction
 
-ActorValue[] Function GetValidSystemAVs(ActorValue[] systemAVs, spaceshipreference targetShip)
-  ActorValue[] validSystemAVs = new ActorValue[0]
-  Int I = 0
-  While I < systemAVs.Length
-    If targetShip.GetValue(systemAVs[I]) > 0.0
-      validSystemAVs.add(systemAVs[I], 1)
-    EndIf
-    I += 1
-  EndWhile
-  Return validSystemAVs
-EndFunction
+function TestIsInSameLocation(ObjectReference refToTest, Location locationToTest, Keyword locationKeyword)
+	debug.trace(self + " TestIsInSameLocation: " + refToTest + " IsSameLocation? " + refToTest.GetCurrentLocation().IsSameLocation(locationToTest, locationKeyword))
+endFunction
 
-Function TestSetTraitKnown(Keyword planetTraitKeyword)
-  planet planetToCheck = Game.GetPlayer().GetCurrentPlanet()
-  planetToCheck.SetTraitKnown(planetTraitKeyword, True)
-  Self.UpdateTextReplacementAliases(Game.GetPlayer() as ObjectReference)
-  sq_parentscript:planettraitdata theData = Self.FindMatchingPlanetTraitForKeyword(planetTraitKeyword, planetToCheck)
-  If theData
-    Self.UpdatePlanetTraitDiscovery(Game.GetPlayer() as ObjectReference, theData, 99)
-  EndIf
-EndFunction
+function TestSetTraitKnown(Keyword planetTraitKeyword)
+	Planet planetToCheck = Game.GetPlayer().GetCurrentPlanet()
+	planetToCheck.SetTraitKnown(planetTraitKeyword)
+	UpdateTextReplacementAliases(Game.Getplayer())
+	PlanetTraitData theData = FindMatchingPlanetTraitForKeyword(planetTraitKeyword, planetToCheck)
+	if theData
+    	UpdatePlanetTraitDiscovery(Game.GetPlayer(), theData, 99)
+	else
+		debug.trace(self + " trait " + planettraitkeyword + " not found on planet " + planettocheck)
+	endif
+endFunction
 
-Function testSetGroupFaction(Actor testActor, Faction testFaction)
-  testActor.SetGroupFaction(testFaction)
-EndFunction
+function testSetGroupFaction(Actor testActor, Faction testFaction)
+	testActor.SetGroupFaction(testFaction)
+	debug.trace(self + " group faction now=" + testActor.GetGroupFaction())
+endFunction
 
-Function testEnableSpaceTravel(Location testLocation, Bool bEnable)
-  testLocation.EnableSpaceTravel(Self as Quest, bEnable)
-EndFunction
+function testEnableSpaceTravel(Location testLocation, bool bEnable)
+	testLocation.EnableSpaceTravel(self, bEnable)
+endFunction
 
-Function testSetSmugglingBaseChance(Float baseChance)
-  fSmugglingBaseChance = baseChance
-EndFunction
+function testSetSmugglingBaseChance(float basechance)
+	fSmugglingBaseChance = baseChance
+endFunction
 
-Function testSetScanned(ObjectReference scannableRef)
-  scannableRef.SetScanned(True)
-EndFunction
+function testConditionForm(ObjectReference testRef, ConditionForm testCondition)
+	debug.trace(self + " TestConditionForm: " + testRef + ".IsTrue=" + testCondition.IsTrue(testRef))
+endFunction
 
-Function testGetHoursUntil(Float afTargetHourLocal)
-  Utility.GetHoursUntilLocalHour(afTargetHourLocal)
-EndFunction
+function testSetScanned(ObjectReference scannableRef)
+	debug.trace(self + " testSetScanned: calling SetScanned() on " + scannableRef)
+	scannableRef.SetScanned(true)
+endFunction
 
-Function TestGetArray(FormList formlistToCheck)
-  Form[] formArray = formlistToCheck.GetArray(False)
-EndFunction
+function testGetHoursUntil(float afTargetHourLocal)
+	Utility.GetHoursUntilLocalHour(afTargetHourLocal)
+endFunction
 
-Function TestMoveToEditorLocation(ObjectReference testRef)
-  testRef.MoveToMyEditorLocation()
-EndFunction
+function testGetRefsLinkedToMe(ObjectReference refToCheck, Keyword keywordToCheck)
+	debug.trace(self + " GetRefsLinkedToMe=" + refToCheck.GetRefsLinkedToMe(keywordToCheck))
+	;debug.trace(self + " GetLinkedRefChildren=" + refToCheck.GetLinkedRefChildren(keywordToCheck))
+endFunction
 
-Function TestCompleteResearchProject(researchproject testProject)
-  testProject.Complete()
-EndFunction
 
-Function TestFindRefsWithKeyword(Keyword testKeyword)
-  ObjectReference[] refArray = Game.GetPlayer().FindAllReferencesWithKeyword(testKeyword as Form, 5000.0)
-  Self.testTraceRefArray(refArray)
-EndFunction
+function TestGetArray(FormList formlistToCheck)
+	Form[] formArray = formlistToCheck.GetArray()
+	debug.trace(self + " formArray=" + formArray)
+endFunction
 
-Function TestFindRefsByID(Form baseForm)
-  ObjectReference[] refArray = Game.GetPlayer().FindAllReferencesOfType(baseForm, 5000.0)
-  Self.testTraceRefArray(refArray)
-EndFunction
+function TestGetBaseActor(Actor testActor)
+	debug.trace(self + " GetBaseObject=" + testActor.GetBaseObject())
+	debug.trace(self + " GetLeveledActorBase=" + testActor.GetLeveledActorBase())
+endFunction
 
-Function testTraceRefArray(ObjectReference[] refArray)
-  ObjectReference playerRef = Game.GetPlayer() as ObjectReference
-  Int I = 0
-  While I < refArray.Length
-    I += 1
-  EndWhile
-EndFunction
+function TestGetEditorLocation(ObjectReference testRef)
+	debug.trace(self + " GetEditorLocation=" + testRef.GetEditorLocation())
+endfunction
 
-Bool Function AddSurveySite(surveysitediscovermarkerscript newSite)
-  Int siteIndex = SurveySites.findstruct("siteMarker", newSite as ObjectReference, 0)
-  If siteIndex > -1
-    Return False
-  Else
-    sq_parentscript:surveysite theSite = new sq_parentscript:surveysite
-    theSite.siteMarker = newSite as ObjectReference
-    SurveySites.add(theSite, 1)
-    PlanetReference.ForceRefTo(newSite as ObjectReference)
-    SQ_SurveySiteDiscoveredMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    Self.SendSurveySiteDiscoveredEvent(newSite as ObjectReference)
-    Return True
-  EndIf
-EndFunction
+function TestMoveToEditorLocation(ObjectReference testRef)
+	testRef.MoveToMyEditorLocation()
+endFunction
 
-Bool Function RemoveSurveySite(surveysitediscovermarkerscript siteToRemove, Bool countAsBuilt)
-  Int siteIndex = SurveySites.findstruct("siteMarker", siteToRemove as ObjectReference, 0)
-  If siteIndex > -1
-    SurveySites.remove(siteIndex, 1)
-    If countAsBuilt
-      siteToRemove.BuildSite()
-    EndIf
-    Return True
-  Else
-    Return False
-  EndIf
-EndFunction
+function TestCompleteResearchProject(ResearchProject testProject)
+	testProject.Complete()
+	debug.trace(self + " complete project " + testProject)
+endFunction
 
-Function SendSurveySiteDiscoveredEvent(ObjectReference newSite)
-  Var[] kargs = new Var[1]
-  kargs[0] = newSite as Var
-  Self.SendCustomEvent("sq_parentscript_SQ_SurveySiteDiscovered", kargs)
-EndFunction
+function TestFindRefsWithKeyword(keyword testKeyword)
+	ObjectReference[] refArray = Game.GetPlayer().FindAllReferencesWithKeyword(testKeyword, 5000.0)
+	debug.trace(self + " TestFindRefsWithKeyword " + testKeyword + ": " + refArray)
+	testTraceRefArray(refArray)
+endfunction
 
-Function TestAddSurveySite(ObjectReference newSite)
-  Self.AddSurveySite(newSite as surveysitediscovermarkerscript)
-EndFunction
+function TestFindRefsByID(Form baseForm)
+	ObjectReference[] refArray = Game.GetPlayer().FindAllReferencesOfType(baseForm, 5000.0)
+	debug.trace(self + " TestFindRefsByID " + baseForm + ": " + refArray)
+	testTraceRefArray(refArray)
+endFunction
+
+function testTraceRefArray(ObjectReference[] refArray)
+	ObjectReference playerRef = Game.GetPlayer()
+	int i = 0
+	while i < refArray.Length
+		debug.trace(self + " " + i + ": " + refArray[i] + ": distance=" + refArray[i].GetDistance(playerRef))
+		i += 1
+	endWhile
+endFunction
+
+function testRandomInt(int min, int max)
+	debug.trace(self + " Random int between " + min + " and " + max + ": " + Utility.RandomInt(min,max))
+endfunction
+
+;********** SURVEY SITES ********************************
+; returns TRUE if this was a new site; FALSE if the site was already in the array
+bool Function AddSurveySite(SurveySiteDiscoverMarkerScript newSite)
+	Debug.trace(self + " AddSurveySite " + newSite)
+	int siteIndex = SurveySites.FindStruct("siteMarker", newSite)
+	if siteIndex > -1
+		return false
+	else
+		SurveySite theSite = new SurveySite
+		theSite.siteMarker = newSite
+		SurveySites.Add(theSite)
+		PlanetReference.ForceRefTo(newSite)
+		SQ_SurveySiteDiscoveredMessage.Show()
+		SendSurveySiteDiscoveredEvent(newSite)
+		return true
+	endif
+endFunction
+
+bool Function RemoveSurveySite(SurveySiteDiscoverMarkerScript siteToRemove, bool countAsBuilt = true)
+	Debug.trace(self + " RemoveSurveySite " + siteToRemove)
+	int siteIndex = SurveySites.FindStruct("siteMarker", siteToRemove)
+	if siteIndex > -1
+		SurveySites.Remove(siteIndex)
+		if countAsBuilt
+			; toggle state of discovery marker
+			siteToRemove.BuildSite()
+		endif
+		return true
+	else
+		return false
+	endif
+endFunction
+
+function SendSurveySiteDiscoveredEvent(ObjectReference newSite)
+	; Send the survey site event
+	Var[] kargs = new Var[1]
+	kargs[0] = newSite
+	SendCustomEvent("SQ_SurveySiteDiscovered", kargs)
+endFunction
+
+function TestAddSurveySite(ObjectReference newSite)
+	AddSurveySite(newSite as SurveySiteDiscoverMarkerScript)
+endFunction
+

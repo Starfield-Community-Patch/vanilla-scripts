@@ -1,11 +1,13 @@
-ScriptName GameplayOption Extends Form hidden
+Scriptname GameplayOption extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Get the numerical reward value for the current setting on this GameplayOption form
+float Function GetRewardValue() native
 
-Float Function GetRewardValue() Native
+; Get this GameplayOption form's current value. Bools are represented as 0 for false and non-zero for true
+float Function GetValue() native
 
-Float Function GetValue() Native
+; Get the sum total of all active XP modifiers across every GameplayOption
+float Function GetXPTotal() native global
 
-Float Function GetXPTotal() Global Native
-
-Function NotifyGameplayOptionUpdateFinished() Global Native
+; Notify native code that script is finished updating values related to GameplayOptions and may operate on the new state
+Function NotifyGameplayOptionUpdateFinished() native global

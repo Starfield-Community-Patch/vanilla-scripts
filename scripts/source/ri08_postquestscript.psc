@@ -1,19 +1,14 @@
-ScriptName RI08_PostQuestScript Extends Quest
+Scriptname RI08_PostQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property iTimer Auto Const mandatory
-Int Property iQuestStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property iTimer Auto Const Mandatory
+Int Property iQuestStage Auto Const Mandatory
 
 Function StartPostQuestTimer()
-  Self.StartTimerGameTime(iTimer as Float, 1)
+    StartTimerGameTime(iTimer, 1)
 EndFunction
 
 Event OnTimerGameTime(Int aiTimerID)
-  If aiTimerID == 1
-    Self.SetStage(iQuestStage)
-  EndIf
+    If aiTimerID == 1
+        SetStage(iQuestStage)
+    EndIf
 EndEvent

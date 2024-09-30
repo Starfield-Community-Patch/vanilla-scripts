@@ -1,12 +1,7 @@
-ScriptName MQHunterPreMQ106Script Extends Quest
+Scriptname MQHunterPreMQ106Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property QuestInitStage = 10 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property QuestInitStage=10 Const Auto
 
 Event OnQuestInit()
-  Self.SetStage(QuestInitStage)
+    SetStage(QuestInitStage)
 EndEvent

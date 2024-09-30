@@ -1,15 +1,19 @@
-ScriptName Fragments:Scenes:SF_VideoShot06_001B5617 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_VideoShot06_001B5617 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Weapon Property Grendel Auto Const mandatory
-Armor Property Spacesuit_Constellation_Backpack_01 Auto Const mandatory
-ReferenceAlias Property VideoActorRefAlias Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  VideoActorRefAlias.GetActorRef().EquipItem(Spacesuit_Constellation_Backpack_01 as Form, False, False)
-  VideoActorRefAlias.GetActorRef().RemoveItem(Grendel as Form, 1, False, None)
+;BEGIN CODE
+VideoActorRefAlias.GetActorRef().EquipItem(Spacesuit_Constellation_Backpack_01)
+VideoActorRefAlias.GetActorRef().RemoveItem(Grendel)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Weapon Property Grendel Auto Const Mandatory
+
+Armor Property Spacesuit_Constellation_Backpack_01 Auto Const Mandatory
+
+ReferenceAlias Property VideoActorRefAlias Auto Const

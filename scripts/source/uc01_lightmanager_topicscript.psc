@@ -1,29 +1,33 @@
-ScriptName UC01_LightManager_TopicScript Extends TopicInfo
+Scriptname UC01_LightManager_TopicScript extends TopicInfo
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property StarterLight Mandatory Const Auto
+{Ref alias for the light that kicks off this show. }
 
-;-- Properties --------------------------------------
-ReferenceAlias Property StarterLight Auto Const mandatory
-{ Ref alias for the light that kicks off this show. }
-Bool Property TriggerLightOnBegin = True Auto Const
-{ Do we trigger our light show when this topic begins or ends? }
-Bool Property ShutoffAllLights = False Auto Const
-{ If true, when this line completes, tell all the lights here to can it }
+bool Property TriggerLightOnBegin = true Const auto
+{Do we trigger our light show when this topic begins or ends?}
 
-;-- Functions ---------------------------------------
+bool Property ShutoffAllLights = false Const Auto
+{If true, when this line completes, tell all the lights here to can it}
 
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If TriggerLightOnBegin
-    (StarterLight.GetRef() as uc01_lighttimingrefscript).TriggerLightUpdate(False)
-  EndIf
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    trace(self, "UC01: LightManager: On Begin.")
+    if TriggerLightOnBegin
+        trace(self, "UC01: Triggering timer for light: " + StarterLight.GetRef() as UC01_LightTimingRefScript)
+        (StarterLight.GetRef() as UC01_LightTimingRefScript).TriggerLightUpdate()
+    endif
 EndEvent
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If ShutoffAllLights
-    (StarterLight.GetRef() as uc01_lighttimingrefscript).StartLightTimer(True)
-  EndIf
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    trace(self, "UC01: LightManager: On End.")
+    if ShutoffAllLights
+        trace(self, "UC01: Triggering shutdown for light: " + StarterLight.GetRef() as UC01_LightTimingRefScript)
+        (StarterLight.GetRef() as UC01_LightTimingRefScript).StartLightTimer(true)
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC01", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

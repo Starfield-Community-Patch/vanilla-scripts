@@ -1,22 +1,18 @@
-ScriptName DefaultCollectionAliasOnMenuItemRun Extends RefCollectionAlias default
-{ Default script to set stages and/or send story events when terminal menu items run.) }
+Scriptname DefaultCollectionAliasOnMenuItemRun extends RefCollectionAlias Default
+{Default script to set stages and/or send story events when terminal menu items run.)}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Required_Properties
-  defaultaliasonmenuitemrun:menuitemdatum[] Property MenuItemData Auto Const mandatory
-  { Array of stages to set when terminal menu items are run. }
+	DefaultAliasOnMenuItemRun:MenuItemDatum[] Property MenuItemData Auto Const Mandatory
+	{Array of stages to set when terminal menu items are run.}
 EndGroup
 
 Group Debug_Properties
-  Bool Property ShowTraces = False Auto Const
-  { (Default: false) If true, will trace to log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives. }
+    Bool Property ShowTraces = false Auto Const
+    {(Default: false) If true, will trace to log. Must also have DefaultScriptFunction script compiled locally, or be loading debug archives.}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
-Event OnTerminalMenuItemRun(ObjectReference akSender, Int auiMenuItemID, terminalmenu akTerminalBase, ObjectReference akTerminalRef)
-  defaultaliasonmenuitemrun.HandleMenuItem(Self as Alias, MenuItemData, auiMenuItemID, akTerminalBase, akTerminalRef, ShowTraces)
+Event OnTerminalMenuItemRun(ObjectReference akSender, int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+	DefaultScriptFunctions.Trace(self, "OnTerminalMenuItemRun() akSender: " + akSender + ", auiMenuItemID: " + auiMenuItemID + ", akTerminalBase: " + akTerminalBase + ", akTerminalRef: " + akTerminalRef, ShowTraces)
+	DefaultAliasOnMenuItemRun.HandleMenuItem(self, MenuItemData, auiMenuItemID, akTerminalBase, akTerminalRef, ShowTraces)
 EndEvent
+

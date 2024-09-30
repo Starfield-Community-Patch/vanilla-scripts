@@ -1,27 +1,20 @@
-ScriptName OpenStarMapOnActivate Extends ObjectReference
-{ Opens the Star Map when this activator is used. }
+Scriptname OpenStarMapOnActivate extends ObjectReference
+{Opens the Star Map when this activator is used.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property FailedActivationMessage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message property FailedActivationMessage auto const mandatory
 
 Event OnActivate(ObjectReference akActionRef)
-  Self.GoToState("Busy")
-  If Game.IsMenuControlsEnabled()
-    Game.ShowGalaxyStarMapMenu()
-  Else
-    FailedActivationMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
-  Self.GoToState("")
+    GoToState("Busy")
+    if Game.IsMenuControlsEnabled()
+        Game.ShowGalaxyStarMapMenu()
+    else
+        FailedActivationMessage.Show()
+    endif
+    GoToState("")
 EndEvent
 
-;-- State -------------------------------------------
 State Busy
-
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
+    Event OnActivate(ObjectReference akActionRef)
+        ; Do nothing
+    EndEvent
+endState

@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_UC03_DeepMines_Thresher_00227D34 Extends TerminalMenu Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_UC03_DeepMines_Thresher_00227D34 Extends TerminalMenu Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property UC03 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_TerminalMenu_03
 Function Fragment_TerminalMenu_03(ObjectReference akTerminalRef)
-  UC03.SetStage(830)
+;BEGIN CODE
+UC03.SetStage(830)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property UC03 Auto Const Mandatory

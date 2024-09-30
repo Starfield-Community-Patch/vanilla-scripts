@@ -1,57 +1,67 @@
-ScriptName TerrormorphRaceEffectScript Extends ActiveMagicEffect
-{ make sure Terrormorphs flee when they enter combat with an Aceles }
+Scriptname TerrormorphRaceEffectScript extends ActiveMagicEffect
+{make sure Terrormorphs flee when they enter combat with an Aceles}
 
-;-- Variables ---------------------------------------
-Float fUpdateTime = 1.0 Const
-Int iUpdateTimerID = 1 Const
+Faction property AcelesFaction auto const mandatory
 
-;-- Properties --------------------------------------
-Faction Property AcelesFaction Auto Const mandatory
+float fUpdateTime = 1.0 const
+int iUpdateTimerID = 1 Const
 
-;-- Functions ---------------------------------------
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    debug.trace(self + " OnEffectStart on " + akCaster)
+    RegisterForRemoteEvent(akCaster, "OnCombatListAdded")
+    RegisterForRemoteEvent(akCaster, "OnCombatListRemoved")
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.RegisterForRemoteEvent(akCaster as ScriptObject, "OnCombatListAdded")
-  Self.RegisterForRemoteEvent(akCaster as ScriptObject, "OnCombatListRemoved")
-  Self.UpdateAcelesFlee()
+    UpdateAcelesFlee()
 EndEvent
 
 Event Actor.OnCombatListAdded(Actor akSource, Actor akTarget)
-  If akTarget as Bool && akTarget.IsInFaction(AcelesFaction)
-    Self.StartTimer(fUpdateTime, iUpdateTimerID)
-  EndIf
+    if akTarget && akTarget.IsInFaction(AcelesFaction)
+        debug.trace(self + " OnCombatListAdded " + akTarget + ": running timer")
+        StartTimer(fUpdateTime, iUpdateTimerID)
+    endif
 EndEvent
 
 Event Actor.OnCombatListRemoved(Actor akSource, Actor akTarget)
-  If akTarget as Bool && akTarget.IsInFaction(AcelesFaction)
-    Self.StartTimer(fUpdateTime, iUpdateTimerID)
-  EndIf
+    if akTarget && akTarget.IsInFaction(AcelesFaction)
+        debug.trace(self + " OnCombatListRemoved " + akTarget + ": running timer")
+        StartTimer(fUpdateTime, iUpdateTimerID)
+    endif
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == iUpdateTimerID
-    Self.UpdateAcelesFlee()
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == iUpdateTimerID
+        UpdateAcelesFlee()
+    endif
 EndEvent
 
 Function UpdateAcelesFlee()
-  Actor myCaster = Self.GetCasterActor()
-  Actor[] myTargets = myCaster.GetAllCombatTargets()
-  Actor foundAceles = None
-  If myTargets.Length > 0
-    Int I = 0
-    While I < myTargets.Length && foundAceles == None
-      Actor theTarget = myTargets[I]
-      If theTarget.IsDead() == False && theTarget.IsInFaction(AcelesFaction)
-        foundAceles = theTarget
-      EndIf
-      I += 1
-    EndWhile
-  EndIf
-  If foundAceles
-    myCaster.SetValue(Game.GetConfidenceAV(), 0.0)
-  Else
-    myCaster.SetValue(Game.GetConfidenceAV(), 4.0)
-  EndIf
-  myCaster.EvaluatePackage(False)
-EndFunction
+    ; check combat list for any Aceles
+    Actor myCaster = GetCasterActor()
+    Actor[] myTargets = myCaster.GetAllCombatTargets()
+
+    debug.trace(self + " UpdateAcelesFlee myTargets=" + myTargets)
+
+    Actor foundAceles = None
+
+    if myTargets.Length > 0
+        int i = 0
+        while i < myTargets.Length && foundAceles == NONE
+            Actor theTarget = myTargets[i]
+            debug.trace(self + "   checking " + theTarget)
+            if theTarget.IsDead() == false && theTarget.IsInFaction(AcelesFaction)
+                foundAceles = theTarget
+                debug.trace(self + " found living Aceles in combat list")
+            endif
+            i += 1
+        endWhile
+    endif
+
+    if foundAceles
+        debug.trace(self + " " + myCaster + " is fleeing from " + foundAceles)
+        myCaster.SetValue(Game.GetConfidenceAV(), 0)
+    Else
+        debug.trace(self + " " + myCaster + " is not fleeing")
+        myCaster.SetValue(Game.GetConfidenceAV(), 4)
+    endif
+    myCaster.EvaluatePackage()
+endFunction

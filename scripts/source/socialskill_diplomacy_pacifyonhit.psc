@@ -1,25 +1,48 @@
-ScriptName SocialSkill_Diplomacy_PacifyOnHit Extends ActiveMagicEffect
+Scriptname SocialSkill_Diplomacy_PacifyOnHit extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Faction Property CharmFaction Auto
-Int Property AllowForTeammate = 0 Auto
-Topic Property CombatTopicToSay Auto
-GlobalVariable Property WICastNonHostileTimer Auto
-GlobalVariable Property GameDaysPassed Auto
+int Property AllowForTeammate = 0 Auto  
+Topic Property CombatTopicToSay  Auto  
+GlobalVariable Property WICastNonHostileTimer  Auto  
+GlobalVariable Property GameDaysPassed  Auto  
 Topic Property TopicToSay Auto
 
-;-- Functions ---------------------------------------
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor myTarget = akTarget as Actor
-  myTarget.AddToFaction(CharmFaction)
-  akCaster.StopCombat()
-  myTarget.StopCombat()
+; ;	debug.trace(self + "OnEffectStart(" + akTarget + "," + akCaster + ")")
+Actor myTarget = akTarget as Actor
+	myTarget.AddToFaction(CharmFaction)
+	akCaster.StopCombat()
+	myTarget.StopCombat()
+
+
+;	If myTarget != Game.GetPlayer()
+;		If myTarget.GetCurrentScene() == None
+;			If GameDaysPassed.value > WICastNonHostileTimer.value
+;				If AllowForTeammate == 0
+;					If myTarget.IsCommandedActor() == 0 || myTarget.IsPlayerTeammate() == 0
+;						If myTarget.IsInCombat() == 0
+; ;							debug.trace(self + "OnEffectStart() will call Say(" + TopicToSay + ")")
+;							WICastNonHostileTimer.SetValue(GameDaysPassed.GetValue() + 0.01)
+;							myTarget.Say(TopicToSay)
+;						ElseIf CombatTopicToSay != None
+;							WICastNonHostileTimer.SetValue(GameDaysPassed.GetValue() + 0.01)
+;							myTarget.Say(CombatTopicToSay)
+;						EndIf
+;					EndIf
+;				ElseIf myTarget.IsPlayerTeammate() == 1
+; ;					debug.trace(self + "OnEffectStart() will call Say(" + TopicToSay + ")")
+;					WICastNonHostileTimer.SetValue(GameDaysPassed.GetValue() + 0.01)
+;					myTarget.Say(TopicToSay)
+;				EndIf
+;			EndIf
+;		EndIf
+;	EndIf
+
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Actor myTarget = akTarget as Actor
-  myTarget.RemoveFromFaction(CharmFaction)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+Actor myTarget = akTarget as Actor
+	myTarget.RemoveFromFaction(CharmFaction)
 EndEvent
+

@@ -1,93 +1,103 @@
-ScriptName ATMScript Extends ObjectReference
-{ script for hackable ATM script }
+Scriptname ATMScript extends ObjectReference
+{script for hackable ATM script}
 
-;-- Variables ---------------------------------------
-Int tempStealCount = 0
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard stealGuard
-
-;-- Properties --------------------------------------
-Keyword Property ATMLink_Door Auto Const mandatory
+Keyword property ATMLink_Door auto const mandatory
 { keyword for linked ref to fake locked door to hack }
-Keyword Property ATMLink_Container Auto Const mandatory
+
+Keyword property ATMLink_Container auto const mandatory
 { keyword for linked ref to container holding credits }
 
-;-- Functions ---------------------------------------
+auto state locked 
+    Event OnInit()
+        SetupLockedState()
+    EndEvent
+
+    Event OnBeginState(string asOldState)
+        SetupLockedState()
+    EndEvent
+
+    Event OnActivate(ObjectReference akActionRef)
+        if akActionRef == Game.GetPlayer()
+            ; get linked door, hack it
+            ObjectReference myDoor = GetLinkedRef(ATMLink_Door)
+            if myDoor
+                if myDoor.IsLocked()
+                    myDoor.Activate(akActionRef)
+                Else
+                    ; shouldn't be here
+                    GotoState("hacked")
+                endif
+            endif
+        endif
+    EndEvent
+
+    Event ObjectReference.OnLockStateChanged(ObjectReference akSource)
+        debug.trace(self + " lock state changed")
+        StealFromATM()
+    endEvent
+endState
+
+state hacked
+    Event OnBeginState(string asOldState)
+        debug.trace(self + " OnBeginState hacked")
+        BlockActivation(true, true)
+    EndEvent
+endState
 
 Event ObjectReference.OnLockStateChanged(ObjectReference akSource)
-  If akSource.IsLocked()
-    Self.GotoState("locked")
-  EndIf
-EndEvent
+    debug.trace(self + " lock state changed - if locked, go back to locked state")
+    if akSource.IsLocked()
+        GotoState("locked")
+    endif
+endEvent
 
-Function StealFromATM()
-  tempStealCount += 1
-  Guard stealGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    If Self.GetState() == "locked"
-      ObjectReference myDoor = Self.GetLinkedRef(ATMLink_Door)
-      If myDoor as Bool && myDoor.IsLocked() == False
-        Self.GotoState("hacked")
-        ObjectReference myContainer = Self.GetLinkedRef(ATMLink_Container)
-        If myContainer
-          MiscObject credits = Game.GetCredits()
-          Int creditsAmount = myContainer.GetItemCount(credits as Form)
-          myContainer.SendStealAlarm(Game.GetPlayer())
-          myContainer.RemoveAllItems(Game.GetPlayer() as ObjectReference, True, False)
-          ObjectReference stealRef = myContainer.PlaceAtMe(credits as Form, creditsAmount, False, False, True, None, None, True)
-          stealRef.SetFactionOwner(myContainer.GetFactionOwner(), False)
-          stealRef.SendStealAlarm(Game.GetPlayer())
-          stealRef.Disable(False)
-        EndIf
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Guard stealGuard ProtectsFunctionLogic
+int tempStealCount = 0
+
+function StealFromATM()
+    tempStealCount += 1
+    debug.trace(self + " StealFromATM start" + tempStealCount)
+    LockGuard stealGuard
+        if GetState() == "locked"
+            debug.trace(self + " StealFromATM: locked state")
+            ObjectReference myDoor = GetLinkedRef(ATMLink_Door)
+
+            if myDoor && myDoor.IsLocked() == false
+                debug.trace(self + " StealFromATM: door is unlocked, go to hacked state")
+                GotoState("hacked")
+                
+                ; get credits container
+                ObjectReference myContainer = GetLinkedRef(ATMLink_Container)
+                if myContainer
+                    MiscObject credits = Game.GetCredits()
+                    int creditsAmount = myContainer.GetItemCount(credits)
+                    debug.trace(self + " StealFromATM: " + creditsAmount + " credits")
+                    ; try calling steal alarm on container before removing items
+                    myContainer.SendStealAlarm(Game.GetPlayer())
+                    ; give credits to player
+                    myContainer.RemoveAllItems(akTransferTo=Game.GetPlayer(), abKeepOwnership=true)
+                    ; also temporarily create them in the world to allow steal alarm to work
+                    ObjectReference stealRef = myContainer.PlaceAtMe(credits, creditsAmount, abInitiallyDisabled=false)
+                    debug.trace(self + " StealFromATM: calling steal alarm on " + stealRef + " value=" + stealRef.GetGoldValue())
+                    stealRef.SetFactionOwner(myContainer.GetFactionOwner())
+                    stealRef.SendStealAlarm(Game.GetPlayer()) ; always blame the player
+                    stealRef.Disable()
+                endif
+            endif
+        endif
+    EndLockGuard
+    debug.trace(self + " StealFromATM end")
+endFunction
+
+function SetupLockedState()
+    ObjectReference myDoor = GetLinkedRef(ATMLink_Door)
+    debug.trace(self + " SetupLockedState myDoor=" + myDoor)
+    if myDoor && myDoor.IsLocked()
+        RegisterForRemoteEvent(myDoor, "OnLockStateChanged")
+    Else
+        debug.trace(self + " no linked container or unlocked container - making this non-interactive")
+        ; can't do anything with this ATM, make it non-interactive
+        gotoState("hacked")
+    endif
+    BlockActivation()
 EndFunction
-
-Function SetupLockedState()
-  ObjectReference myDoor = Self.GetLinkedRef(ATMLink_Door)
-  If myDoor as Bool && myDoor.IsLocked()
-    Self.RegisterForRemoteEvent(myDoor as ScriptObject, "OnLockStateChanged")
-  Else
-    Self.GotoState("hacked")
-  EndIf
-  Self.BlockActivation(True, False)
-EndFunction
-
-;-- State -------------------------------------------
-State hacked
-
-  Event OnBeginState(String asOldState)
-    Self.BlockActivation(True, True)
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State locked
-
-  Event ObjectReference.OnLockStateChanged(ObjectReference akSource)
-    Self.StealFromATM()
-  EndEvent
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      ObjectReference myDoor = Self.GetLinkedRef(ATMLink_Door)
-      If myDoor
-        If myDoor.IsLocked()
-          myDoor.Activate(akActionRef, False)
-        Else
-          Self.GotoState("hacked")
-        EndIf
-      EndIf
-    EndIf
-  EndEvent
-
-  Event OnBeginState(String asOldState)
-    Self.SetupLockedState()
-  EndEvent
-
-  Event OnInit()
-    Self.SetupLockedState()
-  EndEvent
-EndState

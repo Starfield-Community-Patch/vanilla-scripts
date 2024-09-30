@@ -1,5 +1,4 @@
-ScriptName MiscObject Extends Form Native hidden
+Scriptname MiscObject extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Int Function GetObjectResourceCount(resource akResource) Native
+; Returns the number of the given resource this form has.
+int Function GetObjectResourceCount( Resource akResource ) native

@@ -1,8 +1,11 @@
-ScriptName TestTerminalAliasScript Extends ReferenceAlias
-{ testing getting terminal events on a ref alias }
+Scriptname TestTerminalAliasScript extends ReferenceAlias
+{testing getting terminal events on a ref alias}
 
-;-- Functions ---------------------------------------
-
-Event OnTerminalMenuItemRun(Int auiMenuItemID, terminalmenu akTerminalBase, ObjectReference akTerminalRef)
-  ; Empty function
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID + " akTerminalBase=" + akTerminalBase + " akTerminalRef=" + akTerminalRef)
 EndEvent
+;/
+Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuEnter akTerminalBase=" + akTerminalBase + " akTerminalRef=" + akTerminalRef)
+endEvent
+/;

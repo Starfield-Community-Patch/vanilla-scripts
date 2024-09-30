@@ -1,5 +1,4 @@
-ScriptName Topic Extends Form Native hidden
+Scriptname Topic extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Function Add() Native
+; Adds this topic to the list the player knows about
+Function Add() native

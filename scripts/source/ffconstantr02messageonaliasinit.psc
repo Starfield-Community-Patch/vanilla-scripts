@@ -1,12 +1,7 @@
-ScriptName FFConstantR02MessageOnAliasInit Extends ReferenceAlias
+Scriptname FFConstantR02MessageOnAliasInit extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property InitStage = 10 Auto Const
-
-;-- Functions ---------------------------------------
+Int Property InitStage = 10 Const Auto
 
 Event OnAliasInit()
-  Self.GetOwningQuest().SetStage(InitStage)
+    GetOwningQuest().SetStage(InitStage)
 EndEvent

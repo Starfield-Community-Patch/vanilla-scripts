@@ -1,7 +1,12 @@
-ScriptName Fragments:Quests:QF_GauntletQuest_001F0294 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_GauntletQuest_001F0294 Extends Quest Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Self.SetObjectiveDisplayed(5, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(5)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

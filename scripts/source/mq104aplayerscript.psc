@@ -1,20 +1,16 @@
-ScriptName MQ104APlayerScript Extends ReferenceAlias
+Scriptname MQ104APlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property PlayerPowerPrereqStage = 710 Auto Const
-Int Property PlayerPowerSetStage = 720 Auto Const
-Spell Property PlayerFirstPower Auto Const mandatory
-Location Property CityNewAtlantisLodgeLocation Auto Const
-
-;-- Functions ---------------------------------------
+Int Property PlayerPowerPrereqStage=710 Const Auto
+Int Property PlayerPowerSetStage=720 Const Auto
+Spell Property PlayerFirstPower Mandatory Const Auto
+Location Property CityNewAtlantisLodgeLocation Const Auto
 
 Event OnSpellCast(Form akSpell)
-  If (akSpell == PlayerFirstPower as Form) && Game.GetPlayer().IsInLocation(CityNewAtlantisLodgeLocation)
-    Quest MyQuest = Self.GetOwningQuest()
-    If MyQuest.GetStageDone(PlayerPowerPrereqStage) && MyQuest.GetStageDone(PlayerPowerSetStage) == False
-      MyQuest.SetStage(PlayerPowerSetStage)
+    ;advance the quest if we're at the point where Constellation wants you to demonstrate your new power
+    If (akSpell == PlayerFirstPower) && (Game.GetPlayer().IsInLocation(CityNewAtlantisLodgeLocation))
+        Quest MyQuest = GetOwningQuest()
+        If (MyQuest.GetStageDone(PlayerPowerPrereqStage)) && (MyQuest.GetStageDone(PlayerPowerSetStage) == 0)
+           MyQuest.SetStage(PlayerPowerSetStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent

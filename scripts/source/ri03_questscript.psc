@@ -1,13 +1,11 @@
-ScriptName RI03_QuestScript Extends Quest
+Scriptname RI03_QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property RI03_SimonIntroCount Auto Const mandatory
-
-;-- Functions ---------------------------------------
+GlobalVariable Property RI03_SimonIntroCount Auto Const Mandatory
 
 Function AddToSimonCount()
-  Float fCurrentCount = RI03_SimonIntroCount.GetValue()
-  RI03_SimonIntroCount.SetValue(fCurrentCount + 1.0)
+
+    Float fCurrentCount = RI03_SimonIntroCount.GetValue()
+
+    RI03_SimonIntroCount.SetValue(fCurrentCount + 1)
+
 EndFunction

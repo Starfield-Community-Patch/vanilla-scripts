@@ -1,28 +1,45 @@
-ScriptName TestArtifactVision Extends ObjectReference
+Scriptname TestArtifactVision extends ObjectReference
 
-;-- Variables ---------------------------------------
+VisualEffect Property P_ArtifactVisionFX_AO Auto Const Mandatory
+WwiseEvent Property P_AMBArtifactVisionAEvent Auto Const Mandatory
 
-;-- Properties --------------------------------------
-VisualEffect Property P_ArtifactVisionFX_AO Auto Const mandatory
-wwiseevent Property P_AMBArtifactVisionAEvent Auto Const mandatory
 ObjectReference Property P_LightsOff Auto Const
-ImageSpaceModifier Property P_FadetoBlackImod Auto Const mandatory
-
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    inputenablelayer myLayer = inputenablelayer.Create()
-    myLayer.DisablePlayerControls(True, True, False, False, False, True, True, False, True, True, False)
-    P_ArtifactVisionFX_AO.Play(Game.GetPlayer() as ObjectReference, 35.0, None)
-    P_LightsOff.Disable(False)
-    Int instanceID = P_AMBArtifactVisionAEvent.Play(Game.GetPlayer() as ObjectReference, None, None)
-    If P_AMBArtifactVisionAEvent.PlayAndWait(Game.GetPlayer() as ObjectReference, None, None)
-      myLayer.EnablePlayerControls(True, True, True, True, True, True, True, True, True, True, True)
-      P_LightsOff.Enable(False)
-      P_FadetoBlackImod.Apply(1.0)
-    EndIf
-    Utility.wait(2.0)
-    P_FadetoBlackImod.Remove()
-  EndIf
+  Debug.Trace("Activated by " + akActionRef)
+     if akActionRef == Game.GetPlayer()
+      ; your code here.
+		
+		
+		;Game.ForceFirstPerson()
+ 		
+		InputEnableLayer myLayer = InputEnableLayer.Create()
+		myLayer.DisablePlayerControls()
+
+		P_ArtifactVisionFX_AO.Play(Game.GetPlayer(), 35)
+
+		 P_LightsOff.Disable()
+
+		int instanceID =  P_AMBArtifactVisionAEvent.play(Game.GetPlayer()) 
+ 
+
+	if P_AMBArtifactVisionAEvent.PlayAndWait(Game.GetPlayer())
+   		 Debug.Trace("P_AMBArtifactVisionAEvent has finished playing!")
+		myLayer.EnablePlayerControls()
+
+		P_LightsOff.Enable()
+		P_FadetoBlackImod.Apply()
+	else
+  		  Debug.Trace("P_AMBArtifactVisionAEvent failed to play")
+	endIf
+		
+		utility.wait(2)
+		P_FadetoBlackImod.Remove()
+   endif
 EndEvent
+
+
+
+
+
+ImageSpaceModifier Property P_FadetoBlackImod Auto Const Mandatory

@@ -1,44 +1,51 @@
-ScriptName DefaultAliasOnShipUndock Extends DefaultAlias default
-{ Sets stage when this ship undocks from another ship.
+Scriptname DefaultAliasOnShipUndock extends DefaultAlias Default
+{Sets stage when this ship undocks from another ship.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is based on the value of WhichShipToCheck - see below
-<LocationToCheck> is the current location of THIS Alias's reference. }
+<LocationToCheck> is the current location of THIS Alias's reference.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Bool Property SetStageWhenUndockingComplete = True Auto Const
-  { If true (default), stage will be set when undocking is complete; if false, stage will be set when undocking begins. }
-  Int Property WhichShipToCheck = 0 Auto Const
-  { 0 = check both docking ships
+	Bool Property SetStageWhenUndockingComplete = true Auto Const
+	{If true (default), stage will be set when undocking is complete; if false, stage will be set when undocking begins.}
+
+	int Property WhichShipToCheck = 0 Auto Const
+	{0 = check both docking ships
 	 1 = check this ship only
-	 2 = check the other ship only }
+	 2 = check the other ship only
+	}
 EndGroup
 
 
-;-- Functions ---------------------------------------
+Event OnShipUndock(bool abComplete, SpaceshipReference akUndocking, SpaceshipReference akParent)
+	if SetStageWhenUndockingComplete == abComplete
+		DefaultScriptFunctions.Trace(self, "OnShipUndock() abComplete: " + abComplete + ", akUndocking: " + akUndocking + ", akParent: " + akParent, ShowTraces)
 
-Event OnShipUndock(Bool abComplete, spaceshipreference akUndocking, spaceshipreference akParent)
-  If SetStageWhenUndockingComplete == abComplete
-    Location currentLocation = Self.TryToGetCurrentLocation()
-    spaceshipreference myShip = Self.GetShipRef()
-    spaceshipreference otherShip = None
-    If myShip == akUndocking
-      otherShip = akParent
-    Else
-      otherShip = akUndocking
-    EndIf
-    If WhichShipToCheck == 0 || WhichShipToCheck == 1
-      defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(myShip as ObjectReference, currentLocation, None)
-      Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
-    EndIf
-    If WhichShipToCheck == 0 || WhichShipToCheck == 2
-      defaultscriptfunctions:parentscriptfunctionparams parentscriptfunctionparams = defaultscriptfunctions.BuildParentScriptFunctionParams(otherShip as ObjectReference, currentLocation, None)
-      Self.CheckAndSetStageAndCallDoSpecificThing(parentscriptfunctionparams)
-    EndIf
-    If WhichShipToCheck < -1 || WhichShipToCheck > 2
-      
-    EndIf
-  EndIf
+		Location currentLocation = TryToGetCurrentLocation()
+		SpaceshipReference myShip = GetShipRef()
+		SpaceshipReference otherShip = None
+		if myShip == akUndocking
+			otherShip = akParent
+		Else
+			otherShip = akUndocking
+		EndIf
+
+		if WhichShipToCheck == 0 || WhichShipToCheck == 1
+			; check this ship
+			DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = myShip, LocationToCheck = currentLocation)
+			DefaultScriptFunctions.Trace(self, "OnShipUndock() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+			CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)		
+		EndIf
+
+		if WhichShipToCheck == 0 || WhichShipToCheck == 2
+			; check other ship
+			DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = otherShip, LocationToCheck = currentLocation)
+			DefaultScriptFunctions.Trace(self, "OnShipUndock() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+			CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)		
+		EndIf
+
+		if WhichShipToCheck < -1 || WhichShipToCheck > 2
+			DefaultScriptFunctions.Warning(self, "WARNING: OnShipUndock() has invalid parameter WhichShipToCheck=" + WhichShipToCheck)
+		endif
+
+	endif
 EndEvent

@@ -1,27 +1,27 @@
-ScriptName DefaultCollectionAliasOnActivate Extends DefaultCollectionAlias default
-{ Sets stage when THIS RefCollection's members are activated.
+Scriptname DefaultCollectionAliasOnActivate extends DefaultCollectionAlias Default
+{Sets stage when THIS RefCollection's members are activated.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
 <RefToCheck> is the reference activating each ref in THIS refcollection.
-<LocationToCheck> is the current location of each ref in THIS collection. }
+<LocationToCheck> is the current location of each ref in THIS collection.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Bool Property ShouldDisableAfterSuccessfulActivation = False Auto Const
-  { (Default: false) If true, disable after being successfully activated }
+	bool property ShouldDisableAfterSuccessfulActivation = false Auto Const
+	{(Default: false) If true, disable after being successfully activated}
 EndGroup
 
+Event  OnActivate(ObjectReference akSenderRef, ObjectReference akActionRef)
+	DefaultScriptFunctions.Trace(self, "OnActivate() akSenderRef: " + akSenderRef + ", akActionRef: " + akActionRef, ShowTraces)
 
-;-- Functions ---------------------------------------
-
-Event OnActivate(ObjectReference akSenderRef, ObjectReference akActionRef)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(akActionRef, akSenderRef.GetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(akSenderRef, ParentScriptFunctionParams)
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = akActionRef, LocationToCheck = akSenderRef.GetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnActivate() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(akSenderRef, ParentScriptFunctionParams)
 EndEvent
 
-Function DoSpecificThingForEachValidRef(ObjectReference RefCollectionMemberRef, defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams)
-  If ShouldDisableAfterSuccessfulActivation
-    RefCollectionMemberRef.Disable(False)
-  EndIf
+;OVERRIDE THIS IN CHILD SCRIPT
+;IMPORTANT: Children need to call this function as well when they override it
+Function DoSpecificThingForEachValidRef(ObjectReference RefCollectionMemberRef, DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams)
+	if ShouldDisableAfterSuccessfulActivation
+		DefaultScriptFunctions.Trace(self, "DoSpecificThingForEachValidRef() disabling because ShouldDisableAfterSuccessfulActivation == true. RefCollectionMemberRef: " + RefCollectionMemberRef, ShowTraces)
+		RefCollectionMemberRef.Disable()
+	EndIf
 EndFunction

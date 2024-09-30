@@ -1,7 +1,4 @@
-ScriptName UC_TerrormorphSupportScript Extends Quest
+Scriptname UC_TerrormorphSupportScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property SourceTerrormorph Auto Const mandatory
-{ Alias to hold the Terrormorph that cast triggered this set of hallucinations }
+ReferenceAlias Property SourceTerrormorph Mandatory Const Auto
+{Alias to hold the Terrormorph that cast triggered this set of hallucinations}

@@ -1,16 +1,16 @@
-ScriptName NeonCityEnableMapMarkerScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname NeonCityEnableMapMarkerScript extends ObjectReference Const
 
 Event OnLoad()
-  ObjectReference[] myRefs = Self.GetRefsLinkedToMe(None, None)
-  If myRefs.Length > 0
-    ObjectReference myMapMarker = myRefs[0]
-    If myMapMarker.IsDisabled()
-      myMapMarker.EnableNoWait(False)
-      myMapMarker.SetMarkerDiscovered()
-      myMapMarker.OnMapMarkerDiscovered()
-      myMapMarker.SetMarkerVisibleOnStarMap(True)
-    EndIf
-  EndIf
+    ObjectReference[] myRefs = GetRefsLinkedToMe()
+    if myRefs.Length > 0
+        ; if disabled, enable and discover
+        ObjectReference myMapMarker = myRefs[0]
+        if myMapMarker.IsDisabled()
+            debug.trace(self + " myMapMarker=" + myMapMarker)
+            myMapMarker.EnableNoWait()
+            myMapMarker.SetMarkerDiscovered()
+            myMapMarker.OnMapMarkerDiscovered()
+            myMapMarker.SetMarkerVisibleOnStarMap()
+        endif
+    endif
 EndEvent

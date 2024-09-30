@@ -1,8 +1,8 @@
-ScriptName POI012RotateHelper Extends ObjectReference Const
+Scriptname POI012RotateHelper extends ObjectReference Const
 
-;-- Functions ---------------------------------------
 
 Event OnCellLoad()
-  Self.SetAnimationVariableFloat("Speed", 0.01)
-  Self.PlayAnimation("RotateCW_Loop")
+    SetAnimationVariableFloat("Speed", 0.01)
+    PlayAnimation("RotateCW_Loop")
 EndEvent
+

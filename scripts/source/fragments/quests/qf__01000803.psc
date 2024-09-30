@@ -1,22 +1,31 @@
-ScriptName Fragments:Quests:QF__01000803 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF__01000803 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property PRI03_MalaiDead Auto Const mandatory
-ReferenceAlias Property Alias_Datura Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-ReferenceAlias Property Alias_Player Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Utility.wait(5.0)
-  spaceshipreference myShip = Alias_Datura.GetRef() as spaceshipreference
-  myShip.enablewithgravjump()
-  myShip.StartCombat(Alias_PlayerShip.GetRef() as spaceshipreference, False)
+;BEGIN CODE
+utility.wait(5)
+Spaceshipreference myShip = Alias_Datura.GetRef() as SpaceshipReference
+myShip.enablewithgravjump()
+myship.StartCombat(Alias_PlayerShip.GetRef() as SpaceshipReference)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  PRI03_MalaiDead.SetValue(1.0)
+;BEGIN CODE
+PRI03_MalaiDead.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property PRI03_MalaiDead Auto Const Mandatory
+
+ReferenceAlias Property Alias_Datura Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_Player Auto Const Mandatory

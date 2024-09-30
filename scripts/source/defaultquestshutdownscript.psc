@@ -1,20 +1,20 @@
-ScriptName DefaultQuestShutdownScript Extends Quest Const default
-{ shuts the quest down when a timer expires }
+Scriptname DefaultQuestShutdownScript extends Quest Const Default 
 
-;-- Variables ---------------------------------------
+{shuts the quest down when a timer expires}
 
-;-- Properties --------------------------------------
 Int Property StartTimerStage = 10 Auto Const
-{ quest stage which will start the shutdown timer }
-Float Property ShutdownTimerDuration = 1.0 Auto Const
-{ time (in game hours) before shutdown }
+{quest stage which will start the shutdown timer}
 
-;-- Functions ---------------------------------------
+float Property ShutdownTimerDuration = 1.0 Auto Const
+{time (in game hours) before shutdown}
 
-Event OnStageSet(Int auiStageID, Int auiItemID)
-  Self.StartTimerGameTime(ShutdownTimerDuration, 0)
-EndEvent
 
-Event OnTimerGameTime(Int aiTimerID)
-  Self.Stop()
-EndEvent
+Event OnStageSet(int auiStageID, int auiItemID)
+	; start shutdown timer
+	StartTimerGameTime(ShutdownTimerDuration)
+endEvent
+
+Event OnTimerGameTime(int aiTimerID)		
+	; stop the quest
+	Stop()
+endEvent

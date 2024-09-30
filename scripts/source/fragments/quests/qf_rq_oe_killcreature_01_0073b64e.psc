@@ -1,46 +1,75 @@
-ScriptName Fragments:Quests:QF_RQ_OE_KillCreature_01_0073B64E Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_RQ_OE_KillCreature_01_0073B64E Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_CenterMarker Auto Const mandatory
-ReferenceAlias Property Alias_Victim Auto Const mandatory
-ReferenceAlias Property Alias_Item Auto Const mandatory
-RefCollectionAlias Property Alias_Passengers Auto Const mandatory
-RefCollectionAlias Property Alias_Actors Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShipPassengerMarker Auto Const mandatory
-ActorValue Property RQ_AV_PrimaryObjectiveFailed Auto Const mandatory
-ActorValue Property RQ_AV_PrimaryObjectiveKnown Auto Const mandatory
-Potion Property Aid_MedPack Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  rqscript kmyQuest = __temp as rqscript
-  Self.SetObjectiveDisplayed(100, True, False)
-  kmyQuest.SetDialogueAV_PrimaryObjectiveKnown()
+;BEGIN AUTOCAST TYPE RQScript
+Quest __temp = self as Quest
+RQScript kmyQuest = __temp as RQScript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+kmyquest.SetDialogueAV_PrimaryObjectiveKnown()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Quest __temp = Self as Quest
-  rqscript kmyQuest = __temp as rqscript
-  If !Self.IsObjectiveDisplayed(100)
-    Self.SetStage(990)
-  Else
-    Self.SetObjectiveCompleted(100, True)
-    Self.SetObjectiveDisplayed(200, True, False)
-  EndIf
+;BEGIN AUTOCAST TYPE RQScript
+Quest __temp = self as Quest
+RQScript kmyQuest = __temp as RQScript
+;END AUTOCAST
+;BEGIN CODE
+if !IsObjectiveDisplayed(100)
+    ; Player killed creature before learning about the quest; shutdown
+    SetStage(990)
+else
+    SetObjectiveCompleted(100)
+    SetObjectiveDisplayed(200)
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0390_Item_00
 Function Fragment_Stage_0390_Item_00()
-  Quest __temp = Self as Quest
-  rqscript kmyQuest = __temp as rqscript
-  Self.SetObjectiveCompleted(200, True)
-  kmyQuest.SetDialogueAV_PrimaryObjectiveSuccess()
-  Self.SetStage(990)
+;BEGIN AUTOCAST TYPE RQScript
+Quest __temp = self as Quest
+RQScript kmyQuest = __temp as RQScript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveCompleted(200)
+kmyquest.SetDialogueAV_PrimaryObjectiveSuccess()
+SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0999_Item_00
 Function Fragment_Stage_0999_Item_00()
-  Self.SetStage(990)
+;BEGIN CODE
+SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_CenterMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_Victim Auto Const Mandatory
+
+ReferenceAlias Property Alias_Item Auto Const Mandatory
+
+RefCollectionAlias Property Alias_Passengers Auto Const Mandatory
+
+RefCollectionAlias Property Alias_Actors Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShipPassengerMarker Auto Const Mandatory
+
+ActorValue Property RQ_AV_PrimaryObjectiveFailed Auto Const Mandatory
+
+ActorValue Property RQ_AV_PrimaryObjectiveKnown Auto Const Mandatory
+
+Potion Property Aid_MedPack Auto Const

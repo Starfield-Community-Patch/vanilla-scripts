@@ -1,114 +1,154 @@
-ScriptName MissionStealQuestScript Extends MissionQuestScript conditional
+Scriptname MissionStealQuestScript extends MissionQuestScript conditional
 
-;-- Variables ---------------------------------------
-Int startupTimerID = 1 Const
+group StealMissionData
+	ReferenceAlias property TargetContainer auto const Mandatory
+	{ alias where cargo items will be placed }
+	
+    RefCollectionAlias property StealItemCollection auto const Mandatory
+	{ alias holding cargo items }
 
-;-- Properties --------------------------------------
-Group StealMissionData
-  ReferenceAlias Property TargetContainer Auto Const mandatory
-  { alias where cargo items will be placed }
-  RefCollectionAlias Property StealItemCollection Auto Const mandatory
-  { alias holding cargo items }
-  LocationAlias Property ReturnLocation Auto Const mandatory
-  { location where items need to be delivered to }
-  Int Property StealItemsStage = 50 Auto Const
-  { stage set when player steals the target items }
-  Int Property CargoItemCountMin = 1 Auto Const
-  { cargo items will be randomized between min and max }
-  Int Property CargoItemCountMax = 10 Auto Const
-  { cargo items will be randomized between min and max }
-  Int Property CargoItems = 5 Auto hidden
-  { Number of cargo items created for this mission - set in GetActualReward() }
-  Keyword Property LocTypeStarStation Auto Const mandatory
-  { for checking for docking }
-  Keyword Property LocTypeStarstationExterior Auto Const mandatory
-  { keyword to check if you've docked with a starstation }
-  GlobalVariable Property MissionBoardCargoValueMult Auto Const mandatory
-  { multiplier on cargo value reward }
+    LocationAlias property ReturnLocation auto const Mandatory
+    { location where items need to be delivered to }
+
+    int property StealItemsStage = 50 auto Const
+    { stage set when player steals the target items }
+
+	int property CargoItemCountMin = 1 auto Const
+	{ cargo items will be randomized between min and max }
+
+	int property CargoItemCountMax = 10 auto Const
+	{ cargo items will be randomized between min and max }
+
+	int property CargoItems = 5 auto hidden
+	{ Number of cargo items created for this mission - set in GetActualReward() }
+
+    Keyword property LocTypeStarStation auto const mandatory
+    { for checking for docking }
+
+	Keyword property LocTypeStarstationExterior auto const mandatory
+	{ keyword to check if you've docked with a starstation }
+
+	GlobalVariable property MissionBoardCargoValueMult auto const mandatory
+	{ multiplier on cargo value reward }
 EndGroup
 
-
-;-- Functions ---------------------------------------
+int startupTimerID = 1 Const
 
 Event OnQuestStarted()
-  Self.StartTimer(0.5, startupTimerID)
+	debug.trace(self + " OnQuestStarted")
+	StartTimer(0.5, startupTimerID)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == startupTimerID
-    Self.InitializeCargo()
-  EndIf
+Event OnTimer(int aiTimerID)
+	if aiTimerID == startupTimerID
+		InitializeCargo()
+	endif
 EndEvent
 
-Int Function GetActualReward()
-  missionboardcargocontainerscript cargoContainerRef = PrimaryRef.GetRef() as missionboardcargocontainerscript
-  Float rewardBase = RewardAmountGlobal.GetValue()
-  Float cargoWeightBase = cargoContainerRef.CargoMiscObject.GetWeight()
-  Float cargoWeight = cargoWeightBase * CargoItems as Float
-  MissionIntValue01.SetValue((cargoWeight as Int) as Float)
-  Float cargoValue = (cargoContainerRef.CargoMiscObject.GetGoldValue() * CargoItems) as Float
-  Float valueMult = MissionBoardCargoValueMult.GetValue()
-  Float cargoValueReward = cargoValue * valueMult
-  Float reward = rewardBase + cargoValueReward
-  Self.UpdateCurrentInstanceGlobal(MissionIntValue01)
-  Return reward as Int
-EndFunction
+; OVERRIDE parent function
+int Function GetActualReward()
+	MissionBoardCargoContainerScript cargoContainerRef = PrimaryRef.GetRef() as MissionBoardCargoContainerScript
 
+	float rewardBase = RewardAmountGlobal.GetValue()
+	debug.trace(self + "GetActualReward: rewardBase=" + rewardBase)
+
+	; get real weight
+	float cargoWeightBase = cargoContainerRef.CargoMiscObject.GetWeight()
+	float cargoWeight = cargoWeightBase * cargoItems
+	debug.trace(self + "GetActualReward: CargoItems=" + CargoItems + " total cargoWeight=" + cargoWeight)
+
+	MissionIntValue01.SetValue(cargoWeight as int)
+
+	; set real reward
+	float cargoValue = cargoContainerRef.CargoMiscObject.GetGoldValue()*CargoItems
+	float valueMult = MissionBoardCargoValueMult.GetValue()
+	float cargoValueReward = cargoValue*valueMult
+	debug.trace(self + "GetActualReward: cargoValue=" + cargoValue + ", valueMult=" + valueMult + " cargoValueReward=" + cargoValueReward)
+
+
+	float reward = rewardBase + cargoValueReward
+	debug.trace(self + "GetActualReward=" + reward)
+	UpdateCurrentInstanceGlobal(MissionIntValue01)
+	return reward as int
+endFunction
+
+
+; move this out of OnQuestStarted so it doesn't block quest from starting up
 Function InitializeCargo()
-  missionboardcargocontainerscript cargoContainerRef = PrimaryRef.GetRef() as missionboardcargocontainerscript
-  ObjectReference targetContainerRef = TargetContainer.GetRef()
-  If cargoContainerRef as Bool && targetContainerRef as Bool
-    CargoItems = Utility.RandomInt(CargoItemCountMin, CargoItemCountMax)
-    targetContainerRef.AddAliasedItem(cargoContainerRef.CargoMiscObject as Form, StealItemCollection as Alias, CargoItems, True)
-    Parent.OnQuestStarted()
-  Else
-    Self.Stop()
-  EndIf
-EndFunction
+	debug.trace(self + "InitializeCargo")
+	MissionBoardCargoContainerScript cargoContainerRef = PrimaryRef.GetRef() as MissionBoardCargoContainerScript
+    ObjectReference targetContainerRef = TargetContainer.GetRef()
 
+    ; if so, create cargo
+    debug.trace(self + " InitializeCargo: cargo type marker=" + cargoContainerRef + " ")
+    if cargoContainerRef && targetContainerRef
+        ; randomize cargo amount
+        CargoItems = Utility.RandomInt(CargoItemCountMin, CargoItemCountMax)
+        debug.trace(self + "InitializeCargo: CargoItems=" + CargoItems + " CargoMiscObject=" + cargoContainerRef.CargoMiscObject)
+        targetContainerRef.AddAliasedItem(cargoContainerRef.CargoMiscObject, StealItemCollection, CargoItems)
+        Parent.OnQuestStarted()
+    else
+        ; something went wrong
+        debug.trace(self + " InitializeCargo: FAILED - invalid data - cargoContainerRef=" + cargoContainerRef + " targetContainerRef=" + targetContainerRef)
+        Stop()
+    endif
+endFunction
+
+; override parent function
 Function HandlePlayerShipLanding()
-  Self.CheckForCargoUnloading()
-EndFunction
+    debug.trace(self + "HandlePlayerShipLanding")
+	CheckForCargoUnloading()
+endFunction
 
-Function HandlePlayerShipDocking(spaceshipreference akParent)
-  Self.CheckForCargoUnloading()
-EndFunction
+Function HandlePlayerShipDocking(SpaceshipReference akParent)
+    debug.trace(self + "HandlePlayerShipDocking")
+	CheckForCargoUnloading()
+endFunction
 
 Function CheckForCargoUnloading()
-  If Self.GetStageDone(StealItemsStage)
-    Location currentShipLocation = PlayerShip.GetShipRef().GetCurrentLocation()
-    If (PlayerAcceptedQuest as Bool && PlayerFailedQuest == False) && (currentShipLocation.IsSameLocation(ReturnLocation.GetLocation(), None) || currentShipLocation.IsSameLocation(ReturnLocation.GetLocation(), LocTypeStarStation) || currentShipLocation.IsSameLocation(ReturnLocation.GetLocation(), LocTypeStarstationExterior))
-      Self.MissionComplete()
-    EndIf
-  EndIf
+    if GetStageDone(StealItemsStage)
+        ; get current ship location
+        Location currentShipLocation = PlayerShip.GetShipRef().GetCurrentLocation()
+
+        debug.trace(self + "CheckForCargoUnloading currentShipLocation=" + currentShipLocation + " ReturnLocation=" + ReturnLocation.GetLocation())
+        ; if you land in the return location, we consider the cargo delivered
+	    if PlayerAcceptedQuest && PlayerFailedQuest == False && ( currentShipLocation.IsSameLocation(ReturnLocation.GetLocation()) || currentShipLocation.IsSameLocation(ReturnLocation.GetLocation(), LocTypeStarStation)  || currentShipLocation.IsSameLocation(ReturnLocation.GetLocation(), LocTypeStarstationExterior) )
+            MissionComplete()
+        endif
+    endif
 EndFunction
 
 Function MissionComplete()
-  ObjectReference PlayerShipRef = PlayerShip.GetRef()
-  Actor playerRef = Game.GetPlayer()
-  Int I = StealItemCollection.GetCount() - 1
-  While I > -1
-    ObjectReference cargoRef = StealItemCollection.GetAt(I)
-    StealItemCollection.RemoveRef(cargoRef)
-    PlayerShipRef.RemoveItem(cargoRef as Form, 1, False, None)
-    playerRef.RemoveItem(cargoRef as Form, 1, False, None)
-    I += -1
-  EndWhile
-  Parent.MissionComplete()
-EndFunction
+	ObjectReference PlayerShipRef = PlayerShip.GetRef()
+    Actor playerRef = Game.GetPlayer()
+	; unload cargo
+	int i = StealItemCollection.GetCount() - 1
+	while i > -1
+		ObjectReference cargoRef = StealItemCollection.GetAt(i)
+		debug.trace(self + " MissionComplete: removing cargo " + cargoRef + " from player ship " + PlayerShipRef)
+		StealItemCollection.RemoveRef(cargoRef)
+        ; try to remove from both possible places
+		PlayerShipRef.RemoveItem(cargoRef)
+        playerRef.RemoveItem(cargoRef)
+		i += -1
+	EndWhile
+	Parent.MissionComplete()
+endFunction
 
 Function MissionFailed()
-  Self.RemoveCargo()
-  Parent.MissionFailed()
+	RemoveCargo()
+	Parent.MissionFailed()
 EndFunction
 
 Function RemoveCargo()
-  Int I = StealItemCollection.GetCount() - 1
-  While I > -1
-    ObjectReference cargoRef = StealItemCollection.GetAt(I)
-    ObjectReference cargoContainerRef = cargoRef.GetContainer()
-    StealItemCollection.RemoveRef(cargoRef)
-    cargoContainerRef.RemoveItem(cargoRef as Form, 1, False, None)
-    I += -1
-  EndWhile
+	; clear cargo from player ship and/or target ship
+	int i = StealItemCollection.GetCount() - 1
+	while i > -1
+		ObjectReference cargoRef = StealItemCollection.GetAt(i)
+		ObjectReference cargoContainerRef = cargoRef.GetContainer()
+		debug.trace(self + " RemoveCargo: removing cargo " + cargoRef + " from " + cargoContainerRef)
+		StealItemCollection.RemoveRef(cargoRef)
+		cargoContainerRef.RemoveItem(cargoRef)
+		i += -1
+	EndWhile
 EndFunction

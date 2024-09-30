@@ -1,41 +1,40 @@
-ScriptName MQ204ArmillaryMountScript Extends ObjectReference
+Scriptname MQ204ArmillaryMountScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+Quest Property MQ00 Auto Const Mandatory
+Message Property ArmillaryNoArtifactsAddedMSG Mandatory Const Auto
+Keyword Property ObjectTypeMQArtifact Mandatory Const Auto
+ReferenceAlias Property MQ00_ArmillaryMountOrScreen Auto Const Mandatory
+Message Property MQBlockArmillaryShipScreenMSGBox Mandatory Const Auto
+WwiseEvent Property WwiseEvent_AMBArtifactArmillaryPlaceArtifact Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Quest Property MQ00 Auto Const mandatory
-Message Property ArmillaryNoArtifactsAddedMSG Auto Const mandatory
-Keyword Property ObjectTypeMQArtifact Auto Const mandatory
-ReferenceAlias Property MQ00_ArmillaryMountOrScreen Auto Const mandatory
-Message Property MQBlockArmillaryShipScreenMSGBox Auto Const mandatory
-wwiseevent Property WwiseEvent_AMBArtifactArmillaryPlaceArtifact Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;run a short timer that then runs a central function call in case the events come in out of order
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
-  Actor PlayerREF = Game.GetPlayer()
-  (Self.GetLinkedRef(None) as armillaryscript).BuildArmillary(PlayerREF, None)
-  (MQ00 as mq00questscript).StartArmillaryTimer(Self.GetWorkshop())
+	Actor PlayerREF = Game.GetPlayer()
+	(Self.GetLinkedRef() as ArmillaryScript).BuildArmillary(PlayerREF)
+	(MQ00 as MQ00QuestScript).StartArmillaryTimer(Self.GetWorkshop()) ; we need to know which workshop this came from
 EndEvent
 
 Event OnWorkshopObjectRemoved(ObjectReference akReference)
-  Actor PlayerREF = Game.GetPlayer()
-  (Self.GetLinkedRef(None) as armillaryscript).PackupArmillary(PlayerREF)
-  (MQ00 as mq00questscript).StartArmillaryTimer(Self.GetWorkshop())
+	Actor PlayerREF = Game.GetPlayer()
+	(Self.GetLinkedRef() as ArmillaryScript).PackupArmillary(PlayerREF)
+	(MQ00 as MQ00QuestScript).StartArmillaryTimer(Self.GetWorkshop()) ; we need to know which workshop this came from
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  Actor PlayerREF = Game.GetPlayer()
-  ObjectReference ArmillaryMountOrScreenREF = MQ00_ArmillaryMountOrScreen.GetRef()
-  If akActionRef == PlayerREF as ObjectReference
-    If ArmillaryMountOrScreenREF != Self as ObjectReference
-      MQBlockArmillaryShipScreenMSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    ElseIf PlayerREF.GetItemCount(ObjectTypeMQArtifact as Form) > 0
-      WwiseEvent_AMBArtifactArmillaryPlaceArtifact.Play(Self as ObjectReference, None, None)
-      armillaryscript ArmillaryREF = Self.GetLinkedRef(None) as armillaryscript
-      ArmillaryREF.BuildArmillary(PlayerREF, Self as ObjectReference)
-    Else
-      ArmillaryNoArtifactsAddedMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    Actor PlayerREF = Game.GetPlayer()
+    ObjectReference ArmillaryMountOrScreenREF = MQ00_ArmillaryMountOrScreen.GetRef()
+    ;add artifacts to armillary
+    If (akActionREF == PlayerREF)
+        If ArmillaryMountOrScreenREF != Self ;Armillary was built elsewhere, so block
+            MQBlockArmillaryShipScreenMSGBox.Show()
+        Else
+            If PlayerREF.GetItemCount(ObjectTypeMQArtifact) > 0
+                WwiseEvent_AMBArtifactArmillaryPlaceArtifact.Play(Self)
+                ArmillaryScript ArmillaryREF = (Self.GetLinkedRef() as ArmillaryScript)
+                ArmillaryREF.BuildArmillary(PlayerREF, Self)                
+            Else
+                ArmillaryNoArtifactsAddedMSG.Show() ;if player has no Artifacts, show message
+            EndIf
+        EndIf
     EndIf
-  EndIf
 EndEvent

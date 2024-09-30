@@ -1,6 +1,3 @@
-ScriptName DialogueCFTheKeyQuestScript Extends Quest
+Scriptname DialogueCFTheKeyQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-dialogueshipservicesscript Property DialogueShipServices Auto Const mandatory
+DialogueShipServicesScript property DialogueShipServices auto const mandatory

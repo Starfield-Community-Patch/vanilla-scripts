@@ -1,65 +1,73 @@
-ScriptName UC06_OrlaseShipAliasScript Extends ReferenceAlias
+Scriptname UC06_OrlaseShipAliasScript extends ReferenceAlias
 
-;-- Structs -----------------------------------------
+GlobalVariable Property UC06_OnHitDebugEnabled Mandatory Const Auto
+{If this is "1", this script will continually register for hit events, which is a complete waste of processing power}
+
+int Property PreReqStage = 300 Auto Const
+{If this stage is set and Orlase loads in, update his health}
+
+int Property ShutdownStage = 550 Auto Const
+{If this stage is set, the Orlase sequence is done, so we don't need to worry about this anymore}
+
+int Property StageToSet = 301 Const Auto
+{Player triggered the health increase. Set this stage to ensure it doesn't happen again}
+
 Struct HealthDatum
-  Int PlayerLevel
-  ActorValue TargetValue
-  Float UpdatedHealthValue
+    int PlayerLevel
+    ActorValue TargetValue
+    float UpdatedHealthValue
 EndStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property UC06_OnHitDebugEnabled Auto Const mandatory
-{ If this is "1", this script will continually register for hit events, which is a complete waste of processing power }
-Int Property PreReqStage = 300 Auto Const
-{ If this stage is set and Orlase loads in, update his health }
-Int Property ShutdownStage = 550 Auto Const
-{ If this stage is set, the Orlase sequence is done, so we don't need to worry about this anymore }
-Int Property StageToSet = 301 Auto Const
-{ Player triggered the health increase. Set this stage to ensure it doesn't happen again }
-uc06_orlaseshipaliasscript:healthdatum[] Property HealthData Auto Const mandatory
-{ The list of health number we should set Orlase's ship to. This is based off the numbers for the LShip_CrimsonFleet_Combat_C }
-
-;-- Functions ---------------------------------------
+HealthDatum[] Property HealthData Mandatory Const Auto
+{The list of health number we should set Orlase's ship to. This is based off the numbers for the LShip_CrimsonFleet_Combat_C}
 
 Event OnAliasInit()
-  Self.RegisterForHitEvent(Self.GetRef() as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+    RegisterForHitEvent(GetRef())
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  If UC06_OnHitDebugEnabled.GetValue() >= 1.0
-    Self.RegisterForHitEvent(Self.GetRef() as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndIf
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    trace(self, akTarget + " was attacked by: " + akAggressor + " with: " + akSource) 
+
+    if UC06_OnHitDebugEnabled.GetValue() >= 1.0
+        RegisterForHitEvent(GetRef())
+    endif
 EndEvent
 
 Event OnLoad()
-  Quest OQ = Self.GetOwningQuest()
-  If !OQ.GetStageDone(StageToSet) && OQ.GetStageDone(PreReqStage) && !OQ.GetStageDone(ShutdownStage)
-    OQ.SetStage(StageToSet)
-    uc06_orlaseshipaliasscript:healthdatum TargetDatum = Self.UpdateShipHealth()
-    spaceshipreference myShip = Self.GetShipRef()
-    myShip.SetValue(TargetDatum.TargetValue, TargetDatum.UpdatedHealthValue)
-  EndIf
+    Quest OQ = GetOwningQuest()
+
+    if !OQ.GetStageDone(StageToSet) && OQ.GetStageDone(PreReqStage) && !OQ.GetStageDone(ShutdownStage)
+        OQ.SetStage(StageToSet)
+        HealthDatum TargetDatum = UpdateShipHealth()
+
+        SpaceshipReference myShip = GetShipRef()
+        myShip.SetValue(TargetDatum.TargetValue, TargetDatum.UpdatedHealthValue)
+    endif  
 EndEvent
 
-uc06_orlaseshipaliasscript:healthdatum Function UpdateShipHealth()
-  Int iPlayerLevel = Game.GetPlayer().GetLevel()
-  Int I = 0
-  Int iLength = HealthData.Length
-  uc06_orlaseshipaliasscript:healthdatum TargetDatum = None
-  While I < iLength
-    Int iTargetLevel = HealthData[I].PlayerLevel
-    TargetDatum = HealthData[I]
-    If iTargetLevel >= iPlayerLevel
-      Return TargetDatum
-    EndIf
-    I += 1
-  EndWhile
-  Return TargetDatum
-EndFunction
+HealthDatum Function UpdateShipHealth()
+    int iPlayerLevel = Game.GetPlayer().GetLevel()
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
+    int i = 0
+    int iLength = HealthData.Length
+    HealthDatum TargetDatum
+
+    while i < iLength
+        int iTargetLevel = HealthData[i].PlayerLevel
+        TargetDatum = HealthData[i]
+
+        if iTargetLevel >= iPlayerLevel
+            return TargetDatum
+        endif
+
+        i += 1
+    endwhile
+    
+    return TargetDatum
 EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC06", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

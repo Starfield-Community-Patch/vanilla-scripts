@@ -1,19 +1,29 @@
-ScriptName Fragments:Scenes:SF_MQ102_014_MoonScene_0028DFE8 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ102_014_MoonScene_0028DFE8 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property MQ102 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  mq102script kmyQuest = Self.GetOwningQuest() as mq102script
-  kmyQuest.BlockSpaceTravel()
+;BEGIN AUTOCAST TYPE mq102script
+mq102script kmyQuest = GetOwningQuest() as mq102script
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.BlockSpaceTravel()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  mq102script kmyQuest = Self.GetOwningQuest() as mq102script
-  kmyQuest.UnblockSpaceTravel()
-  Self.GetOwningQuest().SetStage(510)
+;BEGIN AUTOCAST TYPE mq102script
+mq102script kmyQuest = GetOwningQuest() as mq102script
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.UnblockSpaceTravel()
+GetOwningQuest().SetStage(510)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property MQ102 Auto Const Mandatory

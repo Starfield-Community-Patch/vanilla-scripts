@@ -1,7 +1,5 @@
-ScriptName TestCorrie_AliasScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname TestCorrie_AliasScript extends ReferenceAlias
 
 Event OnRead()
-  ; Empty function
+    Debug.Trace(Self + "OnRead Event fired")
 EndEvent

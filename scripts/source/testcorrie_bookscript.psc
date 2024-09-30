@@ -1,7 +1,5 @@
-ScriptName TestCorrie_BookScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestCorrie_BookScript extends ObjectReference Const
 
 Event OnRead()
-  ; Empty function
+    Debug.Trace(Self + "Event OnRead fired")
 EndEvent

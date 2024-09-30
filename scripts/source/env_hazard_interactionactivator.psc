@@ -1,31 +1,43 @@
-ScriptName ENV_Hazard_InteractionActivator Extends ObjectReference Const
+Scriptname ENV_Hazard_InteractionActivator extends ObjectReference Const
 
-;-- Functions ---------------------------------------
+Function PlaceObject(Form FormToSpawn, ObjectReference RefToSpawnNear = None)
+		if RefToSpawnNear == None
+			RefToSpawnNear = Game.GetPlayer()
+		endif
 
-Function PlaceObject(Form FormToSpawn, ObjectReference RefToSpawnNear)
-  If RefToSpawnNear == None
-    RefToSpawnNear = Game.GetPlayer() as ObjectReference
-  EndIf
-  ObjectReference[] childrenRefs = Self.GetRefsLinkedToMe(None, None)
-  ObjectReference closestRef = Self.GetClosestFromRefArray(RefToSpawnNear, childrenRefs)
-  closestRef.PlaceAtMe(FormToSpawn, 1, False, False, True, None, None, False)
-  Self.Disable(False)
+		;get markers linked to it, then spawn the closest to the RefToSpawnNear
+
+		ObjectReference[] childrenRefs = GetRefsLinkedToMe(None)
+
+		ObjectReference closestRef = GetClosestFromRefArray(RefToSpawnNear, childrenRefs)
+
+		closestRef.PlaceAtMe(FormToSpawn, abSnapOffsetToNavmesh=false)
+
+		;turn off
+		Disable()
 EndFunction
 
 ObjectReference Function GetClosestFromRefArray(ObjectReference SubjectRef, ObjectReference[] TargetsArray)
-  ObjectReference closestRef = None
-  Float closestDistance = 0.0
-  Int I = 0
-  While I < TargetsArray.Length
-    ObjectReference currentTargetRef = TargetsArray[I]
-    If closestRef == None
-      closestRef = currentTargetRef
-      closestDistance = closestRef.GetDistance(SubjectRef)
-    ElseIf currentTargetRef.GetDistance(SubjectRef) < closestDistance
-      closestRef = currentTargetRef
-      closestDistance = closestRef.GetDistance(SubjectRef)
-    EndIf
-    I += 1
-  EndWhile
-  Return closestRef
+	
+	ObjectReference closestRef
+
+	float closestDistance = 0.0
+
+	int i = 0
+	While (i < TargetsArray.length)
+
+		ObjectReference currentTargetRef = TargetsArray[i]
+
+		if closestRef == None
+			closestRef = currentTargetRef
+			closestDistance = closestRef.GetDistance(SubjectRef)
+		elseif currentTargetRef.GetDistance(SubjectRef) < closestDistance
+			closestRef = currentTargetRef
+			closestDistance = closestRef.GetDistance(SubjectRef)
+		endif
+
+		i += 1
+	EndWhile
+
+	return closestRef
 EndFunction

@@ -1,15 +1,11 @@
-ScriptName CFSD01_PlayerAliasScript Extends ReferenceAlias
+Scriptname CFSD01_PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property CFSD01 Auto Const mandatory
-Location Property LC082VigilanceLocation Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Quest Property CFSD01 Auto Const Mandatory
+Location Property LC082VigilanceLocation Mandatory Const Auto
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If akOldLoc == LC082VigilanceLocation
-    (CFSD01 as cfsd01_questscript).JailCheck()
-  EndIf
+    if (akOldLoc == LC082VigilanceLocation)
+    	(CFSD01 as CFSD01_QuestScript).JailCheck()
+       debug.trace("Jail check done")
+    EndIf
 EndEvent

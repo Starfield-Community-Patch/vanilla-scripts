@@ -1,33 +1,25 @@
-ScriptName CastSpellOnActivate Extends ObjectReference
-{ Casts a spell with user as target }
+Scriptname CastSpellOnActivate extends ObjectReference
+{Casts a spell with user as target}
 
-;-- Variables ---------------------------------------
+Spell Property SpellToCast Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Spell Property SpellToCast Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Auto State Waiting
+    Event OnActivate(ObjectReference akActionRef)
+        GoToState("Busy")
+        ArcElectricityToTarget(akActionRef)
+        goToState("waiting")
+    EndEvent
+EndState
 
 Function ArcElectricityToTarget(ObjectReference target)
-  If target
-    SpellToCast.Cast(Self as ObjectReference, target)
-  EndIf
+    Debug.Trace("Attacking: " + target)
+    if(target)
+        SpellToCast.Cast(self, target)
+    EndIf
 EndFunction
 
-;-- State -------------------------------------------
 State Busy
-
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState
-
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnActivate(ObjectReference akActionRef)
-    Self.GoToState("Busy")
-    Self.ArcElectricityToTarget(akActionRef)
-    Self.GoToState("Waiting")
-  EndEvent
-EndState
+    Event OnActivate(ObjectReference akActionRef)
+        ; Do nothing
+    EndEvent
+endState

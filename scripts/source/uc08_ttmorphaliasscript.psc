@@ -1,36 +1,35 @@
-ScriptName UC08_TTMorphAliasScript Extends ReferenceAlias
+Scriptname UC08_TTMorphAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+int Property PrereqStage = 450 Const Auto
+{Only start the teleportin' once this stage is set on UC08}
 
-;-- Properties --------------------------------------
-Int Property PrereqStage = 450 Auto Const
-{ Only start the teleportin' once this stage is set on UC08 }
-ObjectReference Property TeleportMarker Auto Const mandatory
-{ Marker to teleport this critter to }
-ReferenceAlias Property NonHostileTT Auto Const mandatory
-{ Alias used to keep the Transformed Morph friendly to the player }
+ObjectReference Property TeleportMarker Mandatory Const Auto
+{Marker to teleport this critter to}
 
-;-- Functions ---------------------------------------
+ReferenceAlias Property NonHostileTT Mandatory Const Auto
+{Alias used to keep the Transformed Morph friendly to the player}
 
 Event OnLoad()
-  If Self.GetOwningQuest().GetStageDone(PrereqStage)
-    Self.ProcessTTMorph()
-  EndIf
+    if GetOwningQuest().GetStageDone(PrereqStage)
+       ProcessTTMorph()
+    endif
 EndEvent
 
 Event OnUnload()
-  If Self.GetOwningQuest().GetStageDone(PrereqStage)
-    Self.ProcessTTMorph()
-  EndIf
+    if GetOwningQuest().GetStageDone(PrereqStage)
+        ProcessTTMorph()
+    endif
 EndEvent
 
 Function ProcessTTMorph()
-  Actor currACT = Self.GetActorRef()
-  NonHostileTT.Clear()
-  If currACT.IsGhost()
-    currACT.SetGhost(False)
-  EndIf
-  If !currACT.IsDead()
-    currACT.MoveTo(TeleportMarker, 0.0, 0.0, 0.0, True, False)
-  EndIf
+    Actor currACT = GetActorRef()
+    NonHostileTT.Clear()
+    
+    if currACT.IsGhost()
+        currACT.SetGhost(false)
+    endif
+
+    if !currACT.IsDead()
+        currACT.MoveTo(TeleportMarker)
+    endif
 EndFunction

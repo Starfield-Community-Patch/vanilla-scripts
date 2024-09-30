@@ -1,79 +1,77 @@
-ScriptName RL089PoisonPodScript Extends ObjectReference Const
+Scriptname RL089PoisonPodScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property myCollision Auto Const mandatory
-ObjectReference Property myPoison Auto Const mandatory
-ObjectReference Property myPoisonEffect01 Auto Const mandatory
-ObjectReference Property myPoisonEffect02 Auto Const mandatory
-ObjectReference Property myTreePlatform Auto Const
-ObjectReference Property myTreePlatformCollision Auto Const
-
-;-- Functions ---------------------------------------
+ObjectReference Property myCollision Mandatory Const Auto
+ObjectReference Property myPoison Mandatory Const Auto
+ObjectReference Property myPoisonEffect01 Mandatory Const Auto
+ObjectReference Property myPoisonEffect02 Mandatory Const Auto
+ObjectReference Property myTreePlatform Const Auto
+ObjectReference Property myTreePlatformCollision Const Auto
 
 Event OnLoad()
-  Utility.Wait(2.0)
-  myTreePlatform.SetScale(0.050000001)
-  myTreePlatformCollision.Disable(False)
-  Self.RegisterForHitEvent(myCollision as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+    Utility.Wait(2)
+    myTreePlatform.SetScale(0.05)
+    myTreePlatformCollision.Disable()
+    RegisterForHitEvent(myCollision)
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  Self.ShrinkPod()
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    ShrinkPod()
 EndEvent
 
 Function ShrinkPod()
-  myPoison.Disable(False)
-  myPoisonEffect01.Disable(False)
-  myPoisonEffect02.Disable(False)
-  myCollision.Disable(False)
-  Self.SetScale(0.100000001)
-  Utility.Wait(3.0)
-  Self.TreeGrowThenDie()
+;float random = Utility.RandomFloat(3.0, 6.0)
+    myPoison.Disable()
+    myPoisonEffect01.Disable()
+    myPoisonEffect02.Disable()
+    myCollision.Disable()
+    self.SetScale(0.1)
+    Utility.Wait(3)
+    TreeGrowThenDie()
 EndFunction
 
 Function TreeGrowThenDie()
-  myTreePlatform.SetScale(0.200000003)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.300000012)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.400000006)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.5)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.600000024)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.699999988)
-  myTreePlatformCollision.Enable(False)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.800000012)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.899999976)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(1.0)
-  Utility.Wait(6.0)
-  Self.SetScale(0.200000003)
-  Utility.Wait(0.100000001)
-  Self.SetScale(0.300000012)
-  Utility.Wait(0.100000001)
-  Self.SetScale(0.400000006)
-  Utility.Wait(0.100000001)
-  Self.SetScale(0.5)
-  myPoison.Enable(False)
-  myPoisonEffect01.Enable(False)
-  myPoisonEffect02.Enable(False)
-  myCollision.Enable(False)
-  Self.RegisterForHitEvent(myCollision as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  Utility.Wait(4.5)
-  myTreePlatform.SetScale(0.800000012)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.600000024)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.400000006)
-  myTreePlatformCollision.Disable(False)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.200000003)
-  Utility.Wait(0.050000001)
-  myTreePlatform.SetScale(0.050000001)
+    myTreePlatform.SetScale(0.2)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.3)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.4)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.5)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.6)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.7)
+    myTreePlatformCollision.Enable()
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.8)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.9)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(1)
+    Utility.Wait(6)
+    self.SetScale(0.2)
+    utility.Wait(0.1)
+    self.SetScale(0.3)
+    utility.Wait(0.1)
+    self.SetScale(0.4)
+    utility.Wait(0.1)
+    self.SetScale(0.5)
+    myPoison.Enable()
+    myPoisonEffect01.Enable()
+    myPoisonEffect02.Enable()
+    myCollision.Enable()
+    RegisterForHitEvent(myCollision)
+    Utility.Wait(4.5)
+    myTreePlatform.SetScale(0.8)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.6)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.4)
+    myTreePlatformCollision.Disable()
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.2)
+    utility.Wait(0.05)
+    myTreePlatform.SetScale(0.05)
 EndFunction
+
+    

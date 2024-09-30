@@ -1,1 +1,1 @@
-ScriptName MQ101EnemyShipScript Extends ReferenceAlias
+Scriptname MQ101EnemyShipScript extends ReferenceAlias

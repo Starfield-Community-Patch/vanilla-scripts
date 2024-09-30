@@ -1,7 +1,12 @@
-ScriptName Fragments:Terminals:TERM_LC044DRONETerminal_0027076D Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_LC044DRONETerminal_0027076D Extends Terminal Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  akTerminalRef.GetLinkedRef(None).Disable(False)
+;BEGIN CODE
+akTerminalRef.GetLinkedRef().Disable()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

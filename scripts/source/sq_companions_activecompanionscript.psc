@@ -1,116 +1,153 @@
-ScriptName SQ_Companions_ActiveCompanionScript Extends ReferenceAlias
-{ script for whatever companion is currently in ActiveCompanion alias }
+Scriptname SQ_Companions_ActiveCompanionScript extends ReferenceAlias
+{script for whatever companion is currently in ActiveCompanion alias}
 
-;-- Variables ---------------------------------------
-Int Skill_LeadershipRecoveryTimerID = 1 Const
-Int TimerID_TravelAffinityCoolDown = 2 Const
-Bool TravelAffinityCoolDownDone = True
+group Perks
+    Perk property Skill_Leadership auto const mandatory
 
-;-- Properties --------------------------------------
-Group Perks
-  Perk Property Skill_Leadership Auto Const mandatory
-  Float Property Skill_Leadership_Rank4_CompanionRecoverChance = 0.5 Auto Const
-  { chance (0.0 - 1.0) to recover from bleedout (once per combat) }
-  Bool Property Skill_Leadership_HasRecovered Auto hidden
-  { set to true when companion recovers - set back to false when combat ends }
-  Quest Property PlayerSkills Auto Const mandatory
-  { used to check stage for Leadership rank 4 }
-  Int Property Skill_Leadership_Rank4Stage = 1504 Auto Const
-  { stage to check for Leadership rank 4, since we don't have a papyrus function for that }
-  Float Property Skill_LeadershipRecoveryDelay = 10.0 Auto Const
-  { seconds between going into bleedout and recovering }
-EndGroup
+    float property Skill_Leadership_Rank4_CompanionRecoverChance = 0.50 auto const
+    { chance (0.0 - 1.0) to recover from bleedout (once per combat) }
+
+    bool property Skill_Leadership_HasRecovered auto hidden
+    { set to true when companion recovers - set back to false when combat ends }
+
+    Quest property PlayerSkills auto const mandatory
+    { used to check stage for Leadership rank 4 }
+
+    int property Skill_Leadership_Rank4Stage = 1504 auto Const
+    { stage to check for Leadership rank 4, since we don't have a papyrus function for that }
+
+    float property Skill_LeadershipRecoveryDelay = 10.0 auto Const
+    { seconds between going into bleedout and recovering }
+endGroup
 
 Group Travel_Affinity
-  GlobalVariable Property COM_AffinityTravelBonus_PreMQ Auto Const mandatory
-  { Autofill }
-  GlobalVariable Property COM_AffinityTravelBonus_PostMQ Auto Const mandatory
-  { Autofill }
-  GlobalVariable Property COM_AffinityTravelCoolDown Auto Const mandatory
-  { Autofill }
-  Quest Property MQ302B Auto Const mandatory
-  { Autofill }
-EndGroup
+GlobalVariable Property COM_AffinityTravelBonus_PreMQ Mandatory Const Auto
+{Autofill}
 
+GlobalVariable Property COM_AffinityTravelBonus_PostMQ Mandatory Const Auto
+{Autofill}
 
-;-- Functions ---------------------------------------
+GlobalVariable Property COM_AffinityTravelCoolDown Mandatory Const Auto
+{Autofill}
 
-Event OnAliasChanged(ObjectReference akObject, Bool abRemove)
-  Skill_Leadership_HasRecovered = False
+Quest Property MQ302B Mandatory Const Auto
+{autofill}
+
+endGroup
+
+int Skill_LeadershipRecoveryTimerID = 1 const
+int TimerID_TravelAffinityCoolDown = 2 const ;duration is COM_AffinityTravelCoolDown
+
+bool TravelAffinityCoolDownDone = true
+
+auto state recoveryAllowed
+Event OnEnterBleedout()
+    debug.trace(self + " OnEnterBleedout")
+    if Skill_Leadership_HasRecovered == false
+        if PlayerSkills.GetStageDone(Skill_Leadership_Rank4Stage)
+            debug.trace(self + " player has Leadership rank 4 - check for recovery")
+            Actor actorRef = GetActorRef()
+            ; roll for recover chance
+            float recoverRoll = Utility.RandomFloat()
+            debug.trace(self + " recoverRoll=" + recoverRoll + ", Skill_Leadership_Rank4_CompanionRecoverChance=" + Skill_Leadership_Rank4_CompanionRecoverChance)
+
+            if recoverRoll <= Skill_Leadership_Rank4_CompanionRecoverChance
+                ; success!
+                debug.trace(self + "  recover success! running " + Skill_LeadershipRecoveryDelay + " second timer for recovery")
+                Skill_Leadership_HasRecovered = true
+                GotoState("noRecovery")
+                StartTimer(Skill_LeadershipRecoveryDelay, Skill_LeadershipRecoveryTimerID)
+            endif
+        endif
+    endif
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == Skill_LeadershipRecoveryTimerID
-    Actor actorRef = Self.GetActorRef()
-    If actorRef.IsBleedingOut()
-      actorRef.RestoreValue(Game.GetHealthAV(), 999.0)
-      Utility.wait(5.0)
-    EndIf
-    Self.gotoState("recoveryAllowed")
-  ElseIf aiTimerID == TimerID_TravelAffinityCoolDown
-    TravelAffinityCoolDownDone = True
-  EndIf
+Event OnCombatStateChanged(ObjectReference akTarget, int aeCombatState)
+    if aeCombatState == 0
+        debug.trace(self + " OnCombatStateChanged " + aeCombatState)
+        ; clear recovered flag whenever I leave combat
+        Skill_Leadership_HasRecovered = false
+    endif
+endEvent
+
+EndState
+
+state noRecovery
+    ; don't allow recovery in this state
+endState
+
+
+Event OnAliasChanged(ObjectReference akObject, bool abRemove)
+    debug.trace(self + " OnAliasChanged " + akObject + " " + abRemove)
+    ; always clear recovered flag when alias changes
+    Skill_Leadership_HasRecovered = false
+EndEvent
+
+Event OnTimer(int aiTimerID)
+    if aiTimerID == Skill_LeadershipRecoveryTimerID
+        Actor actorRef = GetActorRef()
+        if actorRef.IsBleedingOut()
+            debug.trace(self + " recovery timer done - restore health")
+            ; if still bleeding out, recover
+            actorRef.RestoreValue(Game.GetHealthAV(), 999.0)
+            ; wait a bit before changing state to allow combat to restart
+            utility.wait(5.0)
+        endif
+        gotoState("recoveryAllowed")
+    elseif aiTimerID == TimerID_TravelAffinityCoolDown
+        Trace(self, "OnTimer() Utility.GetCurrentRealTime(): " + Utility.GetCurrentRealTime())
+        TravelAffinityCoolDownDone = true
+        Trace(self, "OnTimer() TravelAffinityCoolDownDone is now: " + TravelAffinityCoolDownDone)
+    endif
 EndEvent
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  Self.AwardAffinityTravelBonus()
+    Trace(self, "OnLocationChange() akOldLoc: " + akOldLoc + ", akNewLoc: " + akNewLoc + ", will call AwardAffinityTravelBonus() ")
+    AwardAffinityTravelBonus()
 EndEvent
 
 Function AwardAffinityTravelBonus()
-  If TravelAffinityCoolDownDone
-    Int amountToAdd = 0
-    If MQ302B.IsCompleted()
-      amountToAdd = COM_AffinityTravelBonus_PostMQ.GetValueInt()
-    Else
-      amountToAdd = COM_AffinityTravelBonus_PreMQ.GetValueInt()
-    EndIf
-    (Self.GetActorReference() as companionactorscript).AddAffinity(amountToAdd)
-    Self.StartTimer_AffinityTravelCoolDown(False)
-  EndIf
+    Trace(self, "AwardAffinityTravelBonus() TravelAffinityCoolDownDone: " +  TravelAffinityCoolDownDone)
+    if TravelAffinityCoolDownDone
+        int amountToAdd 
+
+        if MQ302B.IsCompleted()
+            amountToAdd = COM_AffinityTravelBonus_PostMQ.GetValueInt()
+        else
+            amountToAdd = COM_AffinityTravelBonus_PreMQ.GetValueInt()
+        endif
+
+        Trace(self, "AwardAffinityTravelBonus() amountToAdd: " +  amountToAdd)
+
+        (GetActorReference() as CompanionActorScript).AddAffinity(amountToAdd)
+        StartTimer_AffinityTravelCoolDown()
+    endif
 EndFunction
 
-Function StartTimer_AffinityTravelCoolDown(Bool ExpireTimer)
-  TravelAffinityCoolDownDone = False
-  Float duration = 0.0
-  If ExpireTimer == False
-    duration = COM_AffinityTravelCoolDown.GetValue()
-  EndIf
-  Self.StartTimer(duration, TimerID_TravelAffinityCoolDown)
+Function StartTimer_AffinityTravelCoolDown(bool ExpireTimer = false)
+Trace(self, "StartTimer_AffinityTravelCoolDown() ExpireTimer: " + ExpireTimer)
+    TravelAffinityCoolDownDone = false
+    Trace(self, "StartTimer_AffinityTravelCoolDown() TravelAffinityCoolDownDone is now: " + TravelAffinityCoolDownDone)
+
+    float duration = 0
+    if ExpireTimer == false
+        duration = COM_AffinityTravelCoolDown.GetValue()
+    endif
+
+    Trace(self, "StartTimer_AffinityTravelCoolDown() duration: " + duration)
+
+    Trace(self, "StartTimer_AffinityTravelCoolDown() Utility.GetCurrentRealTime(): " + Utility.GetCurrentRealTime())
+    StartTimer(duration, TimerID_TravelAffinityCoolDown)
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Companions",  string SubLogName = "SQ_Companions_ActiveCompanion", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Companions",  string SubLogName = "SUB_SQ_Companions_ActiveCompanionLOG_Name", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction
-
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
-EndFunction
-
-;-- State -------------------------------------------
-State noRecovery
-EndState
-
-;-- State -------------------------------------------
-Auto State recoveryAllowed
-
-  Event OnCombatStateChanged(ObjectReference akTarget, Int aeCombatState)
-    If aeCombatState == 0
-      Skill_Leadership_HasRecovered = False
-    EndIf
-  EndEvent
-
-  Event OnEnterBleedout()
-    If Skill_Leadership_HasRecovered == False
-      If PlayerSkills.GetStageDone(Skill_Leadership_Rank4Stage)
-        Actor actorRef = Self.GetActorRef()
-        Float recoverRoll = Utility.RandomFloat(0.0, 1.0)
-        If recoverRoll <= Skill_Leadership_Rank4_CompanionRecoverChance
-          Skill_Leadership_HasRecovered = True
-          Self.gotoState("noRecovery")
-          Self.StartTimer(Skill_LeadershipRecoveryDelay, Skill_LeadershipRecoveryTimerID)
-        EndIf
-      EndIf
-    EndIf
-  EndEvent
-EndState

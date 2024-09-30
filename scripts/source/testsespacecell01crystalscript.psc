@@ -1,18 +1,14 @@
-ScriptName TestSESpaceCell01CrystalScript Extends ObjectReference Const
+Scriptname TestSESpaceCell01CrystalScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property InorgUncommonBeryllium Auto Const mandatory
-
-;-- Functions ---------------------------------------
+MiscObject Property InorgUncommonBeryllium Mandatory Auto Const
 
 Event OnDestroyed(ObjectReference akDestroyer)
-  Int MineralCount = Utility.RandomInt(1, 4)
-  Utility.Wait(1.0)
-  Game.GetPlayer().AddItem(InorgUncommonBeryllium as Form, MineralCount, False)
+    Int MineralCount = Utility.RandomInt(1,4)
+    Utility.Wait(1)
+    Game.GetPlayer().AddItem(InorgUncommonBeryllium, MineralCount)
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  Self.DisableNoWait(False)
+    debug.Notification("THIS IS A TEST!")
+    DisableNoWait()
 EndEvent

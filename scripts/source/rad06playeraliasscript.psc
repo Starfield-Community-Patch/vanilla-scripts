@@ -1,21 +1,17 @@
-ScriptName RAD06PlayerAliasScript Extends ReferenceAlias
+Scriptname RAD06PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property ResourceToLookFor Auto
+MiscObject Property ResourceToLookFor Auto 
 Int Property QuantityToLookFor Auto
 
-;-- Functions ---------------------------------------
-
 Function RefreshFilter()
-  Self.AddInventoryEventFilter(ResourceToLookFor as Form)
+  AddInventoryEventFilter(ResourceToLookFor)
 EndFunction
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If akBaseItem == ResourceToLookFor as Form
-    If Self.GetRef().GetItemCount(ResourceToLookFor as Form) >= QuantityToLookFor
-      Self.GetOwningQuest().SetStage(200)
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+  Debug.Trace("Rad06: Item added to player's ship cargo hold.")
+  if ( akBaseItem == ResourceToLookFor )
+      if ( GetRef().GetItemCount(ResourceToLookFor) >= QuantityToLookFor )
+        GetOwningQuest().SetStage(200)
     EndIf
-  EndIf
+  endIf
 EndEvent

@@ -1,76 +1,85 @@
-ScriptName GlowingKlaxonLightScript Extends ObjectReference
+Scriptname GlowingKlaxonLightScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+bool property StartOn Auto 
+{Whether the lights start on or not.  Default = FALSE}
 
-;-- Properties --------------------------------------
-Bool Property StartOn Auto
-{ Whether the lights start on or not.  Default = FALSE }
-Bool Property AutoOff = True Auto
-{ Whether to have the klaxon automatically turn off or not.  Default = FALSE }
-Int Property AutoOffTime = 10 Auto
-{ Time before the klaxon automatically turns off. }
+bool property AutoOff = True Auto
+{Whether to have the klaxon automatically turn off or not.  Default = FALSE}
 
-;-- Functions ---------------------------------------
+int property AutoOffTime = 10 Auto
+{Time before the klaxon automatically turns off.}
 
-Function PlayLights()
-  ObjectReference KlaxonLight = Self.GetLinkedRef(None)
-  ObjectReference KlaxonSound = KlaxonLight.GetLinkedRef(None)
-  Self.PlayAnimation("Stage2")
-  KlaxonLight.Enable(False)
-  KlaxonLight.PlayAnimation("Stage2")
-  If KlaxonSound
-    KlaxonSound.Enable(False)
-  EndIf
-  If AutoOff
-    Self.StartTimer(AutoOffTime as Float, 1)
-  EndIf
-  Self.gotoState("WaitingOn")
-EndFunction
-
-Function StopLights()
-  ObjectReference KlaxonLight = Self.GetLinkedRef(None)
-  ObjectReference KlaxonSound = KlaxonLight.GetLinkedRef(None)
-  Self.PlayAnimation("Reset")
-  KlaxonLight.Disable(False)
-  KlaxonLight.PlayAnimation("Reset")
-  If KlaxonSound
-    KlaxonSound.Disable(False)
-  EndIf
-  Self.CancelTimer(1)
-  Self.gotoState("WaitingOff")
-EndFunction
-
-Event OnTimer(Int timerID)
-  If timerID == 1
-    Self.StopLights()
-  EndIf
-EndEvent
-
-;-- State -------------------------------------------
-State BlockingActivation
-EndState
-
-;-- State -------------------------------------------
 Auto State WaitingOff
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.gotoState("BlockingActivation")
-    Self.PlayLights()
-  EndEvent
+	Event OnLoad()
+  		if (StartOn == TRUE)
+  			gotoState("BlockingActivation")
+  			PlayLights()
+  		endif
+	endEvent
 
-  Event OnLoad()
-    If StartOn == True
-      Self.gotoState("BlockingActivation")
-      Self.PlayLights()
-    EndIf
-  EndEvent
+	Event OnActivate(ObjectReference akActionRef)
+		gotoState("BlockingActivation")
+		PlayLights()
+	EndEvent
+
 EndState
 
-;-- State -------------------------------------------
 State WaitingOn
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.gotoState("BlockingActivation")
-    Self.StopLights()
-  EndEvent
+	Event OnActivate(ObjectReference akActionRef)
+		gotoState("BlockingActivation")
+		StopLights()
+	EndEvent
+
 EndState
+
+State BlockingActivation
+
+EndState
+
+Function PlayLights()
+
+		ObjectReference KlaxonLight = Self.GetLinkedRef()
+		ObjectReference KlaxonSound = KlaxonLight.GetLinkedRef()
+		
+		;animate light
+		Self.PlayAnimation("Stage2")
+		;animate Klaxon
+		KlaxonLight.Enable()
+		KlaxonLight.PlayAnimation("Stage2")
+		;enable sound, have to check to see if they have sounds because some of them don't
+		if(KlaxonSound)
+			KlaxonSound.enable()
+		endif
+		if AutoOff
+			StartTimer(AutoOffTime, 1)
+		endif
+		gotoState("WaitingOn")
+endFunction
+
+;turns lights off
+Function StopLights()
+
+		ObjectReference KlaxonLight = Self.GetLinkedRef()
+		ObjectReference KlaxonSound = KlaxonLight.GetLinkedRef()
+
+		;animate light off
+		Self.PlayAnimation("Reset")
+		;animate Klaxon off
+		KlaxonLight.Disable()
+		KlaxonLight.PlayAnimation("Reset")
+		;disable sound, have to check to see if they have sounds because some of them don't
+		if(KlaxonSound)
+			KlaxonSound.disable()
+		endif
+		CancelTimer(1)
+		gotoState("WaitingOff")
+EndFunction
+
+;Auto-Off timer.
+Event OnTimer(int timerID)
+	if (timerID == 1)
+		StopLights()
+	EndIf
+EndEvent

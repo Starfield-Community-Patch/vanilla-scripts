@@ -1,100 +1,120 @@
-ScriptName REAliasScript Extends ReferenceAlias
-{ Should be attached to all aliases in Random Encounter and Overlay Encounter Quests.
+Scriptname REAliasScript extends ReferenceAlias
+{Should be attached to all aliases in Random Encounter and Overlay Encounter Quests.
 	NOTE: changes here should also be made to RECollectionAliasScript }
 
-;-- Variables ---------------------------------------
-String LocalScriptName = "REAliasScript" Const
-
-;-- Properties --------------------------------------
 Group Flags
-  Bool Property StartsDead = False Auto Const
-  { Default = FALSE; should the actor be killed when they spawn? To be replaced by code solution. }
-  Bool Property RegisterAlias = True Auto Const
-  { Default = TRUE; for now, all aliases should register - this property may end up being removed }
-  Bool Property TrackDeath = False Auto Const
-  { Default = FALSE; set to true if you want the quest to track when this alias dies and set a stage
+	bool Property StartsDead = false auto Const
+		{Default = FALSE; should the actor be killed when they spawn? To be replaced by code solution.}
+
+	bool Property RegisterAlias = true auto const
+		{Default = TRUE; for now, all aliases should register - this property may end up being removed}
+
+	bool Property TrackDeath = false auto const
+		{Default = FALSE; set to true if you want the quest to track when this alias dies and set a stage
 		NOTE: need to set GroupIndex if you are tracking multiple groups. See REScript for more details }
-  Int Property GroupIndex = 0 Auto Const
-  { Default = 0; used for tracking death, if you have more than one group.
-		This index needs to match how you've set up DeadCounts arrays in REScript }
-  Int Property OnHitStage Auto Const
-  { Stage to set if actor is hit. }
-  Faction Property OnHitFaction Auto Const
-  { Faction of attacking actor which triggers OnHitStage. 
-		Default = trigger on hit from player }
-EndGroup
 
+	int Property GroupIndex = 0 auto const
+		{Default = 0; used for tracking death, if you have more than one group.
+		This index needs to match how you've set up DeadCounts arrays in REScript}
 
-;-- Functions ---------------------------------------
+	int Property OnHitStage auto const
+		{Stage to set if actor is hit.}
 
-Event OnAliasInit()
-  rescript owningREScript = Self.GetOwningQuest() as rescript
-  If RegisterAlias && owningREScript as Bool
-    owningREScript.RegisterAlias(Self as ReferenceAlias)
-  EndIf
-  Self.CustomRegisterForHit()
-EndEvent
+	Faction Property OnHitFaction auto const
+		{Faction of attacking actor which triggers OnHitStage. 
+		Default = trigger on hit from player}
+EndGroup 
 
-Event OnLoad()
-  If StartsDead
-    Actor a = Self.GetActorRef()
-    If a as Bool && a.IsDead() == False
-      a.MoveToMyEditorLocation()
-      rescript owningREScript = Self.GetOwningQuest() as rescript
-      If owningREScript
-        owningREScript.RE_Parent.KillWithForce(a, None, True)
-      Else
-        a.KillSilent(None)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+; 	Script Variables
+	String LocalScriptName 	= "REAliasScript" const
 
-Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
-EndEvent
+; 	Setup Functions
+	Event OnAliasInit()
+		; Register any unique trace data as early as possible.
+		REScript owningREScript = GetOwningQuest() as REScript
+		
+		; tell parent quest script about this script
+		if RegisterAlias && owningREScript
+			Trace(Self, "REAliasScript registering (" + self as ReferenceAlias + ") with REScript.")
+			owningREScript.RegisterAlias(self as ReferenceAlias)
+		endif
+		CustomRegisterForHit()
+	EndEvent
 
-Event OnDeath(ObjectReference akKiller)
-  rescript owningREScript = Self.GetOwningQuest() as rescript
-  If TrackDeath && owningREScript as Bool
-    owningREScript.IncrementDeadCount(GroupIndex)
-  EndIf
-EndEvent
+	Event OnLoad()
+		if (StartsDead)
+			trace(self, " StartsDead = true : killing")
+			Actor a = Self.GetActorRef()
+			if a && a.IsDead() == false
+				a.MoveToMyEditorLocation()
+				REScript owningREScript = GetOwningQuest() as REScript
+				IF owningREScript
+					owningREScript.RE_Parent.KillWithForce(a)
+				Else
+					a.KillSilent()
+				EndIf 
+			endif
+		endif
+	EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  If OnHitStage > 0 && (akAggressor as Actor) as Bool
-    Actor attackingActor = akAggressor as Actor
-    If (OnHitFaction as Bool && attackingActor.IsInFaction(OnHitFaction)) || OnHitFaction == None && attackingActor == Game.GetPlayer()
-      Self.GetOwningQuest().SetStage(OnHitStage)
-    EndIf
-  EndIf
-  Self.CustomRegisterForHit()
-EndEvent
+; 	Update Functions
+	Event OnUnload()
+		UnregisterForAllHitEvents()
+	EndEvent
 
-Function CustomRegisterForHit()
-  If OnHitStage > 0 && Self.GetOwningQuest().GetStageDone(OnHitStage) == False
-    If OnHitFaction
-      Self.RegisterForHitEvent(Self as ScriptObject, OnHitFaction as ScriptObject, None, None, -1, -1, -1, -1, True)
-    Else
-      Self.RegisterForHitEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, None, None, -1, -1, -1, -1, True)
-    EndIf
-  EndIf
-EndFunction
+	Event OnDeath(ObjectReference akKiller)
+		REScript owningREScript = GetOwningQuest() as REScript
+		if TrackDeath && owningREScript
+			owningREScript.IncrementDeadCount(GroupIndex)
+		endif
+	EndEvent
 
-Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity)
-  asTextToPrint = "[" + LocalScriptName + "] " + asTextToPrint
-  rescript owningREScript = Self.GetOwningQuest() as rescript
-  If owningREScript
-    owningREScript.Trace(CallingObject, asTextToPrint, aiSeverity)
-  Else
-    Debug.Trace((CallingObject as String + " ") + asTextToPrint, aiSeverity)
-  EndIf
-EndFunction
+	Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+		trace(self, " OnHit " + akTarget + ", " + akAggressor + ", " + akSource)
+		if OnHitStage > 0 && (akAggressor as Actor)
+			Actor attackingActor = akAggressor as Actor
+			if (OnHitFaction && attackingActor.IsInFaction(OnHitFaction)) || (OnHitFaction == NONE && attackingActor == Game.GetPlayer())
+				GetOwningQuest().SetStage(OnHitStage)
+			endif
+		endif
+		CustomRegisterForHit()
+	EndEvent
 
-Function warning(ScriptObject CallingObject, String asTextToPrint, Bool DebugTrace, Int aiSeverity, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  asTextToPrint = "[" + LocalScriptName + "] " + asTextToPrint
-  rescript owningREScript = Self.GetOwningQuest() as rescript
-  If owningREScript
-    owningREScript.warning(CallingObject, asTextToPrint, False, 2, False, True, True)
-  EndIf
-EndFunction
+	function CustomRegisterForHit()
+		trace(self, "CustomRegisterForHit")
+		; register if necessary
+		if OnHitStage > 0 && GetOwningQuest().GetStageDone(OnHitStage) == false
+			if OnHitFaction
+				trace(self, " RegisterForHitEvent from " + OnHitFaction)
+				RegisterForHitEvent(self, OnHitFaction)
+			else
+				trace(self, " RegisterForHitEvent from player")
+				RegisterForHitEvent(self, Game.GetPlayer())
+			endif
+		endif
+	endFunction
+
+;--------------------------------------------------------------------------------------------------
+; TRACE LOGS 
+;       Standard Trace Functions for handling logs and other formatting functions for readability. 
+;--------------------------------------------------------------------------------------------------
+;	Trace and warning functions
+    Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0) DebugOnly
+		asTextToPrint = "[" + LocalScriptName + "] " + asTextToPrint
+		REScript owningREScript = GetOwningQuest() as REScript
+		if owningREScript
+			owningREScript.Trace(CallingObject, asTextToPrint, aiSeverity)
+		Else
+			Debug.Trace(CallingObject + " " + asTextToPrint, aiSeverity)
+		endif
+    EndFunction
+
+	Function Warning(ScriptObject CallingObject, string asTextToPrint, bool DebugTrace=False, int aiSeverity=2, bool bShowNormalTrace=false, bool bShowWarning=True, bool bPrefixTraceWithLogNames=True) BetaOnly
+		asTextToPrint = "[" + LocalScriptName + "] " + asTextToPrint
+		REScript owningREScript = GetOwningQuest() as REScript
+		if owningREScript
+			owningREScript.Warning(CallingObject, asTextToPrint)
+		Else
+			Debug.Trace(CallingObject + " " + asTextToPrint, aiSeverity)
+		endif
+	EndFunction

@@ -1,1 +1,1 @@
-ScriptName Ammo Extends Form Native hidden
+Scriptname Ammo extends Form Native Hidden

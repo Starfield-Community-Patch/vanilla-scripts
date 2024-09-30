@@ -1,12 +1,7 @@
-ScriptName TestMatchFaceScript Extends ObjectReference Const
+Scriptname TestMatchFaceScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Actor Property TestMatchFaceActor Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Actor Property TestMatchFaceActor Mandatory Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  ; Empty function
+    ;TBD add call to new MatchFace function
 EndEvent

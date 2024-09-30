@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_MQ101_013d_ShieldsDownSce_000FED06 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ101_013d_ShieldsDownSce_000FED06 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Phase_01_End
 Function Fragment_Phase_01_End()
-  defaulttutorialquestscript kmyQuest = Self.GetOwningQuest() as defaulttutorialquestscript
-  kmyQuest.ShowHelpMessage("WeaponGroup2")
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+defaulttutorialquestscript kmyQuest = GetOwningQuest() as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.ShowHelpMessage("WeaponGroup2")
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

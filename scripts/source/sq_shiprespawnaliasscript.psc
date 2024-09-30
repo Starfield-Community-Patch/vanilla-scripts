@@ -1,8 +1,9 @@
-ScriptName SQ_ShipRespawnAliasScript Extends ReferenceAlias Const
-
-;-- Functions ---------------------------------------
+Scriptname SQ_ShipRespawnAliasScript extends ReferenceAlias Const
 
 Event OnDeath(ObjectReference akKiller)
-  spaceshipreference myShipRef = Self.GetShipRef()
-  (Self.GetOwningQuest() as sq_shiprespawnscript).HandleShipDeath(Self as ReferenceAlias)
+    SpaceshipReference myShipRef = GetShipRef()
+    debug.trace(self + " OnDeath - ref in alias=" + myShipRef + " IsDead? " + myShipRef.IsDead())
+    ; call respawn function
+    (GetOwningQuest() as SQ_ShipRespawnScript).HandleShipDeath(self)
 EndEvent
+

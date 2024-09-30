@@ -1,53 +1,56 @@
-ScriptName TestEnableDisableRefOnTrigger Extends ObjectReference
+Scriptname TestEnableDisableRefOnTrigger extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property enableLinkedRef Auto Const
-Bool Property useLinkedRefChain Auto Const
-
-;-- Functions ---------------------------------------
+bool Property enableLinkedRef auto const
+bool Property useLinkedRefChain auto const
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef != Game.GetPlayer() as ObjectReference
-    Return 
-  EndIf
-  ObjectReference[] linkRefs = None
-  If useLinkedRefChain
-    linkRefs = Self.GetLinkedRefChain(None, 100)
-  Else
-    linkRefs = new ObjectReference[1]
-    linkRefs[0] = Self.GetLinkedRef(None)
-  EndIf
-  Int I = 0
-  While I < linkRefs.Length
-    If enableLinkedRef
-      linkRefs[I].Enable(False)
-    Else
-      linkRefs[I].Disable(False)
+    if(akActionRef != Game.GetPlayer())
+        return
     EndIf
-    I += 1
-  EndWhile
+
+    ObjectReference[] linkRefs
+
+    if(useLinkedRefChain)
+        linkRefs = GetLinkedRefChain()
+    Else
+        linkRefs = new ObjectReference[1] 
+        linkRefs[0] = GetLinkedRef()
+    EndIf
+
+    int i = 0
+    while(i < linkRefs.Length)
+        if(enableLinkedRef)
+            linkRefs[i].Enable()
+        else
+            linkRefs[i].Disable()
+        endIf
+
+        i = i + 1
+    endWhile
 EndEvent
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  If akActionRef != Game.GetPlayer() as ObjectReference
-    Return 
-  EndIf
-  ObjectReference[] linkRefs = None
-  If useLinkedRefChain
-    linkRefs = Self.GetLinkedRefChain(None, 100)
-  Else
-    linkRefs = new ObjectReference[1]
-    linkRefs[0] = Self.GetLinkedRef(None)
-  EndIf
-  Int I = 0
-  While I < linkRefs.Length
-    If enableLinkedRef
-      linkRefs[I].Disable(False)
-    Else
-      linkRefs[I].Enable(False)
+    if(akActionRef != Game.GetPlayer())
+        return
     EndIf
-    I += 1
-  EndWhile
+    
+    ObjectReference[] linkRefs
+
+    if(useLinkedRefChain)
+        linkRefs = GetLinkedRefChain()
+    Else
+        linkRefs = new ObjectReference[1] 
+        linkRefs[0] = GetLinkedRef()
+    EndIf
+
+    int i = 0
+    while(i < linkRefs.Length)
+        if(enableLinkedRef)
+            linkRefs[i].Disable()
+        else
+            linkRefs[i].Enable()
+        endIf
+
+        i = i + 1
+    endWhile
 EndEvent

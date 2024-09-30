@@ -1,22 +1,22 @@
-ScriptName BroadcastSpeakerActorScript Extends Actor Const
+Scriptname BroadcastSpeakerActorScript extends Actor Const
 
-;-- Variables ---------------------------------------
+Keyword Property LinkedRefBroadcastSpeaker const auto
+{Autofill}
 
-;-- Properties --------------------------------------
-Keyword Property LinkedRefBroadcastSpeaker Auto Const
-{ Autofill }
-ObjectReference[] Property SpeakerRefs Auto Const
+ObjectReference[] Property SpeakerRefs const auto
 
-;-- Functions ---------------------------------------
+Function ToggleSpeakers(bool ShouldTurnOn = True)
+	;ShouldTurnOn false = turn of the speakers
+	
+	int i = 0
+	while (i < SpeakerRefs.length)
+		if ShouldTurnOn
+			SetLinkedRef(SpeakerRefs[i], LinkedRefBroadcastSpeaker)
+		else
+			SetLinkedRef(none, LinkedRefBroadcastSpeaker)
+		endif
 
-Function ToggleSpeakers(Bool ShouldTurnOn)
-  Int I = 0
-  While I < SpeakerRefs.Length
-    If ShouldTurnOn
-      Self.SetLinkedRef(SpeakerRefs[I], LinkedRefBroadcastSpeaker, True)
-    Else
-      Self.SetLinkedRef(None, LinkedRefBroadcastSpeaker, True)
-    EndIf
-    I += 1
-  EndWhile
+		i += 1
+	endwhile
+
 EndFunction

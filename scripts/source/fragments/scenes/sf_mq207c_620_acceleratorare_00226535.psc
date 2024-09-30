@@ -1,12 +1,14 @@
-ScriptName Fragments:Scenes:SF_MQ207C_620_AcceleratorAre_00226535 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ207C_620_AcceleratorAre_00226535 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_AnnouncementMarker Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  Alias_AnnouncementMarker.TryToMoveTo(Game.GetPlayer() as ObjectReference)
+;BEGIN CODE
+Alias_AnnouncementMarker.TryToMoveTo(Game.GetPlayer())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_AnnouncementMarker Auto Const

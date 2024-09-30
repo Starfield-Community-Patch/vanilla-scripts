@@ -1,55 +1,66 @@
-ScriptName CustomLogs Extends ScriptObject
+Scriptname CustomLogs
 
-;-- Structs -----------------------------------------
 Struct LogDatum
-  String MainLogName
-  { Main log to trace to }
-  String SubLogName
-  { Sub log to trace to }
-  Bool PrefixTracesWithLogNames
-  { if true, will prefix traces with log names }
-  Bool PrefixTracesWithCallingObject
-  { if true, will prefix traces with calling object }
-  String Prefix
-  { prefix to add to all traces (after log names if PrefixTracesWithLogNames == true) }
-  Bool ShowNormalTraces
-  { ALSO print to standard papyrus.0.log }
+	string MainLogName
+	{Main log to trace to}
+
+	string SubLogName
+	{Sub log to trace to}
+
+	bool PrefixTracesWithLogNames
+	{if true, will prefix traces with log names}
+
+	bool PrefixTracesWithCallingObject
+	{if true, will prefix traces with calling object}
+
+	string Prefix
+	{prefix to add to all traces (after log names if PrefixTracesWithLogNames == true)}
+
+	bool ShowNormalTraces
+	{ALSO print to standard papyrus.0.log}
 EndStruct
 
+Function AddCustomLog(LogDatum[] ArrayOfLogs, string MainLogName, string SubLogName ="" , bool PrefixTracesWithLogNames = true, bool PrefixTracesWithCallingObject = true, string Prefix = "", bool ShowNormalTraces = false ) global
+	LogDatum newLog = new LogDatum
+	newLog.MainLogName = MainLogName
+	newLog.SubLogName = SubLogName
+	newLog.PrefixTracesWithLogNames = PrefixTracesWithLogNames
+	newLog.PrefixTracesWithCallingObject = PrefixTracesWithCallingObject
+	newLog.Prefix = Prefix
+	newLog.ShowNormalTraces = ShowNormalTraces
 
-;-- Functions ---------------------------------------
-
-Function AddCustomLog(customlogs:logdatum[] ArrayOfLogs, String MainLogName, String SubLogName, Bool PrefixTracesWithLogNames, Bool PrefixTracesWithCallingObject, String Prefix, Bool ShowNormalTraces) Global
-  customlogs:logdatum newLog = new customlogs:logdatum
-  newLog.MainLogName = MainLogName
-  newLog.SubLogName = SubLogName
-  newLog.PrefixTracesWithLogNames = PrefixTracesWithLogNames
-  newLog.PrefixTracesWithCallingObject = PrefixTracesWithCallingObject
-  newLog.Prefix = Prefix
-  newLog.ShowNormalTraces = ShowNormalTraces
-  ArrayOfLogs.add(newLog, 1)
+	ArrayOfLogs.Add(newLog)
 EndFunction
 
-Function Trace(customlogs:logdatum[] ArrayOfLogs, ScriptObject CallingObject, String asTextToPrint, Int aiSeverity) Global
-  Int I = 0
-  While I < ArrayOfLogs.Length
-    customlogs:logdatum currentLog = ArrayOfLogs[I]
-    If currentLog.Prefix != ""
-      asTextToPrint = currentLog.Prefix + ": " + asTextToPrint
-    EndIf
-    Debug.TraceLog(CallingObject, asTextToPrint, currentLog.MainLogName, currentLog.SubLogName, aiSeverity, currentLog.ShowNormalTraces, False, currentLog.PrefixTracesWithLogNames, currentLog.PrefixTracesWithCallingObject)
-    I += 1
-  EndWhile
+Function Trace(LogDatum[] ArrayOfLogs, ScriptObject CallingObject, String asTextToPrint, int aiSeverity = 0) DebugOnly global
+	int i = 0
+	While (i < ArrayOfLogs.length)
+		LogDatum currentLog = ArrayOfLogs[i]
+
+		if currentLog.Prefix != ""
+			asTextToPrint = currentLog.Prefix + ": " + asTextToPrint
+		endif
+
+		debug.TraceLog(CallingObject, asTextToPrint, currentLog.MainLogName, currentLog.SubLogName, aiSeverity, currentLog.ShowNormalTraces, bShowWarning = false, bPrefixTraceWithLogNames = currentLog.PrefixTracesWithLogNames, bPrefixTracesWithCallingObject = currentLog.PrefixTracesWithCallingObject)
+
+		i += 1
+	EndWhile
 EndFunction
 
-Function warning(customlogs:logdatum[] ArrayOfLogs, ScriptObject CallingObject, String asTextToPrint) Global
-  Int I = 0
-  While I < ArrayOfLogs.Length
-    customlogs:logdatum currentLog = ArrayOfLogs[I]
-    If currentLog.Prefix != ""
-      asTextToPrint = currentLog.Prefix + ": " + asTextToPrint
-    EndIf
-    Game.warning("WARNING!!! " + asTextToPrint)
-    I += 1
-  EndWhile
+Function Warning(LogDatum[] ArrayOfLogs, ScriptObject CallingObject, String asTextToPrint) BetaOnly global
+	int i = 0
+	While (i < ArrayOfLogs.length)
+		LogDatum currentLog = ArrayOfLogs[i]
+
+		if currentLog.Prefix != ""
+			asTextToPrint = currentLog.Prefix + ": " + asTextToPrint
+		endif
+
+		debug.TraceLog(CallingObject, asTextToPrint, currentLog.MainLogName, currentLog.SubLogName, aiSeverity = 2, bShowNormalTrace = currentLog.ShowNormalTraces, bShowWarning = true, bPrefixTraceWithLogNames = currentLog.PrefixTracesWithLogNames, bPrefixTracesWithCallingObject = currentLog.PrefixTracesWithCallingObject)
+
+		game.Warning("WARNING!!! " + asTextToPrint)
+
+		i += 1
+	EndWhile
 EndFunction
+

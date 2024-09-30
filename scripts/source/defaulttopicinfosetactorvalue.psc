@@ -1,55 +1,61 @@
-ScriptName DefaultTopicInfoSetActorValue Extends TopicInfo Const default
-{ Sets or mods an actor value on the topic info target and/or on the player }
+Scriptname DefaultTopicInfoSetActorValue extends TopicInfo Const Default
+{Sets or mods an actor value on the topic info target and/or on the player}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Data
-  Bool Property OnEnd = True Auto Const
-  { Set to true if you want this to fire on the of the line. Otherwise, it'll trigger on start }
-  Bool Property SetOnSpeaker = True Auto Const
-  { Set to true if you want the value to be set on the line's speaker. }
-  Bool Property SetOnPlayer = False Auto Const
-  { Set to true if you want the value to be set on the line's player.
+bool Property OnEnd = true Auto Const
+{Set to true if you want this to fire on the of the line. Otherwise, it'll trigger on start}
 
-NOTE: topic infos in scenes will NOT have a target. }
-  ActorValue Property ValueToModify Auto Const mandatory
-  { The Actor Value to set }
-  Float Property NewValue = 1.0 Auto Const
-  { The new value for the given actor value }
-  Bool Property SetActorValueToNewValue = True Auto Const
-  { TRUE = will call SetValue(ValueToModify, newValue)
-                FALSE = will call ModValue(ValueToModify, newValue) }
+bool Property SetOnSpeaker = true Auto Const
+{Set to true if you want the value to be set on the line's speaker.}
+
+bool Property SetOnPlayer = false Auto Const
+{Set to true if you want the value to be set on the line's player.
+
+NOTE: topic infos in scenes will NOT have a target.}
+
+ActorValue Property ValueToModify Auto Const Mandatory
+{ The Actor Value to set }
+
+float Property NewValue = 1.0 Auto Const
+{The new value for the given actor value}
+
+bool Property SetActorValueToNewValue = true auto const
+{
+                TRUE = will call SetValue(ValueToModify, newValue)
+                FALSE = will call ModValue(ValueToModify, newValue)
+}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If !OnEnd
-    Self.HandleActorValueChange(akSpeakerRef)
-  EndIf
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    debug.trace(self + " OnBegin: onEnd=" + onEnd)
+    if !OnEnd
+        HandleActorValueChange(akSpeakerRef)
+    endif
 EndEvent
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If OnEnd
-    Self.HandleActorValueChange(akSpeakerRef)
-  EndIf
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    debug.trace(self + " OnEnd: onEnd=" + onEnd)
+    if OnEnd
+        HandleActorValueChange(akSpeakerRef)
+    endif
 EndEvent
 
 Function HandleActorValueChange(ObjectReference akSpeakerRef)
-  If SetOnSpeaker
-    Self.ChangeActorValue(akSpeakerRef)
-  EndIf
-  If SetOnPlayer
-    Self.ChangeActorValue(Game.GetPlayer() as ObjectReference)
-  EndIf
+    debug.trace(self + " HandleActorValueChange")
+    if SetOnSpeaker
+        ChangeActorValue(akSpeakerRef)
+    endif
+
+    if SetOnPlayer
+        ChangeActorValue(Game.GetPlayer())
+    endif
 EndFunction
 
-Function ChangeActorValue(ObjectReference refToModify)
-  If SetActorValueToNewValue
-    refToModify.SetValue(ValueToModify, NewValue)
-  Else
-    refToModify.ModValue(ValueToModify, NewValue)
-  EndIf
+function ChangeActorValue(ObjectReference refToModify)
+    debug.trace(self + " ChangeActorValue " + refToModify + " SetActorValueToNewValue=" + SetActorValueToNewValue + " NewValue=" + NewValue)
+    if SetActorValueToNewValue
+        refToModify.SetValue(ValueToModify, NewValue)
+    else
+        refToModify.ModValue(ValueToModify, NewValue)
+    endif
 EndFunction

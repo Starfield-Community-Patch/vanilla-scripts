@@ -1,19 +1,28 @@
-ScriptName Fragments:Quests:QF_FFConstantR02Misc_00211126 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFConstantR02Misc_00211126 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FFConstantR02 Auto Const mandatory
-Keyword Property FFConstantR02QuestStartKeyword Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  FFConstantR02QuestStartKeyword.SendStoryEvent(None, None, None, 0, 0)
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+FFConstantR02QuestStartKeyword.SendStoryEvent()
+
+CompleteAllObjectives()
+Stop()
+
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FFConstantR02 Auto Const Mandatory
+
+Keyword Property FFConstantR02QuestStartKeyword Auto Const Mandatory

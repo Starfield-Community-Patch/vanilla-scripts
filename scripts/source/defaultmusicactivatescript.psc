@@ -1,45 +1,45 @@
-ScriptName DefaultMusicActivateScript Extends ObjectReference default
+Scriptname DefaultMusicActivateScript extends ObjectReference Default
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Required
-  Int Property MusicTypeToPlay = 0 Auto Const
-  { Set this to the Music you want triggered
+	Int Property MusicTypeToPlay = 0 Auto Const
+	{Set this to the Music you want triggered
 		0 = Dread
 		1 = Reveal
 		2 = Reward
-		3 = Stinger }
-  Bool Property PlayShortVersion = False Auto Const
-  { Whether or not to play the short version of the MusicTypeToPlay. }
-  MusicType Property MusicOverride Auto Const
-  { Select a specific Music Type to play, will override any other setting on this script. }
+		3 = Stinger}
+
+	Bool Property PlayShortVersion = FALSE Auto Const
+	{Whether or not to play the short version of the MusicTypeToPlay.}
+
+	MusicType Property MusicOverride Auto Const
+	{Select a specific Music Type to play, will override any other setting on this script.}
 EndGroup
 
-Group NoTouchy collapsedonref
-  MusicType[] Property Music Auto Const
-  MusicType[] Property MusicShort Auto Const
+Group NoTouchy CollapsedOnRef
+	MusicType[] Property Music Auto Const
+	MusicType[] Property MusicShort Auto Const
 EndGroup
 
-
-;-- State -------------------------------------------
-State Done
+Auto State Waiting
+	Event OnActivate(ObjectReference akActionRef)
+		Debug.Trace(Self + ": was activated by " + akActionRef)
+		if MusicOverride
+			GoToState("Done")
+			Debug.Trace(Self + ": Adding MusicType " + MusicOverride)
+			MusicOverride.Add()
+		else
+			GoToState("Done")
+			if PlayShortVersion
+				Debug.Trace(Self + ": Adding MusicType " + MusicShort[MusicTypeToPlay])
+				MusicShort[MusicTypeToPlay].Add()
+			else
+				Debug.Trace(Self + ": Adding MusicType " + Music[MusicTypeToPlay])
+				Music[MusicTypeToPlay].Add()
+			endif
+		endif
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
+State Done
 
-  Event OnActivate(ObjectReference akActionRef)
-    If MusicOverride
-      Self.GoToState("Done")
-      MusicOverride.Add()
-    Else
-      Self.GoToState("Done")
-      If PlayShortVersion
-        MusicShort[MusicTypeToPlay].Add()
-      Else
-        Music[MusicTypeToPlay].Add()
-      EndIf
-    EndIf
-  EndEvent
 EndState

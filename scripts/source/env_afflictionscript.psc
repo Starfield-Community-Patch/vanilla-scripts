@@ -1,402 +1,602 @@
-ScriptName ENV_AfflictionScript Extends Activator
-{ script attached to activator prefixed "ENV_AFFL_" - holds various data and functions for Afflictions }
+Scriptname ENV_AfflictionScript extends Activator
+{script attached to activator prefixed "ENV_AFFL_" - holds various data and functions for Afflictions}
+;used so we can define things in one place and pass around, put in formlists and arrays, etc.
 
-;-- Structs -----------------------------------------
-Struct Stat
-  String Name = "undefined"
-  curve ChanceCurve
-  Int Attempts_Poor = 0
-  Int Attempts_Stable = 0
-  Int Attempts_Good = 0
-  Int Attempts_Excellent = 0
-EndStruct
+struct Stat
+    string Name = "undefined"
+    Curve ChanceCurve
+    int Attempts_Poor = 0
+    int Attempts_Stable = 0
+    int Attempts_Good = 0
+    int Attempts_Excellent = 0
+endstruct
 
-
-;-- Variables ---------------------------------------
-Int iPrognosis_Excellent = 3 Const
-Int iPrognosis_Good = 2 Const
-Int iPrognosis_Poor = 0 Const
-Int iPrognosis_Stable = 1 Const
-env_afflictionscript:stat[] myStats
-String strCureAttempts = "CureAttempts"
-String strGainInfectionAttempts = "GainInfectionAttempts"
-String strImproveAttempts = "ImproveAttempts"
-String strWorsenAttempts = "WorsenAttempts"
-
-;-- Properties --------------------------------------
 Group Autofill
-  sq_env_afflictionsscript Property SQ_ENV Auto Const mandatory
-  ActorValue Property ENV_AFFL_BonusCureChance_Infection Auto Const mandatory
-  ActorValue Property ENV_AFFL_BonusCureChance_Injury Auto Const mandatory
-  ActorValue Property ENV_AFFL_SkillChallengeAV_Infection Auto Const mandatory
-  ActorValue Property ENV_AFFL_SkillChallengeAV_Injury Auto Const mandatory
-  ActorValue Property ENV_AFFL_SkillChance_PreventInfection Auto Const mandatory
-  ActorValue Property ENV_AFFL_SkillChance_PreventInjury Auto Const mandatory
-  ActorValue Property PEO_ENV_AFFL_Treatment_CureChance_AV Auto Const mandatory
-  GlobalVariable Property PEO_PrognosisChances_GV Auto Const mandatory
-  GlobalVariable Property PEO_PrognosisChances_IncChanceMult Auto Const mandatory
+    SQ_ENV_AfflictionsScript Property SQ_ENV Mandatory Const Auto
+    ActorValue Property ENV_AFFL_BonusCureChance_Infection Mandatory Const Auto
+    ActorValue Property ENV_AFFL_BonusCureChance_Injury Mandatory Const Auto
+    ActorValue Property ENV_AFFL_SkillChallengeAV_Infection Mandatory Const Auto
+    ActorValue Property ENV_AFFL_SkillChallengeAV_Injury Mandatory Const Auto
+    ActorValue Property ENV_AFFL_SkillChance_PreventInfection Mandatory Const Auto
+    ActorValue Property ENV_AFFL_SkillChance_PreventInjury Mandatory Const Auto
+    ActorValue Property PEO_ENV_AFFL_Treatment_CureChance_AV Mandatory Const Auto
+    GlobalVariable Property PEO_PrognosisChances_GV Mandatory Const Auto
+    GlobalVariable Property PEO_PrognosisChances_IncChanceMult Mandatory Const Auto
 EndGroup
 
 Group Data
-  String Property ID Auto Const mandatory
-  { a unique string to identify this object }
-  Bool Property IsInfection = False Auto Const
-  { True = infection, False (default) = Injury }
-  wwiseevent Property SoundEvent Auto Const mandatory
-  { what WwiseEvent to play when gaining the affliction }
-  FormList Property AfflictionSpellList Auto Const mandatory
-  { the spells that represent this affliction (ie Rank1, 2, 3 versions) }
-  Keyword Property TreatmentEffectKeyword Auto Const mandatory
-  { the keyword is on magic effect that represents the treatment for this affliction }
-  env_afflictionscript[] Property InfectionArray Auto Const
-  { an array of Infection Afflictions that this affliction can add }
-  ActorValue Property PrognosisAV Auto Const mandatory
-  { the actorvalue that will hold this afflictions prognosis value }
-  curve Property Curve_Cure_Chance Auto Const mandatory
-  { Curve table expression chance to cure. Input is value of PrognosisAV
-    CURE means to remove the affliction completely }
-  curve Property Curve_Improve_Chance Auto Const mandatory
-  { Curve table expression chance to improve to the next level. Input is value of PrognosisAV
-    IMPROVE means to increase the prognosis }
-  curve Property Curve_Infection_Chance Auto Const
-  { Curve table expression chance to gain an infection. Input is value of PrognosisAV }
-  curve Property Curve_Worsen_Chance Auto Const
-  { Curve table expression chance to worsen to the next level. Input is value of PrognosisAV
-    WORSEN means to increase the tier of the affliction from tier i to tier - ie add additional symptoms }
-  Bool Property Active Auto hidden
-  { Flag set/unset when gained/cured }
+    string Property ID Mandatory Const Auto
+    {a unique string to identify this object} ;The editor id names are just too long to use to identify these. Primarily used to make console commands friendlier.
+
+    bool Property IsInfection = false Const Auto
+    {True = infection, False (default) = Injury                                                          }
+
+    WwiseEvent Property SoundEvent Mandatory Const Auto
+    {what WwiseEvent to play when gaining the affliction}
+
+    Formlist Property AfflictionSpellList Mandatory Const Auto 
+    {the spells that represent this affliction (ie Rank1, 2, 3 versions)}
+
+    Keyword Property TreatmentEffectKeyword Mandatory Const Auto 
+    {the keyword is on magic effect that represents the treatment for this affliction}
+
+    ENV_AfflictionScript[] Property InfectionArray Const Auto
+    {an array of Infection Afflictions that this affliction can add}
+
+    ActorValue Property PrognosisAV Mandatory Const Auto
+    {the actorvalue that will hold this afflictions prognosis value}
+
+    Curve Property Curve_Cure_Chance Mandatory Const Auto
+    {Curve table expression chance to cure. Input is value of PrognosisAV
+    CURE means to remove the affliction completely}
+
+    Curve Property Curve_Improve_Chance Mandatory Const Auto
+    {Curve table expression chance to improve to the next level. Input is value of PrognosisAV
+    IMPROVE means to increase the prognosis}
+
+    Curve Property Curve_Infection_Chance Const Auto
+    {Curve table expression chance to gain an infection. Input is value of PrognosisAV}
+
+    Curve Property Curve_Worsen_Chance Const Auto
+    {Curve table expression chance to worsen to the next level. Input is value of PrognosisAV
+    WORSEN means to increase the tier of the affliction from tier i to tier - ie add additional symptoms}
+    
+    bool Property Active Hidden Auto
+    {Flag set/unset when gained/cured}
 EndGroup
 
+int iPrognosis_Poor      = 0 const
+int iPrognosis_Stable    = 1 const
+int iPrognosis_Good      = 2 const
+int iPrognosis_Excellent = 3 const
 
-;-- Functions ---------------------------------------
+Stat[] myStats
+
+string strImproveAttempts =  "ImproveAttempts"
+string strCureAttempts =  "CureAttempts"
+string strWorsenAttempts =  "WorsenAttempts"
+string strGainInfectionAttempts =  "GainInfectionAttempts"
 
 Event OnInit()
-  myStats = new env_afflictionscript:stat[0]
-  env_afflictionscript:stat Stat_Improve = new env_afflictionscript:stat
-  Stat_Improve.Name = strImproveAttempts
-  Stat_Improve.ChanceCurve = Curve_Improve_Chance
-  myStats.add(Stat_Improve, 1)
-  env_afflictionscript:stat Stat_Cure = new env_afflictionscript:stat
-  Stat_Cure.Name = strCureAttempts
-  Stat_Cure.ChanceCurve = Curve_Cure_Chance
-  myStats.add(Stat_Cure, 1)
-  env_afflictionscript:stat Stat_Worsen = new env_afflictionscript:stat
-  Stat_Worsen.Name = strWorsenAttempts
-  Stat_Worsen.ChanceCurve = Curve_Worsen_Chance
-  myStats.add(Stat_Worsen, 1)
-  env_afflictionscript:stat Stat_GainInfection = new env_afflictionscript:stat
-  Stat_GainInfection.Name = strGainInfectionAttempts
-  Stat_GainInfection.ChanceCurve = Curve_Infection_Chance
-  myStats.add(Stat_GainInfection, 1)
+    Trace(self, "OnInit() ")
+
+    myStats = new Stat[0]
+
+    stat Stat_Improve = new Stat
+    Stat_Improve.Name = strImproveAttempts
+    Stat_Improve.ChanceCurve = Curve_Improve_Chance
+    myStats.Add(Stat_Improve)
+
+    stat Stat_Cure = new Stat
+    Stat_Cure.Name = strCureAttempts
+    Stat_Cure.ChanceCurve = Curve_Cure_Chance
+    myStats.Add(Stat_Cure)
+
+    stat Stat_Worsen = new Stat
+    Stat_Worsen.Name = strWorsenAttempts
+    Stat_Worsen.ChanceCurve = Curve_Worsen_Chance
+    myStats.Add(Stat_Worsen)
+
+    stat Stat_GainInfection = new Stat
+    Stat_GainInfection.Name = strGainInfectionAttempts
+    Stat_GainInfection.ChanceCurve = Curve_Infection_Chance
+
+    myStats.Add(Stat_GainInfection)
+
 EndEvent
 
-Bool Function Improve(Int ImprovementLevels, Bool isTreatment)
-  Actor playerRef = Game.GetPlayer()
-  Int currentValue = playerRef.GetValue(PrognosisAV) as Int
-  Bool severityImproved = False
-  Bool cured = False
-  Bool isPrognosisInitiallyExcellent = currentValue >= iPrognosis_Excellent
-  If isPrognosisInitiallyExcellent
-    If isTreatment
-      If Game.GetDieRollSuccess(Game.GetPlayer().GetValue(PEO_ENV_AFFL_Treatment_CureChance_AV) as Int, 1, 100, -1, -1)
-        Self.Cure()
-        cured = True
-      EndIf
-    Else
-      Int iCurrentSpell = Self.GetSpellListIndexForCurrentSpell()
-      If iCurrentSpell == 0
-        Self.Cure()
-        cured = True
-      Else
-        Spell currentSpell = AfflictionSpellList.GetAt(iCurrentSpell) as Spell
-        Spell nextSpell = AfflictionSpellList.GetAt(iCurrentSpell - 1) as Spell
-        Game.GetPlayer().RemoveSpell(currentSpell)
-        Game.GetPlayer().AddSpell(nextSpell, False)
-        SQ_ENV.StartAfflictionTimer(Self as ScriptObject)
-        severityImproved = True
-      EndIf
-    EndIf
-  EndIf
-  Int newValue = currentValue + ImprovementLevels
-  newValue = Math.Min(newValue as Float, iPrognosis_Excellent as Float) as Int
-  Game.GetPlayer().SetValue(PrognosisAV, newValue as Float)
-  If severityImproved
-    SQ_ENV.ShowSeverityImprovedMessage(Self)
-  ElseIf cured == False
-    If isPrognosisInitiallyExcellent
-      SQ_ENV.ShowAttemptedToCureMessage(Self)
-    Else
-      SQ_ENV.ShowImprovedMessage(Self)
-    EndIf
-  EndIf
-  Return True
+bool Function Improve(int ImprovementLevels = 1, bool isTreatment = false)
+    Actor playerRef = Game.GetPlayer()
+
+    int currentValue = playerRef.GetValue(PrognosisAV) as int
+
+    bool severityImproved = false
+    bool cured = false
+    bool isPrognosisInitiallyExcellent = currentValue >= iPrognosis_Excellent
+
+    Trace(self, "Improve() PrognosisAV: " + PrognosisAV + ", currentValue: " + currentValue + ", ImprovementLevels: " + ImprovementLevels)
+
+    if isPrognosisInitiallyExcellent ;if we have taken a treatment, we also reduce the severity if we're at excellent prognosis
+
+        if isTreatment 
+            if Game.GetDieRollSuccess(game.GetPlayer().GetValue(PEO_ENV_AFFL_Treatment_CureChance_AV) as int)
+                Cure()
+                cured = true
+            endif
+        Else
+            int iCurrentSpell = GetSpellListIndexForCurrentSpell()
+
+            ;cured if we are first spell in list
+            if iCurrentSpell == 0 
+                Cure()
+                cured = true
+            else
+                Spell currentSpell = AfflictionSpellList.GetAt(iCurrentSpell) as Spell
+                Spell nextSpell = AfflictionSpellList.GetAt(iCurrentSpell - 1) as Spell
+                Trace(self, "Gain() currentSpell: " + currentSpell + ", nextSpell: " + nextSpell)
+                Game.GetPlayer().RemoveSpell(currentSpell)
+                Game.GetPlayer().AddSpell(nextSpell, abVerbose = false)
+                SQ_Env.StartAfflictionTimer(self) ;so we don't do anything immediately with this (it chooses a random active affliction if this is the only one or one of a few it would feel weird to potentially immediately cure it)
+                severityImproved = true            
+            endif
+        endif
+
+    endif
+
+    int newValue = currentValue + ImprovementLevels
+
+    ;clamp
+    newValue = Math.Min(newValue, iPrognosis_Excellent) as int
+
+    Trace(self, "Improve() newValue: " + newValue)
+
+    Game.GetPlayer().SetValue(PrognosisAV, newValue)
+
+    if severityImproved
+        ;severity improved message
+        SQ_ENV.ShowSeverityImprovedMessage(self)
+    elseif cured == false
+        if isPrognosisInitiallyExcellent
+        ;cure attempted (but failed) message
+        SQ_ENV.ShowAttemptedToCureMessage(self)
+        Else
+        ;prognosis improved message
+        SQ_ENV.ShowImprovedMessage(self)
+        endif
+    endif
+
+    return true 
 EndFunction
 
 Function ResetPrognosis()
-  Game.GetPlayer().SetValue(PrognosisAV, 0.0)
+    Trace(self, "ResetPrognosis()")
+    Game.GetPlayer().SetValue(PrognosisAV, 0)
 EndFunction
 
-Bool Function CheckSkillPrevention(ActorValue SkillAV)
-  Int chanceToPrevent = Game.GetPlayer().GetValue(SkillAV) as Int
-  Bool preventionSuccess = Game.GetDieRollSuccess(chanceToPrevent, 1, 100, -1, -1)
-  Return preventionSuccess
+
+bool Function CheckSkillPrevention(ActorValue SkillAV) private
+    int chanceToPrevent = Game.GetPlayer().GetValue(SkillAV) as int
+    bool preventionSuccess = Game.GetDieRollSuccess(chanceToPrevent)
+
+    Trace(self, "CheckSkillPrevention() SkillAV: " + SkillAV + ", chanceToPrevent: " + chanceToPrevent + ", preventionSuccess: " + preventionSuccess)
+
+    return preventionSuccess
 EndFunction
 
-Bool Function Gain(Bool PerformSkillCheck, Bool OnlyWorsen)
-  Bool skillCheckPrevented = False
-  If PerformSkillCheck
-    If IsInfection && Self.CheckSkillPrevention(ENV_AFFL_SkillChance_PreventInfection)
-      skillCheckPrevented = True
-    ElseIf IsInfection == False && Self.CheckSkillPrevention(ENV_AFFL_SkillChance_PreventInjury)
-      skillCheckPrevented = True
-    EndIf
-  EndIf
-  If skillCheckPrevented
-    Return False
-  EndIf
-  Bool gained = False
-  Bool worsened = False
-  Int iCurrentSpell = Self.GetSpellListIndexForCurrentSpell()
-  Int currentSpellListMaxIndex = AfflictionSpellList.GetSize() - 1
-  If iCurrentSpell == currentSpellListMaxIndex
-    
-  ElseIf iCurrentSpell == -1
-    If OnlyWorsen == False
-      Int nextSpellInt = 0
-      Spell nextSpell = AfflictionSpellList.GetAt(nextSpellInt) as Spell
-      Game.GetPlayer().AddSpell(nextSpell, False)
-      SQ_ENV.ShowGainedMessage(Self)
-      SQ_ENV.StartAfflictionTimer(Self as ScriptObject)
-      gained = True
-    EndIf
-  Else
-    Spell currentSpell = AfflictionSpellList.GetAt(iCurrentSpell) as Spell
-    Spell nextspell = AfflictionSpellList.GetAt(iCurrentSpell + 1) as Spell
-    Game.GetPlayer().RemoveSpell(currentSpell)
-    Game.GetPlayer().AddSpell(nextspell, False)
-    SQ_ENV.ShowWorsenedMessage(Self)
-    SQ_ENV.StartAfflictionTimer(Self as ScriptObject)
-    worsened = True
-  EndIf
-  If gained
-    Active = True
-  EndIf
-  If gained || worsened
-    SoundEvent.PlayUI(None, None)
-    Self.ResetPrognosis()
-    SQ_ENV.SQ_ENV.SQ_ENV_Tutorial.StartAfflictionTutorial()
-  EndIf
-  Return gained || worsened
+;returns true if gained or worsened
+bool Function Gain(bool PerformSkillCheck = false, bool OnlyWorsen = false)
+    Trace(self, "Gain() PerformSkillCheck: " + PerformSkillCheck + ", OnlyWorsen: " + OnlyWorsen)
+
+    ;first see if skill prevents:
+    bool skillCheckPrevented
+    if PerformSkillCheck
+        if IsInfection && CheckSkillPrevention(ENV_AFFL_SkillChance_PreventInfection)
+            Trace(self, "Gain() skill PREVENTED infection!")
+            skillCheckPrevented = true
+        elseif IsInfection == false && CheckSkillPrevention(ENV_AFFL_SkillChance_PreventInjury)
+            Trace(self, "Gain() skill PREVENTED injury!")
+            skillCheckPrevented = true
+        endif
+    endif
+
+    if skillCheckPrevented
+        Trace(self, "Gain() skillCheckPrevented == true. BAILING! ")
+        RETURN false
+    endif
+
+    bool gained
+    bool worsened
+
+    int iCurrentSpell = GetSpellListIndexForCurrentSpell()
+
+    int currentSpellListMaxIndex = AfflictionSpellList.GetSize() - 1
+
+    if iCurrentSpell == currentSpellListMaxIndex
+        Trace(self, "Gain() already has highest rank available, no change.")
+
+    elseif iCurrentSpell == -1 ;we don't have yet
+        if OnlyWorsen == false ;we want to add it
+         
+            ;always start at the first severity level
+            int nextSpellInt = 0
+
+            Spell nextSpell = AfflictionSpellList.GetAt(nextSpellInt) as Spell
+            Trace(self, "Gain() we don't have the affliction yet, will add random severity nextSpell: " + nextSpell)
+            Game.GetPlayer().AddSpell(nextSpell, abVerbose = false)
+            SQ_ENV.ShowGainedMessage(self)
+            SQ_Env.StartAfflictionTimer(self) ;so we don't do anything immediately with this
+            gained = true
+
+        else 
+            Trace(self, "Gain() we don't have this affliction yet, so we can't worsen it.")
+        endif
+    else
+        Spell currentSpell = AfflictionSpellList.GetAt(iCurrentSpell) as Spell
+        Spell nextSpell = AfflictionSpellList.GetAt(iCurrentSpell + 1) as Spell
+        Trace(self, "Gain() currentSpell: " + currentSpell + ", nextSpell: " + nextSpell)
+        Game.GetPlayer().RemoveSpell(currentSpell)
+        Game.GetPlayer().AddSpell(nextSpell, abVerbose = false)
+        SQ_ENV.ShowWorsenedMessage(self)
+        SQ_Env.StartAfflictionTimer(self) ;so we don't do anything immediately with this (it chooses a random active affliction if this is the only one or one of a few it would feel weird to potentially immediately cure it)
+        worsened = true
+    endif
+
+    if gained
+        Active = true
+    endif
+
+    if gained || worsened
+        SoundEvent.PlayUI()
+        ResetPrognosis()
+        SQ_ENV.SQ_ENV.SQ_ENV_Tutorial.StartAfflictionTutorial()
+    endif
+
+    return gained || worsened
 EndFunction
 
-Int Function GetSpellListIndexForCurrentSpell()
-  Int I = AfflictionSpellList.GetSize() - 1
-  Int iLastFound = 0
-  While I > -1
-    Spell currentSpell = AfflictionSpellList.GetAt(I) as Spell
-    If Game.GetPlayer().HasSpell(currentSpell as Form)
-      Return I
-    EndIf
-    I -= 1
-  EndWhile
-  Return -1
+int Function GetSpellListIndexForCurrentSpell() private
+    int i = AfflictionSpellList.GetSize() - 1
+    int iLastFound
+    While (i > -1)
+        Spell currentSpell = AfflictionSpellList.GetAt(i) as Spell
+
+        if game.GetPlayer().HasSpell(currentSpell)
+            Trace(self, "GetSpellListIndexForCurrentSpell() returning: " + i + ", currentSpell: " + currentSpell)
+            return i
+        endif
+
+        i -= 1
+    EndWhile
+
+    Trace(self, "GetSpellListIndexForCurrentSpell() no spell found, returning: -1 ")
+    return -1
 EndFunction
 
-Bool Function AttemptToWorsen(Int ForcedDieRoll, Int DebugDieRoll)
-  Int Chance_Worsen = Self.GetChance_Worsen()
-  If Chance_Worsen > 0
-    Bool WorsenSuccess = Game.GetDieRollSuccess(Chance_Worsen, 1, 100, DebugDieRoll, ForcedDieRoll)
-    Self.IncrementStat(strWorsenAttempts)
-    If WorsenSuccess
-      Return Self.Gain(False, True)
-    EndIf
-  EndIf
-  Return False
+
+;NOTE: it was decided that nothing should worsen on its own (including infections).
+;   Accomplishing this with data set on ENV_AfflictionScript.
+;   Leaving this system in because script timing and existing chance data is scaled with this attempt happening, and there's potential for possible inclusion in a game mode later
+;returns true if Worsened, otherwise false
+bool Function AttemptToWorsen(int ForcedDieRoll = -1, int DebugDieRoll = -1)
+    Trace(self, "AttemptToWorsen() ForcedDieRoll: " + ForcedDieRoll + ", DebugDieRoll: " + DebugDieRoll)
+
+    int Chance_Worsen = GetChance_Worsen()
+
+    Trace(self, "AttemptToWorsen() Chance_Worsen: " + Chance_Worsen)
+
+    if Chance_Worsen > 0
+
+        bool WorsenSuccess = game.GetDieRollSuccess(Chance_Worsen, DebugDieRoll = DebugDieRoll, ForcedDieRoll = ForcedDieRoll)
+
+       IncrementStat(strWorsenAttempts)
+
+
+        Trace(self, "AttemptToWorsen() WorsenSuccess: " + WorsenSuccess)
+        
+        if WorsenSuccess
+            return Gain(OnlyWorsen = true)
+        endif
+
+    endif
+
+    return false
 EndFunction
 
-Function IncrementStat(String Name)
-  Int iFound = myStats.findstruct("Name", Name, 0)
-  If iFound > -1
-    env_afflictionscript:stat statToIncrement = myStats[iFound]
-    Float PrognosisLevel = Game.GetPlayer().GetValue(PrognosisAV)
-    If PrognosisLevel == iPrognosis_Poor as Float
-      statToIncrement.Attempts_Poor = statToIncrement.Attempts_Poor + 1
-    ElseIf PrognosisLevel == iPrognosis_Stable as Float
-      statToIncrement.Attempts_Stable = statToIncrement.Attempts_Stable + 1
-    ElseIf PrognosisLevel == iPrognosis_Good as Float
-      statToIncrement.Attempts_Good = statToIncrement.Attempts_Good + 1
-    ElseIf PrognosisLevel == iPrognosis_Excellent as Float
-      statToIncrement.Attempts_Excellent = statToIncrement.Attempts_Excellent + 1
-    EndIf
-  EndIf
+Function IncrementStat(string Name) private
+    int iFound = myStats.FindStruct("Name", Name)
+
+    if iFound > -1
+
+        stat statToIncrement = myStats[iFound]
+
+        float PrognosisLevel = Game.GetPlayer().GetValue(PrognosisAV)
+
+       if PrognosisLevel ==  iPrognosis_Poor
+            statToIncrement.Attempts_Poor += 1
+       elseif PrognosisLevel == iPrognosis_Stable
+            statToIncrement.Attempts_Stable += 1
+       elseif PrognosisLevel == iPrognosis_Good
+            statToIncrement.Attempts_Good += 1
+       elseif PrognosisLevel == iPrognosis_Excellent
+            statToIncrement.Attempts_Excellent += 1
+       endif
+    endif
+
 EndFunction
 
 Function ResetStats()
-  Int I = 0
-  While I < myStats.Length
-    myStats[I].Attempts_Poor = 0
-    myStats[I].Attempts_Stable = 0
-    myStats[I].Attempts_Good = 0
-    myStats[I].Attempts_Excellent = 0
-    I += 1
-  EndWhile
+    int i = 0
+    While (i < myStats.length)
+        myStats[i].Attempts_Poor = 0
+        myStats[i].Attempts_Stable = 0
+        myStats[i].Attempts_Good = 0
+        myStats[i].Attempts_Excellent = 0
+        i += 1
+    EndWhile
 EndFunction
 
-Bool Function AttemptToImprove(Int ForcedDieRoll, Int DebugDieRoll)
-  Int Chance_Improve = Self.GetChance_Improve()
-  If Chance_Improve > 0
-    Bool ImproveSuccess = Game.GetDieRollSuccess(Chance_Improve, 1, 100, DebugDieRoll, ForcedDieRoll)
-    Self.IncrementStat(strImproveAttempts)
-    If ImproveSuccess
-      Return Self.Improve(1, False)
-    EndIf
-  EndIf
-  Return False
+;returns true if Improve, otherwise false
+bool Function AttemptToImprove(int ForcedDieRoll = -1, int DebugDieRoll = -1)
+    Trace(self, "AttemptToImprove() ForcedDieRoll: " + ForcedDieRoll + ", DebugDieRoll: " + DebugDieRoll)
+
+    int Chance_Improve = GetChance_Improve()
+
+    Trace(self, "AttemptToImprove() Chance_Improve: " + Chance_Improve)
+
+    if Chance_Improve > 0
+        bool ImproveSuccess = game.GetDieRollSuccess(Chance_Improve, DebugDieRoll = DebugDieRoll, ForcedDieRoll = ForcedDieRoll)
+
+        IncrementStat(strImproveAttempts)
+
+        Trace(self, "AttemptToImprove() ImproveSuccess: " + ImproveSuccess)
+        if ImproveSuccess
+            return Improve()
+        endif
+
+    endif
+
+    return false
 EndFunction
 
-Bool Function AttemptToGainInfection(Int ForcedDieRoll, Int DebugDieRoll)
-  Int GainChance_Infection = Self.GetChance_Infection()
-  If GainChance_Infection > 0
-    Bool GainInfectionSuccess = Game.GetDieRollSuccess(GainChance_Infection, 1, 100, DebugDieRoll, ForcedDieRoll)
-    Self.IncrementStat(strGainInfectionAttempts)
-    If GainInfectionSuccess
-      ENV_AfflictionScript randomInfection = None
-      Int[] randomizedIndexes = commonarrayfunctions.GetRandomizedIndexes(InfectionArray.Length)
-      Int I = 0
-      While I < randomizedIndexes.Length && randomInfection == None
-        ENV_AfflictionScript currentInfection = InfectionArray[randomizedIndexes[I]]
-        If currentInfection.PlayerHasAffliction() == False
-          randomInfection = currentInfection
-        EndIf
-        I += 1
-      EndWhile
-      Return randomInfection.Gain(True, False)
-    EndIf
-  EndIf
-  Return False
+
+;returns true if gained infection, otherwise false
+bool Function AttemptToGainInfection(int ForcedDieRoll = -1, int DebugDieRoll = -1)
+    Trace(self, "AttemptToGainInfection() ForcedDieRoll: " + ForcedDieRoll + ", DebugDieRoll: " + DebugDieRoll)
+
+    int GainChance_Infection = GetChance_Infection()
+
+    Trace(self, "AttemptToGainInfection() GainChance_Infection: " + GainChance_Infection)
+
+    if GainChance_Infection > 0
+
+        bool GainInfectionSuccess = game.GetDieRollSuccess(GainChance_Infection, DebugDieRoll = DebugDieRoll, ForcedDieRoll = ForcedDieRoll)
+        
+        IncrementStat(strGainInfectionAttempts)
+        
+        Trace(self, "AttemptToGainInfection() GainInfectionSuccess: " + GainInfectionSuccess)
+
+        if GainInfectionSuccess
+            ENV_AfflictionScript randomInfection
+        
+            int[] randomizedIndexes = CommonArrayFunctions.GetRandomizedIndexes(InfectionArray.Length)
+            int i = 0
+            While (i < randomizedIndexes.length && randomInfection == None)
+                ENV_AfflictionScript currentInfection = InfectionArray[randomizedIndexes[i]]
+                
+                if currentInfection.PlayerHasAffliction() == false
+                    randomInfection = currentInfection
+                endif
+
+                i += 1
+            EndWhile
+
+            Trace(self, "AttemptToGainInfection() gaining randomInfection: " + randomInfection)
+            
+            return randomInfection.Gain(PerformSkillCheck = true)
+        endif
+
+    endif
+
+    return false
 EndFunction
 
-Bool Function PlayerHasAffliction()
-  Bool returnVal = False
-  Int I = 0
-  Int iMax = AfflictionSpellList.GetSize()
-  While I < iMax && returnVal == False
-    Spell currentSpell = AfflictionSpellList.GetAt(I) as Spell
-    If Game.GetPlayer().HasSpell(currentSpell as Form)
-      returnVal = True
-    EndIf
-    I += 1
-  EndWhile
-  Return returnVal
+bool Function PlayerHasAffliction()
+    bool returnVal
+
+    int i = 0
+    int iMax = AfflictionSpellList.GetSize()
+    While (i < iMax && returnVal == false)
+        Spell currentSpell = AfflictionSpellList.GetAt(i) as Spell
+        
+        if Game.GetPlayer().HasSpell(currentSpell)
+            returnVal = true
+        endif
+
+        i += 1
+    EndWhile
+
+;    Trace(self, "PlayerHasAffliction() self: " + self + ", returnVal: " + returnVal)
+
+    return returnVal
 EndFunction
 
-Bool Function AttemptToCure(Int ForcedDieRoll, Int DebugDieRoll)
-  Int cureChance = Self.GetChance_Cure()
-  Bool cureSuccess = Game.GetDieRollSuccess(cureChance, 1, 100, DebugDieRoll, ForcedDieRoll)
-  Self.IncrementStat(strCureAttempts)
-  If cureSuccess
-    Return Self.Cure()
-  EndIf
-  Return False
-EndFunction
+;returns true if cured, otherwise false
+bool Function AttemptToCure(int ForcedDieRoll =-1,  int DebugDieRoll = -1)
+    Trace(self, "AttemptToCure() ForcedDieRoll: " + ForcedDieRoll + ", DebugDieRoll: " + DebugDieRoll)
 
-Bool Function Cure()
-  FormList AfflictionList = AfflictionSpellList
-  Bool hadAffliction = False
-  Int I = 0
-  Int iMax = AfflictionList.GetSize()
-  While I < iMax
-    Spell currentSpell = AfflictionList.GetAt(I) as Spell
-    hadAffliction = hadAffliction || Game.GetPlayer().HasSpell(currentSpell as Form)
-    Game.GetPlayer().RemoveSpell(currentSpell)
-    I += 1
-  EndWhile
-  If hadAffliction
-    SQ_ENV.ShowCuredMessage(Self)
-    Active = False
-    Actor playerRef = Game.GetPlayer()
-    If IsInfection
-      playerRef.SetValue(ENV_AFFL_SkillChallengeAV_Infection, playerRef.GetValue(ENV_AFFL_SkillChallengeAV_Infection) + 1.0)
-    Else
-      playerRef.SetValue(ENV_AFFL_SkillChallengeAV_Injury, playerRef.GetValue(ENV_AFFL_SkillChallengeAV_Injury) + 1.0)
-    EndIf
-    Self.ResetStats()
-    Return True
-  EndIf
-  Return False
-EndFunction
+    int cureChance = GetChance_Cure()
 
-Int Function GetCurveChance(curve curveTable)
-  Int iPrognosis = Game.GetPlayer().GetValue(PrognosisAV) as Int
-  Int returnVal = 0
-  If curveTable
-    returnVal = curveTable.GetValueAt(iPrognosis as Float) as Int
-  EndIf
-  Return returnVal
-EndFunction
+    Trace(self, "AttemptToCure() cureChance: " + cureChance)
 
-Int Function GetChance_Cure()
-  Int returnVal = Self.GetCurveChance(Curve_Cure_Chance)
-  If returnVal > 0
-    If IsInfection
-      returnVal += Game.GetPlayer().GetValue(ENV_AFFL_BonusCureChance_Infection) as Int
-    Else
-      returnVal += Game.GetPlayer().GetValue(ENV_AFFL_BonusCureChance_Injury) as Int
-    EndIf
-  EndIf
-  returnVal = Self.PEO_ChangeCureOrImproveChance(returnVal)
-  Return returnVal
-EndFunction
+    bool cureSuccess = game.GetDieRollSuccess(cureChance, DebugDieRoll = DebugDieRoll, ForcedDieRoll = ForcedDieRoll)
 
-Int Function GetChance_Improve()
-  Int returnVal = Self.GetCurveChance(Curve_Improve_Chance)
-  returnVal = Self.PEO_ChangeCureOrImproveChance(returnVal)
-  Return returnVal
-EndFunction
-
-Int Function GetChance_Worsen()
-  Int returnVal = Self.GetCurveChance(Curve_Worsen_Chance)
-  Return returnVal
-EndFunction
-
-Int Function GetChance_Infection()
-  Int returnVal = Self.GetCurveChance(Curve_Infection_Chance)
-  Return returnVal
-EndFunction
-
-Int Function PEO_ChangeCureOrImproveChance(Int valueToChange)
-  Int prognosisChances_Setting = PEO_PrognosisChances_GV.GetValueInt()
-  If prognosisChances_Setting != 0
-    valueToChange = Math.Floor(valueToChange as Float * PEO_PrognosisChances_IncChanceMult.GetValue())
-  EndIf
-  Return valueToChange
-EndFunction
-
-String Function MakeStatString(env_afflictionscript:stat StatToGet)
-  String returnVal = ((((", " + ID + ", " + StatToGet.Name + ", " + StatToGet.ChanceCurve as String) + ", " + StatToGet.Attempts_Poor as String) + ", " + StatToGet.Attempts_Stable as String) + ", " + StatToGet.Attempts_Good as String) + ", " + StatToGet.Attempts_Excellent as String
-  Return returnVal
-EndFunction
-
-; Fixup hacks for debug-only function: TraceStats
-Function TraceStats()
-  String logname = "EnvironmentalGameplay_Afflictions_STATS"
-  Bool opened = false
-  If opened
+    IncrementStat(strCureAttempts)
     
-  EndIf
-  Int I = 0
-  While I < myStats.Length
-    env_afflictionscript:stat currentStat = myStats[I]
-    String statString = Self.MakeStatString(currentStat)
-    I += 1
-  EndWhile
+
+    Trace(self, "AttemptToCure() cureSuccess: " + cureSuccess)
+    
+    if cureSuccess
+        return Cure()
+    endif
+
+    return false
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
+;returns true if actually cured
+bool Function Cure()
+    Trace(self, "Cure()")
+    Formlist AfflictionList = AfflictionSpellList
+
+    bool hadAffliction
+
+    int i = 0
+    int iMax = AfflictionList.GetSize()
+    While (i < iMax)
+        Spell currentSpell = AfflictionList.GetAt(i) as Spell   
+        
+        hadAffliction = hadAffliction || Game.GetPlayer().HasSpell(currentSpell)
+        
+        Game.GetPlayer().RemoveSpell(currentSpell) ;afflictions are abilities, which is why we remove them
+        i += 1
+    EndWhile
+
+    if hadAffliction
+        SQ_ENV.ShowCuredMessage(self)
+        Active = false
+        
+        ;increment tracking avs:
+        Actor playerRef = Game.GetPlayer()
+        if IsInfection
+            playerRef.SetValue(ENV_AFFL_SkillChallengeAV_Infection, playerRef.GetValue(ENV_AFFL_SkillChallengeAV_Infection) + 1)
+        else
+            playerRef.SetValue(ENV_AFFL_SkillChallengeAV_Injury, playerRef.GetValue(ENV_AFFL_SkillChallengeAV_Injury) + 1)
+        endif
+
+        TraceStats()
+        ResetStats()
+
+        Trace(self, "Cure() returning true")
+        return true
+
+    endif
+
+    Trace(self, "Cure() returning false")
+    return false
 EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+
+int function GetCurveChance(Curve curveTable) private
+    int iPrognosis = Game.GetPlayer().GetValue(PrognosisAV) as int
+    
+    int returnVal
+    
+    if curveTable ;expected to be none in case of non-infections that are attempting to worsen (only infections worsen)
+        returnVal = curveTable.GetValueAt(iPrognosis) as int ;in terms of a d100
+    endif
+
+    Trace(self, "GetCurveChance() curveTable: " + curveTable + ", returnVal: " + returnVal)
+    return returnVal
 EndFunction
+
+int Function GetChance_Cure()
+    Trace(self, "GetChance_Cure()")
+
+    int returnVal = GetCurveChance(Curve_Cure_Chance)
+
+    if returnVal > 0 ;we don't want to add additional chance when there is NO chance (because no chance is when at poor prognosis)
+        if IsInfection
+            returnVal += Game.GetPlayer().GetValue(ENV_AFFL_BonusCureChance_Infection) as int
+        else
+            returnVal += Game.GetPlayer().GetValue(ENV_AFFL_BonusCureChance_Injury) as int
+        endif
+
+    endif
+
+    returnVal = PEO_ChangeCureOrImproveChance(returnVal)
+    
+    Trace(self, "GetChance_Cure() returnVal: " + returnVal)
+    
+    return returnVal
+EndFunction
+
+int Function GetChance_Improve()
+    Trace(self, "GetChance_Improve()")
+    int returnVal = GetCurveChance(Curve_Improve_Chance)
+    returnVal = PEO_ChangeCureOrImproveChance(returnVal)
+    Trace(self, "GetChance_Improve() returnVal: " + returnVal)
+    return returnVal
+EndFunction
+
+int Function GetChance_Worsen()
+    Trace(self, "GetChance_Worsen()")
+    int returnVal = GetCurveChance(Curve_Worsen_Chance)
+    Trace(self, "GetChance_Worsen() returnVal: " + returnVal)
+    return returnVal
+EndFunction
+
+int Function GetChance_Infection()
+  Trace(self, "GetChance_Infection()")
+    int returnVal = GetCurveChance(Curve_Infection_Chance)
+    Trace(self, "GetChance_Infection() returnVal: " + returnVal)
+    return returnVal
+EndFunction
+
+;for cure or improve chances, multiply the valueToChange by a value greater than 1 if the PEO setting is 1 (easy) or by a value less than 1 if the setting is 3 (hard)
+int Function PEO_ChangeCureOrImproveChance(int valueToChange)
+    
+    int prognosisChances_Setting = PEO_PrognosisChances_GV.GetValueInt()
+
+    if prognosisChances_Setting != 0
+        valueToChange = Math.Floor((valueToChange * PEO_PrognosisChances_IncChanceMult.GetValue()))
+    endif
+
+    return valueToChange
+EndFunction
+
+string function MakeStatString(Stat StatToGet)
+    string returnVal =  ", " + id + ", " + \
+                        StatToGet.Name + ", " + \
+                        StatToGet.ChanceCurve + ", " + \
+                        StatToGet.Attempts_Poor + ", " + \
+                        StatToGet.Attempts_Stable + ", " + \
+                        StatToGet.Attempts_Good + ", " + \
+                        StatToGet.Attempts_Excellent
+    return returnVal
+endFunction
+
+Function TraceStats() BetaOnly
+
+    string logname = "EnvironmentalGameplay_Afflictions_STATS"
+
+    bool opened = debug.OpenUserLog(logName)
+
+    if opened
+        ;trace column headers
+        debug.traceuser(logname, ", id, chance curve, stat, attempts poor, attempts stable, attempts good, attempts excellent")
+    endif
+
+    int i = 0
+    While (i < myStats.length)
+        Stat currentStat = myStats[i]
+
+        string statString = MakeStatString(currentStat)
+
+        debug.traceuser(logname, statString)
+
+        i += 1
+    EndWhile
+   
+ endFunction
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "Afflictions", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "EnvironmentalGameplay",  string SubLogName = "Afflictions", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+EndFunction
+
+

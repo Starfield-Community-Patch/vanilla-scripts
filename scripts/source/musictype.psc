@@ -1,7 +1,7 @@
-ScriptName MusicType Extends Form Native hidden
+Scriptname MusicType extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Add this music type to the music system stack
+Function Add() native
 
-Function Add() Native
-
-Function Remove() Native
+; Remove this music type from the music system stack
+Function Remove() native

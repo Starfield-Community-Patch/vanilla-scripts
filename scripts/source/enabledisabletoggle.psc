@@ -1,22 +1,22 @@
-ScriptName EnableDisableToggle Extends ObjectReference conditional
-{ Toggles between enabling and disabling linkedref }
+Scriptname EnableDisableToggle extends ObjectReference Conditional
+{Toggles between enabling and disabling linkedref}
 
-;-- Variables ---------------------------------------
-Bool isEnabled = True
+import debug
+import utility
+
 ObjectReference linkedref
+bool isEnabled = TRUE
 
-;-- Functions ---------------------------------------
+EVENT OnLoad()
+	linkedref = GetLinkedRef()
+endEVENT
 
-Event OnLoad()
-  linkedref = Self.GetLinkedRef(None)
-EndEvent
-
-Event onActivate(ObjectReference triggerRef)
-  If isEnabled
-    isEnabled = False
-    linkedref.disable(False)
-  Else
-    isEnabled = True
-    linkedref.enable(False)
-  EndIf
-EndEvent
+EVENT onActivate (objectReference triggerRef)
+	if(isEnabled)
+		isEnabled = FALSE
+		linkedref.disable()
+	else
+		isEnabled = TRUE
+		linkedref.enable()
+	endif
+endEVENT

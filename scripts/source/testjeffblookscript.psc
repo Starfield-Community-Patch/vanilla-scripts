@@ -1,42 +1,42 @@
-ScriptName TestJeffBLookScript Extends Actor conditional
+Scriptname TestJeffBLookScript extends Actor Conditional
 
-;-- Variables ---------------------------------------
+Bool Property isLooking = FALSE Auto Conditional
+Int Property howClose = 3000 Auto
+Bool Property isClose = FALSE Auto Conditional
+
 Actor player
 
-;-- Properties --------------------------------------
-Bool Property isLooking = False Auto conditional
-Int Property howClose = 3000 Auto
-Bool Property isClose = False Auto conditional
-
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  Self.RegisterForDetectionLOSGain(Game.GetPlayer(), Self as ObjectReference)
-  player = Game.GetPlayer()
+	RegisterForDetectionLOSGain(Game.GetPlayer(), self)
+	player = game.getPlayer()
 EndEvent
 
 Event OnGainLOS(ObjectReference akViewer, ObjectReference akTarget)
-  If Self.getDistance(player as ObjectReference) <= howClose as Float
-    isClose = True
-  Else
-    isClose = False
-  EndIf
-  If isClose == True
-    isLooking = True
-    Self.EvaluatePackage(False)
-  EndIf
-  Self.RegisterForDetectionLOSLost(Game.GetPlayer(), Self as ObjectReference)
-EndEvent
+	;debug.notification("Player just saw me!")
+	if(getDistance(player) <= howClose)
+		isClose = TRUE
+	else
+		isClose = FALSE
+	EndIf
+	
+	if(isClose == TRUE)
+		isLooking = TRUE
+		EvaluatePackage()
+	EndIf
+	RegisterForDetectionLOSLost(Game.GetPlayer(), self)
+endEvent
 
 Event OnLostLOS(ObjectReference akViewer, ObjectReference akTarget)
-  If Self.getDistance(player as ObjectReference) <= howClose as Float
-    isClose = True
-  Else
-    isClose = False
-  EndIf
-  If isClose == True
-    isLooking = False
-    Self.EvaluatePackage(False)
-  EndIf
-  Self.RegisterForDetectionLOSGain(Game.GetPlayer(), Self as ObjectReference)
+    ;debug.notification("Player is not looking at me!")
+    if(getDistance(player) <= howClose)
+		isClose = TRUE
+	else
+		isClose = FALSE
+	EndIf
+	
+	if(isClose == TRUE)
+		isLooking = FALSE
+		EvaluatePackage()
+	EndIf
+	RegisterForDetectionLOSGain(Game.GetPlayer(), self)
 EndEvent

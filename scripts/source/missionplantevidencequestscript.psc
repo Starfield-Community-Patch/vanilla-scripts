@@ -1,41 +1,44 @@
-ScriptName MissionPlantEvidenceQuestScript Extends MissionQuestScript
+Scriptname MissionPlantEvidenceQuestScript extends MissionQuestScript
 
-;-- Variables ---------------------------------------
+group PlantEvidenceMissionData
+	ReferenceAlias property HoldingContainer auto const Mandatory
+	{ alias where data disk ref will be created }
 
-;-- Properties --------------------------------------
-Group PlantEvidenceMissionData
-  ReferenceAlias Property HoldingContainer Auto Const mandatory
-  { alias where data disk ref will be created }
-  ReferenceAlias Property Evidence Auto Const mandatory
-  { evidence to plant }
-  Float Property CooldownDays = 2.0 Auto Const
-  { how long before the same target location can be picked again? }
-  ActorValue Property CooldownAV Auto Const mandatory
-  { AV to use for cooldown timestamp }
+	ReferenceAlias property Evidence auto const Mandatory
+	{ evidence to plant }
+
+    float property CooldownDays = 2.0 auto Const
+    { how long before the same target location can be picked again? }
+
+    ActorValue property CooldownAV auto const mandatory
+    { AV to use for cooldown timestamp }
 EndGroup
 
+; OVERRIDE parent function
+Function MissionAccepted(bool bAccepted)
+	if bAccepted
+        ; move device to player's inventory
+        Game.GetPlayer().AddItem(Evidence.GetRef())
+	EndIf
+	Parent.MissionAccepted(bAccepted)
+endFunction
 
-;-- Functions ---------------------------------------
-
-Function MissionAccepted(Bool bAccepted)
-  If bAccepted
-    Game.GetPlayer().AddItem(Evidence.GetRef() as Form, 1, False)
-  EndIf
-  Parent.MissionAccepted(bAccepted)
-EndFunction
-
+; OVERRIDE parent function
 Function HandleOnQuestRejected()
-  Self.CleanupMission()
-  Self.MissionFailed()
-EndFunction
+    CleanupMission()
+	MissionFailed()
+endFunction
 
 Function MissionComplete()
-  Self.CleanupMission()
-  Parent.MissionComplete()
-EndFunction
+    CleanupMission()
+	Parent.MissionComplete()
+endFunction
 
-Function CleanupMission()
-  PrimaryRef.GetRef().RemoveItem(Evidence.GetRef() as Form, 1, False, None)
-  Location targetLoc = TargetLocation.GetLocation()
-  targetLoc.SetValue(CooldownAV, Utility.GetCurrentGameTime() + CooldownDays)
-EndFunction
+function CleanupMission()
+    ; remove device from target container
+    PrimaryRef.GetRef().RemoveItem(Evidence.GetRef())
+
+    ; cooldown timestamp on location
+    Location targetLoc = TargetLocation.GetLocation()
+    targetLoc.SetValue(CooldownAV, Utility.GetCurrentGameTime() + CooldownDays)
+endFunction

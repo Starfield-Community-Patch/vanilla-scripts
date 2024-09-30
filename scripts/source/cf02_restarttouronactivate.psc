@@ -1,44 +1,37 @@
-ScriptName CF02_RestartTourOnActivate Extends ReferenceAlias
+Scriptname CF02_RestartTourOnActivate extends ReferenceAlias
 
-;-- Structs -----------------------------------------
-Struct TourScene
+struct TourScene
   Scene sceneToStart
-  Int requiredStage
-  Int turnOffStage
-EndStruct
+  int requiredStage
+  int turnOffStage
+endStruct
 
+TourScene[] property TourScenes Auto Const Mandatory
 
-;-- Variables ---------------------------------------
+int property DoneStage Auto Const Mandatory
+{Scene to change to done state}
 
-;-- Properties --------------------------------------
-cf02_restarttouronactivate:tourscene[] Property TourScenes Auto Const mandatory
-Int Property DoneStage Auto Const mandatory
-{ Scene to change to done state }
-
-;-- State -------------------------------------------
-State Done
-EndState
-
-;-- State -------------------------------------------
 Auto State Waiting
+	Event OnActivate(ObjectReference akActionRef)
+		goToState("Done")
+		Quest pQuest = GetOwningQuest()
+		if pQuest.GetStageDone(DoneStage)
+			return
+		elseif akActionRef == Game.GetPlayer()
+			int i = 0
+			while i < TourScenes.Length
+				TourScene TourSceneData = TourScenes[i]
+				if pQuest.GetStageDone(TourSceneData.requiredStage) && !pQuest.GetStageDone(TourSceneData.turnOffStage) && !TourSceneData.sceneToStart.IsPlaying()
+					TourSceneData.sceneToStart.Start()
+                    goToState("Waiting")
+					return
+				endif
+				i += 1
+			endwhile
+		endif
+		goToState("Waiting")
+	EndEvent
+endSTATE
 
-  Event OnActivate(ObjectReference akActionRef)
-    Self.goToState("Done")
-    Quest pQuest = Self.GetOwningQuest()
-    If pQuest.GetStageDone(DoneStage)
-      Return 
-    ElseIf akActionRef == Game.GetPlayer() as ObjectReference
-      Int I = 0
-      While I < TourScenes.Length
-        cf02_restarttouronactivate:tourscene TourSceneData = TourScenes[I]
-        If pQuest.GetStageDone(TourSceneData.requiredStage) && !pQuest.GetStageDone(TourSceneData.turnOffStage) && !TourSceneData.sceneToStart.IsPlaying()
-          TourSceneData.sceneToStart.Start()
-          Self.goToState("Waiting")
-          Return 
-        EndIf
-        I += 1
-      EndWhile
-    EndIf
-    Self.goToState("Waiting")
-  EndEvent
-EndState
+State Done
+endState

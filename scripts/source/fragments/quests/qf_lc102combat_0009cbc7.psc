@@ -1,56 +1,83 @@
-ScriptName Fragments:Quests:QF_LC102Combat_0009CBC7 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_LC102Combat_0009CBC7 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_LC102DoorsToLock Auto Const mandatory
-ReferenceAlias Property Alias_LC102DoorToBallroomKitchen Auto Const mandatory
-ReferenceAlias Property Alias_LC102DoorToBallroomKitchenTrigger Auto Const mandatory
-ReferenceAlias Property Alias_LC102DoorToEngineeringLevel Auto Const mandatory
-ReferenceAlias Property Alias_LC102DoorToEngineeringLevelTrigger Auto Const mandatory
-ReferenceAlias Property Alias_LifeSupportMachine01Activator Auto Const mandatory
-ReferenceAlias Property Alias_LifeSupportMachine02Activator Auto Const mandatory
-ReferenceAlias Property Alias_LifeSupportMachine03Activator Auto Const mandatory
-ReferenceAlias Property Alias_EngineeringDeckTrigger Auto Const mandatory
-RefCollectionAlias Property Alias_LC102DoorsToLockEngineeringDeck Auto Const mandatory
-RefCollectionAlias Property Alias_LC102Passengers Auto Const mandatory
-ActorValue Property pSpeedMult Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Quest __temp = Self as Quest
-  lc102combatquestscript kmyQuest = __temp as lc102combatquestscript
-  kmyQuest.SetTargetQuestStage()
-  Alias_LC102Passengers.SetValue(pSpeedMult, 100.0)
-  Alias_LifeSupportMachine01Activator.GetRef().BlockActivation(True, True)
-  Alias_LifeSupportMachine02Activator.GetRef().BlockActivation(True, True)
-  Alias_LifeSupportMachine03Activator.GetRef().BlockActivation(True, True)
-  ObjectReference[] doorRefs = Alias_LC102DoorsToLock.GetArray()
-  Int I = 0
-  While I < doorRefs.Length
-    doorRefs[I].SetLockLevel(254)
-    I += 1
-  EndWhile
-  If !Alias_EngineeringDeckTrigger.GetRef().IsInTrigger(Game.GetPlayer() as ObjectReference)
-    ObjectReference[] engineeringDoorRefs = Alias_LC102DoorsToLockEngineeringDeck.GetArray()
-    I = 0
-    While I < engineeringDoorRefs.Length
-      engineeringDoorRefs[I].SetLockLevel(254)
-      I += 1
-    EndWhile
-  EndIf
-  Self.EvaluateDoorForCloseAndLock(Alias_LC102DoorToBallroomKitchen.GetRef(), Alias_LC102DoorToBallroomKitchenTrigger.GetRef())
-  Self.EvaluateDoorForCloseAndLock(Alias_LC102DoorToEngineeringLevel.GetRef(), Alias_LC102DoorToEngineeringLevelTrigger.GetRef())
-EndFunction
+;BEGIN AUTOCAST TYPE LC102CombatQuestScript
+Quest __temp = self as Quest
+LC102CombatQuestScript kmyQuest = __temp as LC102CombatQuestScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.SetTargetQuestStage()
 
-Function EvaluateDoorForCloseAndLock(ObjectReference doorRef, ObjectReference triggerRef)
-  If triggerRef != None
-    If triggerRef.IsInTrigger(Game.GetPlayer() as ObjectReference) == True
-      Return 
-    EndIf
-  EndIf
-  doorRef.SetOpen(False)
-  doorRef.SetLockLevel(254)
-  doorRef.Lock(True, False, True)
+Alias_LC102Passengers.SetValue(pSpeedMult, 100)
+
+Alias_LifeSupportMachine01Activator.GetRef().BlockActivation(true, true)
+Alias_LifeSupportMachine02Activator.GetRef().BlockActivation(true, true)
+Alias_LifeSupportMachine03Activator.GetRef().BlockActivation(true, true)
+
+ObjectReference[] doorRefs = Alias_LC102DoorsToLock.GetArray()
+
+int i = 0
+while(i < doorRefs.Length)
+    doorRefs[i].SetLockLevel(254)
+    i += 1
+endWhile
+
+if(!Alias_EngineeringDeckTrigger.GetRef().IsInTrigger(Game.GetPlayer()))
+
+	ObjectReference[] engineeringDoorRefs = Alias_LC102DoorsToLockEngineeringDeck.GetArray()
+
+	i = 0
+	while(i < engineeringDoorRefs .Length)
+    		engineeringDoorRefs [i].SetLockLevel(254)
+		i += 1
+	endWhile
+endIf
+
+EvaluateDoorForCloseAndLock(Alias_LC102DoorToBallroomKitchen.GetRef(), Alias_LC102DoorToBallroomKitchenTrigger.GetRef())
+
+EvaluateDoorForCloseAndLock(Alias_LC102DoorToEngineeringLevel.GetRef(), Alias_LC102DoorToEngineeringLevelTrigger.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_LC102DoorsToLock Auto Const Mandatory
+
+ReferenceAlias Property Alias_LC102DoorToBallroomKitchen Auto Const Mandatory
+
+ReferenceAlias Property Alias_LC102DoorToBallroomKitchenTrigger Auto Const Mandatory
+
+ReferenceAlias Property Alias_LC102DoorToEngineeringLevel Auto Const Mandatory
+
+ReferenceAlias Property Alias_LC102DoorToEngineeringLevelTrigger Auto Const Mandatory
+
+function EvaluateDoorForCloseAndLock(ObjectReference doorRef, ObjectReference triggerRef)
+    if(triggerRef != None)
+        if(triggerRef.IsInTrigger(Game.GetPlayer()) == true)
+            return
+        endIf
+    endIf
+
+    doorRef.SetOpen(false)
+    doorRef.SetLockLevel(254)
+    doorRef.Lock()
+endFunction
+
+
+
+ReferenceAlias Property Alias_LifeSupportMachine01Activator Auto Const Mandatory
+
+ReferenceAlias Property Alias_LifeSupportMachine02Activator Auto Const Mandatory
+
+ReferenceAlias Property Alias_LifeSupportMachine03Activator Auto Const Mandatory
+
+ReferenceAlias Property Alias_EngineeringDeckTrigger Auto Const Mandatory
+
+RefCollectionAlias Property Alias_LC102DoorsToLockEngineeringDeck Auto Const Mandatory
+
+RefCollectionAlias Property Alias_LC102Passengers Auto Const Mandatory
+
+ActorValue Property pSpeedMult Auto Const Mandatory

@@ -1,1 +1,1 @@
-ScriptName Explosion Extends Form Native hidden
+Scriptname Explosion extends Form Native Hidden

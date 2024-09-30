@@ -1,30 +1,28 @@
-ScriptName FFNewHomesteadR02QuestScript Extends Quest
+Scriptname FFNewHomesteadR02QuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property CostumeStage = 300 Auto Const
-Int Property ReturnStage = 400 Auto Const
-ReferenceAlias Property Tourist01 Auto Const mandatory
-Armor Property Clothes_Monster_Costume Auto Const mandatory
-Float Property CooldownTimerDays = 3.0 Auto Const
-GlobalVariable Property FFNewHomesteadR02_CooldownTime Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Int Property CostumeStage = 300 Const Auto
+Int Property ReturnStage = 400 Const Auto
+ReferenceAlias Property Tourist01 Mandatory Const Auto
+Armor Property Clothes_Monster_Costume Mandatory Const Auto
+Float Property CooldownTimerDays = 3.0 Const Auto
+GlobalVariable Property FFNewHomesteadR02_CooldownTime Mandatory Const Auto
 
 Function CheckDistanceForTourists()
-  Self.RegisterForDistanceLessThanEvent(Game.GetPlayer() as ScriptObject, Tourist01.GetRef() as ScriptObject, 20.0, 0)
+    RegisterForDistanceLessThanEvent(Game.GetPlayer(), Tourist01.GetRef(), 20.0)
 EndFunction
 
+;Sets the cooldown time for this quest to the current game time, plus a number of days. 
+;This will be checked via condition on the NPC's dialogue so they won't offer the quest until the GameDaysPassed Global exceeds this Global value.
 Function SetCooldown()
-  FFNewHomesteadR02_CooldownTime.SetValue(Utility.GetCurrentGameTime() + CooldownTimerDays)
+    FFNewHomesteadR02_CooldownTime.SetValue(Utility.GetCurrentGameTime() + CooldownTimerDays)
 EndFunction
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  If Game.GetPlayer().IsEquipped(Clothes_Monster_Costume as Form) && Self.GetStageDone(CostumeStage) && !Self.GetStageDone(ReturnStage)
-    Self.SetStage(ReturnStage)
-    Self.UnregisterForDistanceEvents(Game.GetPlayer() as ScriptObject, Tourist01.GetRef() as ScriptObject, -1)
-  Else
-    Self.CheckDistanceForTourists()
-  EndIf
+
+Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+    If Game.GetPlayer().IsEquipped(Clothes_Monster_Costume) && GetStageDone(CostumeStage) && !GetStageDone(ReturnStage)
+        SetStage(ReturnStage)
+        UnregisterForDistanceEvents(Game.GetPlayer(), Tourist01.GetRef())
+    Else 
+        CheckDistanceForTourists()
+    EndIf
 EndEvent

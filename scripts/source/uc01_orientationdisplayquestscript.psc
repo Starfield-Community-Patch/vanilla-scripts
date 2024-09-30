@@ -1,23 +1,21 @@
-ScriptName UC01_OrientationDisplayQuestScript Extends Quest
+Scriptname UC01_OrientationDisplayQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property TualaReads Mandatory Auto
+{Alias used to manage Commander Tuala looking at his slate while the UCR quests spool up}
 
-;-- Properties --------------------------------------
-ReferenceAlias Property TualaReads Auto mandatory
-{ Alias used to manage Commander Tuala looking at his slate while the UCR quests spool up }
-ReferenceAlias Property Tuala Auto Const mandatory
-{ Ref alias for Commander Tuala }
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property Tuala Mandatory Const Auto
+{Ref alias for Commander Tuala}
 
 Function StartTualaAnimState()
-  Actor TAct = Tuala.GetActorRef()
-  TualaReads.ForceRefTo(TAct as ObjectReference)
-  TAct.EvaluatePackage(False)
+    Actor TAct = Tuala.GetActorRef()
+    TualaReads.ForceRefTo(TAct)
+    TAct.EvaluatePackage()
 EndFunction
 
+CustomEvent HaltOrientationScenes
+
 Function SendHaltScenes(ObjectReference akSceneTarget)
-  Var[] kargs = new Var[1]
-  kargs[0] = akSceneTarget as Var
-  Self.SendCustomEvent("uc01_orientationdisplayquestscript_HaltOrientationScenes", kargs)
+    Var[] kargs = new Var[1]
+    kargs[0] = akSceneTarget
+    SendCustomEvent("HaltOrientationScenes", kargs)
 EndFunction

@@ -1,73 +1,83 @@
-ScriptName UC02_TerrormorphScript Extends ReferenceAlias
+Scriptname UC02_TerrormorphScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-ObjectReference CurrentLureTarget
-Int InspectTimerID = 1 Const
+ReferenceAlias Property ActiveLure Mandatory Const Auto
+{Ref alias for the currently active lure}
 
-;-- Properties --------------------------------------
-ReferenceAlias Property ActiveLure Auto Const mandatory
-{ Ref alias for the currently active lure }
-ReferenceAlias Property LurePathingTarget Auto Const mandatory
-{ Ref alias for the active lure pathing target }
-Int Property TriggerDistance = 3 Auto Const
-{ Once the Terrormorph has gotten this close, kick off the timer for it to ignore the object }
-GlobalVariable Property UC02_TerrormorphAttentionLength Auto Const mandatory
-{ How long the Terrormorph will hang out here before moving on }
-ReferenceAlias Property Hadrian Auto Const mandatory
-{ Ref alias for Hadrian }
-Int Property StageToSet = 702 Auto Const
-{ Stge to set if Hadrian hits the Terrormorph at any point }
-GlobalVariable Property UC02_Terrormorph_PlayerTargetPercent Auto Const mandatory
-{ If the player gets added to the Morph's combat list, what's the percent chance it'll focus on the player as their target }
+ReferenceAlias Property LurePathingTarget Mandatory Const Auto
+{Ref alias for the active lure pathing target}
 
-;-- Functions ---------------------------------------
+int Property TriggerDistance = 3 Const Auto
+{Once the Terrormorph has gotten this close, kick off the timer for it to ignore the object}
+
+GlobalVariable Property UC02_TerrormorphAttentionLength Mandatory Const Auto
+{How long the Terrormorph will hang out here before moving on}
+
+ReferenceAlias Property Hadrian Mandatory Const Auto
+{Ref alias for Hadrian}
+
+int Property StageToSet = 702 Const Auto
+{Stge to set if Hadrian hits the Terrormorph at any point}
+
+GlobalVariable Property UC02_Terrormorph_PlayerTargetPercent Mandatory Const Auto
+{If the player gets added to the Morph's combat list, what's the percent chance it'll focus on the player as their target}
 
 Event OnLoad()
-  If !Self.GetActorRef().IsDead()
-    Self.RegisterForHitEvent(Self.GetRef() as ScriptObject, Hadrian.GetRef() as ScriptObject, None, None, -1, -1, -1, -1, True)
-  EndIf
+    if !GetActorRef().IsDead()
+        RegisterForHitEvent(GetRef(), Hadrian.GetRef())
+    endif
 EndEvent
 
+int InspectTimerID = 1 const
+ObjectReference CurrentLureTarget
 Function RegisterForReachActiveLure(ObjectReference akActiveLure)
-  Self.UnregisterForDistanceEvents(Self.GetRef() as ScriptObject, Self.GetRef() as ScriptObject, -1)
-  Self.RegisterForDistanceLessThanEvent(Self.GetRef() as ScriptObject, akActiveLure as ScriptObject, TriggerDistance as Float, 0)
-  CurrentLureTarget = akActiveLure
+    trace(self, "Active lure: " + akActiveLure + " registered for a distance event.")
+    UnregisterForDistanceEvents(GetRef(), GetRef())
+    RegisterForDistanceLessThanEvent(GetRef(), akActiveLure, TriggerDistance)
+    CurrentLureTarget = akActiveLure
 EndFunction
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  If !Self.GetActorRef().IsInCombat() && (akObj1 == Self.GetRef() || akObj2 == Self.GetRef()) && (akObj1 == CurrentLureTarget || (akObj2 as Bool == (akObj1 == Self.GetRef() || akObj2 == Self.GetRef())))
-    Self.StartTimer(UC02_TerrormorphAttentionLength.GetValue(), InspectTimerID)
-  Else
-    Self.RegisterForDistanceLessThanEvent(Self.GetRef() as ScriptObject, CurrentLureTarget as ScriptObject, TriggerDistance as Float, 0)
-  EndIf
+Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID )
+    if !GetActorRef().IsInCombat() && (akObj1 == GetRef() || akObj2 == GetRef()) && (akObj1 == CurrentLureTarget || akObj2 == (akObj1 == GetRef() || akObj2 == GetRef()))
+        trace(self, "Morph has reached the target. Start the hang out timer.")
+        StartTimer(UC02_TerrormorphAttentionLength.GetValue(), InspectTimerID)
+    else
+        RegisterForDistanceLessThanEvent(GetRef(), CurrentLureTarget, TriggerDistance)
+    endif
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == InspectTimerID
-    ActiveLure.Clear()
-    LurePathingTarget.Clear()
-    Self.GetActorRef().EvaluatePackage(False)
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == InspectTimerID
+        trace(self, "Inspect timer expired. Have the morph move on.")
+        ActiveLure.Clear()
+        LurePathingTarget.Clear()
+        GetActorRef().EvaluatePackage()
+    endif
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  If akAggressor == Hadrian.GetRef()
-    If !Self.GetActorRef().IsDead()
-      Self.GetOwningQuest().SetStage(StageToSet)
-    EndIf
-  EndIf
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    if akAggressor == Hadrian.GetRef()
+        if !GetActorRef().IsDead()
+            GetOwningQuest().SetStage(StageToSet)
+        endif
+    endif
 EndEvent
 
 Event OnCombatListAdded(Actor akTarget)
-  Actor PlayACT = Game.GetPlayer()
-  If akTarget == PlayACT
-    Int iRand = Utility.RandomInt(0, 100)
-    If iRand <= UC02_Terrormorph_PlayerTargetPercent.GetValueInt()
-      Self.GetActorRef().StartCombat(PlayACT as ObjectReference, True)
-    EndIf
-  EndIf
+    trace(self, "UC02 Morph: Target added to combat list: " + akTarget)
+    Actor PlayACT = Game.GetPlayer()
+    if akTarget == PlayAct
+        int iRand = Utility.RandomInt(0, 100)
+        trace(self, "UC02 Morph: It's the player. Roll to see if they should become the Morph's target: " + iRand)
+        if iRand <= UC02_Terrormorph_PlayerTargetPercent.GetValueInt()
+            GetActorRef().StartCombat(PlayACT, true)
+            trace(self, "UC02 Morph: Yup! The morph is now targeting the player.")
+        endif
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "UnitedColonies",  string SubLogName = "UC02", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

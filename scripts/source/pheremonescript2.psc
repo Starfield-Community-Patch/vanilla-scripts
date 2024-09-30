@@ -1,7 +1,9 @@
-ScriptName PheremoneScript2 Extends ActiveMagicEffect
+Scriptname PheremoneScript2 extends ActiveMagicEffect
 
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
+EVENT OnEffectStart(Objectreference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+  
   akCaster.StopCombat()
-EndEvent
+
+ Debug.Notification("combat")
+
+ENDEVENT

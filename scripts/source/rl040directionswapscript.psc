@@ -1,13 +1,8 @@
-ScriptName RL040DirectionSwapScript Extends ObjectReference Const
+Scriptname RL040DirectionSwapScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property PirateLeader Auto Const mandatory
-ObjectReference Property PirateLeaderMoveToMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ObjectReference Property PirateLeader Mandatory Const Auto
+ObjectReference Property PirateLeaderMoveToMarker Mandatory Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  PirateLeader.MoveTo(PirateLeaderMoveToMarker, 0.0, 0.0, 0.0, True, False)
+    PirateLeader.MoveTo(PirateLeaderMoveToMarker, abMatchRotation = true)
 EndEvent

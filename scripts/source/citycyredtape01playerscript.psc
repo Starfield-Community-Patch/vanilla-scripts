@@ -1,31 +1,39 @@
-ScriptName CityCYRedTape01PlayerScript Extends ReferenceAlias
+Scriptname CityCYRedTape01PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+MiscObject Property InorgCommonIron Mandatory Const Auto
 
-;-- Properties --------------------------------------
-MiscObject Property InorgCommonIron Auto Const mandatory
 
-;-- Functions ---------------------------------------
-
-Function RegisterPlayerForResourceTracking(Bool bRegister)
-  If bRegister
-    Self.AddInventoryEventFilter(InorgCommonIron as Form)
-    Self.RunCheckResources()
-  Else
-    Self.RemoveInventoryEventFilter(InorgCommonIron as Form)
-  EndIf
+Function RegisterPlayerForResourceTracking(bool bRegister=true)
+    debug.trace(self + " RegisterPlayerForResourceTracking " + bRegister)
+    if bRegister
+        AddInventoryEventFilter(InorgCommonIron)
+        RunCheckResources()
+    Else
+        RemoveInventoryEventFilter(InorgCommonIron)
+    endif
 EndFunction
 
+
+;runs the ResourceCheck script on CityCYRedTape01QuestScript
 Function RunCheckResources()
-  Quest myQuest = Self.GetOwningQuest()
-  citycyredtape01questscript myQIScript = myQuest as citycyredtape01questscript
-  myQIScript.ResourceCheck()
+    Quest myQuest = GetOwningQuest()
+    CityCYRedTape01QuestScript myQIScript = myQuest as CityCYRedTape01QuestScript
+    myQIScript.ResourceCheck()
 EndFunction
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  Self.RunCheckResources()
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; EVENTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    debug.trace(self + " OnItemAdded " + akBaseItem)
+    RunCheckResources()
 EndEvent
 
-Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-  Self.RunCheckResources()
+Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+    debug.trace(self + " OnItemRemoved " + akBaseItem)
+    RunCheckResources()
 EndEvent
+
+
+

@@ -1,181 +1,305 @@
-ScriptName Fragments:Quests:QF_BE_KT01_0003BC4F Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_BE_KT01_0003BC4F Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property SpaceshipCrew Auto Const mandatory
-ReferenceAlias Property Alias_EnemyShip Auto Const mandatory
-GlobalVariable Property PBE_DerelictCreaturesMax Auto Const mandatory
-ReferenceAlias Property Alias_Captain Auto Const mandatory
-Scene Property BE_KT01_SceneWelcome Auto Const mandatory
-Hazard Property CreateVacuumHazard Auto Const mandatory
-Hazard Property myHazard01 Auto Const mandatory
-wwiseevent Property Wwise_Event_OBJ_Alarm_Generic_Play Auto Const mandatory
-Float Property GravityFloat Auto Const mandatory
-GlobalVariable Property BE_KT01_InstanceID Auto Const mandatory
-Scene Property BE_KT01_SceneStart Auto Const mandatory
-LeveledItem Property LL_OE_Default_Reward Auto Const mandatory
-Hazard Property myHazard02 Auto Const mandatory
-Hazard Property myHazard03 Auto Const mandatory
-RefCollectionAlias Property Alias_AllCrew Auto Const mandatory
-ReferenceAlias Property Alias_Announcer Auto Const mandatory
-Quest Property SE_KT01 Auto Const mandatory
-ReferenceAlias Property Alias_Captain01 Auto Const mandatory
-ReferenceAlias Property Alias_Captain02 Auto Const mandatory
-ReferenceAlias Property Alias_Captain03 Auto Const mandatory
-RefCollectionAlias Property Alias_CrewSpawnMarkers Auto Const mandatory
-LeveledActor Property SEDerelict_LChar_HexapodAGlider Auto Const mandatory
-LeveledActor Property SEDerelict_LChar_MantidACockroach Auto Const mandatory
-LeveledActor Property SEDerelict_LChar_MantidACoralbug Auto Const mandatory
-LeveledActor Property SEDerelict_LChar_MantidAHookneck Auto Const mandatory
-LeveledActor Property SEDerelict_LChar_OctopedeAExocrawler Auto Const mandatory
-LeveledActor Property SEDerelict_LChar_OctopedeAMaggotCrab Auto Const mandatory
-RefCollectionAlias Property Alias_creatures Auto Const mandatory
-RefCollectionAlias Property Alias_turretSpawnMarkers Auto Const mandatory
-RefCollectionAlias Property Alias_Computers Auto Const mandatory
-Keyword Property LinkTerminalSecurityDoor Auto Const mandatory
-Keyword Property LinkTerminalTurret Auto Const mandatory
-ReferenceAlias Property Alias_PilotSeat Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-ReferenceAlias Property Alias_SoftAlarm Auto Const mandatory
-Faction Property CaptiveFaction Auto Const mandatory
-ReferenceAlias Property Alias_SpawnMarkerCaptain Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0009_Item_00
 Function Fragment_Stage_0009_Item_00()
-  Actor CaptainRef = Alias_Captain.GetActorRef()
-  CaptainRef.RemoveFromFaction(CaptiveFaction)
-  CaptainRef.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+Actor CaptainRef = Alias_Captain.GetActorRef()
 
+CaptainRef.RemoveFromFaction(CaptiveFaction)
+CaptainRef.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  ObjectReference[] MarkersRef = Alias_CrewSpawnMarkers.GetArray()
-  Int k = Utility.RandomInt(0, 5)
-  Int I = 0
-  If k == 0
-    While I < 7 && I < MarkersRef.Length
-      Alias_creatures.AddRef(MarkersRef[I].PlaceAtMe(SEDerelict_LChar_HexapodAGlider as Form, 1, False, False, True, None, None, True))
-      I += 1
-    EndWhile
-  ElseIf k == 1
-    While I < 7 && I < MarkersRef.Length
-      Alias_creatures.AddRef(MarkersRef[I].PlaceAtMe(SEDerelict_LChar_MantidACockroach as Form, 1, False, False, True, None, None, True))
-      I += 1
-    EndWhile
-  ElseIf k == 2
-    While I < 7 && I < MarkersRef.Length
-      Alias_creatures.AddRef(MarkersRef[I].PlaceAtMe(SEDerelict_LChar_MantidACoralbug as Form, 1, False, False, True, None, None, True))
-      I += 1
-    EndWhile
-  ElseIf k == 3
-    While I < 7 && I < MarkersRef.Length
-      Alias_creatures.AddRef(MarkersRef[I].PlaceAtMe(SEDerelict_LChar_MantidAHookneck as Form, 1, False, False, True, None, None, True))
-      I += 1
-    EndWhile
-  ElseIf k == 4
-    While I < 7 && I < MarkersRef.Length
-      Alias_creatures.AddRef(MarkersRef[I].PlaceAtMe(SEDerelict_LChar_OctopedeAExocrawler as Form, 1, False, False, True, None, None, True))
-      I += 1
-    EndWhile
-  ElseIf k == 5
-    While I < 7 && I < MarkersRef.Length
-      Alias_creatures.AddRef(MarkersRef[I].PlaceAtMe(SEDerelict_LChar_OctopedeAMaggotCrab as Form, 1, False, False, True, None, None, True))
-      I += 1
-    EndWhile
-  EndIf
-  ObjectReference[] ComputerRefs = Alias_Computers.GetArray()
-  Int p = 0
-  While p < ComputerRefs.Length
-    If ComputerRefs[p].GetLinkedRef(LinkTerminalTurret) == None && ComputerRefs[I].GetLinkedRef(LinkTerminalSecurityDoor) == None
-      ComputerRefs[p].SetLockLevel(255)
-    EndIf
+;BEGIN CODE
+ObjectReference[] MarkersRef = Alias_CrewSpawnMarkers.GetArray()
+int k = Utility.RandomInt(0,5)
+int i = 0
+
+if k == 0
+    while i < 7 && i < MarkersRef.Length
+        Alias_creatures.AddRef(MarkersRef[i].PlaceAtMe(SEDerelict_LChar_HexapodAGlider))
+        i += 1
+    endwhile
+elseif k == 1
+    while i < 7 && i < MarkersRef.Length
+        Alias_creatures.AddRef(MarkersRef[i].PlaceAtMe(SEDerelict_LChar_MantidACockroach))
+        i += 1
+    endwhile
+elseif k == 2
+    while i < 7 && i < MarkersRef.Length
+        Alias_creatures.AddRef(MarkersRef[i].PlaceAtMe(SEDerelict_LChar_MantidACoralbug))
+        i += 1
+    endwhile
+elseif k == 3
+    while i < 7 && i < MarkersRef.Length
+        Alias_creatures.AddRef(MarkersRef[i].PlaceAtMe(SEDerelict_LChar_MantidAHookneck))
+        i += 1
+    endwhile
+elseif k == 4
+    while i < 7 && i < MarkersRef.Length
+        Alias_creatures.AddRef(MarkersRef[i].PlaceAtMe(SEDerelict_LChar_OctopedeAExocrawler))
+        i += 1
+    endwhile
+elseif k == 5
+    while i < 7 && i < MarkersRef.Length
+        Alias_creatures.AddRef(MarkersRef[i].PlaceAtMe(SEDerelict_LChar_OctopedeAMaggotCrab))
+        i += 1
+    endwhile
+endif
+
+ObjectReference[] ComputerRefs = Alias_Computers.GetArray()
+
+
+int p = 0
+While p < ComputerRefs.Length
+    if ComputerRefs[p].GetLinkedRef(LinkTerminalTurret) == None && ComputerRefs[i].GetLinkedRef(LinkTerminalSecurityDoor) == None
+        ComputerRefs[p].SetLockLevel(255)
+    endif
     p += 1
-  EndWhile
-  Alias_Captain.GetRef().IgnoreFriendlyHits(True)
-EndFunction
+endWhile
 
+Alias_Captain.GetRef().IgnoreFriendlyHits(true)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_01
 Function Fragment_Stage_0010_Item_01()
-  ObjectReference CaptainRef = Alias_Captain01.GetRef()
-  CaptainRef.EnableNoWait(False)
-  Alias_Captain.ForceRefTo(CaptainRef)
-EndFunction
+;BEGIN CODE
+;If hailing ship was FemaleEvenToned, enable matching voice captain
 
+ObjectReference CaptainRef = Alias_Captain01.GetRef()
+
+CaptainRef.EnableNoWait()
+Alias_Captain.ForceRefTo(CaptainRef)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_02
 Function Fragment_Stage_0010_Item_02()
-  ObjectReference CaptainRef = Alias_Captain02.GetRef()
-  CaptainRef.EnableNoWait(False)
-  Alias_Captain.ForceRefTo(CaptainRef)
-EndFunction
+;BEGIN CODE
+;If hailing ship was GenericMale06, enable matching voice captain
 
+ObjectReference CaptainRef = Alias_Captain02.GetRef()
+
+CaptainRef.EnableNoWait()
+Alias_Captain.ForceRefTo(CaptainRef)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_03
 Function Fragment_Stage_0010_Item_03()
-  ObjectReference CaptainRef = Alias_Captain03.GetRef()
-  CaptainRef.EnableNoWait(False)
-  Alias_Captain.ForceRefTo(CaptainRef)
-EndFunction
+;BEGIN CODE
+;If hailing ship was GenericMale08, enable matching voice captain
 
+ObjectReference CaptainRef = Alias_Captain03.GetRef()
+
+CaptainRef.EnableNoWait()
+Alias_Captain.ForceRefTo(CaptainRef)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0015_Item_00
 Function Fragment_Stage_0015_Item_00()
-  Quest __temp = Self as Quest
-  bescript kmyQuest = __temp as bescript
-  Self.SetObjectiveCompleted(10, True)
-  If !Self.GetStageDone(66) && !SE_KT01.GetStageDone(6)
-    Self.SetObjectiveDisplayed(20, True, False)
-    BE_KT01_SceneStart.Start()
-  EndIf
-  Alias_SoftAlarm.GetRef().DisableNoWait(False)
-  kmyQuest.SetShipHazard(None)
-  kmyQuest.SetShipGravity(1.0)
-  Alias_Captain.GetRef().IgnoreFriendlyHits(False)
-  Alias_EnemyShip.GetShipRef().SetValue(SpaceshipCrew, 1.0)
-EndFunction
+;BEGIN AUTOCAST TYPE bescript
+Quest __temp = self as Quest
+bescript kmyQuest = __temp as bescript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveCompleted(10)
+if (!GetStageDone(66)) && !SE_KT01.GetStageDone(6)
+     SetObjectiveDisplayed(20)
+     BE_KT01_SceneStart.Start()
+EndIf
 
+;WwiseEvent.StopInstance(BE_KT01_InstanceID.GetValueInt())
+Alias_SoftAlarm.GetRef().DisableNoWait()
+kmyQuest.SetShipHazard(None)
+kmyQuest.SetShipGravity(1)
+
+Alias_Captain.GetRef().IgnoreFriendlyHits(false)
+Alias_enemyShip.GetShipRef().SetValue(SpaceshipCrew, 1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0020_Item_00
 Function Fragment_Stage_0020_Item_00()
-  BE_KT01_SceneWelcome.Start()
-  SE_KT01.SetStage(30)
-EndFunction
+;BEGIN CODE
+;Set by: Change Location script on the player alias.
 
+;Start the welcome scene when the player enters the ship.
+BE_KT01_SceneWelcome.Start()
+
+SE_KT01.SetStage(30)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0024_Item_00
 Function Fragment_Stage_0024_Item_00()
-  Quest __temp = Self as Quest
-  bescript kmyQuest = __temp as bescript
-  kmyQuest.SetShipGravity(1.0)
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
-  Alias_EnemyShip.GetShipRef().SetGhost(False)
-EndFunction
+;BEGIN AUTOCAST TYPE bescript
+Quest __temp = self as Quest
+bescript kmyQuest = __temp as bescript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.SetShipGravity(1)
 
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+Alias_enemyShip.GetShipRef().SetGhost(false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0025_Item_00
 Function Fragment_Stage_0025_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-EndFunction
+;BEGIN CODE
+;int pInstance = Wwise_Event_OBJ_Alarm_Generic_Play.Play(Alias_Announcer.GetRef())
+;BE_KT01_InstanceID.SetValue(pInstance)
 
+SetObjectiveDisplayed(10)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0040_Item_00
 Function Fragment_Stage_0040_Item_00()
-  Self.SetObjectiveCompleted(20, True)
+;BEGIN CODE
+SetObjectiveCompleted(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  If !Self.GetStageDone(15)
-    wwiseevent.StopInstance(BE_KT01_InstanceID.GetValueInt())
-    Alias_Captain.GetActorRef().Kill(None)
-  EndIf
-  spaceshipreference enemyShipRef = Alias_EnemyShip.GetShipRef()
-  If Self.GetStageDone(100) && !Self.GetStageDone(66)
-    enemyShipRef.SetValue(DockingPermission, 4.0)
-    enemyShipRef.DisableWithGravJump()
-  EndIf
-EndFunction
+;BEGIN CODE
+if !GetStageDone(15)
+    WwiseEvent.StopInstance(BE_KT01_InstanceID.GetValueInt())
+    Alias_Captain.GetActorRef().Kill()
+endif
 
+SpaceshipReference enemyShipRef = Alias_EnemyShip.GetShipRef()
+
+if GetStageDone(100) && !GetStageDone(66)
+     enemyShipRef.SetValue(DockingPermission, 4)
+     enemyShipRef.DisableWithGravJump()
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0060_Item_00
 Function Fragment_Stage_0060_Item_00()
-  Alias_Captain.GetRef().MoveTo(Alias_SpawnMarkerCaptain.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+Alias_Captain.GetRef().MoveTo(Alias_SpawnMarkerCaptain.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0066_Item_00
 Function Fragment_Stage_0066_Item_00()
-  Alias_PilotSeat.GetRef().BlockActivation(False, False)
-  Alias_EnemyShip.GetShipRef().SetValue(SpaceshipCrew, 0.0)
-  SE_KT01.SetStage(66)
-  Self.SetObjectiveSkipped(10)
-  Self.SetObjectiveSkipped(20)
+;BEGIN CODE
+Alias_PilotSeat.GetRef().BlockActivation(false, false)
+Alias_enemyShip.GetShipRef().SetValue(SpaceshipCrew, 0)
+SE_KT01.SetStage(66)
+SetObjectiveSkipped(10)
+SetObjectiveSkipped(20)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  wwiseevent.StopInstance(BE_KT01_InstanceID.GetValueInt())
-  Self.FailAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+;Cleanup on stop if player bails, fail objectives and stop alarm
+
+WwiseEvent.StopInstance(BE_KT01_InstanceID.GetValueInt())
+FailAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ActorValue Property SpaceshipCrew Auto Const Mandatory
+
+ReferenceAlias Property Alias_EnemyShip Auto Const Mandatory
+
+GlobalVariable Property PBE_DerelictCreaturesMax Auto Const Mandatory
+
+ReferenceAlias Property Alias_Captain Auto Const Mandatory
+
+Scene Property BE_KT01_SceneWelcome Auto Const Mandatory
+
+Hazard Property CreateVacuumHazard Auto Const Mandatory
+
+Hazard Property myHazard01 Auto Const Mandatory
+
+WwiseEvent Property Wwise_Event_OBJ_Alarm_Generic_Play Auto Const Mandatory
+
+Float Property GravityFloat Auto Const Mandatory
+
+GlobalVariable Property BE_KT01_InstanceID Auto Const Mandatory
+
+Scene Property BE_KT01_SceneStart Auto Const Mandatory
+
+LeveledItem Property LL_OE_Default_Reward Auto Const Mandatory
+
+Hazard Property myHazard02 Auto Const Mandatory
+
+Hazard Property myHazard03 Auto Const Mandatory
+
+RefCollectionAlias Property Alias_AllCrew Auto Const Mandatory
+
+ReferenceAlias Property Alias_Announcer Auto Const Mandatory
+
+Quest Property SE_KT01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Captain01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Captain02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Captain03 Auto Const Mandatory
+
+RefCollectionAlias Property Alias_CrewSpawnMarkers Auto Const Mandatory
+
+LeveledActor Property SEDerelict_LChar_HexapodAGlider Auto Const Mandatory
+
+LeveledActor Property SEDerelict_LChar_MantidACockroach Auto Const Mandatory
+
+LeveledActor Property SEDerelict_LChar_MantidACoralbug Auto Const Mandatory
+
+LeveledActor Property SEDerelict_LChar_MantidAHookneck Auto Const Mandatory
+
+LeveledActor Property SEDerelict_LChar_OctopedeAExocrawler Auto Const Mandatory
+
+LeveledActor Property SEDerelict_LChar_OctopedeAMaggotCrab Auto Const Mandatory
+
+RefCollectionAlias Property Alias_creatures Auto Const Mandatory
+
+RefCollectionAlias Property Alias_turretSpawnMarkers Auto Const Mandatory
+
+RefCollectionAlias Property Alias_Computers Auto Const Mandatory
+
+Keyword Property LinkTerminalSecurityDoor Auto Const Mandatory
+
+Keyword Property LinkTerminalTurret Auto Const Mandatory
+
+ReferenceAlias Property Alias_PilotSeat Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+ReferenceAlias Property Alias_SoftAlarm Auto Const Mandatory
+
+Faction Property CaptiveFaction Auto Const Mandatory
+
+ReferenceAlias Property Alias_SpawnMarkerCaptain Auto Const Mandatory

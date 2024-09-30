@@ -1,10 +1,11 @@
-ScriptName DefaultCollectionAliasOnLoad Extends DefaultCollectionAliasParent default
-{ Sets stage when THIS RefCollection's members load.
-<QuestToSetOrCheck> is THIS Alias's GetOwningQuest() }
-
-;-- Functions ---------------------------------------
+Scriptname DefaultCollectionAliasOnLoad extends DefaultCollectionAliasParent Default
+{Sets stage when THIS RefCollection's members load.
+<QuestToSetOrCheck> is THIS Alias's GetOwningQuest()}
 
 Event OnLoad(ObjectReference akSender)
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, None, None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(akSender, ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnLoad()", ShowTraces)
+	
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = None)
+	DefaultScriptFunctions.Trace(self, "OnLoad() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(akSender, ParentScriptFunctionParams)
 EndEvent

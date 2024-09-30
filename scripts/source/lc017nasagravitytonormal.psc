@@ -1,12 +1,8 @@
-ScriptName LC017NASAGravityToNormal Extends ObjectReference Const
+Scriptname LC017NASAGravityToNormal extends ObjectReference Const
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
-Cell Property LC017NASA Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Cell Property LC017NASA Mandatory Const Auto
 
 Event OnActivate(ObjectReference akActionRef)
-  LC017NASA.setGravityScale(1.0)
+    LC017NASA.setGravityScale(1)
 EndEvent

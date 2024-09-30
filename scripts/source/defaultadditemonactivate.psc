@@ -1,41 +1,40 @@
-ScriptName DefaultAddItemOnActivate Extends ObjectReference
-{ Give the player an item when they activate this reference. }
+Scriptname DefaultAddItemOnActivate extends ObjectReference
+{Give the player an item when they activate this reference.}
 
-;-- Variables ---------------------------------------
+Form property ItemToGive Auto const
+{The Item to give to the player when this references is activated.}
 
-;-- Properties --------------------------------------
-Form Property ItemToGive Auto Const
-{ The Item to give to the player when this references is activated. }
-Int Property NumberToGiveMin = 1 Auto Const
-{ How many of the item are given?  If always the same, Min and Max should be equal.  Otherwise it's a random value between min/max }
-Int Property NumberToGiveMax = 1 Auto Const
-{ If Greater than the Min, the number given will be randomized between that value and this one. }
-Bool Property DisableWhenDone = False Auto Const
-{ Should this object disable when clicked?  False by default. }
+int property NumberToGiveMin = 1 Auto const
+{How many of the item are given?  If always the same, Min and Max should be equal.  Otherwise it's a random value between min/max}
+int property NumberToGiveMax = 1 Auto const
+{If Greater than the Min, the number given will be randomized between that value and this one.}
 
-;-- State -------------------------------------------
-State Done
+bool property DisableWhenDone = FALSE auto const
+{Should this object disable when clicked?  False by default.}
 
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
+Auto State Initial
+	Event OnActivate(ObjectReference akActionRef)
+		int iNumberToGive
+		if (NumberToGiveMin >= NumberToGiveMax)
+			; If Min==Max or if the range is invalid, then just give the number in Min
+			iNumberToGive = NumberToGiveMin
+		else
+			; if Min < Max, then generate a random whole number between.
+			iNumberToGive = utility.randomInt(NumberToGiveMin,NumberToGiveMax)
+		endif
+		akActionRef.AddItem(ItemToGive, iNumberToGive)
+		if DisableWhenDone
+			; make this object go away.  Generally for things which are being "taken" like a stack of noodle bowls, etc
+			disable()
+		else
+			; otherwise just block future activation.
+			GoToState("Done")
+		endif
+	EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Initial
-
-  Event OnActivate(ObjectReference akActionRef)
-    Int iNumberToGive = 0
-    If NumberToGiveMin >= NumberToGiveMax
-      iNumberToGive = NumberToGiveMin
-    Else
-      iNumberToGive = Utility.randomInt(NumberToGiveMin, NumberToGiveMax)
-    EndIf
-    akActionRef.AddItem(ItemToGive, iNumberToGive, False)
-    If DisableWhenDone
-      Self.disable(False)
-    Else
-      Self.GoToState("Done")
-    EndIf
-  EndEvent
+State Done
+	Event OnActivate(ObjectReference akActionRef)
+		;Do nothing.
+	EndEvent
 EndState

@@ -1,20 +1,30 @@
-ScriptName Fragments:Quests:QF_MQ_PirateConversation05_0005EFFB Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MQ_PirateConversation05_0005EFFB Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property MQ_PirateConversation05Scene Auto Const mandatory
-ReferenceAlias Property Alias_MQ_PirateScene05A Auto Const mandatory
-ReferenceAlias Property Alias_MQ_PirateScene05B Auto Const mandatory
-ReferenceAlias Property Alias_MQ_PirateScene05C Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  MQ_PirateConversation05Scene.Start()
+;BEGIN CODE
+MQ_PirateConversation05Scene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0255_Item_00
 Function Fragment_Stage_0255_Item_00()
-  Self.Stop()
+;BEGIN CODE
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property MQ_PirateConversation05Scene Auto Const Mandatory
+
+ReferenceAlias Property Alias_MQ_PirateScene05A Auto Const Mandatory
+
+ReferenceAlias Property Alias_MQ_PirateScene05B Auto Const Mandatory
+
+ReferenceAlias Property Alias_MQ_PirateScene05C Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory

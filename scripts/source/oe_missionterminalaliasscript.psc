@@ -1,18 +1,13 @@
-ScriptName OE_MissionTerminalAliasScript Extends ReferenceAlias
+Scriptname OE_MissionTerminalAliasScript extends ReferenceAlias
 
-;-- Functions ---------------------------------------
+State Done
+    Event OnActivate(ObjectReference akActionRef)
+    EndEvent
+EndState
 
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Self.GotoState("Done")
-    (Self.GetOwningQuest() as oe_missionterminalquestscript).PlayerActivateMissionTerminal()
-  EndIf
+    if akActionRef == Game.GetPlayer()
+        GotoState("Done")
+        (GetOwningQuest() as OE_MissionTerminalQuestScript).PlayerActivateMissionTerminal()
+    endif
 EndEvent
-
-;-- State -------------------------------------------
-State Done
-
-  Event OnActivate(ObjectReference akActionRef)
-    ; Empty function
-  EndEvent
-EndState

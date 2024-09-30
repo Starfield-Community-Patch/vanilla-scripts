@@ -1,89 +1,102 @@
-ScriptName TrapExplodingBase Extends TrapBase
-{ base script for traps that explode when they take damage }
+Scriptname TrapExplodingBase extends TrapBase
+{base script for traps that explode when they take damage}
 
-;-- Variables ---------------------------------------
+group TrapExplodingData
+    Explosion Property TrapExplosion Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Group TrapExplodingData
-  Explosion Property TrapExplosion Auto Const mandatory
-  ActorValue Property Stim_Health_Piercing Auto Const mandatory
-  ActorValue Property Stim_Health_Flame Auto Const mandatory
-  ActorValue Property Stim_Health_Freezing Auto Const mandatory
-  ActorValue Property Stim_Health_Energy Auto Const mandatory
-  Float Property DamageThresholdPiercing = 100.0 Auto
-  Float Property DamageThresholdFlame = 100.0 Auto
-  Float Property DamageThresholdCryo = 100.0 Auto
-  Float Property DamageThresholdEnergy = 100.0 Auto
-  Float Property FreezeHealthMult = 1.5 Auto Const
-  { health multiplier on flame and piercing damage when frozen }
+    ;AV Health Values to Track
+    ActorValue Property Stim_Health_Piercing Mandatory Const Auto
+    ActorValue Property Stim_Health_Flame Mandatory Const Auto
+    ActorValue Property Stim_Health_Freezing Mandatory Const Auto
+    ActorValue Property Stim_Health_Energy Mandatory Const Auto
+
+    ;Tweakable Data
+    float Property DamageThresholdPiercing = 100.0 Auto
+    float Property DamageThresholdFlame = 100.0 Auto
+    float Property DamageThresholdCryo = 100.0 Auto
+    float Property DamageThresholdEnergy = 100.0 Auto
+
+    float Property FreezeHealthMult = 1.5 const Auto
+    { health multiplier on flame and piercing damage when frozen }
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Function HandleOnLoad()
-  If bDisarmed == False
-    ObjectReference tank = Self.GetLinkedRef(None)
-    Self.RegisterForActorValueLessThanEvent(tank, Stim_Health_Piercing, DamageThresholdPiercing)
-    Self.RegisterForActorValueLessThanEvent(tank, Stim_Health_Flame, DamageThresholdFlame)
-    Self.RegisterForActorValueLessThanEvent(tank, Stim_Health_Freezing, DamageThresholdCryo)
-    Self.RegisterForActorValueLessThanEvent(tank, Stim_Health_Energy, DamageThresholdEnergy)
-  EndIf
+    ;Register for different damage types that the tank responds to at the start. (Add other damage types soon)
+    ;All the health AVs have to be on the tank itself, because of the Secondary Damage List.
+    if bDisarmed == false
+        ObjectReference tank = GetLinkedRef()
+        RegisterForActorValueLessThanEvent(tank, Stim_Health_Piercing, DamageThresholdPiercing)
+        RegisterForActorValueLessThanEvent(tank, Stim_Health_Flame, DamageThresholdFlame)
+        RegisterForActorValueLessThanEvent(tank, Stim_Health_Freezing, DamageThresholdCryo)
+        RegisterForActorValueLessThanEvent(tank, Stim_Health_Energy, DamageThresholdEnergy)
+    endif
 EndFunction
 
 Function HandleOnUnload()
-  ObjectReference tank = Self.GetLinkedRef(None)
-  Self.UnregisterForAllEvents()
+    ObjectReference tank = GetLinkedRef()
+    UnregisterForAllEvents()
 EndFunction
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  If akActorValue == Stim_Health_Freezing
-    If Self.GetLinkedRef(None).GetValue(Stim_Health_Freezing) <= DamageThresholdCryo
-      Self.ExceedFreezeDamage()
+    debug.trace(self + " OnActorValueLessThan " + akActorValue)
+    ;This catches all the various damage types and their thresholds.
+    if(akActorValue == Stim_Health_Freezing)
+        if(GetLinkedRef().GetValue(Stim_Health_Freezing) <= DamageThresholdCryo)
+            ExceedFreezeDamage()
+        EndIf
+    elseif(akActorValue == Stim_Health_Piercing)
+        if(GetLinkedRef().GetValue(Stim_Health_Piercing) <= DamageThresholdPiercing)
+            ExceedPiercingDamage()
+        EndIf
+    elseif(akActorValue == Stim_Health_Flame)
+        if((GetLinkedRef().GetValue(Stim_Health_Flame) <= DamageThresholdFlame))
+            ExceedFlameDamage()
+        EndIf
+    elseif(akActorValue == Stim_Health_Energy)
+        if((GetLinkedRef().GetValue(Stim_Health_Energy) <= DamageThresholdEnergy))
+            ExceedEnergyDamage()
+        EndIf
     EndIf
-  ElseIf akActorValue == Stim_Health_Piercing
-    If Self.GetLinkedRef(None).GetValue(Stim_Health_Piercing) <= DamageThresholdPiercing
-      Self.ExceedPiercingDamage()
-    EndIf
-  ElseIf akActorValue == Stim_Health_Flame
-    If Self.GetLinkedRef(None).GetValue(Stim_Health_Flame) <= DamageThresholdFlame
-      Self.ExceedFlameDamage()
-    EndIf
-  ElseIf akActorValue == Stim_Health_Energy
-    If Self.GetLinkedRef(None).GetValue(Stim_Health_Energy) <= DamageThresholdEnergy
-      Self.ExceedEnergyDamage()
-    EndIf
-  EndIf
 EndEvent
 
 Function ExceedPiercingDamage()
-  Self.Explode()
+    debug.trace(self + " ExceedPiercingDamage")
+    Explode()
 EndFunction
 
 Function ExceedFlameDamage()
-  Self.Explode()
+    debug.trace(self + " ExceedFlameDamage")
+    Explode()
 EndFunction
 
 Function ExceedEnergyDamage()
-  Self.Explode()
+    debug.trace(self + " ExceedEnergyDamage")
+    Explode()
 EndFunction
 
 Function ExceedFreezeDamage()
-  ObjectReference myLinkedRef = Self.GetLinkedRef(None)
-  If myLinkedRef
-    myLinkedRef.SetValue(Stim_Health_Piercing, FreezeHealthMult * myLinkedRef.GetBaseValue(Stim_Health_Piercing))
-    myLinkedRef.SetValue(Stim_Health_Flame, FreezeHealthMult * myLinkedRef.GetBaseValue(Stim_Health_Flame))
-    Self.RegisterForActorValueLessThanEvent(myLinkedRef, Stim_Health_Piercing, DamageThresholdPiercing)
-    Self.RegisterForActorValueLessThanEvent(myLinkedRef, Stim_Health_Flame, DamageThresholdFlame)
-  EndIf
+    debug.trace(self + " ExceedFreezeDamage")
+
+    ;Set piercing and fire health to x FreezeHealthMult due to being frozen.
+    ;Re-register for AV less than event.
+    ObjectReference myLinkedRef = GetLinkedRef()
+    if myLinkedRef
+        myLinkedRef.SetValue(Stim_Health_Piercing, FreezeHealthMult*myLinkedRef.GetBaseValue(Stim_Health_Piercing))
+        myLinkedRef.SetValue(Stim_Health_Flame, FreezeHealthMult*myLinkedRef.GetBaseValue(Stim_Health_Flame))
+        RegisterForActorValueLessThanEvent(myLinkedRef, Stim_Health_Piercing, DamageThresholdPiercing)
+        RegisterForActorValueLessThanEvent(myLinkedRef, Stim_Health_Flame, DamageThresholdFlame)
+    endif
 EndFunction
 
 Function Explode()
-  Self.GotoState("Unloaded")
-  Self.Disarm()
-  ObjectReference myLinkedRef = Self.GetLinkedRef(None)
-  If myLinkedRef
-    myLinkedRef.PlaceAtMe(TrapExplosion as Form, 1, False, False, True, None, None, True)
-    myLinkedRef.DisableNoWait(False)
-  EndIf
+    GotoState("Unloaded")
+    Disarm() ; parent function
+    debug.trace(self + " Explode")
+    ObjectReference myLinkedRef = GetLinkedRef()
+    if myLinkedRef
+        ;Make an explosion and disable tank
+        myLinkedRef.PlaceAtMe(TrapExplosion)
+        myLinkedRef.DisableNoWait()
+    endif
 EndFunction
+

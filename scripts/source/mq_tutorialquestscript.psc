@@ -1,319 +1,336 @@
-ScriptName MQ_TutorialQuestScript Extends Quest
+Scriptname MQ_TutorialQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Message Property Tutorial_LockpickingMSGBox Auto Const mandatory
-Message Property Tutorial_IndustrialMSGBox Auto Const mandatory
-Message Property Tutorial_ResearchMSGBox Auto Const mandatory
-Message Property Tutorial_SpeechMSGBox Auto Const mandatory
-Message Property Tutorial_InventoryDetail_MSGBox Auto Const mandatory
-Message Property Tutorial_SkillsMenu_MSGBox Auto Const mandatory
-Message Property Tutorial_SkillsMenu_MSGBox_PC Auto Const mandatory
-Message Property Tutorial_ScannerDetail_MSGBox Auto Const mandatory
-Message Property Tutorial_MissionMenu_MSGBox Auto Const mandatory
-Message Property Tutorial_ShipMenu_MSGBox Auto Const mandatory
-Message Property Tutorial_CrewMenu_MSGBox Auto Const mandatory
-Message Property Tutorial_StarMap_MSGBox Auto Const mandatory
-Message Property Tutorial_StarMap_MSGBox_PC Auto Const mandatory
-Message Property MQ104APowerTutorial02MSG Auto Const mandatory
-Quest Property MQ101 Auto Const mandatory
-Int Property StarMapPreReqStage = 510 Auto Const
-Int Property StarMapPostStage = 605 Auto Const
-Int Property CompanionEMWeapon = 20 Auto Const
-ReferenceAlias Property Companion Auto Const mandatory
-ReferenceAlias Property EliteCrew Auto Const mandatory
-Keyword Property WeaponTypeEM Auto Const mandatory
-conditionform Property UC04_WeaponIsTypeEM Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const mandatory
-Int Property ShipLowHealthStage = 30 Auto Const
-Int Property ShipDamagedSystemStage = 40 Auto Const
-ActorValue Property Health Auto Const mandatory
-Message Property Tutorial_ShipBuilderUpgrade_MSGBox Auto Const mandatory
-Message Property Tutorial_ShipBuilderModify_MSGBox Auto Const mandatory
-Message Property Tutorial_ShipBuilderModify_MSGBox_PC Auto Const mandatory
-Message Property Tutorial_SocialSkills Auto Const mandatory
-Message Property Tutorial_SocialSkills_PC Auto Const mandatory
-Perk Property Skill_Instigation Auto Const mandatory
-Perk Property Skill_Intimidation Auto Const mandatory
-Perk Property Skill_Manipulation Auto Const mandatory
-Perk Property Skill_Diplomacy Auto Const mandatory
-Int Property ScannerTutorialStage = 60 Auto Const
-Int Property MissionsTutorialStage = 70 Auto Const
-Message Property Tutorial_StarbornPower01 Auto Const mandatory
-Message Property Tutorial_StarbornPower02 Auto Const mandatory
-Message Property Tutorial_StarbornPower03 Auto Const mandatory
-Message Property Tutorial_StarbornPower04 Auto Const mandatory
-Keyword Property Artifact_Power Auto Const mandatory
-ActorValue Property SpaceshipRegistration Auto Const mandatory
-Message Property Tutorial_UnregisteredShip Auto Const mandatory
-Message Property Tutorial_FailedJump01 Auto Const mandatory
-Message Property Tutorial_FailedJump02 Auto Const mandatory
-Message Property Tutorial_FailedJump03 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Message Property Tutorial_LockpickingMSGBox Mandatory Const Auto
+Message Property Tutorial_IndustrialMSGBox Mandatory Const Auto
+Message Property Tutorial_ResearchMSGBox Mandatory Const Auto
+Message Property Tutorial_SpeechMSGBox Mandatory Const Auto
+Message Property Tutorial_InventoryDetail_MSGBox Mandatory Const Auto
+Message Property Tutorial_SkillsMenu_MSGBox Mandatory Const Auto
+Message Property Tutorial_SkillsMenu_MSGBox_PC Mandatory Const Auto
+Message Property Tutorial_ScannerDetail_MSGBox Mandatory Const Auto
+Message Property Tutorial_MissionMenu_MSGBox Mandatory Const Auto
+Message Property Tutorial_ShipMenu_MSGBox Mandatory Const Auto
+Message Property Tutorial_CrewMenu_MSGBox Mandatory Const Auto
+Message Property Tutorial_StarMap_MSGBox Mandatory Const Auto
+Message Property Tutorial_StarMap_MSGBox_PC Mandatory Const Auto
+Message Property MQ104APowerTutorial02MSG Mandatory Const Auto
+Quest Property MQ101 Mandatory Const Auto
+Int Property StarMapPreReqStage=510 Const Auto
+Int Property StarMapPostStage=605 Const Auto
+int Property CompanionEMWeapon=20 Const Auto
+ReferenceAlias Property Companion Auto Const Mandatory
+ReferenceAlias Property EliteCrew Auto Const Mandatory
+Keyword Property WeaponTypeEM Mandatory Const Auto
+ConditionForm Property UC04_WeaponIsTypeEM Mandatory Const Auto
+ReferenceAlias Property PlayerShip Mandatory Const Auto
+Int Property ShipLowHealthStage = 30 Const Auto
+Int Property ShipDamagedSystemStage = 40 Const Auto
+ActorValue Property Health Mandatory Const Auto
+Message Property Tutorial_ShipBuilderUpgrade_MSGBox Mandatory Const Auto
+Message Property Tutorial_ShipBuilderModify_MSGBox Mandatory Const Auto
+Message Property Tutorial_ShipBuilderModify_MSGBox_PC Mandatory Const Auto
+Message Property Tutorial_SocialSkills Mandatory Const Auto
+Message Property Tutorial_SocialSkills_PC Mandatory Const Auto
+Perk Property Skill_Instigation Mandatory Const Auto
+Perk Property Skill_Intimidation Mandatory Const Auto
+Perk Property Skill_Manipulation Mandatory Const Auto
+Perk Property Skill_Diplomacy Mandatory Const Auto
+Int Property ScannerTutorialStage = 60 Const Auto
+Int Property MissionsTutorialStage = 70 Const Auto
+Message Property Tutorial_StarbornPower01 Mandatory Const Auto
+Message Property Tutorial_StarbornPower02 Mandatory Const Auto
+Message Property Tutorial_StarbornPower03 Mandatory Const Auto
+Message Property Tutorial_StarbornPower04 Mandatory Const Auto
+Keyword Property Artifact_Power Mandatory Const Auto
+ActorValue Property SpaceshipRegistration Mandatory Const Auto
+Message Property Tutorial_UnregisteredShip Mandatory Const Auto
 
 Event OnQuestInit()
-  Actor PlayerREF = Game.GetPlayer()
-  Self.RegisterForMenuOpenCloseEvent("SecurityMenu")
-  Self.RegisterForMenuOpenCloseEvent("IndustrialCraftingMenu")
-  Self.RegisterForMenuOpenCloseEvent("ResearchMenu")
-  Self.RegisterForMenuOpenCloseEvent("InventoryMenu")
-  Self.RegisterForMenuOpenCloseEvent("SkillsMenu")
-  Self.RegisterForMenuOpenCloseEvent("MonocleMenu")
-  Self.RegisterForMenuOpenCloseEvent("BSMissionMenu")
-  Self.RegisterForMenuOpenCloseEvent("SpaceshipInfoMenu")
-  Self.RegisterForMenuOpenCloseEvent("SpaceshipEditorMenu")
-  Self.RegisterForMenuOpenCloseEvent("ShipCrewMenu")
-  Self.RegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
-  Self.RegisterForTutorialEvent("Dialogue_PersuasionStart")
-  Self.RegisterForRemoteEvent(PlayerREF as ScriptObject, "OnItemEquipped")
-  Self.RegisterForRemoteEvent(Companion as ScriptObject, "OnAliasChanged")
-  Self.RegisterForRemoteEvent(EliteCrew as ScriptObject, "OnAliasChanged")
-  Self.RegisterForRemoteEvent(PlayerShip as ScriptObject, "OnAliasChanged")
-  Self.ShipLowHealth()
-  Self.RegisterForRemoteEvent(PlayerShip.GetShipRef() as ScriptObject, "OnShipSystemDamaged")
-  Self.RegisterForTutorialEvent("ShipbuilderUpgradeModeEntered")
-  Self.RegisterForTutorialEvent("ShipbuilderModifyModeEntered")
-  Self.RegisterForRemoteEvent(PlayerREF as ScriptObject, "OnPlayerFailedPlotRoute")
+    Actor PlayerREF = Game.GetPlayer()
+    RegisterForMenuOpenCloseEvent("SecurityMenu")
+    RegisterForMenuOpenCloseEvent("IndustrialCraftingMenu")
+    RegisterForMenuOpenCloseEvent("ResearchMenu")
+    RegisterForMenuOpenCloseEvent("InventoryMenu")
+    RegisterForMenuOpenCloseEvent("SkillsMenu")
+    RegisterForMenuOpenCloseEvent("MonocleMenu")
+    RegisterForMenuOpenCloseEvent("BSMissionMenu")
+    RegisterForMenuOpenCloseEvent("SpaceshipInfoMenu")
+    RegisterForMenuOpenCloseEvent("SpaceshipEditorMenu")
+    RegisterForMenuOpenCloseEvent("ShipCrewMenu")
+    RegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
+    RegisterForTutorialEvent("Dialogue_PersuasionStart")
+    RegisterForRemoteEvent(PlayerRef, "OnItemEquipped")
+    RegisterForRemoteEvent(Companion, "OnAliasChanged")
+    RegisterForRemoteEvent(EliteCrew, "OnAliasChanged")
+    RegisterForRemoteEvent(PlayerShip, "OnAliasChanged")
+    ShipLowHealth()
+    RegisterForRemoteEvent(PlayerShip.GetShipRef(), "OnShipSystemDamaged")
+    RegisterForTutorialEvent("ShipbuilderUpgradeModeEntered")
+    RegisterForTutorialEvent("ShipbuilderModifyModeEntered")
+    RegisterForRemoteEvent(PlayerRef, "OnPlayerFailedPlotRoute")
 EndEvent
 
 Function ShipLowHealth()
-  spaceshipreference PlayerShipREF = PlayerShip.GetShipRef()
-  Float iLowHealth = PlayerShipREF.GetValue(Health) / 2.0
-  Self.RegisterForActorValueLessThanEvent(PlayerShipREF as ObjectReference, Health, iLowHealth)
+    ;we want to know if the Player Ship is ever at low health
+    SpaceshipReference PlayerShipREF = PlayerShip.GetShipRef()
+    Float iLowHealth = PlayerShipREF.GetValue(Health) / 2
+    RegisterForActorValueLessThanEvent(PlayerShipREF, Health, iLowHealth)
 EndFunction
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  spaceshipreference PlayerShipREF = PlayerShip.GetShipRef()
-  If (akObjRef as spaceshipreference == PlayerShipREF) && Self.GetStageDone(ShipLowHealthStage) == False
-    Self.SetStage(ShipLowHealthStage)
-    Self.UnRegisterForRemoteEvent(PlayerShip as ScriptObject, "OnAliasChanged")
-  ElseIf (akObjRef as spaceshipreference != PlayerShipREF) && Self.GetStageDone(ShipLowHealthStage) == False
-    Self.ShipLowHealth()
-  EndIf
+    ;the PlayerShip alias could have changed, so double check before popping message
+    SpaceshipReference PlayerShipREF = PlayerShip.GetShipRef()
+    If ((akObjRef as SpaceshipReference) == PlayerShipREF) && (GetStageDone(ShipLowHealthStage) == False)
+       Self.SetStage(ShipLowHealthStage)
+       UnRegisterForRemoteEvent(PlayerShip, "OnAliasChanged")
+    ElseIf ((akObjRef as SpaceshipReference) != PlayerShipREF) && (GetStageDone(ShipLowHealthStage) == False)
+       ShipLowHealth()
+    EndIf
 EndEvent
 
-Event SpaceshipReference.OnShipSystemDamaged(spaceshipreference akSender, ActorValue akSystem, Int aBlocksLost, Bool aElectromagneticDamage, Bool aFullyDamaged)
-  spaceshipreference PlayerShipREF = PlayerShip.GetShipRef()
-  If akSender == PlayerShipREF && Self.GetStageDone(ShipDamagedSystemStage) == False
-    Self.UnRegisterForRemoteEvent(akSender as ScriptObject, "OnShipSystemDamaged")
-    Self.SetStage(ShipDamagedSystemStage)
-  ElseIf akSender != PlayerShipREF && Self.GetStageDone(ShipDamagedSystemStage) == False
-    Self.UnRegisterForRemoteEvent(akSender as ScriptObject, "OnShipSystemDamaged")
-    Self.RegisterForRemoteEvent(PlayerShipREF as ScriptObject, "OnShipSystemDamaged")
-  EndIf
+Event SpaceshipReference.OnShipSystemDamaged(SpaceshipReference akSender, ActorValue akSystem, int aBlocksLost, bool aElectromagneticDamage, bool aFullyDamaged)
+    SpaceshipReference PlayerShipREF = PlayerShip.GetShipRef()
+    If ((akSender as SpaceshipReference) == PlayerShipREF) && (GetStageDone(ShipDamagedSystemStage) == False)
+        UnRegisterForRemoteEvent(akSender, "OnShipSystemDamaged")
+        Self.SetStage(ShipDamagedSystemStage)
+    ElseIf ((akSender as SpaceshipReference) != PlayerShipREF) && (GetStageDone(ShipDamagedSystemStage) == False)
+        UnRegisterForRemoteEvent(akSender, "OnShipSystemDamaged")
+        RegisterForRemoteEvent(PlayerShipREF, "OnShipSystemDamaged")
+    EndIf
 EndEvent
 
-Event OnMenuOpenCloseEvent(String asMenuName, Bool abOpening)
-  Actor PlayerREF = Game.GetPlayer()
-  If asMenuName == "SecurityMenu"
-    If abOpening
-      Tutorial_LockpickingMSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnRegisterForMenuOpenCloseEvent("SecurityMenu")
-    EndIf
-  ElseIf asMenuName == "IndustrialCraftingMenu"
-    If abOpening
-      Tutorial_IndustrialMSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnRegisterForMenuOpenCloseEvent("IndustrialCraftingMenu")
-    EndIf
-  ElseIf asMenuName == "ResearchMenu"
-    If abOpening
-      Tutorial_ResearchMSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnRegisterForMenuOpenCloseEvent("ResearchMenu")
-    EndIf
-  ElseIf asMenuName == "InventoryMenu"
-    If abOpening
-      Message.ClearHelpMessages()
-      Self.UnRegisterForMenuOpenCloseEvent("InventoryMenu")
-    EndIf
-  ElseIf asMenuName == "SkillsMenu"
-    If abOpening
-      If Game.UsingGamepad()
-        Tutorial_SkillsMenu_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Else
-        Tutorial_SkillsMenu_MSGBox_PC.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-      Self.UnRegisterForMenuOpenCloseEvent("SkillsMenu")
-    EndIf
-  ElseIf asMenuName == "MonocleMenu"
-    If abOpening && Self.GetStageDone(ScannerTutorialStage) == False
-      Self.SetStage(ScannerTutorialStage)
-      Tutorial_ScannerDetail_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    EndIf
-  ElseIf asMenuName == "BSMissionMenu"
-    If abOpening && Self.GetStageDone(MissionsTutorialStage) == False
-      Message.ClearHelpMessages()
-      Self.SetStage(MissionsTutorialStage)
-      Tutorial_MissionMenu_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnRegisterForMenuOpenCloseEvent("BSMissionMenu")
-    Else
-      Message.ClearHelpMessages()
-      Self.UnRegisterForMenuOpenCloseEvent("BSMissionMenu")
-    EndIf
-  ElseIf asMenuName == "SpaceshipInfoMenu"
-    If abOpening
-      Tutorial_ShipMenu_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnRegisterForMenuOpenCloseEvent("SpaceshipInfoMenu")
-    EndIf
-  ElseIf asMenuName == "ShipCrewMenu"
-    If abOpening
-      Tutorial_CrewMenu_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Self.UnRegisterForMenuOpenCloseEvent("ShipCrewMenu")
-    EndIf
-  ElseIf asMenuName == "GalaxyStarMapMenu"
-    If abOpening && MQ101.GetStageDone(StarMapPreReqStage) && MQ101.GetStageDone(StarMapPostStage) == False
-      If Game.UsingGamepad()
-        Tutorial_StarMap_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Else
-        Tutorial_StarMap_MSGBox_PC.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-      Self.UnRegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
-    ElseIf !abOpening
-      Message.ClearHelpMessages()
-      Self.UnRegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
-    EndIf
-  ElseIf asMenuName == "SpaceshipEditorMenu"
-    If abOpening
-      spaceshipreference[] AllPlayerShips = Game.GetPlayerOwnedShips()
-      Int iNumShips = AllPlayerShips.Length
-      Bool bUnregisteredShip = False
-      Int iCurrentIndex = 0
-      While iCurrentIndex < iNumShips
-        If AllPlayerShips[iCurrentIndex].GetValue(SpaceshipRegistration) == 0.0
-          bUnregisteredShip = True
+Event OnMenuOpenCloseEvent(string asMenuName, bool abOpening)
+    Actor PlayerREF = Game.GetPlayer()
+    if (asMenuName== "SecurityMenu")
+        if (abOpening)
+	        Tutorial_LockpickingMSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("SecurityMenu")
+        endif
+    ElseIf (asMenuName== "IndustrialCraftingMenu")
+        if (abOpening)
+	        Tutorial_IndustrialMSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("IndustrialCraftingMenu")
+        endif
+    ElseIf (asMenuName== "ResearchMenu")
+        if (abOpening)
+	        Tutorial_ResearchMSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("ResearchMenu")
+        endif
+    ElseIf (asMenuName== "InventoryMenu")
+        if (abOpening)
+            Message.ClearHelpMessages()
+            ;Tutorial_InventoryDetail_MSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("InventoryMenu")
         EndIf
-        iCurrentIndex += 1
-      EndWhile
-      If bUnregisteredShip
-        Tutorial_UnregisteredShip.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-        Self.UnRegisterForMenuOpenCloseEvent("SpaceshipEditorMenu")
-      EndIf
-    EndIf
-  EndIf
-  If asMenuName == "DataMenu"
-    If abOpening
-      If Self.GetStageDone(100) && !Self.GetStageDone(130)
-        Message.ClearHelpMessages()
-        Tutorial_StarbornPower02.ShowAsHelpMessage("None", 0.0, 0.0, 0, "", 0, None)
-        Self.SetStage(110)
-      EndIf
-    ElseIf !abOpening
-      If Self.GetStageDone(100) && !Self.GetStageDone(130)
-        Message.ClearHelpMessages()
-        Tutorial_StarbornPower01.ShowAsHelpMessage("None", 0.0, 0.0, 0, "", 0, None)
-      EndIf
-      If Self.GetStageDone(130) && !Self.GetStageDone(140)
-        If PlayerREF.GetEquippedSpell(2).HasKeyword(Artifact_Power)
-          Message.ClearHelpMessages()
-          Tutorial_StarbornPower04.ShowAsHelpMessage("None", 0.0, 0.0, 0, "", 0, None)
-          Self.RegisterForRemoteEvent(PlayerREF as ScriptObject, "OnSpellCast")
+    ElseIf (asMenuName== "SkillsMenu")
+        if (abOpening)
+            If Game.UsingGamepad()
+                Tutorial_SkillsMenu_MSGBox.Show()
+            Else
+                Tutorial_SkillsMenu_MSGBox_PC.Show()
+            EndIf
+            UnRegisterForMenuOpenCloseEvent("SkillsMenu")
         EndIf
-      EndIf
-    EndIf
-  EndIf
-  If asMenuName == "PowersMenu"
-    If abOpening
-      If !Self.GetStageDone(130)
-        Message.ClearHelpMessages()
-        Tutorial_StarbornPower03.ShowAsHelpMessage("None", 0.0, 0.0, 0, "", 0, None)
-        Self.RegisterForRemoteEvent(PlayerREF as ScriptObject, "OnItemEquipped")
-        Self.SetStage(120)
-      EndIf
-    ElseIf !abOpening
-      If !Self.GetStageDone(130)
-        Message.ClearHelpMessages()
-        Tutorial_StarbornPower02.ShowAsHelpMessage("None", 0.0, 0.0, 0, "", 0, None)
-      EndIf
-    EndIf
-  EndIf
-  If asMenuName == "MonocleMenu"
-    If PlayerREF.HasPerk(Skill_Diplomacy) || PlayerREF.HasPerk(Skill_Instigation) || PlayerREF.HasPerk(Skill_Intimidation) || PlayerREF.HasPerk(Skill_Manipulation)
-      If abOpening
-        Utility.Wait(0.100000001)
-        If Game.UsingGamepad()
-          Tutorial_SocialSkills.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    ElseIf (asMenuName== "MonocleMenu")
+        if (abOpening) && (GetStageDone(ScannerTutorialStage) == 0)
+            SetStage(ScannerTutorialStage)
+            Tutorial_ScannerDetail_MSGBox.Show()
+        EndIf
+    ElseIf (asMenuName== "BSMissionMenu")
+        if (abOpening) && (GetStageDone(MissionsTutorialStage) == 0)
+            Message.ClearHelpMessages()
+            SetStage(MissionsTutorialStage)
+            Tutorial_MissionMenu_MSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("BSMissionMenu")
         Else
-          Tutorial_SocialSkills_PC.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+            Message.ClearHelpMessages()
+            UnRegisterForMenuOpenCloseEvent("BSMissionMenu")
         EndIf
-        Self.UnRegisterForMenuOpenCloseEvent("MonocleMenu")
-      EndIf
+    ElseIf (asMenuName== "SpaceshipInfoMenu")
+        if (abOpening)
+            Tutorial_ShipMenu_MSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("SpaceshipInfoMenu")
+        EndIf
+    ElseIf (asMenuName== "ShipCrewMenu")
+        if (abOpening)
+            Tutorial_CrewMenu_MSGBox.Show()
+            UnRegisterForMenuOpenCloseEvent("ShipCrewMenu")
+        EndIf
+    ElseIf (asMenuName== "GalaxyStarMapMenu")
+        if (abOpening) && (MQ101.GetStageDone(StarMapPreReqStage)) && (MQ101.GetStageDone(StarMapPostStage)==False)
+            If Game.UsingGamepad()
+                Tutorial_StarMap_MSGBox.Show()
+            Else
+                Tutorial_StarMap_MSGBox_PC.Show()
+            EndIf
+            UnRegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
+        ElseIf !(abOpening) ;clear help messages from failed jump route when closing star map
+            Message.ClearHelpMessages()
+            UnRegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
+        EndIf
+    ElseIf (asMenuName== "SpaceshipEditorMenu")
+        if (abOpening)
+            SpaceshipReference[] AllPlayerShips = Game.GetPlayerOwnedShips()
+            Int iNumShips = AllPlayerShips.Length
+            Bool bUnregisteredShip = False
+            Int iCurrentIndex = 0
+
+            ;check all player owned ships for an unregistered ship
+            While iCurrentIndex < iNumShips
+                If AllPlayerShips[iCurrentIndex].GetValue(SpaceshipRegistration) == 0
+                    bUnregisteredShip = True
+                EndIf
+                iCurrentIndex += 1
+            EndWhile
+
+            If bUnregisteredShip
+                Tutorial_UnregisteredShip.Show()
+                UnRegisterForMenuOpenCloseEvent("SpaceshipEditorMenu")
+            EndIf
+        EndIf
     EndIf
-  EndIf
+
+    ;Starborn Power Tutorial
+    If (asMenuName == "DataMenu")
+        If (abOpening)
+            If GetStageDone(100) && !GetStageDone(130)
+                Message.ClearHelpMessages()
+                Tutorial_StarbornPower02.ShowAsHelpMessage(asEvent="None", afDuration=0, afInterval=0, aiMaxTimes=0)
+                SetStage(110)
+            EndIf
+        ElseIf !(abOpening) ;handle the player opening/closing the menu
+            If GetStageDone(100) && !GetStageDone(130)
+                Message.ClearHelpMessages()
+                Tutorial_StarbornPower01.ShowAsHelpMessage(asEvent="None", afDuration=0, afInterval=0, aiMaxTimes=0)
+            EndIf
+
+            If GetStageDone(130) && !GetStageDone(140) ; player leaves menu after selecting power
+                If PlayerREF.GetEquippedSpell(2).HasKeyword(Artifact_Power)
+                    Message.ClearHelpMessages()
+                    Tutorial_StarbornPower04.ShowAsHelpMessage(asEvent="None", afDuration=0, afInterval=0, aiMaxTimes=0)
+                    RegisterForRemoteEvent(PlayerREF, "OnSpellCast")
+                EndIf
+            EndIf
+        Endif
+	EndIf
+
+    If (asMenuName== "PowersMenu")
+        if (abOpening)
+            If !GetStageDone(130)
+                Message.ClearHelpMessages()
+                Tutorial_StarbornPower03.ShowAsHelpMessage(asEvent="None", afDuration=0, afInterval=0, aiMaxTimes=0)
+                RegisterForRemoteEvent(PlayerREF, "OnItemEquipped")
+                SetStage(120)
+            EndIf
+        ElseIf !(abOpening)           
+            If !GetStageDone(130)
+                Message.ClearHelpMessages()
+                Tutorial_StarbornPower02.ShowAsHelpMessage(asEvent="None", afDuration=0, afInterval=0, aiMaxTimes=0)
+            EndIf
+        EndIf
+    EndIf
+
+    ;double-check if player has social skill and also pop the social skill menu
+    If (asMenuName== "MonocleMenu")
+        If PlayerREF.HasPerk(Skill_Diplomacy) || PlayerREF.HasPerk(Skill_Instigation) || PlayerREF.HasPerk(Skill_Intimidation) || PlayerREF.HasPerk(Skill_Manipulation)
+            if (abOpening)
+                Utility.Wait(0.1) ;wait a beat for the other message box to close
+                If Game.UsingGamepad()
+                    Tutorial_SocialSkills.Show()
+                Else
+                    Tutorial_SocialSkills_PC.Show()
+                EndIf
+                UnRegisterForMenuOpenCloseEvent("MonocleMenu")
+            EndIf
+        EndIf
+    EndIf
 EndEvent
 
 Event OnTutorialEvent(String asEventName, Message aMessage)
-  If asEventName == "Dialogue_PersuasionStart"
-    Tutorial_SpeechMSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    Self.UnregisterForTutorialEvent("Dialogue_PersuasionStart")
-  EndIf
-  If asEventName == "ShipbuilderUpgradeModeEntered"
-    Tutorial_ShipBuilderUpgrade_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    Self.UnregisterForTutorialEvent("ShipbuilderUpgradeModeEntered")
-  EndIf
-  If asEventName == "ShipbuilderModifyModeEntered"
-    If Game.UsingGamepad()
-      Tutorial_ShipBuilderModify_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    Else
-      Tutorial_ShipBuilderModify_MSGBox_PC.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    if asEventName == "Dialogue_PersuasionStart"
+        Tutorial_SpeechMSGBox.Show()
+        UnregisterForTutorialEvent("Dialogue_PersuasionStart")
     EndIf
-    Self.UnregisterForTutorialEvent("ShipbuilderModifyModeEntered")
-  EndIf
+
+    If asEventName == "ShipbuilderUpgradeModeEntered"
+        Tutorial_ShipBuilderUpgrade_MSGBox.Show()
+        UnregisterForTutorialEvent("ShipbuilderUpgradeModeEntered")
+    EndIf
+
+    If asEventName == "ShipbuilderModifyModeEntered"
+        If Game.UsingGamepad()
+            Tutorial_ShipBuilderModify_MSGBox.Show()
+        Else
+            Tutorial_ShipBuilderModify_MSGBox_PC.Show()
+        EndIf
+        UnregisterForTutorialEvent("ShipbuilderModifyModeEntered")
+    EndIf
+
 EndEvent
 
 Event ObjectReference.OnSpellCast(ObjectReference akSender, Form akSpell)
-  If akSpell.HasKeyword(Artifact_Power)
-    Actor PlayerREF = Game.GetPlayer()
-    Tutorial_StarbornPower04.UnshowAsHelpMessage()
-    Self.UnRegisterForRemoteEvent(PlayerREF as ScriptObject, "OnItemEquipped")
-    Self.UnRegisterForRemoteEvent(PlayerREF as ScriptObject, "OnSpellCast")
-    Self.UnRegisterForMenuOpenCloseEvent("PowersMenu")
-    Self.UnRegisterForMenuOpenCloseEvent("DataMenu")
-    Self.SetStage(140)
-  EndIf
+    If akSpell.HasKeyword(Artifact_Power)
+        Actor PlayerREF = Game.GetPlayer()
+        Tutorial_StarbornPower04.UnshowAsHelpMessage()
+        UnRegisterForRemoteEvent(PlayerREF, "OnItemEquipped")
+        UnRegisterForRemoteEvent(PlayerREF, "OnSpellCast")
+        UnRegisterForMenuOpenCloseEvent("PowersMenu")
+        UnRegisterForMenuOpenCloseEvent("DataMenu")
+        SetStage(140)
+    EndIf
 EndEvent
 
 Event Actor.OnItemEquipped(Actor akSender, Form akBaseObject, ObjectReference akReference)
-  Self.ProcessCompanionEMWeaponTutorial(akSender)
-  If akBaseObject.HasKeyword(Artifact_Power)
-    Tutorial_StarbornPower03.UnshowAsHelpMessage()
-    Self.SetStage(130)
-  EndIf
+    ProcessCompanionEMWeaponTutorial(akSender)
+    If akBaseObject.HasKeyword(Artifact_Power)
+        Tutorial_StarbornPower03.UnshowAsHelpMessage()
+        SetStage(130)
+    EndIf
 EndEvent
 
-Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, Bool abRemove)
-  If akSender == Companion || akSender == EliteCrew
-    Self.ProcessCompanionEMWeaponTutorial(Game.GetPlayer())
-  EndIf
-  If akSender == PlayerShip
-    Self.ShipLowHealth()
-  EndIf
+Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, bool abRemove)
+    if akSender == Companion || akSender == EliteCrew
+        ProcessCompanionEMWeaponTutorial(Game.GetPlayer())
+    endif
+
+    If akSender == PlayerShip
+        ShipLowHealth()
+    EndIf
 EndEvent
 
 Function ProcessCompanionEMWeaponTutorial(Actor akTriggeringActor)
-  If !Self.GetStageDone(CompanionEMWeapon) && akTriggeringActor == Game.GetPlayer() && UC04_WeaponIsTypeEM.IsTrue(None, None) && (Companion.GetRef() != None || EliteCrew.GetRef() != None)
-    Self.UnRegisterForRemoteEvent(akTriggeringActor as ScriptObject, "OnItemEquipped")
-    Self.UnRegisterForRemoteEvent(Companion as ScriptObject, "OnAliasChanged")
-    Self.UnRegisterForRemoteEvent(EliteCrew as ScriptObject, "OnAliasChanged")
-    Self.SetStage(CompanionEMWeapon)
-  EndIf
+    debug.trace("akTriggeringActor has an EM weapon equipped: " + UC04_WeaponIsTypeEM.IsTrue())
+    if !GetStageDone(CompanionEMWeapon) && akTriggeringActor == Game.GetPlayer() && UC04_WeaponIsTypeEM.IsTrue() && (Companion.GetRef() != none || EliteCrew.GetRef() != none)
+        UnregisterForRemoteEvent(akTriggeringActor, "OnItemEquipped")
+        UnregisterForRemoteEvent(Companion, "OnAliasChanged")
+        UnregisterForRemoteEvent(EliteCrew, "OnAliasChanged")
+        SetStage(CompanionEMWeapon)
+    endif
 EndFunction
 
 Function StartPowerTutorial()
-  Tutorial_StarbornPower01.ShowAsHelpMessage("None", 0.0, 0.0, 0, "", 0, None)
-  Self.RegisterForMenuOpenCloseEvent("DataMenu")
-  Self.RegisterForMenuOpenCloseEvent("PowersMenu")
+    Tutorial_StarbornPower01.ShowAsHelpMessage(asEvent="None", afDuration=0, afInterval=0, aiMaxTimes=0)
+    RegisterForMenuOpenCloseEvent("DataMenu")
+    RegisterForMenuOpenCloseEvent("PowersMenu")
 EndFunction
 
-Event Actor.OnPlayerFailedPlotRoute(Actor akSender, Int aeFailedPlotReason)
-  Message.ClearHelpMessages()
-  Self.RegisterForMenuOpenCloseEvent("GalaxyStarMapMenu")
-  Self.RegisterForMenuOpenCloseEvent("BSMissionMenu")
-  If aeFailedPlotReason == 1
-    Tutorial_FailedJump01.ShowAsHelpMessage("None", 30.0, 0.0, 1, "", 0, None)
-  ElseIf aeFailedPlotReason == 2
-    Tutorial_FailedJump02.ShowAsHelpMessage("None", 30.0, 0.0, 1, "", 0, None)
-  ElseIf aeFailedPlotReason == 3
-    Tutorial_FailedJump03.ShowAsHelpMessage("None", 30.0, 0.0, 1, "", 0, None)
-  EndIf
+Message Property Tutorial_FailedJump01 Mandatory Const Auto
+Message Property Tutorial_FailedJump02 Mandatory Const Auto
+Message Property Tutorial_FailedJump03 Mandatory Const Auto
+
+Event Actor.OnPlayerFailedPlotRoute(Actor akSender, int aeFailedPlotReason)
+    Message.ClearHelpMessages() ;clear any previous tutorials
+    RegisterForMenuOpenCloseEvent("GalaxyStarMapMenu") ;check if the map ever closes
+    RegisterForMenuOpenCloseEvent("BSMissionMenu") ;check if we go to mission menu
+
+    if (aeFailedPlotReason == 1)
+        ;not enough fuel
+        Tutorial_FailedJump01.ShowAsHelpMessage(asEvent="None", afDuration=30, afInterval=0, aiMaxTimes=1)
+    ElseIf (aeFailedPlotReason == 2)
+        ;out of jump range
+        Tutorial_FailedJump02.ShowAsHelpMessage(asEvent="None", afDuration=30, afInterval=0, aiMaxTimes=1)
+    ElseIf (aeFailedPlotReason == 3)
+        ;unexplored system
+        Tutorial_FailedJump03.ShowAsHelpMessage(asEvent="None", afDuration=30, afInterval=0, aiMaxTimes=1)
+    endIf
 EndEvent

@@ -1,47 +1,59 @@
-ScriptName POI027_ProbeContainerScript Extends ObjectReference
+Scriptname POI027_ProbeContainerScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property POI027_ProbeFireEffectsKeyword Auto Const
-Keyword Property POI027_WaterEffectsKeyword Auto Const
-Keyword Property POI027_CreaturesKeyword Auto Const
-Keyword Property LinkCustom01 Auto Const
-Faction Property POI027_AngryCreatureFaction Auto Const
-ActorValue Property Aggression Auto Const
-ActorValue Property POI027_ProbeEngineActive Auto Const
-
-;-- Functions ---------------------------------------
+Keyword property POI027_ProbeFireEffectsKeyword auto const
+Keyword property POI027_WaterEffectsKeyword auto const
+Keyword property POI027_CreaturesKeyword auto const
+Keyword property LinkCustom01 auto const
+Faction property POI027_AngryCreatureFaction auto const
+ActorValue property Aggression auto const
+ActorValue property POI027_ProbeEngineActive auto const
 
 Event OnLoad()
-  Self.AddInventoryEventFilter(None)
+    AddInventoryEventFilter(NONE)
 EndEvent
 
-Event OnItemRemoved(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, Int aiTransferReason)
-  ObjectReference[] probeFireEffects = Self.GetRefsLinkedToMe(POI027_ProbeFireEffectsKeyword, None)
-  Int iProbeFireEffect = 0
-  While iProbeFireEffect < probeFireEffects.Length
-    ObjectReference probeFireEffect = probeFireEffects[iProbeFireEffect]
-    probeFireEffect.Disable(False)
-    iProbeFireEffect += 1
-  EndWhile
-  ObjectReference[] waterEffects = Self.GetRefsLinkedToMe(POI027_WaterEffectsKeyword, None)
-  Int iWaterEffect = 0
-  While iWaterEffect < waterEffects.Length
-    ObjectReference waterEffect = waterEffects[iWaterEffect]
-    waterEffect.Disable(False)
-    iWaterEffect += 1
-  EndWhile
-  ObjectReference[] creatures = Self.GetRefsLinkedToMe(POI027_CreaturesKeyword, None)
-  Actor player = Game.GetPlayer()
-  Int iCreature = 0
-  While iCreature < creatures.Length
-    Actor creature = creatures[iCreature] as Actor
-    creature.SetFactionOwner(POI027_AngryCreatureFaction, False)
-    creature.SetLinkedRef(player as ObjectReference, LinkCustom01, True)
-    creature.SetValue(POI027_ProbeEngineActive, 0.0)
-    creature.SetValue(Aggression, 2.0)
-    creature.EvaluatePackage(False)
-    iCreature += 1
-  EndWhile
+Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer, int aiTransferReason)
+    ; probe fire effects
+    ObjectReference[] probeFireEffects = GetRefsLinkedToMe(POI027_ProbeFireEffectsKeyword)
+
+    int iProbeFireEffect = 0
+    while(iProbeFireEffect < probeFireEffects.length)
+        ObjectReference probeFireEffect = probeFireEffects[iProbeFireEffect]
+
+        probeFireEffect.Disable()
+
+        iProbeFireEffect += 1
+    endWhile
+
+    ; water effects
+    ObjectReference[] waterEffects = GetRefsLinkedToMe(POI027_WaterEffectsKeyword)
+
+    int iWaterEffect = 0
+    while(iWaterEffect < waterEffects.length)
+        ObjectReference waterEffect = waterEffects[iWaterEffect]
+
+        waterEffect.Disable()
+
+        iWaterEffect += 1
+    endWhile
+
+    ; creatures
+    ObjectReference[] creatures = GetRefsLinkedToMe(POI027_CreaturesKeyword)
+
+    Actor player = Game.GetPlayer()
+
+    int iCreature = 0
+    while(iCreature < creatures.length)
+        Actor creature = creatures[iCreature] as Actor
+
+        creature.SetFactionOwner(POI027_AngryCreatureFaction)
+
+        creature.SetLinkedRef(player, LinkCustom01)
+
+        creature.SetValue(POI027_ProbeEngineActive, 0)
+        creature.SetValue(Aggression, 2)
+		creature.EvaluatePackage()
+
+        iCreature += 1
+    endWhile
 EndEvent

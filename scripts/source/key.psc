@@ -1,1 +1,1 @@
-ScriptName Key Extends MiscObject Native hidden
+Scriptname Key extends MiscObject Native Hidden

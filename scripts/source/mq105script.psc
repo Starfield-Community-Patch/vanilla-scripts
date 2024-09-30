@@ -1,6 +1,3 @@
-ScriptName MQ105Script Extends Quest
+Scriptname MQ105Script extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-inputenablelayer Property MQ105EnableLayer Auto hidden
+InputEnableLayer Property MQ105EnableLayer Auto Hidden

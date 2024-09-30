@@ -1,15 +1,11 @@
-ScriptName AddFactionToPlayerOnEnter Extends ObjectReference Const
+Scriptname AddFactionToPlayerOnEnter extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Faction Property FactionToAdd Auto Const
-
-;-- Functions ---------------------------------------
+Faction property FactionToAdd auto Const
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef == Game.GetPlayer() as ObjectReference
-    Actor player = Game.GetPlayer()
-    player.AddToFaction(FactionToAdd)
-  EndIf
+    if(akActionRef == Game.GetPlayer())
+        Actor player = Game.GetPlayer()
+
+        player.AddToFaction(FactionToAdd)
+    EndIf
 EndEvent

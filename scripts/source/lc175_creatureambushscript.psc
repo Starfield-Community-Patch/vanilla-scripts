@@ -1,20 +1,17 @@
-ScriptName LC175_CreatureAmbushScript Extends ReferenceAlias
+Scriptname LC175_CreatureAmbushScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+ActorValue Property Aggression Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ActorValue Property Aggression Auto Const mandatory
-Faction Property CaptiveFaction Auto Const mandatory
-Keyword Property LC175_CreatureLinkKeyword Auto Const mandatory
+Faction Property CaptiveFaction Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+Keyword Property LC175_CreatureLinkKeyword Auto Const Mandatory
 
 Event OnOpen(ObjectReference akActionRef)
-  ObjectReference[] CagedAnimalRef = Self.GetRef().GetLinkedRefChain(LC175_CreatureLinkKeyword, 100)
-  Int I = 0
-  While I < CagedAnimalRef.Length
-    (CagedAnimalRef[I] as Actor).RemoveFromFaction(CaptiveFaction)
-    CagedAnimalRef[I].SetValue(Aggression, 1.0)
-    I += 1
-  EndWhile
-EndEvent
+    ObjectReference[] CagedAnimalRef = GetRef().GetLinkedRefChain(LC175_CreatureLinkKeyword)
+    int i = 0
+    While i < CagedAnimalRef.Length
+        (CagedAnimalRef[i] as Actor).RemoveFromFaction(CaptiveFaction)
+        CagedAnimalRef[i].SetValue(Aggression, 1)
+        i += 1
+    endWhile
+endEvent

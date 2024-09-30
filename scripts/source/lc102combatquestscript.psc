@@ -1,15 +1,10 @@
-ScriptName LC102CombatQuestScript Extends Quest
+Scriptname LC102CombatQuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Quest property targetQuest auto const mandatory
+int property stageToSet auto const mandatory
 
-;-- Properties --------------------------------------
-Quest Property targetQuest Auto Const mandatory
-Int Property stageToSet Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Function SetTargetQuestStage()
-  If !targetQuest.IsStageDone(stageToSet)
-    targetQuest.SetStage(stageToSet)
-  EndIf
-EndFunction
+function SetTargetQuestStage()
+    if(!targetQuest.IsStageDone(stageToSet))
+        targetQuest.SetStage(stageToSet)
+    endIf
+endFunction

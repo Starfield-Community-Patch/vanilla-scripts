@@ -1,2 +1,2 @@
-ScriptName DefaultRadiantQuestScript Extends Quest
-{ For common functionality between Radiant quests. }
+Scriptname DefaultRadiantQuestScript extends Quest
+{For common functionality between Radiant quests.}

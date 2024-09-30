@@ -1,40 +1,39 @@
-ScriptName DialogueFCNeonAdvertScript Extends ReferenceAlias
+Scriptname DialogueFCNeonAdvertScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard sceneGuard
-
-;-- Properties --------------------------------------
-Scene[] Property AdvertScenes Auto Const
+Scene[] Property AdvertScenes auto const
 { array of scenes we want to stop/start when the player is in Neon }
-Location Property CityNeonLocation Auto Const mandatory
+
+Location Property CityNeonLocation Auto Const Mandatory
 { autofill }
 
-;-- Functions ---------------------------------------
-
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If akOldLoc == CityNeonLocation
-    Self.UpdateScenes(False)
-  ElseIf akNewLoc == CityNeonLocation
-    Self.UpdateScenes(True)
-  EndIf
+    Debug.Trace(Self + " OnLocationChange: akOldLoc=" + akOldLoc + " akNewLoc=" + akNewLoc)
+
+    if akOldLoc == CityNeonLocation
+        ; if you leave Neon or go into a shop, stop any playing ad scenes
+        UpdateScenes(false)
+    elseif akNewLoc == CityNeonLocation
+        UpdateScenes(true)
+    EndIf
 EndEvent
 
-Function UpdateScenes(Bool bStart)
-  Guard sceneGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    Int I = 0
-    While I < AdvertScenes.Length
-      Scene theScene = AdvertScenes[I]
-      If theScene
-        If bStart
-          theScene.Start()
-        Else
-          theScene.Stop()
-        EndIf
-      EndIf
-      I += 1
-    EndWhile
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Guard sceneGuard ProtectsFunctionLogic
+
+function UpdateScenes(bool bStart)
+    LockGuard sceneGuard
+        int i = 0
+        while i < AdvertScenes.Length
+            Scene theScene = AdvertScenes[i]
+            if theScene
+                if bStart
+                    theScene.Start()
+                Else
+                    theScene.Stop()
+                EndIf
+            endif
+            i += 1
+        EndWhile
+    EndLockGuard
 EndFunction
+
+

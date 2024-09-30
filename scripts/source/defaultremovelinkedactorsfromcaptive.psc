@@ -1,29 +1,29 @@
-ScriptName DefaultRemoveLinkedActorsFromCaptive Extends ObjectReference hidden
+Scriptname DefaultRemoveLinkedActorsFromCaptive extends ObjectReference Hidden
 
-;-- Variables ---------------------------------------
+Keyword Property RemoveLinkedCaptiveKeyword Auto Const Mandatory
+Faction Property CaptiveFaction Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Keyword Property RemoveLinkedCaptiveKeyword Auto Const mandatory
-Faction Property CaptiveFaction Auto Const mandatory
+auto STATE WaitingForTrigger
 
-;-- State -------------------------------------------
-State Done
-EndState
+	Event OnTriggerEnter(ObjectReference akActionRef)
+		GoToState("Done")
+	    Actor[] CaptiveActors
 
-;-- State -------------------------------------------
-Auto State WaitingForTrigger
+	    CaptiveActors = self.GetActorsLinkedToMe( RemoveLinkedCaptiveKeyword, None )
 
-  Event OnTriggerEnter(ObjectReference akActionRef)
-    Self.GoToState("Done")
-    Actor[] CaptiveActors = None
-    CaptiveActors = Self.GetActorsLinkedToMe(RemoveLinkedCaptiveKeyword, None)
-    Int maxSize = CaptiveActors.Length
-    Int count = 0
-    While count < maxSize
-      Actor CaptiveActor = CaptiveActors[count]
-      CaptiveActor.RemoveFromFaction(CaptiveFaction)
-      CaptiveActor.EvaluatePackage(False)
-      count += 1
-    EndWhile
-  EndEvent
-EndState
+		int maxSize = CaptiveActors.Length
+		int count = 0
+		while (count < maxSize)
+			Actor CaptiveActor = CaptiveActors[count]
+			CaptiveActor.RemoveFromFaction(CaptiveFaction)
+			CaptiveActor.EvaluatePackage()
+			count += 1
+		endwhile
+	EndEvent
+
+EndSTATE
+
+
+STATE Done
+
+EndSTATE

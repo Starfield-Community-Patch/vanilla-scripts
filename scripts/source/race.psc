@@ -1,1 +1,1 @@
-ScriptName Race Extends Form Native hidden
+Scriptname Race extends Form Native Hidden

@@ -1,45 +1,78 @@
-ScriptName Fragments:Scenes:SF_MQ101_001_MiningScene_00005636_1 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ101_001_MiningScene_00005636_1 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property ElevatorStaticREF Auto Const mandatory
-ObjectReference Property VecteraMineElevator Auto Const mandatory
-ObjectReference Property VecteraElevatorButtonREF Auto Const mandatory
-ReferenceAlias Property Heller Auto Const
-ReferenceAlias Property Lin Auto Const
-Armor Property Spacesuit_Miner_Backpack Auto Const mandatory
-Armor Property Spacesuit_Miner_Helmet Auto Const mandatory
-MusicType Property MUSGenesisSpecialCardTitleOpening Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  Game.HideTitleSequenceMenu()
+;BEGIN CODE
+Game.HideTitleSequenceMenu()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_07_End
 Function Fragment_Phase_07_End()
-  (VecteraMineElevator as elevatormasterscript).ResetElevator()
-  ElevatorStaticREF.PlayAnimation("FXLightsOff")
+;BEGIN CODE
+(VecteraMineElevator as ElevatorMasterScript).ResetElevator()
+ElevatorStaticREF.PlayAnimation("FXLightsOff")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_09_Begin
 Function Fragment_Phase_09_Begin()
-  Game.ShowTitleSequenceMenu()
-  Game.StartTitleSequence("bgs_anim")
+;BEGIN CODE
+Game.ShowTitleSequenceMenu()
+Game.StartTitleSequence("bgs_anim")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_09_End
 Function Fragment_Phase_09_End()
-  Game.StartTitleSequence("game_logo_anim")
+;BEGIN CODE
+Game.StartTitleSequence("game_logo_anim")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_10_End
 Function Fragment_Phase_10_End()
-  Game.StartTitleSequence("LocationCrawl_anim")
+;BEGIN CODE
+Game.StartTitleSequence("LocationCrawl_anim")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_11_End
 Function Fragment_Phase_11_End()
-  VecteraElevatorButtonREF.Activate(Game.GetPlayer() as ObjectReference, False)
+;BEGIN CODE
+VecteraElevatorButtonREF.Activate(Game.GetPlayer())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_16_Begin
 Function Fragment_Phase_16_Begin()
-  ElevatorStaticREF.PlayAnimation("FXLightsOn")
+;BEGIN CODE
+ElevatorStaticREF.PlayAnimation("FXLightsOn")
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ObjectReference Property ElevatorStaticREF Auto Const Mandatory
+
+ObjectReference Property VecteraMineElevator Auto Const Mandatory
+
+ObjectReference Property VecteraElevatorButtonREF Auto Const Mandatory
+
+ReferenceAlias Property Heller Auto Const
+
+ReferenceAlias Property Lin Auto Const
+
+Armor Property Spacesuit_Miner_Backpack Auto Const Mandatory
+
+Armor Property Spacesuit_Miner_Helmet Auto Const Mandatory
+
+MusicType Property MUSGenesisSpecialCardTitleOpening Auto Const Mandatory

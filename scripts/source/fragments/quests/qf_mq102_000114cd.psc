@@ -1,562 +1,1034 @@
-ScriptName Fragments:Quests:QF_MQ102_000114CD Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_MQ102_000114CD Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property MQ102_020_SentinelMoara Auto Const mandatory
-ReferenceAlias Property Alias_SarahMorgan Auto Const mandatory
-Scene Property MQ102_023_ReturnLodge Auto Const mandatory
-Quest Property MQ103 Auto Const mandatory
-Quest Property MQ104 Auto Const mandatory
-Quest Property FFLodge01 Auto Const mandatory
-ReferenceAlias Property Alias_ArtifactCollection Auto Const mandatory
-Scene Property MQ102_024_AddArtifact Auto Const mandatory
-Scene Property MQ102_001_PlayerScene Auto Const mandatory
-GlobalVariable Property MQ101Debug Auto Const mandatory
-Quest Property MQ101 Auto Const mandatory
-Scene Property MQ102_002_MASTScene Auto Const mandatory
-Scene Property MQ102_012_SearchCluesScene Auto Const mandatory
-Scene Property MQ102_014_JupiterScene Auto Const mandatory
-ObjectReference Property LodgeStartMarker Auto Const mandatory
-Quest Property MQ102SpaceEncounter02a Auto Const mandatory
-Quest Property MQ102SpaceEncounter03 Auto Const mandatory
-Scene Property MQ102_033_SaturnScene Auto Const mandatory
-Scene Property MQ102_034_ApproachShipScene Auto Const mandatory
-Scene Property MQ102_037_SarahWrapUp Auto Const mandatory
-Scene Property MQ102_036_MoaraLockedUp Auto Const mandatory
-ObjectReference Property Frontier_ModularREF Auto Const mandatory
-ObjectReference Property NewAtlantisShipLandingMarker Auto Const mandatory
-Keyword Property SpaceshipEnabledLandingLink Auto Const mandatory
-Scene Property MQ102_007_SarahVenusScene Auto Const mandatory
-Quest Property UC01 Auto Const mandatory
-Quest Property SQ_Companions Auto Const mandatory
-ReferenceAlias Property Alias_FirstEncounterShip Auto Const mandatory
-ActorValue Property Aggression Auto Const mandatory
-Faction Property PlayerEnemyFaction Auto Const mandatory
-ReferenceAlias Property Alias_PlayerShip Auto Const mandatory
-ReferenceAlias Property Alias_MoaraShip Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-RefCollectionAlias Property Alias_MoaraShipEnemies Auto Const mandatory
-Quest Property MQ102xPostQuest Auto Const mandatory
-ReferenceAlias Property Alias_Moara Auto Const mandatory
-ObjectReference Property CydoniaBarSandboxMarker Auto Const mandatory
-sq_playershipscript Property SQ_PlayerShip Auto Const mandatory
-GlobalVariable Property NPCDemandMoney_Medium Auto Const mandatory
-GlobalVariable Property NPCDemandMoney_Small Auto Const mandatory
-Scene Property MQ102_035_ShipDisabledScene Auto Const mandatory
-ReferenceAlias Property Alias_MoaraShipCaptiveMarker Auto Const mandatory
-ObjectReference Property MQ102ArtifactSpawnMarker Auto Const mandatory
-ReferenceAlias Property Alias_MQ102Artifact Auto Const mandatory
-Quest Property StarbornTempleQuest Auto Const mandatory
-ReferenceAlias Property Alias_Vasco Auto Const mandatory
-Scene Property AudioLogs_MQ102_Pirate Auto Const mandatory
-GlobalVariable Property NPCDemandMoney_Large Auto Const mandatory
-Quest Property MoaraEliteCrewQuest Auto Const
-Armor Property Spacesuit_Constellation_Helmet_01 Auto Const mandatory
-Armor Property Spacesuit_Constellation_Backpack_01 Auto Const mandatory
-Armor Property Spacesuit_Constellation_01 Auto Const mandatory
-ActorValue Property SpaceshipEngineHealth Auto Const mandatory
-ActorValue Property SpaceshipShieldHealth Auto Const mandatory
-LocationAlias Property Alias_CityCydoniaLocation Auto Const mandatory
-Quest Property TestGoToSpaceQuest Auto Const mandatory
-ReferenceAlias Property Alias_MoaraShipMarker Auto Const mandatory
-ObjectReference Property ArmillaryMountSwapEnableMarker Auto Const mandatory
-Quest Property RAD02 Auto Const mandatory
-Scene Property MQ102_008_VaruunScene02_Sarah Auto Const mandatory
-Scene Property MQ102_008_VaruunScene01 Auto Const mandatory
-Faction Property MQ102VaruunFaction Auto Const mandatory
-Scene Property MQ102_012_MoaraSatelliteScene Auto Const mandatory
-ReferenceAlias Property Alias_NovaMoaraLog Auto Const mandatory
-Scene Property MQ102_014_MoonScene Auto Const mandatory
-Scene Property MQ102_015_StaryardSarahComment01 Auto Const mandatory
-Scene Property MQ102_016_StaryardSarahComment02 Auto Const mandatory
-Scene Property MQ102_016_StaryardSarahComment03 Auto Const mandatory
-Message Property Tutorial_ShipStealth_MSGBox Auto Const mandatory
-Message Property Tutorial_Docking_MSGBox Auto Const mandatory
-Message Property Tutorial_Boarding_MSGBox01 Auto Const mandatory
-Message Property Tutorial_Boarding_MSGBox01_PC Auto Const mandatory
-Message Property Tutorial_Boarding_MSGBox02 Auto Const mandatory
-Scene Property MQ102_037_Moara Auto Const mandatory
-ReferenceAlias Property Alias_MQ102ArtifactMoara Auto Const mandatory
-Message Property MQ102SarahLockInMSG Auto Const mandatory
-Message Property MQ102SarahLockInOverMSG Auto Const mandatory
-ReferenceAlias Property Alias_MoaraShipBoss Auto Const mandatory
-ReferenceAlias Property Alias_SatelliteBeacon Auto Const mandatory
-Message Property MQCompanionLockedBailoutMSG Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-wwiseevent Property QST_MQ102_Satellite_Activate_WEF Auto Const mandatory
-Scene Property FFLodge01_Stage20_Noel_TourScene Auto Const mandatory
-GlobalVariable Property MQ102_BlockNoelTour Auto Const mandatory
-Quest Property FFLodge01_Actual Auto Const mandatory
-Keyword Property CurrentInteractionLinkedRefKeyword Auto Const mandatory
-RefCollectionAlias Property DismissedCrew Auto Const
-RefCollectionAlias Property DisembarkingCrew Auto Const
-conditionform Property COM_Quest_SarahMorgan_Q01_SarahLockInCND Auto Const mandatory
-Faction Property PlayerAllyFaction Auto Const mandatory
-Keyword Property COM_PreventStoryGateScenes Auto Const mandatory
-ReferenceAlias Property Alias_MoaraShipCockpitDoor Auto Const mandatory
-Activator Property COM_MQ102_TxtReplace_QuestName_SarahMorgan Auto Const mandatory
-Scene Property MQ102_033_NeptuneScene Auto Const mandatory
-Quest Property MQ00 Auto Const mandatory
-ReferenceAlias Property PlayerShipPassengerMarker Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  MQ101Debug.SetValueInt(2)
-  MQ101.SetStage(1635)
-  MQ101.SetStage(1800)
-  MQ101.SetStage(1810)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(0)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(5)
-  (Alias_ArtifactCollection.GetRef().GetLinkedRef(None) as armillaryscript).DebugSetArtifactAdded(18)
-  Game.GetPlayer().moveto(LodgeStartMarker, 0.0, 0.0, 0.0, True, False)
-  Game.GetPlayer().additem(Credits as Form, 1000, False)
-  Self.SetStage(10)
-  Frontier_ModularREF.moveto(NewAtlantisShipLandingMarker, 0.0, 0.0, 0.0, True, False)
-  Frontier_ModularREF.setlinkedref(NewAtlantisShipLandingMarker, SpaceshipEnabledLandingLink, True)
-  Frontier_ModularREF.Enable(False)
-  SQ_PlayerShip.ResetHomeShip(Frontier_ModularREF as spaceshipreference)
-EndFunction
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+MQ101Debug.SetValueInt(2)
+MQ101.SetStage(1635)
+MQ101.SetStage(1800)
+MQ101.SetStage(1810)
 
+;setup armillary
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(0)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(5)
+(Alias_ArtifactCollection.GetRef().GetLinkedRef() as ArmillaryScript).DebugSetArtifactAdded(18)
+
+Game.GetPlayer().moveto(LodgeStartMarker)
+Game.GetPlayer().additem(credits, 1000)
+
+SetStage(10)
+
+;give player a ship
+Frontier_ModularREF.moveto(NewAtlantisShipLandingMarker)
+Frontier_ModularREF.setlinkedref(NewAtlantisShipLandingMarker, SpaceshipEnabledLandingLink)
+Frontier_ModularREF.Enable()
+SQ_PlayerShip.ResetHomeShip(Frontier_ModularREF as SpaceshipReference)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  MQ101Debug.SetValueInt(2)
-  MQ101.SetStage(1800)
-  MQ101.SetStage(1810)
-  Self.SetStage(10)
-  Self.SetStage(100)
-  Self.SetStage(200)
-  Self.SetStage(300)
-  TestGoToSpaceQuest.SetStage(10)
-  Utility.Wait(0.5)
-  Alias_SarahMorgan.GetRef().moveto(Game.GetPlayer() as ObjectReference, 0.0, -2.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+MQ101Debug.SetValueInt(2)
+MQ101.SetStage(1800)
+MQ101.SetStage(1810)
 
+SetStage(10)
+SetStage(100)
+SetStage(200)
+SetStage(300)
+
+TestGoToSpaceQuest.SetStage(10)
+Utility.Wait(0.5)
+Alias_SarahMorgan.GetRef().Moveto(Game.GetPlayer(), afYOffset=-2)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Alias_Vasco.GetActorRef().EvaluatePackage(False)
-  Self.SetActive(True)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(10)
 
+;trigger Vasco to forcegreet
+Alias_Vasco.GetActorRef().EvaluatePackage()
+
+SetActive()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0095_Item_00
 Function Fragment_Stage_0095_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  kmyQuest.ShowHelpMessage("FollowerWarn")
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.ShowHelpMessage("FollowerWarn")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0096_Item_00
 Function Fragment_Stage_0096_Item_00()
-  Message.ClearHelpMessages()
+;BEGIN CODE
+Message.ClearHelpMessages()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0097_Item_00
 Function Fragment_Stage_0097_Item_00()
-  MQCompanionLockedBailoutMSG.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Self.SetStage(96)
-EndFunction
+;BEGIN CODE
+MQCompanionLockedBailoutMSG.Show()
 
+SetStage(96)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Message.ClearHelpMessages()
-  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
-  Self.SetObjectiveCompleted(10, True)
-  Self.SetObjectiveDisplayed(20, True, False)
-  (SQ_Companions as sq_companionsscript).SetRoleActive(SarahMorganREF, True, True, 0.0, 0.0)
-  (SQ_Companions as sq_companionsscript).LockInCompanion(SarahMorganREF as companionactorscript, True, MQ102SarahLockInMSG, COM_MQ102_TxtReplace_QuestName_SarahMorgan)
-  SarahMorganREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+Message.ClearHelpMessages()
 
+Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+
+SetObjectiveCompleted(10)
+SetObjectiveDisplayed(20)
+
+(SQ_Companions as SQ_CompanionsScript).SetRoleActive(SarahMorganREF)
+(SQ_Companions as SQ_CompanionsScript).LockInCompanion(SarahMorganREF as CompanionActorScript, True, MQ102SarahLockInMSG, TextReplaceActivator = COM_MQ102_TxtReplace_QuestName_SarahMorgan)
+SarahMorganREF.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  If !UC01.GetStageDone(100)
-    MQ102_002_MASTScene.Start()
-  EndIf
+;BEGIN CODE
+if !UC01.GetStageDone(100)
+  MQ102_002_MASTScene.Start()
+endif
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0120_Item_00
 Function Fragment_Stage_0120_Item_00()
-  UC01.Start()
+;BEGIN CODE
+UC01.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(20, True)
-  Self.SetObjectiveDisplayed(30, True, False)
-  Alias_NovaMoaraLog.GetRef().Enable(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(20)
+SetObjectiveDisplayed(30)
 
+;Moara's log is available in Nova Staryard
+Alias_NovaMoaraLog.GetRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0210_Item_00
 Function Fragment_Stage_0210_Item_00()
-  Message.ClearHelpMessages()
-  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
-  Self.SetObjectiveCompleted(10, True)
-  (SQ_Companions as sq_companionsscript).SetRoleActive(SarahMorganREF, True, True, 0.0, 0.0)
-  (SQ_Companions as sq_companionsscript).LockInCompanion(SarahMorganREF as companionactorscript, True, MQ102SarahLockInMSG, COM_MQ102_TxtReplace_QuestName_SarahMorgan)
-  SarahMorganREF.EvaluatePackage(False)
-  Self.SetStage(200)
-EndFunction
+;BEGIN CODE
+Message.ClearHelpMessages()
 
+Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+
+SetObjectiveCompleted(10)
+
+(SQ_Companions as SQ_CompanionsScript).SetRoleActive(SarahMorganREF)
+(SQ_Companions as SQ_CompanionsScript).LockInCompanion(SarahMorganREF as CompanionActorScript, True, MQ102SarahLockInMSG, TextReplaceActivator = COM_MQ102_TxtReplace_QuestName_SarahMorgan)
+SarahMorganREF.EvaluatePackage()
+
+SetStage(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0275_Item_00
 Function Fragment_Stage_0275_Item_00()
-  Self.SetObjectiveDisplayed(32, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(32)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0277_Item_00
 Function Fragment_Stage_0277_Item_00()
-  Self.SetObjectiveCompleted(32, True)
+;BEGIN CODE
+SetObjectiveCompleted(32)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0285_Item_00
 Function Fragment_Stage_0285_Item_00()
-  Game.GetPlayer().removeitem(Credits as Form, NPCDemandMoney_Medium.GetValueInt(), False, None)
+;BEGIN CODE
+Game.GetPlayer().removeitem(Credits, NPCDemandMoney_Medium.GetValueInt())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0287_Item_00
 Function Fragment_Stage_0287_Item_00()
-  Game.GetPlayer().removeitem(Credits as Form, NPCDemandMoney_Small.GetValueInt(), False, None)
+;BEGIN CODE
+Game.GetPlayer().removeitem(Credits, NPCDemandMoney_Small.GetValueInt())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveDisplayed(40, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(30)
+SetObjectiveDisplayed(40)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Quest __temp = Self as Quest
-  mq102script kmyQuest = __temp as mq102script
-  kmyQuest.BlockSpaceTravel()
-  MQ102_007_SarahVenusScene.Start()
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveDisplayed(41, True, False)
-  Self.SetObjectiveDisplayed(32, False, False)
-EndFunction
+;BEGIN AUTOCAST TYPE mq102script
+Quest __temp = self as Quest
+mq102script kmyQuest = __temp as mq102script
+;END AUTOCAST
+;BEGIN CODE
+;encounter is started through Change Location event in Story Manager
 
+kmyquest.BlockSpaceTravel()
+
+;start space encounter
+;MQ102SpaceEncounter02a.Start()
+
+MQ102_007_SarahVenusScene.Start()
+
+SetObjectiveCompleted(40)
+SetObjectiveDisplayed(41)
+SetObjectiveDisplayed(32, abdisplayed=False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0405_Item_00
 Function Fragment_Stage_0405_Item_00()
-  Alias_SarahMorgan.GetRef().moveto(PlayerShipPassengerMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+;scene started, move Sarah to ship passenger marker
+Alias_SarahMorgan.GetRef().MoveTo(PlayerShipPassengerMarker.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0410_Item_00
 Function Fragment_Stage_0410_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveCompleted(41, True)
-  Self.SetObjectiveDisplayed(42, True, False)
-  Self.SetObjectiveDisplayed(43, True, False)
-  Tutorial_ShipStealth_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Utility.Wait(0.100000001)
-  kmyQuest.ShowHelpMessage("SpaceTarget")
-EndFunction
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveCompleted(40)
+SetObjectiveCompleted(41)
+SetObjectiveDisplayed(42)
+SetObjectiveDisplayed(43)
 
+Tutorial_ShipStealth_MSGBox.Show()
+Utility.Wait(0.1)
+kmyquest.ShowHelpMessage("SpaceTarget")
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0410_Item_01
 Function Fragment_Stage_0410_Item_01()
-  Quest __temp = Self as Quest
-  mq102script kmyQuest = __temp as mq102script
-  kmyQuest.UnBlockSpaceTravel()
+;BEGIN AUTOCAST TYPE mq102script
+Quest __temp = self as Quest
+mq102script kmyQuest = __temp as mq102script
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.UnBlockSpaceTravel()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0415_Item_00
 Function Fragment_Stage_0415_Item_00()
-  MQ102SpaceEncounter02a.Start()
-  Game.GetPlayer().addtoFaction(MQ102VaruunFaction)
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveCompleted(41, True)
-  Self.SetObjectiveDisplayed(42, True, False)
-EndFunction
+;BEGIN CODE
+;start space encounter
+MQ102SpaceEncounter02a.Start()
 
+;Make Varuun ships friends
+Game.GetPlayer().addtoFaction(MQ102VaruunFaction)
+
+SetObjectiveCompleted(40)
+SetObjectiveCompleted(41)
+SetObjectiveDisplayed(42)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0420_Item_00
 Function Fragment_Stage_0420_Item_00()
-  If Self.GetStageDone(415)
-    MQ102_008_VaruunScene02_Sarah.Start()
-  Else
-    MQ102_008_VaruunScene01.Start()
-  EndIf
+;BEGIN CODE
+If GetStageDone(415) ;Sarah version vs Varuun version
+  MQ102_008_VaruunScene02_Sarah.Start()
+Else
+  MQ102_008_VaruunScene01.Start()
+EndIf
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0425_Item_00
 Function Fragment_Stage_0425_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  kmyQuest.ShowHelpMessage("MQ102Satellite")
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.ShowHelpMessage("MQ102Satellite")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0430_Item_00
 Function Fragment_Stage_0430_Item_00()
-  Self.SetObjectiveDisplayed(43, False, False)
-  Game.GetPlayer().RemoveFromFaction(MQ102VaruunFaction)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(43, abdisplayed=false)
 
+Game.GetPlayer().RemoveFromFaction(MQ102VaruunFaction)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0490_Item_00
 Function Fragment_Stage_0490_Item_00()
-  ObjectReference SatelliteREF = Alias_SatelliteBeacon.GetRef()
-  SatelliteREF.BlockActivation(True, True)
-  QST_MQ102_Satellite_Activate_WEF.Play(SatelliteREF, None, None)
-  Message.ClearHelpMessages()
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveCompleted(42, True)
-  Self.SetObjectiveCompleted(44, True)
-  Self.SetObjectiveCompleted(50, True)
-  Self.SetObjectiveCompleted(55, True)
-  Self.SetObjectiveDisplayed(60, True, False)
-  Self.SetObjectiveDisplayed(43, False, False)
-  MQ102_012_MoaraSatelliteScene.Start()
-EndFunction
+;BEGIN CODE
+ObjectReference SatelliteREF = Alias_SatelliteBeacon.GetRef()
 
+SatelliteREF .BlockActivation(True, True)
+QST_MQ102_Satellite_Activate_WEF.Play(SatelliteREF)
+
+Message.ClearHelpMessages()
+
+SetObjectiveCompleted(40)
+SetObjectiveCompleted(42)
+SetObjectiveCompleted(44)
+SetObjectiveCompleted(50)
+SetObjectiveCompleted(55)
+SetObjectiveDisplayed(60)
+SetObjectiveDisplayed(43, abdisplayed=False)
+
+MQ102_012_MoaraSatelliteScene.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Quest __temp = Self as Quest
-  mq102script kmyQuest = __temp as mq102script
-  kmyQuest.BlockSpaceTravel()
-  MQ102_012_MoaraSatelliteScene.Stop()
-  MQ102_014_MoonScene.Start()
-  Self.SetObjectiveCompleted(60, True)
-  Self.SetObjectiveDisplayed(61, True, False)
-  Alias_NovaMoaraLog.GetRef().Enable(False)
-EndFunction
+;BEGIN AUTOCAST TYPE mq102script
+Quest __temp = self as Quest
+mq102script kmyQuest = __temp as mq102script
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.BlockSpaceTravel()
 
+MQ102_012_MoaraSatelliteScene.Stop()
+MQ102_014_MoonScene.Start()
+
+SetObjectiveCompleted(60)
+SetObjectiveDisplayed(61)
+
+;Moara's log is available in Nova Staryard
+Alias_NovaMoaraLog.GetRef().Enable()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0510_Item_00
 Function Fragment_Stage_0510_Item_00()
-  Quest __temp = Self as Quest
-  mq102script kmyQuest = __temp as mq102script
-  kmyQuest.UnBlockSpaceTravel()
-  Self.SetObjectiveCompleted(61, True)
-  Self.SetObjectiveDisplayed(65, True, False)
-  Tutorial_Docking_MSGBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-EndFunction
+;BEGIN AUTOCAST TYPE mq102script
+Quest __temp = self as Quest
+mq102script kmyQuest = __temp as mq102script
+;END AUTOCAST
+;BEGIN CODE
+kmyquest.UnBlockSpaceTravel()
 
+SetObjectiveCompleted(61)
+SetObjectiveDisplayed(65)
+
+Tutorial_Docking_MSGBox.Show()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0520_Item_00
 Function Fragment_Stage_0520_Item_00()
-  Self.SetObjectiveCompleted(65, True)
-  Self.SetObjectiveDisplayed(70, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(65)
+SetObjectiveDisplayed(70)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0530_Item_00
 Function Fragment_Stage_0530_Item_00()
-  Self.SetObjectiveCompleted(61, True)
-  Self.SetObjectiveCompleted(65, True)
-  Self.SetObjectiveDisplayed(70, True, False)
-  MQ102_015_StaryardSarahComment01.Start()
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(61)
+SetObjectiveCompleted(65)
+SetObjectiveDisplayed(70)
 
+MQ102_015_StaryardSarahComment01.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0540_Item_00
 Function Fragment_Stage_0540_Item_00()
-  MQ102_016_StaryardSarahComment02.Start()
+;BEGIN CODE
+MQ102_016_StaryardSarahComment02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0590_Item_00
 Function Fragment_Stage_0590_Item_00()
-  Self.SetObjectiveCompleted(61, True)
-  Self.SetObjectiveCompleted(65, True)
-  Self.SetObjectiveCompleted(70, True)
-  Self.SetObjectiveDisplayed(80, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(61)
+SetObjectiveCompleted(65)
+SetObjectiveCompleted(70)
+SetObjectiveDisplayed(80)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0595_Item_00
 Function Fragment_Stage_0595_Item_00()
-  MQ102_016_StaryardSarahComment03.Start()
+;BEGIN CODE
+MQ102_016_StaryardSarahComment03.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0600_Item_00
 Function Fragment_Stage_0600_Item_00()
-  MQ102_033_SaturnScene.Start()
-  Self.SetObjectiveDisplayed(85, False, False)
-EndFunction
+;BEGIN CODE
+;Moara encounter is started through Change Location event in Story Manager
 
+MQ102_033_SaturnScene.Start()
+
+;remove optional objective from previous
+SetObjectiveDisplayed(85, abdisplayed=false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0605_Item_00
 Function Fragment_Stage_0605_Item_00()
-  ObjectReference ShipMarkerREF = Alias_MoaraShipMarker.GetRef()
-  spaceshipreference MoaraShipREF = Alias_MoaraShip.GetShipReference()
-  MoaraShipREF.moveto(ShipMarkerREF, 0.0, 0.0, 0.0, True, False)
-  MoaraShipREF.Enable(False)
-  MoaraShipREF.DamageValue(SpaceshipEngineHealth, 2.0)
-  MoaraShipREF.EnablePartRepair(SpaceshipEngineHealth, False)
-  MoaraShipREF.DamageValue(SpaceshipShieldHealth, 3.0)
-  MoaraShipREF.EnablePartRepair(SpaceshipShieldHealth, False)
-  MoaraShipREF.SetNoBleedoutRecovery(True)
-EndFunction
+;BEGIN CODE
+;damage engines and prevent engine repair
+ObjectReference ShipMarkerREF = Alias_MoaraShipMarker.GetRef()
+SpaceshipReference MoaraShipREF = Alias_MoaraShip.GetShipReference()
 
+MoaraShipREF.Moveto(ShipMarkerREF)
+MoaraShipREF.Enable()
+
+MoaraShipRef.DamageValue(SpaceshipEngineHealth, 2)
+MoaraShipREF.EnablePartRepair(SpaceshipEngineHealth, false)
+
+;also damage shields a bit
+MoaraShipRef.DamageValue(SpaceshipShieldHealth, 3)
+MoaraShipREF.EnablePartRepair(SpaceshipShieldHealth, false)
+
+;don't allow bleedout recovery
+MoaraShipREF.SetNoBleedoutRecovery()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0607_Item_00
 Function Fragment_Stage_0607_Item_00()
-  Self.SetStage(620)
-  Self.SetStage(630)
-  MQ102_033_NeptuneScene.Stop()
-  MQ102_034_ApproachShipScene.Stop()
-EndFunction
+;BEGIN CODE
+SetStage(620)
+Setstage(630)
 
+MQ102_033_NeptuneScene.Stop()
+MQ102_034_ApproachShipScene.Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0610_Item_00
 Function Fragment_Stage_0610_Item_00()
-  Self.SetObjectiveCompleted(30, True)
-  Self.SetObjectiveCompleted(32, True)
-  Self.SetObjectiveCompleted(40, True)
-  Self.SetObjectiveCompleted(41, True)
-  Self.SetObjectiveCompleted(42, True)
-  Self.SetObjectiveDisplayed(43, False, False)
-  Self.SetObjectiveCompleted(60, True)
-  Self.SetObjectiveCompleted(61, True)
-  Self.SetObjectiveCompleted(70, True)
-  Self.SetObjectiveCompleted(80, True)
-  Self.SetObjectiveDisplayed(90, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(30)
+SetObjectiveCompleted(32)
+SetObjectiveCompleted(40)
+SetObjectiveCompleted(41)
+SetObjectiveCompleted(42)
+SetObjectiveDisplayed(43, abdisplayed=false)
+SetObjectiveCompleted(60)
+SetObjectiveCompleted(61)
+SetObjectiveCompleted(70)
+SetObjectiveCompleted(80)
+SetObjectiveDisplayed(90)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0620_Item_00
 Function Fragment_Stage_0620_Item_00()
-  Self.SetObjectiveCompleted(90, True)
-  Self.SetObjectiveDisplayed(100, True, False)
-  MQ102_034_ApproachShipScene.Start()
-  spaceshipreference MoaraShipREF = Alias_MoaraShip.GetShipReference()
-  MoaraShipREF.SetValue(Aggression, 1.0)
-  MoaraShipREF.addtoFaction(PlayerEnemyFaction)
-  MoaraShipREF.StartCombat(Alias_PlayerShip.GetShipReference(), False)
-  MoaraShipREF.EnablePartRepair(SpaceshipEngineHealth, False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(90)
+SetObjectiveDisplayed(100)
 
+MQ102_034_ApproachShipScene.Start()
+
+SpaceshipReference MoaraShipREF = Alias_MoaraShip.GetShipReference()
+
+MoaraShipREF.SetValue(Aggression, 1)
+MoaraShipREF.AddtoFaction(PlayerEnemyFaction)
+MoaraShipREF.StartCombat(Alias_PlayerShip.GetShipReference())
+;don't let the ship recover from engines disabled
+MoaraShipREF.EnablePartRepair(SpaceshipEngineHealth, false)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0630_Item_00
 Function Fragment_Stage_0630_Item_00()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+;If Game.UsingGamePad()
+;  Tutorial_Boarding_MSGBox01.Show()
+;Else
+;  Tutorial_Boarding_MSGBox01_PC.Show()
+;EndIf
+;Utility.Wait(0.1)
+;kmyquest.ShowHelpMessage("DisableEngines")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0630_Item_01
 Function Fragment_Stage_0630_Item_01()
-  Quest __temp = Self as Quest
-  defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(110, True, False)
+;BEGIN AUTOCAST TYPE defaulttutorialquestscript
+Quest __temp = self as Quest
+defaulttutorialquestscript kmyQuest = __temp as defaulttutorialquestscript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(110)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0640_Item_00
 Function Fragment_Stage_0640_Item_00()
-  Tutorial_Boarding_MSGBox02.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+;BEGIN CODE
+Tutorial_Boarding_MSGBox02.Show()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0640_Item_01
 Function Fragment_Stage_0640_Item_01()
-  Self.SetObjectiveCompleted(110, True)
-  Self.SetObjectiveDisplayed(120, True, False)
-  MQ102_034_ApproachShipScene.Stop()
-  MQ102_035_ShipDisabledScene.Start()
-  Alias_Moara.GetActorRef().moveto(Alias_MoaraShipCaptiveMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(110)
+SetObjectiveDisplayed(120)
 
+MQ102_034_ApproachShipScene.Stop()
+MQ102_035_ShipDisabledScene.Start()
+
+;move Moara to the ship
+Alias_Moara.GetActorRef().moveto(Alias_MoaraShipCaptiveMarker.GetRef())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0650_Item_00
 Function Fragment_Stage_0650_Item_00()
-  Actor MoaraREF = Alias_Moara.GetActorRef()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveCompleted(110, True)
-  Self.SetObjectiveCompleted(120, True)
-  Self.SetObjectiveDisplayed(130, True, False)
-  MQ102_035_ShipDisabledScene.Stop()
-  MoaraREF.moveto(Alias_MoaraShipCaptiveMarker.GetRef(), 0.0, 0.0, 0.0, True, False)
-  MoaraREF.SetGhost(True)
-  ObjectReference PlacementREF = Alias_MQ102ArtifactMoara.GetRef()
-  ObjectReference ArtifactREF = (StarbornTempleQuest as starborntemplequestscript).PlaceArtifact(3, PlacementREF)
-  Alias_MQ102Artifact.ForceRefTo(ArtifactREF)
-  ArtifactREF.Enable(False)
-  ArtifactREF.BlockActivation(True, True)
-EndFunction
+;BEGIN CODE
+Actor MoaraREF = Alias_Moara.GetActorRef()
 
+SetObjectiveCompleted(100)
+SetObjectiveCompleted(110)
+SetObjectiveCompleted(120)
+SetObjectiveDisplayed(130)
+
+MQ102_035_ShipDisabledScene.Stop()
+
+;make sure Moara is moved and ghosted
+MoaraREF.moveto(Alias_MoaraShipCaptiveMarker.GetRef())
+MoaraREF.SetGhost()
+
+;place the appropriate artifact
+ObjectReference PlacementREF = Alias_MQ102ArtifactMoara.GetRef()
+ObjectReference ArtifactREF = (StarbornTempleQuest as StarbornTempleQuestScript).PlaceArtifact(3, PlacementREF)
+Alias_MQ102Artifact.ForceRefTo(ArtifactREF)
+ArtifactREF.Enable()
+ArtifactREF.BlockActivation(True, True)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0652_Item_00
 Function Fragment_Stage_0652_Item_00()
-  Self.SetStage(660)
+;BEGIN CODE
+SetStage(660)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0655_Item_00
 Function Fragment_Stage_0655_Item_00()
-  ObjectReference CockpitDoorREF = Alias_MoaraShipCockpitDoor.GetRef()
-  CockpitDoorREF.SetOpen(True)
-EndFunction
+;BEGIN CODE
+ObjectReference CockpitDoorREF = Alias_MoaraShipCockpitDoor.GetRef()
 
+CockpitDoorREF.SetOpen()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0660_Item_00
 Function Fragment_Stage_0660_Item_00()
-  Self.SetObjectiveCompleted(130, True)
-  MQ102_036_MoaraLockedUp.Start()
-  Game.GetPlayer().StopCombatAlarm()
-  spaceshipreference MoaraShipREF = Alias_MoaraShip.GetShipReference()
-  MoaraShipREF.SetValue(Aggression, 0.0)
-  MoaraShipREF.addtoFaction(PlayerAllyFaction)
-  MoaraShipREF.RemoveFromFaction(PlayerEnemyFaction)
-  MoaraShipREF.SetValue(DockingPermission, 0.0)
-  MoaraShipREF.SetIgnoreFriendlyHits(True)
-  ObjectReference CockpitDoorREF = Alias_MoaraShipCockpitDoor.GetRef()
-  If Self.GetStageDone(670) || CockpitDoorREF.GetOpenState() <= 2
-    Self.SetStage(680)
-  Else
-    Self.SetObjectiveDisplayed(140, True, False)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(130)
 
+MQ102_036_MoaraLockedUp.Start()
+
+;ship is no longer hostile
+Game.GetPlayer().StopCombatAlarm()
+SpaceshipReference MoaraShipREF = Alias_MoaraShip.GetShipReference()
+MoaraShipREF.SetValue(Aggression, 0)
+MoaraShipREF.AddtoFaction(PlayerAllyFaction)
+MoaraShipREF.RemoveFromFaction(PlayerEnemyFaction)
+MoaraShipREF.SetValue(DockingPermission, 0)
+MoaraShipREF.SetIgnoreFriendlyHits(True)
+
+ObjectReference CockpitDoorREF = Alias_MoaraShipCockpitDoor.GetRef()
+
+If GetStageDone(670) || (CockPitDoorREF.GetOpenState() <= 2)
+  SetStage(680)
+Else
+  SetObjectiveDisplayed(140)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0670_Item_00
 Function Fragment_Stage_0670_Item_00()
-  Self.SetObjectiveCompleted(140, True)
-  If Self.GetStageDone(660)
-    Self.SetStage(680)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(140)
 
+If GetStageDone(660)
+  SetStage(680)
+EndIf
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0680_Item_00
 Function Fragment_Stage_0680_Item_00()
-  Self.SetObjectiveDisplayed(150, True, False)
+;BEGIN CODE
+SetObjectiveDisplayed(150)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0805_Item_00
 Function Fragment_Stage_0805_Item_00()
-  Self.SetObjectiveDisplayed(140, False, False)
-  Self.SetObjectiveDisplayed(150, True, False)
-  MQ102_037_Moara.Start()
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(140, abdisplayed=False)
+SetObjectiveDisplayed(150)
 
+MQ102_037_Moara.Start()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0810_Item_00
 Function Fragment_Stage_0810_Item_00()
-  Self.SetObjectiveCompleted(150, True)
-  Self.SetObjectiveDisplayed(155, True, False)
-  Alias_MQ102Artifact.GetRef().BlockActivation(False, False)
-  Actor MoaraREF = Alias_Moara.GetActorRef()
-  MoaraREF.SetGhost(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(150)
+SetObjectiveDisplayed(155)
 
+;player can activate Artifact
+Alias_MQ102Artifact.GetRef().BlockActivation(False, False)
+
+Actor MoaraREF = Alias_Moara.GetActorRef()
+MoaraREF.SetGhost(False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0820_Item_00
 Function Fragment_Stage_0820_Item_00()
-  Self.SetObjectiveCompleted(155, True)
-  Self.SetObjectiveDisplayed(160, True, False)
-  MQ102_037_SarahWrapUp.Start()
-  (StarbornTempleQuest as starborntemplequestscript).SetPlayerAcquiredArtifact(3)
-  ArmillaryMountSwapEnableMarker.DisableNoWait(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(155)
+SetObjectiveDisplayed(160)
 
+MQ102_037_SarahWrapUp.Start()
+
+;Set player as having acquired the Artifact
+(StarbornTempleQuest as StarbornTempleQuestScript).SetPlayerAcquiredArtifact(3)
+
+;enable activater
+ArmillaryMountSwapEnableMarker.DisableNoWait()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0830_Item_00
 Function Fragment_Stage_0830_Item_00()
-  MQ102_023_ReturnLodge.Start()
-  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
-  (SQ_Companions as sq_companionsscript).SetRoleInActive(SarahMorganREF, True, False, True)
-  DismissedCrew.RemoveRef(SarahMorganREF as ObjectReference)
-  DisembarkingCrew.RemoveRef(SarahMorganREF as ObjectReference)
-  SarahMorganREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+MQ102_023_ReturnLodge.Start()
 
+;Sarah Morgan stops following
+Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+(SQ_Companions as SQ_CompanionsScript).SetRoleInActive(SarahMorganREF)
+DismissedCrew.RemoveRef(SarahMorganRef)
+DisembarkingCrew.RemoveRef(SarahMorganRef)
+
+SarahMorganREF.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
 Function Fragment_Stage_0900_Item_00()
-  Self.SetObjectiveCompleted(160, True)
-  Self.SetObjectiveDisplayed(170, True, False)
-  MQ102_BlockNoelTour.SetValue(1.0)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(160)
+SetObjectiveDisplayed(170)
 
+;Block the tour TL until the quest's over
+MQ102_BlockNoelTour.SetValue(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  MQ102_023_ReturnLodge.Stop()
-  MQ102_024_AddArtifact.Start()
-  Self.SetObjectiveCompleted(170, True)
-  Self.SetObjectiveDisplayed(180, True, False)
-  If FFLodge01_Stage20_Noel_TourScene.IsPlaying()
-    FFLodge01_Stage20_Noel_TourScene.Stop()
-    FFLodge01_Actual.SetStage(200)
-  EndIf
-EndFunction
+;BEGIN CODE
+MQ102_023_ReturnLodge.Stop()
+MQ102_024_AddArtifact.Start()
 
+SetObjectiveCompleted(170)
+SetObjectiveDisplayed(180)
+
+;If the tour scene is actively playing, stop it and mark it completed
+if FFLodge01_Stage20_Noel_TourScene.IsPlaying()
+  FFLodge01_Stage20_Noel_TourScene.Stop()
+  FFLodge01_Actual.SetStage(200)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1010_Item_00
 Function Fragment_Stage_1010_Item_00()
-  Self.SetObjectiveCompleted(180, True)
-  Self.SetObjectiveDisplayed(190, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(180)
+SetObjectiveDisplayed(190)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1100_Item_00
 Function Fragment_Stage_1100_Item_00()
-  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
-  (SQ_Companions as sq_companionsscript).SetRoleAvailable(SarahMorganREF, True)
-  (SarahMorganREF as companionactorscript).AllowStoryGatesAndRestartTimer()
-EndFunction
+;BEGIN CODE
+Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+(SQ_Companions as SQ_CompanionsScript).SetRoleAvailable(SarahMorganREF)
 
+(SarahMorganRef as CompanionActorScript).AllowStoryGatesAndRestartTimer()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1110_Item_00
 Function Fragment_Stage_1110_Item_00()
-  Self.SetStage(1100)
+;BEGIN CODE
+SetStage(1100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1120_Item_00
 Function Fragment_Stage_1120_Item_00()
-  Self.SetStage(1100)
-  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
-  (SQ_Companions as sq_companionsscript).SetRoleActive(SarahMorganREF, True, True, 0.0, 0.0)
-  SarahMorganREF.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetStage(1100)
 
+;Sarah resumes following
+Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+(SQ_Companions as SQ_CompanionsScript).SetRoleActive(SarahMorganREF)
+SarahMorganREF.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_1150_Item_00
 Function Fragment_Stage_1150_Item_00()
-  Self.CompleteAllObjectives()
-  MQ103.SetStageNoWait(10)
-  MQ104.SetStageNoWait(10)
-  FFLodge01.SetStageNoWait(10)
-  MQ102xPostQuest.Start()
-  RAD02.SetStageNoWait(5)
-  Self.Stop()
-EndFunction
+;BEGIN CODE
+CompleteAllObjectives()
 
-Function Fragment_Stage_2000_Item_00()
-  Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
-  If COM_Quest_SarahMorgan_Q01_SarahLockInCND.IsTrue(SarahMorganREF as ObjectReference, None)
-    
-  Else
-    (SQ_Companions as sq_companionsscript).LockInCompanion(SarahMorganREF as companionactorscript, False, MQ102SarahLockInOverMSG, None)
-  EndIf
-  Self.SetStage(1130)
-  MQ102SpaceEncounter02a.Stop()
-  MQ102SpaceEncounter03.Stop()
-  Game.GetPlayer().RemoveFromFaction(MQ102VaruunFaction)
-  Actor MoaraREF = Alias_Moara.GetActorRef()
-  MoaraREF.moveto(CydoniaBarSandboxMarker, 0.0, 0.0, 0.0, True, False)
-  MoaraREF.EvaluatePackage(False)
-  MoaraREF.SetGhost(False)
-  MoaraEliteCrewQuest.SetStage(1)
-  MQ102_BlockNoelTour.SetValue(0.0)
-  (MQ00 as mq00questscript).StartMQ104AFailsafeTimer()
-  (MQ00 as mq00questscript).StartMQ104BFailsafeTimer()
+;start other quests
+MQ103.SetStageNoWait(10)
+MQ104.SetStageNoWait(10)
+FFLodge01.SetStageNoWait(10)
+MQ102xPostQuest.Start()
+Rad02.SetStageNoWait(5)
+
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_2000_Item_00
+Function Fragment_Stage_2000_Item_00()
+;BEGIN CODE
+;Sarah no longer locked in as follower
+;only release lock if her companion quest doesn't have her locked as well
+Actor SarahMorganREF = Alias_SarahMorgan.GetActorRef()
+If COM_Quest_SarahMorgan_Q01_SarahLockInCND.IsTrue(SarahMorganREF)
+  ;do nothing
+Else
+  (SQ_Companions as SQ_CompanionsScript).LockInCompanion(SarahMorganREF as CompanionActorScript, False, MQ102SarahLockInOverMSG)
+EndIf
+
+;top levels on sarah should be available
+SetStage(1130)
+
+;shut down all space encounters
+MQ102SpaceEncounter02a.Stop()
+MQ102SpaceEncounter03.Stop()
+
+;remove player from any temp factions
+Game.GetPlayer().RemoveFromFaction(MQ102VaruunFaction)
+
+;move Moara
+Actor MoaraREF = Alias_Moara.GetActorRef()
+MoaraREF.moveto(CydoniaBarSandboxMarker)
+MoaraREF.EvaluatePackage()
+MoaraREF.SetGhost(False)
+MoaraEliteCrewQuest.SetStage(1)
+
+;Unblock Moara's tour TL
+MQ102_BlockNoelTour.SetValue(0)
+
+;quest failsafe timers
+(MQ00 as MQ00QuestScript).StartMQ104AFailsafeTimer()
+(MQ00 as MQ00QuestScript).StartMQ104BFailsafeTimer()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property MQ102_020_SentinelMoara Auto Const Mandatory
+
+ReferenceAlias Property Alias_SarahMorgan Auto Const Mandatory
+
+Scene Property MQ102_023_ReturnLodge Auto Const Mandatory
+
+Quest Property MQ103 Auto Const Mandatory
+
+Quest Property MQ104 Auto Const Mandatory
+
+Quest Property FFLodge01 Auto Const Mandatory
+
+ReferenceAlias Property Alias_ArtifactCollection Auto Const Mandatory
+
+Scene Property MQ102_024_AddArtifact Auto Const Mandatory
+
+Scene Property MQ102_001_PlayerScene Auto Const Mandatory
+
+GlobalVariable Property MQ101Debug Auto Const Mandatory
+
+Quest Property MQ101 Auto Const Mandatory
+
+Scene Property MQ102_002_MASTScene Auto Const Mandatory
+
+Scene Property MQ102_012_SearchCluesScene Auto Const Mandatory
+
+Scene Property MQ102_014_JupiterScene Auto Const Mandatory
+
+ObjectReference Property LodgeStartMarker Auto Const Mandatory
+
+Quest Property MQ102SpaceEncounter02a Auto Const Mandatory
+
+Quest Property MQ102SpaceEncounter03 Auto Const Mandatory
+
+Scene Property MQ102_033_SaturnScene Auto Const Mandatory
+
+Scene Property MQ102_034_ApproachShipScene Auto Const Mandatory
+
+Scene Property MQ102_037_SarahWrapUp Auto Const Mandatory
+
+Scene Property MQ102_036_MoaraLockedUp Auto Const Mandatory
+
+ObjectReference Property Frontier_ModularREF Auto Const Mandatory
+
+ObjectReference Property NewAtlantisShipLandingMarker Auto Const Mandatory
+
+Keyword Property SpaceshipEnabledLandingLink Auto Const Mandatory
+
+Scene Property MQ102_007_SarahVenusScene Auto Const Mandatory
+
+Quest Property UC01 Auto Const Mandatory
+
+Quest Property SQ_Companions Auto Const Mandatory
+
+ReferenceAlias Property Alias_FirstEncounterShip Auto Const Mandatory
+
+ActorValue Property Aggression Auto Const Mandatory
+
+Faction Property PlayerEnemyFaction Auto Const Mandatory
+
+ReferenceAlias Property Alias_PlayerShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_MoaraShip Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+RefCollectionAlias Property Alias_MoaraShipEnemies Auto Const Mandatory
+
+Quest Property MQ102xPostQuest Auto Const Mandatory
+
+ReferenceAlias Property Alias_Moara Auto Const Mandatory
+
+ObjectReference Property CydoniaBarSandboxMarker Auto Const Mandatory
+
+SQ_PlayerShipScript Property SQ_PlayerShip Auto Const Mandatory
+
+
+GlobalVariable Property NPCDemandMoney_Medium Auto Const Mandatory
+
+GlobalVariable Property NPCDemandMoney_Small Auto Const Mandatory
+
+Scene Property MQ102_035_ShipDisabledScene Auto Const Mandatory
+
+ReferenceAlias Property Alias_MoaraShipCaptiveMarker Auto Const Mandatory
+
+ObjectReference Property MQ102ArtifactSpawnMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_MQ102Artifact Auto Const Mandatory
+
+Quest Property StarbornTempleQuest Auto Const Mandatory
+
+ReferenceAlias Property Alias_Vasco Auto Const Mandatory
+
+Scene Property AudioLogs_MQ102_Pirate Auto Const Mandatory
+
+GlobalVariable Property NPCDemandMoney_Large Auto Const Mandatory
+
+Quest Property MoaraEliteCrewQuest Auto Const
+
+Armor Property Spacesuit_Constellation_Helmet_01 Auto Const Mandatory
+
+Armor Property Spacesuit_Constellation_Backpack_01 Auto Const Mandatory
+
+Armor Property Spacesuit_Constellation_01 Auto Const Mandatory
+
+ActorValue Property SpaceshipEngineHealth Auto Const Mandatory
+
+ActorValue Property SpaceshipShieldHealth Auto Const Mandatory
+
+LocationAlias Property Alias_CityCydoniaLocation Auto Const Mandatory
+
+Quest Property TestGoToSpaceQuest Auto Const Mandatory
+
+ReferenceAlias Property Alias_MoaraShipMarker Auto Const Mandatory
+
+ObjectReference Property ArmillaryMountSwapEnableMarker Auto Const Mandatory
+
+Quest Property RAD02 Auto Const Mandatory
+
+Scene Property MQ102_008_VaruunScene02_Sarah Auto Const Mandatory
+
+Scene Property MQ102_008_VaruunScene01 Auto Const Mandatory
+
+Faction Property MQ102VaruunFaction Auto Const Mandatory
+
+Scene Property MQ102_012_MoaraSatelliteScene Auto Const Mandatory
+
+ReferenceAlias Property Alias_NovaMoaraLog Auto Const Mandatory
+
+Scene Property MQ102_014_MoonScene Auto Const Mandatory
+
+Scene Property MQ102_015_StaryardSarahComment01 Auto Const Mandatory
+
+Scene Property MQ102_016_StaryardSarahComment02 Auto Const Mandatory
+
+Scene Property MQ102_016_StaryardSarahComment03 Auto Const Mandatory
+
+Message Property Tutorial_ShipStealth_MSGBox Auto Const Mandatory
+
+Message Property Tutorial_Docking_MSGBox Auto Const Mandatory
+
+Message Property Tutorial_Boarding_MSGBox01 Auto Const Mandatory
+
+Message Property Tutorial_Boarding_MSGBox01_PC Auto Const Mandatory
+
+Message Property Tutorial_Boarding_MSGBox02 Auto Const Mandatory
+
+Scene Property MQ102_037_Moara Auto Const Mandatory
+
+ReferenceAlias Property Alias_MQ102ArtifactMoara Auto Const Mandatory
+
+Message Property MQ102SarahLockInMSG Auto Const Mandatory
+
+Message Property MQ102SarahLockInOverMSG Auto Const Mandatory
+
+ReferenceAlias Property Alias_MoaraShipBoss Auto Const Mandatory
+
+ReferenceAlias Property Alias_SatelliteBeacon Auto Const Mandatory
+
+Message Property MQCompanionLockedBailoutMSG Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+WwiseEvent Property QST_MQ102_Satellite_Activate_WEF Auto Const Mandatory
+
+Scene Property FFLodge01_Stage20_Noel_TourScene Auto Const Mandatory
+
+GlobalVariable Property MQ102_BlockNoelTour Auto Const Mandatory
+
+Quest Property FFLodge01_Actual Auto Const Mandatory
+
+Keyword Property CurrentInteractionLinkedRefKeyword Auto Const Mandatory
+
+RefCollectionAlias Property DismissedCrew Auto Const
+
+RefCollectionAlias Property DisembarkingCrew Auto Const
+
+ConditionForm Property COM_Quest_SarahMorgan_Q01_SarahLockInCND Auto Const Mandatory
+
+Faction Property PlayerAllyFaction Auto Const Mandatory
+
+Keyword Property COM_PreventStoryGateScenes Auto Const Mandatory
+
+ReferenceAlias Property Alias_MoaraShipCockpitDoor Auto Const Mandatory
+
+Activator Property COM_MQ102_TxtReplace_QuestName_SarahMorgan Auto Const Mandatory
+
+Scene Property MQ102_033_NeptuneScene Auto Const Mandatory
+
+Quest Property MQ00 Auto Const Mandatory
+
+ReferenceAlias Property PlayerShipPassengerMarker Auto Const

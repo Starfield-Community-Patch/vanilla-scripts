@@ -1,22 +1,34 @@
-ScriptName Fragments:Quests:QF_SE_Player_FAB22_000448C0 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_FAB22_000448C0 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property HailTemplate_100a_Hailing Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-ReferenceAlias Property Alias_StroudEklund Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Utility.wait(6.0)
-  HailTemplate_100a_Hailing.Start()
+;BEGIN CODE
+; Start the hailing scene
+Utility.wait(6)
+HailTemplate_100a_Hailing.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  spaceshipreference oTarg = Alias_HailingShip.GetRef() as spaceshipreference
-  oTarg.DisableWithGravJump()
-  oTarg = Alias_StroudEklund.GetRef() as spaceshipreference
-  oTarg.DisableWithGravJump()
+;BEGIN CODE
+; When the hailing ship reaches its orbit destination (currently CenterMarker)
+; it fast travels away.
+SpaceshipReference oTarg = Alias_HailingShip.GetRef() as SpaceshipReference 
+oTarg.DisableWithGravJump()
+
+oTarg = Alias_StroudEklund.GetRef() as SpaceshipReference 
+oTarg.DisableWithGravJump()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property HailTemplate_100a_Hailing Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+ReferenceAlias Property Alias_StroudEklund Auto Const Mandatory

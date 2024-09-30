@@ -1,160 +1,182 @@
-ScriptName LC107CredTankSystemRefScript Extends ObjectReference
-{ Script for refs in the LC107 CredTank System.
+Scriptname LC107CredTankSystemRefScript extends ObjectReference
+{Script for refs in the LC107 CredTank System.
  - This script is used for the refs that manage groups of shelves (the Vault, Group, and Cluter managers).
- - This is also the parent script of LC107CredTankShelfRefScript, wich manages the shelves themselves. }
+ - This is also the parent script of LC107CredTankShelfRefScript, wich manages the shelves themselves.}
 
-;-- Variables ---------------------------------------
-Int CONST_ChildPattern_Linked = -2 Const
-Int CONST_ChildPattern_Reversed = -3 Const
-Int CONST_ChildPattern_Simultaneous = -1 Const
-Int CONST_RefType_ClusterManager = 1 Const
-Int CONST_RefType_GroupManager = 2 Const
-Int CONST_RefType_ShelfManager = 0 Const
-Int CONST_RefType_VaultManager = 3 Const
-Int CONST_ShutdownTanksPerThread = 50 Const
-Int myChildPattern
-lc107credtanksystemrefscript[] myShutdownChildObjects
-Int myShutdownCount
+Group CredTankSystemBaseProperties CollapsedOnRef
+	int property CredTankSystemRefType Auto Const
+	{The type of ref this script is on, from the list of CONST_RefTypes below. Where this script is in the hierarchy of objects in the Vault.}
 
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard UpdateGuard
-
-;-- Properties --------------------------------------
-Group CredTankSystemBaseProperties collapsedonref
-  Int Property CredTankSystemRefType Auto Const
-  { The type of ref this script is on, from the list of CONST_RefTypes below. Where this script is in the hierarchy of objects in the Vault. }
-  Keyword Property ChildObjectKeyword Auto Const
-  { Keyword for the linkedref connecting this ref to its child objects. }
+	Keyword property ChildObjectKeyword Auto Const
+	{Keyword for the linkedref connecting this ref to its child objects.}
 EndGroup
 
 Group AutofillProperties
-  lc107questscript Property LC107 Auto Const mandatory
+	LC107QuestScript property LC107 Auto Const Mandatory
 EndGroup
 
-LC107CredTankSystemRefScript Property parentRef Auto hidden
-Int Property myOperation Auto hidden
-Int Property CONST_Operation_Initialize = 1 Auto Const hidden
-Int Property CONST_Operation_Waiting = 2 Auto Const hidden
-Int Property CONST_Operation_Responsive = 3 Auto Const hidden
-Int Property CONST_Operation_Boot = 4 Auto Const hidden
-Int Property CONST_Operation_Drain = 5 Auto Const hidden
-Int Property CONST_Operation_Shutdown = 6 Auto Const hidden
 
-;-- Functions ---------------------------------------
+;Local Variables
+LC107CredTankSystemRefScript property parentRef Auto Hidden
+int property myOperation Auto Hidden
+int myChildPattern
+int myShutdownCount
+LC107CredTankSystemRefScript[] myShutdownChildObjects
+
+;Local Consts
+int CONST_RefType_VaultManager = 3 Const
+int CONST_RefType_GroupManager = 2 Const
+int CONST_RefType_ClusterManager = 1 Const
+int CONST_RefType_ShelfManager = 0 Const
+
+int CONST_ChildPattern_Simultaneous = -1 Const
+int CONST_ChildPattern_Linked = -2 Const
+int CONST_ChildPattern_Reversed = -3 Const
+
+int CONST_ShutdownTanksPerThread = 50 Const
+
+int property CONST_Operation_Initialize = 1 Auto Hidden Const
+int property CONST_Operation_Waiting = 2 Auto Hidden Const
+int property CONST_Operation_Responsive = 3 Auto Hidden Const
+int property CONST_Operation_Boot = 4 Auto Hidden Const
+int property CONST_Operation_Drain = 5 Auto Hidden Const
+int property CONST_Operation_Shutdown = 6 Auto Hidden Const
+
+
+;Custom Events
+CustomEvent SimultaneousUpdateEvent
+
+;Guards
+Guard UpdateGuard ProtectsFunctionLogic
+
+
+
+;---------------------------
 
 Function PerformInitialRegistration(LC107CredTankSystemRefScript myParentObject)
-  parentRef = myParentObject
-  If parentRef != None
-    Self.RegisterForCustomEvent(parentRef as ScriptObject, "lc107credtanksystemrefscript_SimultaneousUpdateEvent")
-  EndIf
-  If CredTankSystemRefType != CONST_RefType_ShelfManager
-    lc107credtanksystemrefscript[] childObjects = Self.GetLinkedRefChain(ChildObjectKeyword, 100) as lc107credtanksystemrefscript[]
-    If childObjects != None
-      Int I = 0
-      While I < childObjects.Length
-        childObjects[I].PerformInitialRegistration(Self)
-        I += 1
-      EndWhile
-    EndIf
-  EndIf
+	parentRef = myParentObject
+	if (parentRef != None)
+		RegisterForCustomEvent(parentRef, "SimultaneousUpdateEvent")
+	EndIf
+	if (CredTankSystemRefType != CONST_RefType_ShelfManager)
+		LC107CredTankSystemRefScript[] childObjects = GetLinkedRefChain(ChildObjectKeyword) as LC107CredTankSystemRefScript[]
+		if (childObjects != None)
+			int i = 0
+			While (i < childObjects.Length)
+				childObjects[i].PerformInitialRegistration(Self)
+				i = i + 1
+			EndWhile
+		EndIf
+	EndIf
 EndFunction
 
-Function PerformOperation(Int myNewOperation)
-  Guard UpdateGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    myOperation = myNewOperation
-    lc107credtanksystemrefscript[] childObjects = Self.GetLinkedRefChain(ChildObjectKeyword, 100) as lc107credtanksystemrefscript[]
-    If childObjects != None
-      If myOperation == CONST_Operation_Initialize
-        If CredTankSystemRefType == CONST_RefType_VaultManager
-          myChildPattern = CONST_ChildPattern_Simultaneous
-        ElseIf CredTankSystemRefType == CONST_RefType_GroupManager
-          myChildPattern = CONST_ChildPattern_Simultaneous
-        ElseIf CredTankSystemRefType == CONST_RefType_ClusterManager
-          myChildPattern = CONST_ChildPattern_Linked
-        EndIf
-      ElseIf myOperation == CONST_Operation_Boot
-        If CredTankSystemRefType == CONST_RefType_VaultManager
-          myChildPattern = CONST_ChildPattern_Linked
-        ElseIf CredTankSystemRefType == CONST_RefType_GroupManager
-          myChildPattern = CONST_ChildPattern_Simultaneous
-        ElseIf CredTankSystemRefType == CONST_RefType_ClusterManager
-          myChildPattern = CONST_ChildPattern_Linked
-        EndIf
-      ElseIf myOperation == CONST_Operation_Drain
-        If CredTankSystemRefType == CONST_RefType_VaultManager
-          myChildPattern = CONST_ChildPattern_Linked
-        ElseIf CredTankSystemRefType == CONST_RefType_GroupManager
-          myChildPattern = CONST_ChildPattern_Simultaneous
-        ElseIf CredTankSystemRefType == CONST_RefType_ClusterManager
-          myChildPattern = CONST_ChildPattern_Reversed
-        EndIf
-      ElseIf myOperation == CONST_Operation_Shutdown
-        If CredTankSystemRefType == CONST_RefType_VaultManager
-          myChildPattern = CONST_ChildPattern_Simultaneous
-        ElseIf CredTankSystemRefType == CONST_RefType_GroupManager
-          myChildPattern = CONST_ChildPattern_Linked
-        ElseIf CredTankSystemRefType == CONST_RefType_ClusterManager
-          myChildPattern = CONST_ChildPattern_Linked
-        EndIf
-      EndIf
-      If myChildPattern == CONST_ChildPattern_Linked && myOperation == CONST_Operation_Shutdown && childObjects.Length > CONST_ShutdownTanksPerThread
-        myShutdownChildObjects = childObjects
-        myShutdownCount = myShutdownChildObjects.Length / CONST_ShutdownTanksPerThread + 1
-        Int I = 0
-        While I < myShutdownCount
-          Var[] akArgs = new Var[1]
-          akArgs[0] = I as Var
-          Self.CallFunctionNoWait("PerformShutdownOperationThreaded", akArgs)
-          I += 1
-        EndWhile
-      ElseIf myChildPattern == CONST_ChildPattern_Linked
-        Int i = 0
-        While i < childObjects.Length
-          LC107CredTankSystemRefScript currentRef = childObjects[i]
-          currentRef.PerformOperation(myOperation)
-          If myOperation == CONST_Operation_Boot && CredTankSystemRefType == CONST_RefType_VaultManager
-            Utility.Wait(1.5)
-          ElseIf myOperation == CONST_Operation_Drain && CredTankSystemRefType == CONST_RefType_VaultManager
-            Utility.Wait(1.5)
-          ElseIf myOperation == CONST_Operation_Drain && CredTankSystemRefType == CONST_RefType_ClusterManager
-            Utility.Wait(0.400000006)
-          EndIf
-          i += 1
-        EndWhile
-      ElseIf myChildPattern == CONST_ChildPattern_Reversed
-        Int i = childObjects.Length - 1
-        While i >= 0
-          LC107CredTankSystemRefScript currentref = childObjects[i]
-          currentref.PerformOperation(myOperation)
-          If myOperation == CONST_Operation_Boot && CredTankSystemRefType == CONST_RefType_ClusterManager
-            Utility.Wait(0.100000001)
-          ElseIf myOperation == CONST_Operation_Drain && CredTankSystemRefType == CONST_RefType_ClusterManager
-            Utility.Wait(0.300000012)
-          EndIf
-          i -= 1
-        EndWhile
-      ElseIf myChildPattern == CONST_ChildPattern_Simultaneous
-        Var[] akargs = new Var[1]
-        akargs[0] = myOperation as Var
-        Self.SendCustomEvent("lc107credtanksystemrefscript_SimultaneousUpdateEvent", akargs)
-      EndIf
-    EndIf
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+
+Function PerformOperation(int myNewOperation)
+	LockGuard(UpdateGuard)
+
+		myOperation = myNewOperation
+		LC107CredTankSystemRefScript[] childObjects = GetLinkedRefChain(ChildObjectKeyword) as LC107CredTankSystemRefScript[]
+
+		if (childObjects != None)
+			if (myOperation == CONST_Operation_Initialize)
+				if (CredTankSystemRefType == CONST_RefType_VaultManager)
+					myChildPattern = CONST_ChildPattern_Simultaneous
+				ElseIf (CredTankSystemRefType == CONST_RefType_GroupManager)
+					myChildPattern = CONST_ChildPattern_Simultaneous
+				ElseIf (CredTankSystemRefType == CONST_RefType_ClusterManager)
+					myChildPattern = CONST_ChildPattern_Linked
+				EndIf
+			ElseIf (myOperation == CONST_Operation_Boot)
+				if (CredTankSystemRefType == CONST_RefType_VaultManager)
+					myChildPattern = CONST_ChildPattern_Linked
+				ElseIf (CredTankSystemRefType == CONST_RefType_GroupManager)
+					myChildPattern = CONST_ChildPattern_Simultaneous
+				ElseIf (CredTankSystemRefType == CONST_RefType_ClusterManager)
+					myChildPattern = CONST_ChildPattern_Linked
+				EndIf
+			ElseIf (myOperation == CONST_Operation_Drain)
+				if (CredTankSystemRefType == CONST_RefType_VaultManager)
+					myChildPattern = CONST_ChildPattern_Linked
+				ElseIf (CredTankSystemRefType == CONST_RefType_GroupManager)
+					myChildPattern = CONST_ChildPattern_Simultaneous
+				ElseIf (CredTankSystemRefType == CONST_RefType_ClusterManager)
+					myChildPattern = CONST_ChildPattern_Reversed
+				EndIf
+			ElseIf (myOperation == CONST_Operation_Shutdown)
+				if (CredTankSystemRefType == CONST_RefType_VaultManager)
+					myChildPattern = CONST_ChildPattern_Simultaneous
+				ElseIf (CredTankSystemRefType == CONST_RefType_GroupManager)
+					myChildPattern = CONST_ChildPattern_Linked
+				ElseIf (CredTankSystemRefType == CONST_RefType_ClusterManager)
+					myChildPattern = CONST_ChildPattern_Linked
+				EndIf
+			EndIf
+
+			if ((myChildPattern == CONST_ChildPattern_Linked) && (myOperation == CONST_Operation_Shutdown) && (childObjects.Length > CONST_ShutdownTanksPerThread))
+				myShutdownChildObjects = childObjects
+				myShutdownCount = (myShutdownChildObjects.Length / CONST_ShutdownTanksPerThread) + 1
+				int i = 0
+				While (i < myShutdownCount)
+					Var[] akArgs = new Var[1]
+					akArgs[0] = i
+					CallFunctionNoWait("PerformShutdownOperationThreaded", akArgs)
+					i = i + 1
+				EndWhile
+			ElseIf (myChildPattern == CONST_ChildPattern_Linked)
+				int i = 0
+				While (i < childObjects.Length)
+					LC107CredTankSystemRefScript currentRef = childObjects[i]
+					currentRef.PerformOperation(myOperation)
+					if ((myOperation == CONST_Operation_Boot) && (CredTankSystemRefType == CONST_RefType_VaultManager))
+						Utility.Wait(1.5)
+					ElseIf ((myOperation == CONST_Operation_Drain) && (CredTankSystemRefType == CONST_RefType_VaultManager))
+						Utility.Wait(1.5)
+					ElseIf ((myOperation == CONST_Operation_Drain) && (CredTankSystemRefType == CONST_RefType_ClusterManager))
+						Utility.Wait(0.4)
+					EndIf
+					i = i + 1
+				EndWhile
+			ElseIf (myChildPattern == CONST_ChildPattern_Reversed)
+				int i = childObjects.Length-1
+				While (i >= 0)
+					LC107CredTankSystemRefScript currentRef = childObjects[i]
+					currentRef.PerformOperation(myOperation)
+					if ((myOperation == CONST_Operation_Boot) && (CredTankSystemRefType == CONST_RefType_ClusterManager))
+						Utility.Wait(0.1)
+					ElseIf ((myOperation == CONST_Operation_Drain) && (CredTankSystemRefType == CONST_RefType_ClusterManager))
+						Utility.Wait(0.3)
+					EndIf
+					i = i - 1
+				EndWhile
+			ElseIf (myChildPattern == CONST_ChildPattern_Simultaneous)
+				Var[] akArgs = new Var[1]
+				akArgs[0] = myOperation
+				SendCustomEvent("SimultaneousUpdateEvent", akArgs)
+			EndIf
+		EndIf
+	EndLockGuard
+	;if ((myChildPattern == CONST_ChildPattern_Linked) && (myOperation == CONST_Operation_Shutdown))
+	;	While (myShutdownCount > 0)
+	;		Utility.Wait(0.5)
+	;	EndWhile
+	;EndIf
 EndFunction
 
-Function PerformShutdownOperationThreaded(Int threadNum)
-  Int I = threadNum * CONST_ShutdownTanksPerThread
-  Int endIndex = Math.Min((I + CONST_ShutdownTanksPerThread) as Float, myShutdownChildObjects.Length as Float) as Int
-  While I < endIndex
-    myShutdownChildObjects[I].PerformOperation(myOperation)
-    I += 1
-  EndWhile
-  Guard UpdateGuard ;*** WARNING: Experimental syntax, may be incorrect: Guard 
-    myShutdownCount -= 1
-  EndGuard ;*** WARNING: Experimental syntax, may be incorrect: EndGuard 
+Function PerformShutdownOperationThreaded(int threadNum)
+	int i = threadNum * CONST_ShutdownTanksPerThread
+	int endIndex = Math.Min(i + CONST_ShutdownTanksPerThread, myShutdownChildObjects.Length) as int
+	While (i < endIndex)
+		 myShutdownChildObjects[i].PerformOperation(myOperation)
+		 i = i + 1
+	EndWhile
+	LockGuard(UpdateGuard)
+		myShutdownCount = myShutdownCount - 1
+	EndLockGuard
 EndFunction
 
+
+;When a CredTankSystemRef wants to update all of its children simultaneously, it fires a SimultaneousUpdateEvent.
+;Each child can then update itself accordingly.
 Event LC107CredTankSystemRefScript.SimultaneousUpdateEvent(LC107CredTankSystemRefScript source, Var[] akArgs)
-  Self.PerformOperation(akArgs[0] as Int)
+	PerformOperation(akArgs[0] as int)
 EndEvent

@@ -1,28 +1,27 @@
-ScriptName RL040RadioOnHitScript Extends ObjectReference Const
+Scriptname RL040RadioOnHitScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ObjectReference Property myEnableMarker Mandatory Const Auto
+ObjectReference Property PirateSceneTrigger Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ObjectReference Property myEnableMarker Auto Const mandatory
-ObjectReference Property PirateSceneTrigger Auto Const mandatory
-wwiseevent Property sSparkEvent Auto Const mandatory
-Explosion Property ElectricalExplosionSmall Auto Const mandatory
-Quest Property RL040Quest Auto Const mandatory
+WwiseEvent Property sSparkEvent Mandatory Const Auto
 
-;-- Functions ---------------------------------------
+Explosion Property ElectricalExplosionSmall Mandatory Const Auto
+
+Quest Property RL040Quest Mandatory Const Auto
 
 Event OnLoad()
-  Utility.Wait(3.0)
-  Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
+    Utility.Wait(3)
+	RegisterForHitEvent(self)
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(Self as ScriptObject)
+    UnregisterForAllHitEvents(self)
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String asMaterialName)
-  sSparkEvent.Play(Self as ObjectReference, None, None)
-  PirateSceneTrigger.DisableNoWait(False)
-  myEnableMarker.EnableNoWait(False)
-  RL040Quest.SetStage(30)
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string asMaterialName)
+    ;self.PlaceAtMe(ElectricalExplosionSmall)
+    sSparkEvent.Play(self)
+    PirateSceneTrigger.DisableNoWait()
+    myEnableMarker.EnableNoWait()
+    RL040Quest.SetStage(30)
 EndEvent

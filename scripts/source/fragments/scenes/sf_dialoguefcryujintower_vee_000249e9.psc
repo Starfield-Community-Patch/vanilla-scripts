@@ -1,24 +1,32 @@
-ScriptName Fragments:Scenes:SF_DialogueFCRyujinTower_Vee_000249E9 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_DialogueFCRyujinTower_Vee_000249E9 Extends Scene Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property DR017_DataCredits Auto Const mandatory
-GlobalVariable Property DR017_DataCreditsHigh Auto Const mandatory
-GlobalVariable Property DR017_DemandedHighPrice Auto Const mandatory
-MiscObject Property Credits Auto Const mandatory
-Book Property DR017_ValuableData01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  Actor PlayerREF = Game.GetPlayer()
-  Int DataCount = PlayerREF.GetItemCount(DR017_ValuableData01 as Form)
-  Float fDemandedHighPrice = DR017_DemandedHighPrice.GetValue()
-  If fDemandedHighPrice == 1.0
-    PlayerREF.AddItem(Credits as Form, DataCount * DR017_DataCreditsHigh.GetValueInt(), False)
-  Else
-    PlayerREF.AddItem(Credits as Form, DataCount * DR017_DataCredits.GetValueInt(), False)
-  EndIf
-  PlayerREF.RemoveItem(DR017_ValuableData01 as Form, DataCount, False, None)
+;BEGIN CODE
+Actor PlayerREF = Game.GetPlayer()
+Int DataCount = PlayerRef.GetItemCount(DR017_ValuableData01)
+Float fDemandedHighPrice = DR017_DemandedHighPrice.GetValue()
+
+If fDemandedHighPrice == 1
+     PlayerREF.AddItem(Credits, (DataCount * DR017_DataCreditsHigh.GetValueInt()))
+Else
+     PlayerREF.AddItem(Credits, (DataCount * DR017_DataCredits.GetValueInt()))
+EndIf
+
+PlayerREF.RemoveItem(DR017_ValuableData01, DataCount)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property DR017_DataCredits Auto Const Mandatory
+
+GlobalVariable Property DR017_DataCreditsHigh Auto Const Mandatory
+
+GlobalVariable Property DR017_DemandedHighPrice Auto Const Mandatory
+
+MiscObject Property Credits Auto Const Mandatory
+
+Book Property DR017_ValuableData01 Auto Const Mandatory

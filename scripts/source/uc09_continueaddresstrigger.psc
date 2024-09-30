@@ -1,16 +1,11 @@
-ScriptName UC09_ContinueAddressTrigger Extends ReferenceAlias
+Scriptname UC09_ContinueAddressTrigger extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Abello Auto Const mandatory
-{ Reference alias for President Abello }
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property Abello Mandatory Const Auto
+{Reference alias for President Abello}
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference PlayerREF = Game.GetPlayer() as ObjectReference
-  If akActionRef == PlayerREF
-    Abello.GetRef().Activate(PlayerREF, False)
-  EndIf
+    ObjectReference PlayerREF = Game.GetPlayer()
+    if akActionRef == PlayerRef
+        Abello.GetRef().Activate(PlayerRef)
+    endif
 EndEvent

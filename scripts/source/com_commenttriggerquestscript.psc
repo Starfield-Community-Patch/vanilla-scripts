@@ -1,30 +1,33 @@
-ScriptName COM_CommentTriggerQuestScript Extends Quest
-{ Used to handle scene driven AffinityEvent sending initiaited by COM_CommentTriggerScript }
+Scriptname COM_CommentTriggerQuestScript extends Quest
+{Used to handle scene driven AffinityEvent sending initiaited by COM_CommentTriggerScript}
 
-;-- Variables ---------------------------------------
+Scene Property CommentScene Mandatory Const Auto
+ReferenceAlias Property Alias_Companion Mandatory Const Auto
+ReferenceAlias Property Alias_CommentTrigger Mandatory Const Auto
+ReferenceAlias Property Alias_Target Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Scene Property CommentScene Auto Const mandatory
-ReferenceAlias Property Alias_Companion Auto Const mandatory
-ReferenceAlias Property Alias_CommentTrigger Auto Const mandatory
-ReferenceAlias Property Alias_Target Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;should be called somewhere in CommentScene
 Function SendAffinityEvent()
-  companionactorscript CompanionRef = Alias_Companion.GetActorReference() as companionactorscript
-  com_commenttriggerscript CommentTriggerRef = Alias_CommentTrigger.GetReference() as com_commenttriggerscript
-  ObjectReference TargetRef = Alias_Target.GetReference()
-  If CommentTriggerRef as Bool && CompanionRef as Bool
-    CommentTriggerRef.SendAffinityEvent(CompanionRef, TargetRef)
-  EndIf
+	CompanionActorScript CompanionRef = Alias_Companion.GetActorReference() as CompanionActorScript
+	COM_CommentTriggerScript CommentTriggerRef = Alias_CommentTrigger.GetReference() as COM_CommentTriggerScript
+	ObjectReference TargetRef = Alias_Target.GetReference()
+
+	Trace(self, "SendAffinityEvent() CommentTriggerRef: " + CommentTriggerRef + ", CompanionRef: " + CompanionRef + ", TargetRef: " + TargetRef)
+
+	if CommentTriggerRef && CompanionRef
+		CommentTriggerRef.SendAffinityEvent(CompanionRef, TargetRef)
+	Else
+		Warning(self, "SendAffinityEvent() CompanionRef OR CommentTriggerRef is NONE!!! Cannot send affinity event.")
+	endif
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Companions",  string SubLogName = "CommentTrigger", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Companions",  string SubLogName = "CommentTrigger", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

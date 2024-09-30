@@ -1,12 +1,10 @@
-ScriptName TestLockLinkedRefChildrenScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestLockLinkedRefChildrenScript extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference[] linkedRefs = Self.GetRefsLinkedToMe(None, None)
-  Int I = 0
-  While I < linkedRefs.Length
-    linkedRefs[I].Lock(True, False, True)
-    I += 1
-  EndWhile
+    ObjectReference[] linkedRefs = GetRefsLinkedToMe(NONE)
+    int i = 0
+    while i < linkedRefs.Length
+        linkedRefs[i].Lock()
+        i += 1
+    endWhile
 EndEvent

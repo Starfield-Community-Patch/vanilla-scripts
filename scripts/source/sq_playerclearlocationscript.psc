@@ -1,24 +1,22 @@
-ScriptName SQ_PlayerClearLocationScript Extends Quest
+Scriptname SQ_PlayerClearLocationScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property SQ_ClearedLocationCount Auto Const mandatory
+GlobalVariable property SQ_ClearedLocationCount auto const mandatory
 { count how many locations the player has cleared }
-Keyword[] Property KeywordsToCheck Auto Const
+
+Keyword[] property KeywordsToCheck auto Const
 { dungeon will be counted if it has any of these keywords }
 
-;-- Functions ---------------------------------------
-
 Event OnStoryExploredLocation(Location akOldLocation)
-  Int I = 0
-  Bool locationCounts = False
-  While I < KeywordsToCheck.Length && locationCounts == False
-    locationCounts = akOldLocation.HasKeyword(KeywordsToCheck[I])
-    I += 1
-  EndWhile
-  If locationCounts
-    SQ_ClearedLocationCount.Mod(1.0)
-  EndIf
-  Self.Stop()
+    debug.trace(self + " OnStoryExploredLocation " + akOldLocation)
+    int i = 0
+    bool locationCounts = false
+    while i < KeywordsToCheck.Length && locationCounts == false
+        locationCounts = akOldLocation.HasKeyword(KeywordsToCheck[i])
+        i += 1
+    EndWhile
+    if locationCounts
+        SQ_ClearedLocationCount.Mod(1.0)
+        debug.trace(self + "     qualifying location: increment " + SQ_ClearedLocationCount + " to " + SQ_ClearedLocationCount.GetValueInt())
+    endif
+    Stop()
 EndEvent

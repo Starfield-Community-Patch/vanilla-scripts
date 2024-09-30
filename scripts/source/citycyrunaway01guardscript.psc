@@ -1,28 +1,27 @@
-ScriptName CityCYRunaway01GuardScript Extends ReferenceAlias
+Scriptname CityCYRunaway01GuardScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property LobbyTriggerStage = 470 Const Auto
+
 Bool bLoaded = False
 
-;-- Properties --------------------------------------
-Int Property LobbyTriggerStage = 470 Auto Const
-
-;-- Functions ---------------------------------------
-
+;For Crime purposes, make the guards act as if the player had trespassed. 
+;If the player somehow hasn't entered the Trigger and set the stage, try again until they have.
 Function GuardAlarm()
-  If Self.GetOwningQuest().GetStageDone(LobbyTriggerStage)
-    Self.GetActorRef().SendTrespassAlarm(Game.GetPlayer())
-  Else
-    Self.StartTimer(2.0, 0)
-  EndIf
+    If GetOwningQuest().GetStageDone(LobbyTriggerStage)
+        GetActorRef().SendTrespassAlarm(Game.GetPlayer())
+    Else
+        StartTimer(2)
+    EndIf
 EndFunction
 
+
 Event OnLoad()
-  If bLoaded == False
-    Self.GuardAlarm()
-    bLoaded = True
-  EndIf
+    If bLoaded == False
+        GuardAlarm()
+        bLoaded = True
+    EndIf
 EndEvent
 
 Event OnTimer(Int aiTimerId)
-  Self.GuardAlarm()
+    GuardAlarm()
 EndEvent

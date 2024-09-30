@@ -1,68 +1,72 @@
-ScriptName SQ_DoctorsScript Extends Quest
+Scriptname SQ_DoctorsScript extends Quest
 
-;-- Variables ---------------------------------------
-MiscObject Credits
-Actor PlayerRef
-Int iHealMax = 999999999
-
-;-- Properties --------------------------------------
 Group Autofill
-  ReferenceAlias Property PrimaryAliasDoctor Auto Const mandatory
-  GlobalVariable Property SQ_Doctors_Price_Wounds Auto Const mandatory
-  GlobalVariable Property SQ_Doctors_Price_Afflictions Auto Const mandatory
-  GlobalVariable Property SQ_Doctors_Price_Addictions Auto Const mandatory
-  GlobalVariable Property SQ_Doctors_Price_Everything Auto Const mandatory
-  Spell Property SQ_Doctors_CureAll Auto Const mandatory
-  Spell Property CureAddictions Auto Const mandatory
+	ReferenceAlias Property PrimaryAliasDoctor Mandatory Const Auto
+	GlobalVariable Property SQ_Doctors_Price_Wounds Mandatory Const Auto
+	GlobalVariable Property SQ_Doctors_Price_Afflictions Mandatory Const Auto
+	GlobalVariable Property SQ_Doctors_Price_Addictions Mandatory Const Auto
+	GlobalVariable Property SQ_Doctors_Price_Everything Mandatory Const Auto
+	Spell Property SQ_Doctors_CureAll Mandatory Const Auto
+	Spell Property CureAddictions Mandatory Const Auto
 EndGroup
 
+Actor PlayerRef
+MiscObject Credits
 
-;-- Functions ---------------------------------------
-
-Function CannotPay()
-  ; Empty function
-EndFunction
+int iHealMax = 999999999
 
 Event OnQuestInit()
-  PlayerRef = Game.GetPlayer()
-  Credits = Game.GetCredits()
+	PlayerRef = Game.GetPlayer()
+	Credits = Game.GetCredits()
 EndEvent
 
 Function BuySupplies()
-  PrimaryAliasDoctor.GetActorReference().ShowBarterMenu()
+	Trace(self, "BuySupplies() ")
+	PrimaryAliasDoctor.GetActorReference().ShowBarterMenu()
 EndFunction
 
 Function HealWounds()
-  Self.PayForService(SQ_Doctors_Price_Wounds)
-  PlayerRef.RestoreValue(Game.GetHealthAV(), iHealMax as Float)
+	Trace(self, "HealWounds()")
+	PayForService(SQ_Doctors_Price_Wounds)
+	PlayerRef.RestoreValue(Game.GetHealthAV(), iHealMax)
 EndFunction
 
 Function HealAfflictions()
-  Self.PayForService(SQ_Doctors_Price_Afflictions)
-  SQ_Doctors_CureAll.Cast(PlayerRef as ObjectReference, PlayerRef as ObjectReference)
+	Trace(self, "HealAfflictions()")
+	PayForService(SQ_Doctors_Price_Afflictions)
+	SQ_Doctors_CureAll.Cast(PlayerRef, PlayerRef)
 EndFunction
 
 Function HealAddictions()
-  Self.PayForService(SQ_Doctors_Price_Addictions)
-  CureAddictions.Cast(PlayerRef as ObjectReference, PlayerRef as ObjectReference)
+	Trace(self, "HealAddictions()")
+	PayForService(SQ_Doctors_Price_Addictions)
+	CureAddictions.Cast(PlayerRef, PlayerRef)
 EndFunction
 
 Function HealEverything()
-  Self.PayForService(SQ_Doctors_Price_Everything)
-  PlayerRef.RestoreValue(Game.GetHealthAV(), iHealMax as Float)
-  CureAddictions.Cast(PlayerRef as ObjectReference, PlayerRef as ObjectReference)
-  SQ_Doctors_CureAll.Cast(PlayerRef as ObjectReference, PlayerRef as ObjectReference)
+	Trace(self, "HealEverything()")
+	PayForService(SQ_Doctors_Price_Everything)
+	PlayerRef.RestoreValue(Game.GetHealthAV(), iHealMax)
+	CureAddictions.Cast(PlayerRef, PlayerRef)
+	SQ_Doctors_CureAll.Cast(PlayerRef, PlayerRef)
+EndFunction
+
+Function CannotPay()
+	Trace(self, "CannotPay()")
 EndFunction
 
 Function PayForService(GlobalVariable CostGlobal)
-  PlayerRef.RemoveItem(Credits as Form, CostGlobal.GetValueInt(), False, None)
+	Trace(self, "PayForService() CostGlobal: " + CostGlobal)
+	PlayerRef.RemoveItem(Credits, CostGlobal.GetValueInt())
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_Doctors",  string SubLogName = "SQ_DoctorsScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_Doctors",  string SubLogName = "SQ_DoctorsScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

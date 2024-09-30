@@ -1,37 +1,37 @@
-ScriptName RL064TestScript Extends ObjectReference
+Scriptname RL064TestScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Spell Property ExplosionFireHazardSpell Auto Const
+SPELL Property ExplosionFireHazardSpell Auto Const
 ObjectReference Property IceLinked Auto
 Explosion Property fragGrenadeExplosion Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-    IceLinked = Self.GetLinkedRef(None)
-  EndIf
+	if Is3DLoaded()
+		RegisterForHitEvent(self)
+        IceLinked = GetLinkedRef()
+	EndIf
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForAllHitEvents(None)
+	UnregisterForAllHitEvents()
 EndEvent
 
-Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, Bool abPowerAttack, Bool abSneakAttack, Bool abBashAttack, Bool abHitBlocked, String apMaterial)
-  Self.PlaceAtMe(fragGrenadeExplosion as Form, 1, False, False, True, None, None, True)
-  Self.MeltIce()
+Event OnHit(ObjectReference akTarget, ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, \
+  bool abSneakAttack, bool abBashAttack, bool abHitBlocked, string apMaterial)
+  Debug.Trace(akTarget + " was hit by " + akAggressor)
+  ;disable()
+  ;ExplosionFireHazardSpell.RemoteCast(self, Game.GetPlayer(), Game.GetPlayer())
+  self.PlaceAtMe(fragGrenadeExplosion)
+  MeltIce()
+  ;RegisterForHitEvent(self) ; listen for another one
 EndEvent
 
 Function MeltIce()
-  Float currentScale = IceLinked.GetScale()
-  While currentScale >= 0.100000001
-    Utility.Wait(0.100000001)
-    IceLinked.SetScale(currentScale * 0.899999976)
-    currentScale = IceLinked.GetScale()
-  EndWhile
-  IceLinked.Disable(False)
-  Self.UnregisterForAllHitEvents(None)
+    float currentScale = IceLinked.GetScale()
+    while currentScale >= 0.1
+        Utility.Wait(0.1)
+        IceLinked.SetScale(currentScale * 0.9)
+        currentScale = IceLinked.GetScale()
+    EndWhile
+    IceLinked.Disable()
+    UnregisterForAllHitEvents()
 EndFunction

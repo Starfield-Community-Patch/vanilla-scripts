@@ -1,16 +1,11 @@
-ScriptName DBTestRuntimeDecalScript Extends ObjectReference Const
+Scriptname DBTestRuntimeDecalScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-textureset Property DecalPuddleMd01 Auto Const mandatory
-
-;-- Functions ---------------------------------------
+TextureSet Property DecalPuddleMd01 Auto Const Mandatory
 
 Event OnLoad()
-  Self.PlaceTestDecal()
+    PlaceTestDecal()
 EndEvent
 
 Function PlaceTestDecal()
-  Self.PlaceAtMe(DecalPuddleMd01 as Form, 1, False, False, True, None, None, True)
+    PlaceAtMe(DecalPuddleMd01)
 EndFunction

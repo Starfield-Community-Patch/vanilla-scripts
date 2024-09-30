@@ -1,23 +1,28 @@
-ScriptName TestJeffBStartCombatScript Extends ObjectReference
-{ Tells the linked ref to start combat with his linkedref chain }
+ScriptName TestJeffBStartCombatScript extends ObjectReference
+{Tells the linked ref to start combat with his linkedref chain}
 
-;-- Variables ---------------------------------------
+import game
+import debug
+
+Keyword Property myKeyword auto
 Actor myActor
 
-;-- Properties --------------------------------------
-Keyword Property myKeyword Auto
+;**********************************************
 
-;-- State -------------------------------------------
+auto State waiting
+	Event OnTriggerEnter(ObjectReference akActionRef)
+	    if(akActionRef == game.getPlayer())
+	    	myActor = getlinkedRef(myKeyword) as Actor
+	    	myActor.StartCombat(myActor.getLinkedRef(myKeyword) as Actor)
+	    endIf
+	   EndEvent
+EndState
+	
+	
+;**********************************************
+
 State allDone
-EndState
-
-;-- State -------------------------------------------
-Auto State waiting
-
-  Event OnTriggerEnter(ObjectReference akActionRef)
-    If akActionRef == Game.getPlayer() as ObjectReference
-      myActor = Self.getlinkedRef(myKeyword) as Actor
-      myActor.StartCombat((myActor.getlinkedRef(myKeyword) as Actor) as ObjectReference, False)
-    EndIf
-  EndEvent
-EndState
+	;do nothing
+endState
+	
+;**********************************************

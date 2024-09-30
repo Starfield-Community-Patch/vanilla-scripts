@@ -1,71 +1,90 @@
-ScriptName PlanetTraitTerminalMenuScript Extends TerminalMenu
-{ award planet trait discovery data, optionally set a quest stage }
+Scriptname PlanetTraitTerminalMenuScript extends TerminalMenu
+{award planet trait discovery data, optionally set a quest stage}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-sq_parentscript Property SQ_Parent Auto Const mandatory
+SQ_ParentScript property SQ_Parent auto const mandatory
 { used to get planet traits }
-Int Property DiscoverTraitMenuItemID = 1 Auto Const
-{ the ID of the menu item that should discover the planet trait }
-Bool Property DiscoverTraitCompletely = True Auto Const
-{ TRUE = player fully discovers the trait
-    FALSE = player increments discovery as if they had fully explored a trait overlay }
-TerminalMenu Property SQ_PlanetTraitTerminalSubmenu Auto Const mandatory
-{ autofill }
-Int Property DiscoverTraitBodyTextIndex = 0 Auto Const
-Int Property NoTraitBodyTextIndex = 1 Auto Const
 
-;-- Functions ---------------------------------------
+int property DiscoverTraitMenuItemID = 1 auto const
+{ the ID of the menu item that should discover the planet trait }
+
+bool property DiscoverTraitCompletely = true auto Const
+{   TRUE = player fully discovers the trait
+    FALSE = player increments discovery as if they had fully explored a trait overlay
+}
+
+TerminalMenu property SQ_PlanetTraitTerminalSubmenu auto const mandatory
+{ autofill }
+
+int property DiscoverTraitBodyTextIndex = 0 auto const
+int property NoTraitBodyTextIndex = 1 auto const
 
 Event OnTerminalMenuEnter(TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  planettraitterminalscript myTerminalRef = akTerminalRef as planettraitterminalscript
-  If myTerminalRef as Bool && myTerminalRef.planetToCheck == None
-    Form[] textReplacementArray = None
-    Int bodyTextIndex = NoTraitBodyTextIndex
-    myTerminalRef.planetToCheck = akTerminalRef.GetCurrentPlanet()
-    planet planetToCheck = myTerminalRef.planetToCheck
-    Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(SQ_Parent.KeywordType_PlanetTrait)
-    If matchingKeywords.Length > 0
-      Int I = matchingKeywords.Length - 1
-      While I > -1
-        If planetToCheck.IsTraitKnown(matchingKeywords[I])
-          matchingKeywords.remove(I, 1)
-        EndIf
-        I += -1
-      EndWhile
-      If matchingKeywords.Length == 0
-        matchingKeywords = planetToCheck.GetKeywordTypeList(SQ_Parent.KeywordType_PlanetTrait)
-      EndIf
-      Int randomKeyword = Utility.RandomInt(0, matchingKeywords.Length - 1)
-      myTerminalRef.traitKeywordToDiscover = matchingKeywords[randomKeyword]
-      textReplacementArray = Self.GetTextReplacementArray(myTerminalRef)
-      bodyTextIndex = DiscoverTraitBodyTextIndex
-    EndIf
-    SQ_PlanetTraitTerminalSubmenu.ClearDynamicBodyTextItems(myTerminalRef as ObjectReference)
-    SQ_PlanetTraitTerminalSubmenu.AddDynamicBodyTextItem(myTerminalRef as ObjectReference, bodyTextIndex, 1, textReplacementArray)
-  EndIf
+    ; initialize planet trait to award
+    PlanetTraitTerminalScript myTerminalRef = akTerminalRef as PlanetTraitTerminalScript
+    if myTerminalRef && myTerminalRef.planetToCheck == None
+        Form[] textReplacementArray = None
+        int bodyTextIndex = NoTraitBodyTextIndex
+
+        ; get planet trait data
+        myTerminalRef.planetToCheck = akTerminalRef.GetCurrentPlanet()
+        Planet planetToCheck = myTerminalRef.planetToCheck
+
+        Keyword[] matchingKeywords = planetToCheck.GetKeywordTypeList(SQ_Parent.KeywordType_PlanetTrait)
+        debug.trace(self + " OnTerminalMenuEnter: " + " " + planetToCheck + " " + matchingKeywords)
+        if matchingKeywords.Length > 0
+            ; find a trait that isn't known, if possible
+            int i = matchingKeywords.Length - 1
+            while i > -1 
+                if planetToCheck.IsTraitKnown(matchingKeywords[i])
+                    matchingKeywords.Remove(i)
+                endif
+                i += -1
+            EndWhile
+            if matchingKeywords.Length == 0
+                ; all known, just pick one to "discover"
+                matchingKeywords = planetToCheck.GetKeywordTypeList(SQ_Parent.KeywordType_PlanetTrait)            
+            endif
+            int randomKeyword = Utility.RandomInt(0, matchingKeywords.Length-1)
+            myTerminalRef.traitKeywordToDiscover = matchingKeywords[randomKeyword]
+			textReplacementArray = GetTextReplacementArray(myTerminalRef)
+            bodyTextIndex = DiscoverTraitBodyTextIndex
+        Else
+
+        endif
+		SQ_PlanetTraitTerminalSubmenu.ClearDynamicBodyTextItems(myTerminalRef)
+        SQ_PlanetTraitTerminalSubmenu.AddDynamicBodyTextItem(myTerminalRef, bodyTextIndex, 1, textReplacementArray)
+
+        debug.trace(self + " traitKeywordToDiscover=" + myTerminalRef.traitKeywordToDiscover)
+    endif
 EndEvent
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  planettraitterminalscript myTerminalRef = akTerminalRef as planettraitterminalscript
-  If myTerminalRef
-    Keyword traitKeywordToDiscover = myTerminalRef.traitKeywordToDiscover
-    planet planetToCheck = myTerminalRef.planetToCheck
-    If (auiMenuItemID == DiscoverTraitMenuItemID && traitKeywordToDiscover as Bool) && myTerminalRef.traitDataAwarded == False && planetToCheck.IsTraitKnown(traitKeywordToDiscover) == False
-      sq_parentscript:planettraitdata theData = SQ_Parent.FindMatchingPlanetTraitForKeyword(traitKeywordToDiscover, planetToCheck)
-      myTerminalRef.traitDataAwarded = True
-      Int traitScansToAward = 1
-      If DiscoverTraitCompletely
-        traitScansToAward = 99
-      EndIf
-      SQ_Parent.UpdatePlanetTraitDiscovery(akTerminalRef, theData, traitScansToAward)
-    EndIf
-  EndIf
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+    debug.trace(self + " OnTerminalMenuItemRun auiMenuItemID=" + auiMenuItemID)
+    PlanetTraitTerminalScript myTerminalRef = akTerminalRef as PlanetTraitTerminalScript
+    if myTerminalRef
+        Keyword traitKeywordToDiscover = myTerminalRef.traitKeywordToDiscover
+        Planet planetToCheck = myTerminalRef.planetToCheck
+
+        if auiMenuItemID == DiscoverTraitMenuItemID && traitKeywordToDiscover && myTerminalRef.traitDataAwarded == false && planetToCheck.IsTraitKnown(traitKeywordToDiscover) == false
+            SQ_ParentScript:PlanetTraitData theData = SQ_Parent.FindMatchingPlanetTraitForKeyword(traitKeywordToDiscover, planetToCheck)
+            myTerminalRef.traitDataAwarded = true
+            int traitScansToAward = 1
+            if DiscoverTraitCompletely
+                traitScansToAward = 99
+            endif
+            SQ_Parent.UpdatePlanetTraitDiscovery(akTerminalRef, theData, traitScansToAward)
+        endif
+    endif
 EndEvent
 
-Form[] Function GetTextReplacementArray(planettraitterminalscript myTerminalRef)
-  Form[] textReplacementArray = new Form[0]
-  textReplacementArray.add(myTerminalRef.traitKeywordToDiscover as Form, 1)
-  Return textReplacementArray
-EndFunction
+Form[] function GetTextReplacementArray(PlanetTraitTerminalScript myTerminalRef)
+	debug.trace(self + " GetTextReplacementArray")
+	Form[] textReplacementArray = new Form[0]
+
+	;/
+	Downloading data for <0.Name>...
+	/;
+	textReplacementArray.Add(myTerminalRef.traitKeywordToDiscover)
+
+	return textReplacementArray
+endFunction

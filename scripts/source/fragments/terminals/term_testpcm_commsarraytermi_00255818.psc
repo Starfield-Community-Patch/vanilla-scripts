@@ -1,12 +1,14 @@
-ScriptName Fragments:Terminals:TERM_TestPCM_CommsArrayTermi_00255818 Extends Terminal Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Terminals:TERM_TestPCM_CommsArrayTermi_00255818 Extends Terminal Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property TestPCM_CommsArrayProbeQuest Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Terminal_01
 Function Fragment_Terminal_01(ObjectReference akTerminalRef)
-  TestPCM_CommsArrayProbeQuest.Start()
+;BEGIN CODE
+TestPCM_CommsArrayProbeQuest.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property TestPCM_CommsArrayProbeQuest Auto Const Mandatory

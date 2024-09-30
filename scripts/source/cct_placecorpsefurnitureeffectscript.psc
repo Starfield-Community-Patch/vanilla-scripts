@@ -1,46 +1,52 @@
-ScriptName CCT_PlaceCorpseFurnitureEffectScript Extends ActiveMagicEffect
+Scriptname CCT_PlaceCorpseFurnitureEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
-Int iDelayTimerFlyerID = 2 Const
-Int iDelayTimerID = 1 Const
-
-;-- Properties --------------------------------------
-Furniture Property CreatureCorpseFeed Auto Const mandatory
+Furniture property CreatureCorpseFeed auto const mandatory
 { corpse furniture to place on death if a non-flier }
-Furniture Property CreatureCorpseFeed_Flyer Auto Const mandatory
-{ corpse furniture to place on death if a flier }
-Keyword Property ActorTypePredator Auto Const mandatory
+
+Furniture property CreatureCorpseFeed_Flyer auto const mandatory
+{ corpse furniture to place on death if a flier}
+
+Keyword property ActorTypePredator auto const mandatory
 { check that killer is a predator }
-conditionform Property CCT_IsFlier Auto Const mandatory
+
+ConditionForm property CCT_IsFlier auto const mandatory
 { use to test if killer is a flier }
-Float Property fDelay = 3.0 Auto Const
+
+float property fDelay = 3.0 auto const
 { wait a bit for corpse to finish settling }
-Float Property markerOffset = -2.5 Auto Const
+
+float property markerOffset = -2.5 auto const
 { how far to offset feed marker so the actor isn't right on top of the corpse }
 
-;-- Functions ---------------------------------------
+int iDelayTimerID = 1 Const
+int iDelayTimerFlyerID = 2 Const
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.RegisterForRemoteEvent(akCaster as ScriptObject, "OnDeath")
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+    debug.trace(self + " OnEffectStart on " + akCaster)
+    RegisterForRemoteEvent(akCaster, "OnDeath")
 EndEvent
 
 Event Actor.OnDeath(Actor akSource, ObjectReference akKiller)
-  If akKiller as Bool && akKiller.HasKeyword(ActorTypePredator)
-    If CCT_IsFlier.IsTrue(akKiller, None)
-      Self.StartTimer(fDelay, iDelayTimerFlyerID)
-    Else
-      Self.StartTimer(fDelay, iDelayTimerID)
-    EndIf
-  EndIf
+    if akKiller && akKiller.HasKeyword(ActorTypePredator)
+        debug.trace(self + " OnDeath " + akSource + ": running timer")
+        if CCT_IsFlier.IsTrue(akKiller)
+            StartTimer(fDelay, iDelayTimerFlyerID)
+        else
+            StartTimer(fDelay, iDelayTimerID)
+        endif
+    endif
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  Actor targetActor = Self.GetTargetActor()
-  Float[] offset = new Float[3]
-  offset[1] = markerOffset
-  If aiTimerID == iDelayTimerID
-    ObjectReference markerRef = targetActor.PlaceAtMe(CreatureCorpseFeed as Form, 1, False, False, True, offset, None, True)
-  ElseIf aiTimerID == iDelayTimerFlyerID
-    ObjectReference markerref = targetActor.PlaceAtMe(CreatureCorpseFeed_Flyer as Form, 1, False, False, True, offset, None, True)
-  EndIf
+Event OnTimer(int aiTimerID)
+    Actor targetActor = GetTargetActor()
+	float[] offset = new float[3]
+	offset[1] = markerOffset
+
+    if aiTimerID == iDelayTimerID
+        debug.trace(self + " OnTimer " + targetActor + ": placing " + CreatureCorpseFeed)
+        ObjectReference markerRef = targetActor.PlaceAtMe(CreatureCorpseFeed, akOffsetValues=offset)
+    elseif aiTimerID == iDelayTimerFlyerID
+        debug.trace(self + " OnTimer " + targetActor + " is a flier: placing " + CreatureCorpseFeed_Flyer)
+        ObjectReference markerRef = targetActor.PlaceAtMe(CreatureCorpseFeed_Flyer, akOffsetValues=offset)
+    EndIf
 EndEvent

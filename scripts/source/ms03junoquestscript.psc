@@ -1,44 +1,48 @@
-ScriptName MS03JunoQuestScript Extends Quest
+Scriptname MS03JunoQuestScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill
-  ReferenceAlias Property JunoMoveToMarker Auto Const mandatory
-  ReferenceAlias Property JunoShip Auto Const mandatory
-  ReferenceAlias Property PlayerShip Auto Const mandatory
-  ReferenceAlias Property RyujinShip Auto Const mandatory
-  RefCollectionAlias Property EclipticShips Auto Const mandatory
+	ReferenceAlias Property JunoMoveToMarker Mandatory Const Auto
+	ReferenceAlias Property JunoShip Mandatory Const Auto
+	ReferenceAlias Property PlayerShip Mandatory Const Auto
+	ReferenceAlias Property RyujinShip Mandatory Const Auto
+	RefCollectionAlias Property EclipticShips Mandatory Const Auto
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  Self.MoveJuno()
-  Self.StartCombat()
+	Trace(self, "OnQuestInit() moving Juno from unique holding cell to instanced space cell, Ecliptic start combat with player.")
+
+	MoveJuno()
+	StartCombat()
+
 EndEvent
 
 Function MoveJuno()
-  JunoShip.GetReference().MoveTo(JunoMoveToMarker.GetReference(), 0.0, 0.0, 0.0, True, False)
-  RyujinShip.GetReference().Enable(False)
+	Trace(self, "MoveJuno()")
+	JunoShip.GetReference().MoveTo(JunoMoveToMarker.GetReference())
+	RyujinShip.GetReference().Enable() ;has sit package to dock with JunoShip immediately when enabled
 EndFunction
 
 Function StartCombat()
-  spaceshipreference[] enemyShips = EclipticShips.GetArray() as spaceshipreference[]
-  Int I = 0
-  While I < enemyShips.Length
-    spaceshipreference currentShipRef = enemyShips[I]
-    currentShipRef.StartCombat(Game.GetPlayerHomeSpaceShip(), False)
-    I += 1
-  EndWhile
+	Trace(self, "StartCombat() ")
+
+	SpaceshipReference[] enemyShips = EclipticShips.GetArray() as SpaceshipReference[]
+	int i = 0
+	While (i < enemyShips.length)
+		SpaceshipReference currentShipRef = enemyShips[i]
+		
+		currentShipRef.StartCombat(Game.GetPlayerHomeSpaceShip())
+		i += 1
+	EndWhile
+
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "MS03",  string SubLogName = "MS03JunoQuestScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "MS03",  string SubLogName = "MS03JunoQuestScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

@@ -1,23 +1,19 @@
-ScriptName DefaultAddItemOnLoad Extends ObjectReference default
-{ Placed on an Object Reference (preferably an actor or container) that will add the selected item OnLoad() }
+Scriptname DefaultAddItemOnLoad extends ObjectReference Default
+{Placed on an Object Reference (preferably an actor or container) that will add the selected item OnLoad()}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Form Property ItemToAdd Auto Const
-{ Base object to add to this reference. }
+{Base object to add to this reference.}
+
 Int Property Count = 1 Auto Const
-{ Default = 1: Number of this item to add. }
+{Default = 1: Number of this item to add.}
 
-;-- State -------------------------------------------
-State DoneWaiting
-EndState
+auto STATE Waiting
+	Event OnLoad()
+		GoToState("DoneWaiting")
+		self.Additem(ItemToAdd, Count)
+	EndEvent
+EndSTATE
 
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnLoad()
-    Self.GoToState("DoneWaiting")
-    Self.Additem(ItemToAdd, Count, False)
-  EndEvent
-EndState
+STATE DoneWaiting
+	; Do Nothing
+EndSTATE

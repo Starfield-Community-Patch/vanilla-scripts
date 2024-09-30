@@ -1,19 +1,16 @@
-ScriptName PilotSeatFurnitureScript Extends ObjectReference
+Scriptname PilotSeatFurnitureScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-Bool suppressDefaultActivationBlockedMessage
+Message property PilotSeatNotAuthorizedMessage Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Message Property PilotSeatNotAuthorizedMessage Auto Const mandatory
+bool suppressDefaultActivationBlockedMessage
 
-;-- Functions ---------------------------------------
 
 Event OnActivate(ObjectReference akActionRef)
-  If (akActionRef == Game.GetPlayer() as ObjectReference) && Self.IsActivationBlocked() && !suppressDefaultActivationBlockedMessage
-    PilotSeatNotAuthorizedMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  EndIf
+    if akActionRef == Game.GetPlayer() && IsActivationBlocked() && !suppressDefaultActivationBlockedMessage
+    	PilotSeatNotAuthorizedMessage.Show()
+    endif
 EndEvent
 
-Function suppressDefaultActivationBlockedMessage(Bool shouldSuppress)
-  suppressDefaultActivationBlockedMessage = shouldSuppress
+Function SuppressDefaultActivationBlockedMessage(bool shouldSuppress=True)
+    suppressDefaultActivationBlockedMessage = shouldSuppress
 EndFunction

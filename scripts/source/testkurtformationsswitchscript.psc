@@ -1,32 +1,31 @@
-ScriptName TestKurtFormationsSwitchScript Extends ObjectReference Const
+Scriptname TestKurtFormationsSwitchScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+ActorValue Property Variable01 Auto Const Mandatory
 
-;-- Properties --------------------------------------
-ActorValue Property Variable01 Auto Const mandatory
-Message Property TestKurtFormationMessageBox Auto Const
-Keyword Property TestKurtButtonKeyword Auto Const
+Message Property TestKurtFormationMessageBox auto const
 
-;-- Functions ---------------------------------------
+Keyword Property TestKurtButtonKeyword auto const
 
 Event OnActivate(ObjectReference akActionRef)
-  Int messageIndex = TestKurtFormationMessageBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-  Self.UpdateLinkedRefs(messageIndex)
-EndEvent
+    int messageIndex = TestKurtFormationMessageBox.Show()
+    UpdateLinkedRefs(messageIndex)
+endEvent
 
-Function UpdateLinkedRefs(Int messageIndex)
-  ObjectReference[] myLinkedRefs = Self.GetRefsLinkedToMe(TestKurtButtonKeyword, None)
-  Int I = 0
-  While I < myLinkedRefs.Length
-    Actor myLinkedActor = myLinkedRefs[I] as Actor
-    If myLinkedActor
-      myLinkedActor.SetValue(Variable01, messageIndex as Float)
-      myLinkedActor.EvaluatePackage(False)
-    EndIf
-    I += 1
-  EndWhile
-  TestKurtFormationsSwitchScript myLinkedButton = Self.GetLinkedRef(None) as TestKurtFormationsSwitchScript
-  If myLinkedButton
-    myLinkedButton.UpdateLinkedRefs(messageIndex)
-  EndIf
+function UpdateLinkedRefs(int messageIndex)
+    ObjectReference[] myLinkedRefs = GetRefsLinkedToMe(TestKurtButtonKeyword)
+    int i = 0
+    while i < myLinkedRefs.Length
+    	Actor myLinkedActor = myLinkedRefs[i] as Actor
+    	if myLinkedActor
+    		myLinkedActor.SetValue(Variable01, messageIndex)
+    		myLinkedActor.EvaluatePackage()
+    	endif
+    	i += 1
+    EndWhile
+    ; if I have a linked ref, call update on that as well
+    TestKurtFormationsSwitchScript myLinkedButton = GetLinkedRef() as TestKurtFormationsSwitchScript
+    if myLinkedButton
+        myLinkedButton.UpdateLinkedRefs(messageIndex)
+    endif
 EndFunction
+

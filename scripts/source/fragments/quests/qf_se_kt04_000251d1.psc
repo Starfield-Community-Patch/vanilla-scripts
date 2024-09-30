@@ -1,102 +1,181 @@
-ScriptName Fragments:Quests:QF_SE_KT04_000251D1 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_KT04_000251D1 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Scene Property HailTemplate_100a_KT04_HailStart Auto Const mandatory
-ActorValue Property DockingPermission Auto Const mandatory
-ReferenceAlias Property Alias_HailingShip Auto Const mandatory
-GlobalVariable Property BE_KT04_AudioSlateSeries Auto Const mandatory
-ActorValue Property SpaceshipCrew Auto Const mandatory
-GlobalVariable Property BE_KT04_Variant01 Auto Const mandatory
-GlobalVariable Property BE_KT04_Variant02 Auto Const mandatory
-GlobalVariable Property BE_KT04_Variant03 Auto Const mandatory
-GlobalVariable Property BE_KT04_Variant04 Auto Const mandatory
-RefCollectionAlias Property Alias_CrewSpawnMarkers Auto Const mandatory
-RefCollectionAlias Property Alias_CrewWoundedMarkers Auto Const mandatory
-Furniture Property NPCWoundedLean Auto Const mandatory
-ReferenceAlias Property Alias_MapMarker Auto Const mandatory
-Quest Property BE_KT04 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0001_Item_00
 Function Fragment_Stage_0001_Item_00()
-  BE_KT04_AudioSlateSeries.SetValue(0.0)
+;BEGIN CODE
+BE_KT04_AudioSlateSeries.SetValue(0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0002_Item_00
 Function Fragment_Stage_0002_Item_00()
-  BE_KT04_AudioSlateSeries.SetValue(1.0)
+;BEGIN CODE
+BE_KT04_AudioSlateSeries.SetValue(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0003_Item_00
 Function Fragment_Stage_0003_Item_00()
-  BE_KT04_AudioSlateSeries.SetValue(2.0)
+;BEGIN CODE
+BE_KT04_AudioSlateSeries.SetValue(2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0004_Item_00
 Function Fragment_Stage_0004_Item_00()
-  BE_KT04_AudioSlateSeries.SetValue(3.0)
+;BEGIN CODE
+BE_KT04_AudioSlateSeries.SetValue(3)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0.0)
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_01
 Function Fragment_Stage_0005_Item_01()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Self.SetStage(1)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+SetStage(1)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_02
 Function Fragment_Stage_0005_Item_02()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Self.SetStage(2)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+SetStage(2)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_03
 Function Fragment_Stage_0005_Item_03()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Self.SetStage(3)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+SetStage(3)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_04
 Function Fragment_Stage_0005_Item_04()
-  Self.SetObjectiveDisplayed(10, True, False)
-  Self.SetStage(4)
+;BEGIN CODE
+SetObjectiveDisplayed(10)
+SetStage(4)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_05
 Function Fragment_Stage_0005_Item_05()
-  Self.SetStage(6)
+;BEGIN CODE
+SetStage(6)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0006_Item_00
 Function Fragment_Stage_0006_Item_00()
-  BE_KT04_AudioSlateSeries.SetValue(4.0)
+;BEGIN CODE
+BE_KT04_AudioSlateSeries.SetValue(4)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0009_Item_00
 Function Fragment_Stage_0009_Item_00()
-  Self.SetObjectiveFailed(10, True)
-  BE_KT04.SetObjectiveFailed(10, True)
-  Alias_MapMarker.GetRef().DisableNoWait(False)
+;BEGIN CODE
+SetObjectiveFailed(10)
+BE_KT04.SetObjectiveFailed(10)
+Alias_MapMarker.GetRef().DisableNoWait()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  ObjectReference[] FurnitureRef = Alias_CrewSpawnMarkers.GetArray()
-  Int I = 0
-  While I < FurnitureRef.Length
-    Alias_CrewWoundedMarkers.AddRef(FurnitureRef[I].PlaceAtMe(NPCWoundedLean as Form, 1, False, False, True, None, None, True))
-    I += 1
-  EndWhile
+;BEGIN CODE
+ObjectReference[] FurnitureRef = Alias_CrewSpawnMarkers.GetArray()
+int i = 0
+while i < FurnitureRef.Length
+    Alias_CrewWoundedMarkers.AddRef(FurnitureRef[i].PlaceAtMe(NPCWoundedLean))
+    i += 1
+endWhile
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_01
 Function Fragment_Stage_0010_Item_01()
-  Alias_MapMarker.GetRef().EnableNoWait(False)
+;BEGIN CODE
+Alias_MapMarker.GetRef().EnableNoWait()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0030_Item_00
 Function Fragment_Stage_0030_Item_00()
-  Self.SetObjectiveCompleted(10, True)
+;BEGIN CODE
+SetObjectiveCompleted(10)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0.0)
-  HailTemplate_100a_KT04_HailStart.Start()
+;BEGIN CODE
+Alias_HailingShip.GetShipRef().SetValue(DockingPermission, 0)
+HailTemplate_100a_KT04_HailStart.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Self.SetObjectiveFailed(10, True)
-  Self.Stop()
+;BEGIN CODE
+SetObjectiveFailed(10)
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Scene Property HailTemplate_100a_KT04_HailStart Auto Const Mandatory
+
+ActorValue Property DockingPermission Auto Const Mandatory
+
+ReferenceAlias Property Alias_HailingShip Auto Const Mandatory
+
+GlobalVariable Property BE_KT04_AudioSlateSeries Auto Const Mandatory
+
+ActorValue Property SpaceshipCrew Auto Const Mandatory
+
+GlobalVariable Property BE_KT04_Variant01 Auto Const Mandatory
+
+GlobalVariable Property BE_KT04_Variant02 Auto Const Mandatory
+
+GlobalVariable Property BE_KT04_Variant03 Auto Const Mandatory
+
+GlobalVariable Property BE_KT04_Variant04 Auto Const Mandatory
+
+RefCollectionAlias Property Alias_CrewSpawnMarkers Auto Const Mandatory
+
+RefCollectionAlias Property Alias_CrewWoundedMarkers Auto Const Mandatory
+
+Furniture Property NPCWoundedLean Auto Const Mandatory
+
+ReferenceAlias Property Alias_MapMarker Auto Const Mandatory
+
+Quest Property BE_KT04 Auto Const Mandatory

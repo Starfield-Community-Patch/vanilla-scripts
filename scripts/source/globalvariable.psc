@@ -1,30 +1,34 @@
-ScriptName GlobalVariable Extends Form Native hidden
+Scriptname GlobalVariable extends Form Native Hidden
 
-;-- Properties --------------------------------------
-Float Property value hidden
-  Float Function Get()
-    Return Self.GetValue()
+; Obtains the global's current value
+float Function GetValue() native
+
+; Sets the global's current value
+Function SetValue(float afNewValue) native
+
+; convenience functions for ints
+int Function GetValueInt()
+	return GetValue() as int
+endFunction
+
+; Sets the global's current value
+Function SetValueInt(int aiNewValue)
+	SetValue(aiNewValue as float)
+endFunction
+
+; Easy access to the global's value
+float Property Value Hidden
+  float Function get()
+    return GetValue()
   EndFunction
-  Function Set(Float afValue)
-    Self.SetValue(afValue)
+  
+  Function set(float afValue)
+    SetValue(afValue)
   EndFunction
 EndProperty
 
-;-- Functions ---------------------------------------
-
-Float Function GetValue() Native
-
-Function SetValue(Float afNewValue) Native
-
-Int Function GetValueInt()
-  Return Self.GetValue() as Int
-EndFunction
-
-Function SetValueInt(Int aiNewValue)
-  Self.SetValue(aiNewValue as Float)
-EndFunction
-
-Float Function Mod(Float afHowMuch)
-  Self.value = Self.value + afHowMuch
-  Return Self.value
+; the threadsafe way to modify a global variable
+float Function Mod(float afHowMuch)
+                Value += afHowMuch
+                Return Value
 EndFunction

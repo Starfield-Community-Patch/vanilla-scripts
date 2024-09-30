@@ -1,28 +1,25 @@
-ScriptName Mq305PlayerScript Extends ReferenceAlias
+Scriptname Mq305PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property BuildArmillaryPrereqStage = 10 Const Auto
+Int Property BuildArmillaryStage = 40 Const Auto
+ActorValue Property MQArmillaryShipBuilderCheck Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Int Property BuildArmillaryPrereqStage = 10 Auto Const
-Int Property BuildArmillaryStage = 40 Auto Const
-ActorValue Property MQArmillaryShipBuilderCheck Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnPlayerModifiedShip(spaceshipreference akShip)
-  Quest myQuest = Self.GetOwningQuest()
-  If akShip.GetValue(MQArmillaryShipBuilderCheck) >= 1.0
-    If myQuest.GetStageDone(BuildArmillaryPrereqStage) == True && myQuest.GetStageDone(BuildArmillaryStage) == False
-      myQuest.SetStage(BuildArmillaryStage)
+;if the player builds a ship module with the Armillary in it, advance quest
+Event OnPlayerModifiedShip(SpaceshipReference akShip)
+    Quest myQuest = GetOwningQuest()
+    if akShip.GetValue(MQArmillaryShipBuilderCheck) >= 1
+        If (myQuest.GetStageDone(BuildArmillaryPrereqStage)==True) && (myQuest.GetStageDone(BuildArmillaryStage)==False)
+            myQuest.SetStage(BuildArmillaryStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
+;if player enters a ship with the Armillary in it, advance quest
 Event OnEnterShipInterior(ObjectReference akShip)
-  Quest myQuest = Self.GetOwningQuest()
-  If akShip.GetValue(MQArmillaryShipBuilderCheck) >= 1.0
-    If myQuest.GetStageDone(BuildArmillaryPrereqStage) == True && myQuest.GetStageDone(BuildArmillaryStage) == False
-      myQuest.SetStage(BuildArmillaryStage)
+    Quest myQuest = GetOwningQuest()
+    If akShip.GetValue(MQArmillaryShipBuilderCheck) >= 1
+        If (myQuest.GetStageDone(BuildArmillaryPrereqStage)==True) && (myQuest.GetStageDone(BuildArmillaryStage)==False)
+            myQuest.SetStage(BuildArmillaryStage)
+        EndIf
     EndIf
-  EndIf
 EndEvent

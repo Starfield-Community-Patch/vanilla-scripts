@@ -1,18 +1,14 @@
-ScriptName SetLinkedRefClosedOnActivate Extends ObjectReference Const
-{ Used on doors to keep a paired door shut }
+Scriptname SetLinkedRefClosedOnActivate extends ObjectReference Const
+{Used on doors to keep a paired door shut }
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkedRefKeyword Auto Const
-{ OPTIONAL: Keyword to check for on the Linked Ref }
-
-;-- Functions ---------------------------------------
+Keyword Property LinkedRefKeyword Const Auto
+{OPTIONAL: Keyword to check for on the Linked Ref}
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference LinkedRef = Self.GetLinkedRef(LinkedRefKeyword)
-  Int currOpenState = LinkedRef.GetOpenState()
-  If currOpenState == 1 || currOpenState == 2
-    LinkedRef.SetOpen(False)
-  EndIf
+    ObjectReference LinkedRef = GetLinkedRef(LinkedRefKeyword)
+    int currOpenState = LinkedRef.GetOpenState()
+
+    if currOpenState  == 1 || currOpenState == 2
+        LinkedRef.SetOpen(false)
+    endif
 EndEvent

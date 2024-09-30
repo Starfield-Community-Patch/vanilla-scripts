@@ -1,188 +1,264 @@
-ScriptName OE_CiviliansScript Extends Quest
+Scriptname OE_CiviliansScript extends Quest
 
-;-- Variables ---------------------------------------
-retriggerscript triggerRef
+    SQ_ParentScript Property SQ_Parent auto const mandatory
 
-;-- Properties --------------------------------------
-Group RQ_Settlement
-  Keyword Property RQSettlementEvent Auto Const mandatory
-  { story event to send to try to start a settlement RQ - send after NPCs are spawned }
-  ReferenceAlias Property Trigger Auto Const mandatory
-  LocationAlias Property OE_Location Auto Const mandatory
-  Quest Property settlementQuest Auto hidden
-  { if a settlement RQ starts, hang on to it here }
-EndGroup
+    RefCollectionAlias Property MissionTerminals Mandatory Const Auto
+    ReferenceAlias Property NPC_Leader Mandatory Const Auto
+    ReferenceAlias Property NPC_Merchant Mandatory Const Auto
+    Keyword Property OE_Civilians_MissionTerminalAvailable Mandatory Const Auto
+    Keyword property VendorContainerKeyword01 auto const mandatory
 
-Group missionBoardData
-  LocationRefType Property Mission_CargoDestinationLocRefType Auto Const mandatory
-  { check location for this ref type - if it has one, make it a cargo destination }
-  Keyword Property Mission_CargoDestination Auto Const mandatory
-  { tag cargo destination locations when OE_Civilian starts }
-  LocationRefType Property Mission_PassengerDestinationLocRefType Auto Const mandatory
-  { check location for this ref type - if it has one, make it a passenger destination }
-  Keyword Property Mission_PassengerDestination Auto Const mandatory
-  { tag passenger destination locations when OE_Civilian starts }
-EndGroup
+    RefCollectionAlias Property LivingAreas Mandatory Const Auto
+    Keyword Property OE_Civilians_LinkLivingArea Mandatory Const Auto
+    
+    RefCollectionAlias Property NPCs_All Mandatory Const Auto
+    { put all NPCs into this collection after spawning }
 
-sq_parentscript Property SQ_Parent Auto Const mandatory
-RefCollectionAlias Property MissionTerminals Auto Const mandatory
-ReferenceAlias Property NPC_Leader Auto Const mandatory
-ReferenceAlias Property NPC_Merchant Auto Const mandatory
-Keyword Property OE_Civilians_MissionTerminalAvailable Auto Const mandatory
-Keyword Property VendorContainerKeyword01 Auto Const mandatory
-RefCollectionAlias Property LivingAreas Auto Const mandatory
-Keyword Property OE_Civilians_LinkLivingArea Auto Const mandatory
-RefCollectionAlias Property NPCs_All Auto Const mandatory
-{ put all NPCs into this collection after spawning }
-RefCollectionAlias[] Property NPC_Collections Auto Const mandatory
-{ array of all ref collections that NPCs are spawned into }
-ActorValue Property OE_Civilian_NightShift Auto Const mandatory
-{ autofill - use to tag "night shift" civilians for package schedule }
-ActorValue Property OE_Civilians_DIAL_LeaderGender Auto Const mandatory
-{ autofill - use to tag Merchant with leader's gender }
-Int Property SpawnStage = 10 Auto Const
-{ stage to set when ready to spawn NPCs }
-Keyword Property SQ_TreasureMap_CreateMapStoryEvent Auto Const mandatory
-{ story event to send to try to place treasure maps for sale by vendor }
-GlobalVariable Property SQ_TreasureMap_CreateAny Auto Const mandatory
-{ holds value for story manager to create any type of treasure map (99) }
+    RefCollectionAlias[] Property NPC_Collections Mandatory Const Auto
+    { array of all ref collections that NPCs are spawned into }
 
-;-- Functions ---------------------------------------
+    ActorValue Property OE_Civilian_NightShift Mandatory Const Auto
+    { autofill - use to tag "night shift" civilians for package schedule }
+
+    ActorValue Property OE_Civilians_DIAL_LeaderGender Mandatory Const Auto
+    { autofill - use to tag Merchant with leader's gender }
+    
+    int property SpawnStage = 10 auto Const
+    { stage to set when ready to spawn NPCs }
+
+    Keyword Property SQ_TreasureMap_CreateMapStoryEvent Mandatory const Auto
+    { story event to send to try to place treasure maps for sale by vendor }
+
+    GlobalVariable property SQ_TreasureMap_CreateAny Mandatory const Auto
+    { holds value for story manager to create any type of treasure map (99) }
+
+    group RQ_Settlement
+        Keyword Property RQSettlementEvent Mandatory const Auto
+        { story event to send to try to start a settlement RQ - send after NPCs are spawned }
+
+        ReferenceAlias property Trigger auto const mandatory
+        LocationAlias property OE_Location auto const mandatory
+
+        Quest property settlementQuest auto hidden
+        { if a settlement RQ starts, hang on to it here }
+    endGroup
+
+    group missionBoardData
+        LocationRefType Property Mission_CargoDestinationLocRefType Mandatory Const Auto
+        { check location for this ref type - if it has one, make it a cargo destination }
+
+        Keyword Property Mission_CargoDestination Mandatory Const Auto
+        { tag cargo destination locations when OE_Civilian starts }
+
+        LocationRefType Property Mission_PassengerDestinationLocRefType Mandatory Const Auto
+        { check location for this ref type - if it has one, make it a passenger destination }
+
+        Keyword Property Mission_PassengerDestination Mandatory Const Auto
+        { tag passenger destination locations when OE_Civilian starts }
+    endGroup
+
+    RETriggerScript triggerRef
 
 Event OnQuestStarted()
-  Self.RegisterForRemoteEvent(MissionTerminals as ScriptObject, "OnAliasChanged")
-  Self.RegisterForRemoteEvent(NPC_Leader as ScriptObject, "OnAliasChanged")
-  Self.RegisterForRemoteEvent(Trigger as ScriptObject, "OnLoad")
-  defaultgroupspawnquestscript DefaultGroupSpawnQuestScriptIns = (Self as Quest) as defaultgroupspawnquestscript
-  Self.RegisterForCustomEvent(DefaultGroupSpawnQuestScriptIns as ScriptObject, "defaultgroupspawnquestscript_SpawnGroupDoneEvent")
-  Self.SetStage(SpawnStage)
-  triggerRef = Trigger.GetRef() as retriggerscript
+    Trace(self, "OnQuestStarted() ")
+    ; register for events
+    RegisterForRemoteEvent(MissionTerminals, "OnAliasChanged")
+    RegisterForRemoteEvent(NPC_Leader, "OnAliasChanged")
+    RegisterForRemoteEvent(Trigger, "OnLoad")
+    Trace(self, "Registered for OnAliasChanged events - set spawning stage")
+	;register for spawn event
+	DefaultGroupSpawnQuestScript DefaultGroupSpawnQuestScriptIns = (self as quest) as DefaultGroupSpawnQuestScript
+	RegisterForCustomEvent(DefaultGroupSpawnQuestScriptIns, "SpawnGroupDoneEvent")
+
+    ; trigger spawning from DefaultGroupSpawnQuestScript
+    SetStage(SpawnStage)
+
+    ; hang on to trigger ref
+    triggerRef = Trigger.GetRef() as RETriggerScript
 EndEvent
 
-Event RefCollectionAlias.OnAliasChanged(RefCollectionAlias akSender, ObjectReference akObject, Bool abRemove)
-  Self.CheckAndAddKeyword()
+Event RefCollectionAlias.OnAliasChanged(RefCollectionAlias akSender, ObjectReference akObject, bool abRemove)
+    Trace(self, "OnAliasChanged() akSender: " + akSender + ", akObject: " + akObject + ", abRemove: " + abRemove)
+    CheckAndAddKeyword()
 EndEvent
 
-Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, Bool abRemove)
-  Self.CheckAndAddKeyword()
-EndEvent
+Event ReferenceAlias.OnAliasChanged(ReferenceAlias akSender, ObjectReference akObject, bool abRemove)
+    Trace(self, "OnAliasChanged() akSender: " + akSender + ", akObject: " + akObject + ", abRemove: " + abRemove)
+    CheckAndAddKeyword()
+endEvent
 
 Event ReferenceAlias.OnLoad(ReferenceAlias akSender)
-  If akSender == Trigger && settlementQuest == None
-    Self.StartRQ()
-  EndIf
+    if akSender == Trigger && settlementQuest == NONE
+        Trace(self, "Trigger OnLoad - try to start RQ")
+        StartRQ()
+    endif
 EndEvent
 
 Function CheckAndAddKeyword()
-  ObjectReference LeaderRef = NPC_Leader.GetReference()
-  If MissionTerminals.GetCount() > 0 && LeaderRef as Bool
-    LeaderRef.AddKeyword(OE_Civilians_MissionTerminalAvailable)
-  EndIf
+    Trace(self, "CheckAndAddKeyword()")
+    ObjectReference LeaderRef = NPC_Leader.GetReference()
+
+    Trace(self, "CheckAndAddKeyword() LeaderRef: " + LeaderRef + ",  MissionTerminals.GetCount(): " +  MissionTerminals.GetCount())
+
+    if MissionTerminals.GetCount() > 0 && LeaderRef
+        Trace(self, "CheckAndAddKeyword() adding OE_Civilians_MissionTerminalAvailable keyword to LeaderRef: " + LeaderRef)
+        LeaderRef.AddKeyword(OE_Civilians_MissionTerminalAvailable)
+    endif
 EndFunction
 
-Function SetupSpawnedNPCs()
-  Int I = 0
-  While I < NPC_Collections.Length
-    RefCollectionAlias SpawnCollection = NPC_Collections[I]
-    NPCs_All.AddRefCollection(SpawnCollection)
-    I += 1
-  EndWhile
-  ObjectReference[] spawnArray = NPCs_All.GetArray()
-  I = 0
-  Bool nightShiftToggle = False
-  Int livingAreasIndex = 0
-  While I < spawnArray.Length
-    ObjectReference theNPC = spawnArray[I]
-    If nightShiftToggle
-      theNPC.SetValue(OE_Civilian_NightShift, 1.0)
-    EndIf
-    nightShiftToggle = !nightShiftToggle
-    theNPC.SetLinkedRef(LivingAreas.GetAt(livingAreasIndex), OE_Civilians_LinkLivingArea, False)
-    livingAreasIndex += 1
-    If livingAreasIndex >= LivingAreas.GetCount()
-      livingAreasIndex = 0
-    EndIf
-    I += 1
-  EndWhile
-  Actor merchantRef = NPC_Merchant.GetActorRef()
-  Actor LeaderRef = NPC_Leader.GetActorRef()
-  If merchantRef as Bool && LeaderRef as Bool
-    ActorBase leaderBase = LeaderRef.GetBaseObject() as ActorBase
-    If leaderBase
-      LeaderRef.SetValue(OE_Civilians_DIAL_LeaderGender, leaderBase.GetSex() as Float)
-    EndIf
-  EndIf
-EndFunction
+function SetupSpawnedNPCs()
+	Trace(self, "SetupSpawnedNPCs()")
+    int i = 0
+    while i < NPC_Collections.Length
+        ; add NPCs to NPCs_All collection
+        RefCollectionAlias SpawnCollection = NPC_Collections[i]
+        Trace(self, " adding NPCs from " + SpawnCollection)
+        NPCs_All.AddRefCollection(SpawnCollection)
+        i += 1
+    EndWhile
 
-Event DefaultGroupSpawnQuestScript.SpawnGroupDoneEvent(defaultgroupspawnquestscript akSender, Var[] akArgs)
-  defaultgroupspawnquestscript DefaultGroupSpawnQuestScriptIns = (Self as Quest) as defaultgroupspawnquestscript
-  If DefaultGroupSpawnQuestScriptIns.GroupSetupCompleted
-    Location myLocation = OE_Location.GetLocation()
-    Self.StartRQ()
+    ; set up living areas, "night shift" for package scheduling
+    ObjectReference[] spawnArray = NPCs_All.GetArray()
+    Trace(self, " total NPCs: " + spawnArray)
+    i = 0
+    bool nightShiftToggle = false
+    int livingAreasIndex = 0
+
+    while i < spawnArray.Length
+        ObjectReference theNPC = spawnArray[i]
+        Trace(self, " setting up NPC " + i + ": " + theNPC)
+        ; tag every other NPC as night shift
+        if nightShiftToggle
+            Trace(self, "    NIGHT SHIFT")
+            theNPC.SetValue(OE_Civilian_NightShift, 1.0)
+        EndIf
+        nightShiftToggle = !nightShiftToggle
+
+        ; link to living areas (use them all)
+        Trace(self, "    linking to living area " + livingAreasIndex)
+        theNPC.SetLinkedRef(LivingAreas.GetAt(livingAreasIndex), OE_Civilians_LinkLivingArea, abPromoteParentRefr = false)
+        livingAreasIndex += 1
+        if livingAreasIndex >= LivingAreas.GetCount()
+            livingAreasIndex = 0
+        endif
+
+        i += 1
+    EndWhile
+
+    ; tag leader gender on merchant for OE_Dialogue conditions
     Actor merchantRef = NPC_Merchant.GetActorRef()
-    If merchantRef
-      ObjectReference vendorContainer = merchantRef.GetLinkedRef(VendorContainerKeyword01)
-      If vendorContainer
-        SQ_TreasureMap_CreateMapStoryEvent.SendStoryEvent(myLocation, vendorContainer, None, SQ_TreasureMap_CreateAny.GetValueInt(), 0)
-      EndIf
-    EndIf
-    Self.SetupSpawnedNPCs()
-    If SQ_Parent.VisibleOnStarmap(myLocation)
-      If myLocation.HasRefType(Mission_CargoDestinationLocRefType)
-        myLocation.AddKeyword(Mission_CargoDestination)
-      EndIf
-      If myLocation.HasRefType(Mission_PassengerDestinationLocRefType)
-        myLocation.AddKeyword(Mission_PassengerDestination)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+    Actor LeaderRef = NPC_Leader.GetActorRef()
 
-Function StartRQ()
-  If settlementQuest == None
-    Quest[] settlementQuests = RQSettlementEvent.SendStoryEventAndWait(OE_Location.GetLocation(), Trigger.GetRef(), None, 0, 0)
-    If settlementQuests
-      settlementQuest = settlementQuests[0]
-      Self.RegisterForRemoteEvent(settlementQuest as ScriptObject, "OnQuestShutdown")
-      oescript myOE = (Self as Quest) as oescript
-      If myOE
-        myOE.StopQuestWhenPlayerLeavesPlanet = False
-      EndIf
-      If settlementQuest is rqscript && myOE.OwningFaction as Bool
-        Int failsafeCount = 0
-        While settlementQuest.IsStarting() && failsafeCount < 50
-          failsafeCount += 1
-          Utility.Wait(1.0)
-        EndWhile
-        (settlementQuest as rqscript).SetLocationOwnership(myOE.OwningFaction)
-      EndIf
-    EndIf
-  EndIf
+    if merchantRef && LeaderRef
+        ActorBase leaderBase = LeaderRef.GetBaseObject() as ActorBase
+        if leaderBase
+            LeaderRef.SetValue(OE_Civilians_DIAL_LeaderGender, leaderBase.GetSex())
+        endif
+    endif
+    
+EndFunction
+
+Event DefaultGroupSpawnQuestScript.SpawnGroupDoneEvent(DefaultGroupSpawnQuestScript akSender, var[] akArgs)
+	Trace(self, "SpawnGroupDoneEvent() args: " + akArgs)
+	DefaultGroupSpawnQuestScript DefaultGroupSpawnQuestScriptIns = (self as quest) as DefaultGroupSpawnQuestScript
+    if DefaultGroupSpawnQuestScriptIns.GroupSetupCompleted
+    	Trace(self, "SpawnGroupDoneEvent(): GroupSetupCompleted - try to start settlement RQ")
+
+        Location myLocation = OE_Location.GetLocation()
+
+        ; spawning is finished
+        ; send RQ story event
+        StartRQ()
+
+        ; if there's a merchant, send treasure map vendor event
+        Actor merchantRef = NPC_Merchant.GetActorRef()
+        if merchantRef
+            ; get container
+            ObjectReference vendorContainer = merchantRef.GetLinkedRef(VendorContainerKeyword01)
+            if vendorContainer
+                SQ_TreasureMap_CreateMapStoryEvent.SendStoryEvent(akLoc=myLocation, akRef1=vendorContainer, aiValue1=SQ_TreasureMap_CreateAny.GetValueInt())
+            endif
+        endif
+
+        ; setup spawned NPCs
+        SetupSpawnedNPCs()
+
+        ; tag with mission board data if this is visible on the starmap
+        if SQ_Parent.VisibleOnStarmap(myLocation)     
+            if myLocation.HasRefType(Mission_CargoDestinationLocRefType)
+                ; tag as cargo destination
+                myLocation.AddKeyword(Mission_CargoDestination)
+                Trace(self, " tagged " + myLocation + " as cargo destination")
+            endif
+            if myLocation.HasRefType(Mission_PassengerDestinationLocRefType)
+                ; tag as Passenger destination
+                myLocation.AddKeyword(Mission_PassengerDestination)
+                Trace(self, " tagged " + myLocation + " as passenger destination")
+            endif
+        endif
+    Else
+    	Trace(self, "SpawnGroupDoneEvent(): GroupSetupCompleted = false - wait for next event")
+    endif
+endEvent
+
+function StartRQ()
+    ; send RQ story event if we don't have an RQ yet
+    if settlementQuest == NONE
+        Quest[] settlementQuests = RQSettlementEvent.SendStoryEventAndWait(akLoc=OE_Location.GetLocation(), akRef1=Trigger.GetRef())
+        if settlementQuests
+            ; don't stop this quest until my settlement quest has shut down
+            settlementQuest = settlementQuests[0]
+        	Trace(self, "SpawnGroupDoneEvent(): started settlement quest " + settlementQuest)
+            RegisterForRemoteEvent(settlementQuest, "OnQuestShutdown")
+            OEScript myOE = ((self as Quest) as OEScript)
+            if myOE
+                myOE.StopQuestWhenPlayerLeavesPlanet = false
+            endif
+
+            ; set owner faction if any - need to wait for settlement quest to be fully started
+            if settlementQuest is RQScript && myOE.OwningFaction
+                Trace(self, "SpawnGroupDoneEvent(): setting owner faction on settlement quest: " + myOE.OwningFaction)
+                int failsafeCount = 0
+                while settlementQuest.IsStarting() && failsafeCount < 50
+                    Trace(self, "SpawnGroupDoneEvent(): waiting for settlement quest to finish starting up ... " + failsafeCount)
+                    failsafeCount += 1
+                    Utility.Wait(1.0)
+                endWhile
+                (settlementQuest as RQScript).SetLocationOwnership(myOE.OwningFaction)
+            endif
+        endif
+    endif
 EndFunction
 
 Event Quest.OnQuestShutdown(Quest akSource)
-  If akSource == settlementQuest
-    Self.UnregisterForRemoteEvent(settlementQuest as ScriptObject, "OnQuestShutdown")
-    settlementQuest = None
-    rescript myRE = (Self as Quest) as rescript
-    If myRE
-      myRE.StopQuestWhenPlayerLeavesPlanet = True
-    EndIf
-  EndIf
+    ; OK to shut down now
+    if akSource == settlementQuest
+        UnregisterForRemoteEvent(settlementQuest, "OnQuestShutdown")
+        settlementQuest = None
+        REScript myRE = ((self as Quest) as REScript)
+        if myRE
+            myRE.StopQuestWhenPlayerLeavesPlanet = true
+        endif
+    endif
 EndEvent
 
 Event OnQuestShutdown()
-  If triggerRef
-    triggerRef.ReArmTrigger()
-    triggerRef = None
-  EndIf
+    ; rearm trigger so OE_Civilians can start there next time
+    if triggerRef
+    	Trace(self, "OnQuestShutdown(): rearming trigger " + triggerRef)
+        triggerRef.ReArmTrigger()
+        triggerRef = NONE
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "OverlayEncounters",  string SubLogName = "OE_CiviliansScript", bool bShowNormalTrace = true, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "OverlayEncounters",  string SubLogName = "OE_CiviliansScript", bool bShowNormalTrace = true, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
-EndFunction

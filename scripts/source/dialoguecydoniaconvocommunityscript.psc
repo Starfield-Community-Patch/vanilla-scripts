@@ -1,20 +1,17 @@
-ScriptName DialogueCydoniaConvoCommunityScript Extends Quest
-{ Shared script for the Cydonia Community Center Conversation quests }
+Scriptname DialogueCydoniaConvoCommunityScript extends Quest
+{Shared script for the Cydonia Community Center Conversation quests}
 
-;-- Variables ---------------------------------------
+Float Property MeetingDuration Mandatory Const Auto
+Int Property StageToCheckGetDone Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Float Property MeetingDuration Auto Const mandatory
-Int Property StageToCheckGetDone Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;Starts a user-specified timer in GameTime. It should be noted that this works best for Mars, since its days are so similar to GST.
 Event OnQuestInit()
-  Self.StartTimerGameTime(MeetingDuration, 0)
+    StartTimerGameTime(MeetingDuration)
 EndEvent
 
-Event OnTimerGameTime(Int aiTimerID)
-  If !Self.GetStageDone(StageToCheckGetDone)
-    Self.Stop()
-  EndIf
+;After the timer duration ends, check to see if the player arrived to the scene, which sets the specified stage. If not, shut the quest down so the NPCs can be released.
+Event OnTimerGameTime(int aiTimerID)
+    If !GetStageDone(StageToCheckGetDone)
+        Stop()
+    EndIf
 EndEvent

@@ -1,106 +1,133 @@
-ScriptName TestNPCSimpleSpawn Extends ObjectReference
+Scriptname TestNPCSimpleSpawn extends ObjectReference
 
-;-- Variables ---------------------------------------
-Int CurrentGroupSize
-FormList FactionFormList
-Int NPCTypeIndex
-Actor[] SpawnedActors
 
-;-- Properties --------------------------------------
-Group SharedDefaults collapsedonref
-  ActorBase Property ActorToSpawn Auto mandatory
-  Keyword Property SpawnLocationsKeyword Auto Const mandatory
-  Keyword Property DestinationLocationKeyword Auto Const mandatory
-  Outfit[] Property AllTestOutfits Auto Const
-  wwiseevent Property PositiveSoundEvent Auto Const
-  Keyword Property PatrolTypeKeyword Auto
+Group SharedDefaults CollapsedOnRef
+	ActorBase Property ActorToSpawn Auto Mandatory
+
+	Keyword Property SpawnLocationsKeyword Auto Const Mandatory
+
+	Keyword Property DestinationLocationKeyword Auto Const Mandatory
+
+	Outfit[] Property AllTestOutfits Auto Const
+
+	WwiseEvent Property PositiveSoundEvent Auto Const
+
+	Keyword Property PatrolTypeKeyword Auto 
 EndGroup
 
 Group Settings
-  Int Property GroupSize = 3 Auto
-  ObjectReference Property GroupSpawnButton Auto Const
-  ObjectReference Property SingleSpawnButton Auto Const
-  ObjectReference Property KillAllButton Auto Const
+int Property GroupSize = 3 Auto
+ObjectReference Property GroupSpawnButton Auto Const
+ObjectReference Property SingleSpawnButton Auto Const
+ObjectReference Property KillAllButton Auto Const
+
 EndGroup
 
-
-;-- Functions ---------------------------------------
+Actor[] SpawnedActors
+int CurrentGroupSize
+FormList FactionFormList
+int NPCTypeIndex
 
 Event OnInit()
-  SpawnedActors = new Actor[0]
-  CurrentGroupSize = GroupSize
+	SpawnedActors = new Actor[0]
+	CurrentGroupSize = GroupSize
 EndEvent
 
+
 Event OnActivate(ObjectReference akActionRef)
-  PositiveSoundEvent.Play(Self as ObjectReference, None, None)
-  If akActionRef == GroupSpawnButton
-    CurrentGroupSize == GroupSize
-    Self.SpawnActors()
-  ElseIf akActionRef == SingleSpawnButton
-    CurrentGroupSize = 1
-    Self.SpawnActors()
-  ElseIf akActionRef == KillAllButton
-    Self.KillAllNPCs()
-  EndIf
+    PositiveSoundEvent.Play(self)
+    if(akActionRef == GroupSpawnButton)
+	    ; Handle Group Spawn
+	    CurrentGroupSize == GroupSize
+	    SpawnActors()
+
+	ElseIf(akActionRef == SingleSpawnButton)
+	    ; Handle Single Spawn
+	    CurrentGroupSize = 1
+	    SpawnActors()
+
+	ElseIf(akActionRef == KillAllButton)
+	    ; Handle Kill? (Each Spawn should just kill the previous one too)
+	    KillAllNPCs()
+	else
+		;Activated, but activator not found. in list
+	EndIf
+
+
 EndEvent
 
 Function SpawnActors()
-  Self.KillAllNPCs()
-  ObjectReference[] SpawnLocations = Self.GetLinkedRefChain(SpawnLocationsKeyword, 100)
-  Int I = 0
-  Int j = 0
-  Actor newActor = None
-  Actor previousActor = None
-  While I < SpawnLocations.Length
-    Outfit outfitToUse = AllTestOutfits[I % AllTestOutfits.Length]
-    newActor = SpawnLocations[I].PlaceActorAtMe(ActorToSpawn, 4, None, False, False, True, None, True)
-    SpawnedActors.add(newActor, 1)
-    newActor.RemoveFromAllFactions()
-    newActor.SetLinkedRef(SpawnLocations[I].GetLinkedRef(DestinationLocationKeyword), PatrolTypeKeyword, True)
-    newActor.SetOutfit(outfitToUse, False)
-    newActor.EvaluatePackage(False)
-    If CurrentGroupSize > 1
-      j = 0
-      While j < CurrentGroupSize - 1
-        previousActor = newActor
-        newActor = SpawnLocations[I].PlaceActorAtMe(ActorToSpawn, 4, None, False, False, True, None, True)
-        SpawnedActors.add(newActor, 1)
-        newActor.RemoveFromAllFactions()
-        newActor.SetLinkedRef(previousActor as ObjectReference, None, True)
-        newActor.SetOutfit(outfitToUse, False)
-        newActor.EvaluatePackage(False)
-        j += 1
-      EndWhile
-    EndIf
-    I += 1
-    Utility.Wait(3.0)
-  EndWhile
+
+	KillAllNPCs()
+
+
+	ObjectReference[] SpawnLocations = self.GetLinkedRefChain(SpawnLocationsKeyword)
+
+	;For Each Spawn Location (Either single actor, or a group spawns here.)
+	int i = 0
+	int j = 0
+	Actor newActor
+	Actor previousActor		
+	While (i < SpawnLocations.length)
+
+		;Cycle through the available outfits and set one
+		Outfit outfitToUse = AllTestOutfits[i % AllTestOutfits.length]
+
+		;Spawn actors for each spawn location
+		newActor = SpawnLocations[i].PlaceActorAtMe(ActorToSpawn)
+		SpawnedActors.Add(newActor)
+		newActor.RemoveFromAllFactions()	
+		; link actor to patrol
+		newActor.SetLinkedRef(SpawnLocations[i].GetLinkedRef(DestinationLocationKeyword), PatrolTypeKeyword)
+		newActor.SetOutfit(outfitToUse)
+		newActor.EvaluatePackage()
+		;check if this is a group and set the new actor to follow the previous one
+			if(CurrentGroupSize > 1)
+				j = 0
+				while (j < CurrentGroupSize -1) ; -1 because we already spawned one actor for the group
+					previousActor = newActor
+					newActor = SpawnLocations[i].PlaceActorAtMe(ActorToSpawn)
+					SpawnedActors.Add(newActor)
+					newActor.RemoveFromAllFactions()
+					; set to follow
+					newActor.SetLinkedRef(previousActor)
+					newActor.SetOutfit(outfitToUse)
+					newActor.EvaluatePackage()
+					j += 1
+				EndWhile
+			EndIf
+		i += 1
+		Utility.Wait(3)
+	EndWhile		
 EndFunction
 
 Function KillAllNPCs()
-  Int count = 0
-  While count < SpawnedActors.Length
-    Actor curItem = SpawnedActors[count]
-    curItem.KillSilent(None)
-    count += 1
-  EndWhile
-  SpawnedActors.clear()
+	;Kill all NPCs Spawned by this controller.
+	int count = 0
+	While (count < SpawnedActors.length)
+		actor curItem = SpawnedActors[count]
+		curItem.KillSilent()
+		count += 1
+	EndWhile
+	SpawnedActors.Clear()
 EndFunction
 
 Actor[] Function GetSpawnedActors()
-  Return SpawnedActors
+	Return SpawnedActors
 EndFunction
 
 Function SetDestinationKeyword(Keyword newKeyword)
-  PatrolTypeKeyword = newKeyword
+	PatrolTypeKeyword = newKeyword
 EndFunction
 
+; Call from another script on a button per faction.
 Function SetFaction(FormList newFactionFormList)
-  FactionFormList = newFactionFormList
-  ActorToSpawn = FactionFormList.GetAt(NPCTypeIndex) as ActorBase
+	FactionFormList = newFactionFormList
+	ActorToSpawn = FactionFormList.GetAt(NPCTypeIndex) as ActorBase
 EndFunction
 
-Function SetClass(Int newNPCTypeIndex)
-  NPCTypeIndex = newNPCTypeIndex
-  ActorToSpawn = FactionFormList.GetAt(NPCTypeIndex) as ActorBase
+;Call from another script on a button per NPC type.
+Function SetClass(int newNPCTypeIndex)
+	NPCTypeIndex = newNPCTypeIndex
+	ActorToSpawn = FactionFormList.GetAt(NPCTypeIndex) as ActorBase
 EndFunction

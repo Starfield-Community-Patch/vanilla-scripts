@@ -1,51 +1,66 @@
-ScriptName DefaultDisableSelfTrigger Extends ObjectReference
-{ Default script that simply activates itself once when player enters trigger, can optionally triggered by specific refs, aliases, or factions. }
+ScriptName DefaultDisableSelfTrigger extends ObjectReference
+{Default script that simply activates itself once when player enters trigger, can optionally triggered by specific refs, aliases, or factions.}
 
-;-- Variables ---------------------------------------
+import CommonArrayFunctions
 
-;-- Properties --------------------------------------
-Bool Property PlayerOnly = True Auto Const
-{ Only Player Triggers?  Default: TRUE
-Must be FALSE if you put anything in the arrays. }
-Int Property PlayerMinLevel Auto Const
-{ Optional: If set, player must be >= PlayerMinLevel to activate this }
+bool property PlayerOnly = TRUE auto Const
+{Only Player Triggers?  Default: TRUE
+Must be FALSE if you put anything in the arrays.}
+
+int property PlayerMinLevel auto Const
+{Optional: If set, player must be >= PlayerMinLevel to activate this}
+
 ObjectReference[] Property TriggeredByReferences Auto Const
-{ OPTIONAL: Activation will occur if Triggered by any of these references.
-If ALL arrays are empty then stage is set if Triggered by anybody. }
+{OPTIONAL: Activation will occur if Triggered by any of these references.
+If ALL arrays are empty then stage is set if Triggered by anybody.}
+
 ReferenceAlias[] Property TriggeredByAliases Auto Const
-{ OPTIONAL: Activation will occur if Triggered by any of these aliases.
-If ALL arrays are empty then stage is set if Triggered by anybody. }
+{OPTIONAL: Activation will occur if Triggered by any of these aliases.
+If ALL arrays are empty then stage is set if Triggered by anybody.}
+
 Faction[] Property TriggeredByFactions Auto Const
-{ OPTIONAL: Activation will occur if Triggered by any of these factions.
-If ALL arrays are empty then stage is set if Triggered by anybody. }
+{OPTIONAL: Activation will occur if Triggered by any of these factions.
+If ALL arrays are empty then stage is set if Triggered by anybody.}
 
-;-- State -------------------------------------------
-State DoneWaiting
 
-  Event onBeginState(String asOldState)
-    Self.Disable(False)
-  EndEvent
-EndState
+;************************************
 
-;-- State -------------------------------------------
-Auto State Waiting
+auto STATE Waiting
+	Event onTriggerEnter(objectReference triggerRef)
+		if PlayerOnly
+			if triggerRef == Game.GetPlayer()
+				if(PlayerMinLevel == 0 || game.getPlayer().getLevel() >= PlayerMinLevel)
+						; We only care about the player, it is the player, and he either matches the min level or there isn't one. ACTIVATE!
+					GoToState("DoneWaiting")
+					activate(self)
+				endif
+			endif
+		else
+			if TriggeredByReferences.Length > 0 || TriggeredByAliases.Length > 0 || TriggeredByFactions.Length > 0
+					; We don't care about the player, and the arrays are empty.  Doesn't matter what triggers us, ACTIVATE!
+				GoToState("DoneWaiting")
+				activate(self)
+			else
+				if CheckObjectReferenceAgainstArray(triggerRef, TriggeredByReferences) || CheckObjectReferenceAgainstReferenceAliasArray(triggerRef, TriggeredByAliases) || CheckActorAgainstFactionArray(triggerRef as Actor, TriggeredByFactions)
+					if(PlayerMinLevel == 0 || game.getPlayer().getLevel() >= PlayerMinLevel)
+							; We only care about the arrays, something in them triggered us, and the player matches the min level or there isn't one. ACTIVATE!
+						GoToState("DoneWaiting")
+						activate(self)
+					endif
+				endif
+			endif
+		endif
 
-  Event onTriggerEnter(ObjectReference triggerRef)
-    If PlayerOnly
-      If triggerRef == Game.GetPlayer() as ObjectReference
-        If PlayerMinLevel == 0 || Game.GetPlayer().getLevel() >= PlayerMinLevel
-          Self.GoToState("DoneWaiting")
-          Self.activate(Self as ObjectReference, False)
-        EndIf
-      EndIf
-    ElseIf TriggeredByReferences.Length > 0 || TriggeredByAliases.Length > 0 || TriggeredByFactions.Length > 0
-      Self.GoToState("DoneWaiting")
-      Self.activate(Self as ObjectReference, False)
-    ElseIf commonarrayfunctions.CheckObjectReferenceAgainstArray(triggerRef, TriggeredByReferences, False) || commonarrayfunctions.CheckObjectReferenceAgainstReferenceAliasArray(triggerRef, TriggeredByAliases, False) || commonarrayfunctions.CheckActorAgainstFactionArray(triggerRef as Actor, TriggeredByFactions, False)
-      If PlayerMinLevel == 0 || Game.GetPlayer().getLevel() >= PlayerMinLevel
-        Self.GoToState("DoneWaiting")
-        Self.activate(Self as ObjectReference, False)
-      EndIf
-    EndIf
-  EndEvent
-EndState
+
+	endEvent
+endSTATE
+
+;************************************
+
+STATE DoneWaiting
+	;do nothing
+	Event onBeginState(string asOldState)
+		Disable()
+	endEvent
+endSTATE
+

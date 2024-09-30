@@ -1,42 +1,44 @@
-ScriptName Helium3ContainerScript Extends ObjectReference
-{ script for helium 3 container }
+Scriptname Helium3ContainerScript extends ObjectReference
+{script for helium 3 container}
 
-;-- Variables ---------------------------------------
-Bool isOpen
+String property myOpenAnimation = "play01" auto Const
+String property myCloseAnimation = "play02" auto Const
+MiscObject property myMiscItem auto Const
+Bool property startOpen = FALSE auto
+Message property myMessage auto
+
 ObjectReference playerRef
+Bool isOpen
 
-;-- Properties --------------------------------------
-String Property myOpenAnimation = "play01" Auto Const
-String Property myCloseAnimation = "play02" Auto Const
-MiscObject Property myMiscItem Auto Const
-Bool Property startOpen = False Auto
-Message Property myMessage Auto
-
-;-- Functions ---------------------------------------
+;************************************************
 
 Event OnLoad()
-  playerRef = Game.GetPlayer() as ObjectReference
-  If startOpen == True
-    isOpen = True
-    Utility.wait(5.0)
-    Self.PlayAnimationAndWait(myOpenAnimation, "done")
-  EndIf
+    playerRef = game.GetPlayer()
+    if (startOpen == TRUE)
+    	isOpen = TRUE
+    	Utility.wait(5.0)
+    	PlayAnimationAndWait(myOpenAnimation, "done")
+    endif
 EndEvent
 
+;************************************************
+
 Event OnActivate(ObjectReference akActionRef)
-  If akActionRef == playerRef
-    If isOpen == True
-      If playerRef.GetItemCount(myMiscItem as Form) > 0
-        isOpen = False
-        playerRef.RemoveItem(myMiscItem as Form, 1, False, None)
-        Self.PlayAnimationAndWait(myCloseAnimation, "done")
-      Else
-        myMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      EndIf
-    Else
-      isOpen = True
-      Self.PlayAnimationAndWait(myOpenAnimation, "done")
-      playerRef.AddItem(myMiscItem as Form, 1, False)
-    EndIf
-  EndIf
+    if (akActionRef == playerRef)
+    	if(isOpen == TRUE)
+			if(playerRef.GetItemCount(myMiscItem) > 0)
+				isOpen = FALSE
+				playerRef.RemoveItem(myMiscItem, 1)
+				PlayAnimationAndWait(myCloseAnimation, "done")
+			else
+				myMessage.Show()
+			endif
+		else
+			isOpen = TRUE
+			PlayAnimationAndWait(myOpenAnimation, "done")
+			playerRef.AddItem(myMiscItem, 1)
+		endif
+    endif
 EndEvent
+
+;************************************************

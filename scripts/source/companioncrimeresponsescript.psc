@@ -1,175 +1,255 @@
-ScriptName CompanionCrimeResponseScript Extends Actor
-{ handles having the companion bail on combat with people they consider civilians and respond to player killing them as murder
+Scriptname CompanionCrimeResponseScript extends Actor
+{handles having the companion bail on combat with people they consider civilians and respond to player killing them as murder
 
 ***REMINDERS
-all actors with this script MUST have their own "personal crime faction" faction that has a shared crime faction list of factions they consider "civilians" }
+all actors with this script MUST have their own "personal crime faction" faction that has a shared crime faction list of factions they consider "civilians"
+}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill
-  sq_companionsscript Property SQ_Companions Auto Const mandatory
-  Faction Property CurrentCompanionFaction Auto Const mandatory
-  GlobalVariable Property COM_AngerReason_Common_1_Murder Auto Const mandatory
-  Keyword Property COM_NotCivilian Auto Const mandatory
-  ActorValue Property Aggression Auto Const mandatory
-  ActorValue Property Assistance Auto Const mandatory
+	SQ_CompanionsScript Property SQ_Companions Mandatory Const Auto
+	Faction Property CurrentCompanionFaction Mandatory Const Auto
+	GlobalVariable Property COM_AngerReason_Common_1_Murder Mandatory Const Auto
+	Keyword Property COM_NotCivilian Auto Const Mandatory
+	ActorValue Property Aggression Mandatory Const Auto
+	ActorValue Property  Assistance Mandatory Const Auto
 EndGroup
+
 
 Group Properties
-  affinityevent Property AffinityEventOnCombat Auto Const mandatory
-  { filter for: COM_Event_Action_CivilianCombat }
-  affinityevent Property AffinityEventOnKill Auto Const mandatory
-  { filter for: COM_Event_Action_CivilianKilled }
-  Faction[] Property IgnoreSharedCrimeForAnyoneInTheseFactions Auto Const
-  { Even if the companion would help them because they are in his shared crime list, ignore it if they are in this faction. }
+	AffinityEvent Property AffinityEventOnCombat Mandatory Const Auto
+	{filter for: COM_Event_Action_CivilianCombat}
+
+	AffinityEvent Property AffinityEventOnKill Mandatory Const Auto
+	{filter for: COM_Event_Action_CivilianKilled}
+
+	Faction[] Property IgnoreSharedCrimeForAnyoneInTheseFactions const auto
+	{Even if the companion would help them because they are in his shared crime list, ignore it if they are in this faction.}
+
+;Might need for code debugging, leaving for now until code solution is determined
+;	FormList Property SharedCrimeFactionList Mandatory Const Auto
+;	{this needs to be the same formlist used in the actors personal crime faction's shared crime list}
+	
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  Self.RegisterForEvents()
+	RegisterForEvents()
 EndEvent
 
 Event OnUnload()
-  Self.UnregisterForEvents()
+	UnregisterForEvents()
 EndEvent
 
+;called externally from temp script to fix currently broken saves
 Function RegisterForEvents()
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerAssaultActor")
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerMurderActor")
-  Self.RegisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnCombatStateChanged")
+	Trace(self, "RegisterForEvents()")
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerAssaultActor")
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnPlayerMurderActor")
+	RegisterForRemoteEvent(Game.GetPlayer(), "OnCombatStateChanged")
 EndFunction
 
 Function UnregisterForEvents()
-  Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerAssaultActor")
-  Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnPlayerMurderActor")
-  Self.UnregisterForRemoteEvent(Game.GetPlayer() as ScriptObject, "OnCombatStateChanged")
+	Trace(self, "UnregisterForEvents()")
+	UnregisterForRemoteEvent(Game.GetPlayer(), "OnPlayerAssaultActor")
+	UnregisterForRemoteEvent(Game.GetPlayer(), "OnPlayerMurderActor")
+	UnregisterForRemoteEvent(Game.GetPlayer(), "OnCombatStateChanged")
 EndFunction
 
-Bool Function AmIHere()
-  Return Self.Is3DLoaded()
+bool Function AmIHere()
+	return Is3DLoaded()
 EndFunction
 
-Bool Function AmIAngry()
-  Bool returnVal = SQ_Companions.GetAngerLevel(Self as Actor).GetValue() >= SQ_Companions.COM_AngerLevel_2_Angry.GetValue()
-  Return returnVal
+;overridden in child script EliteCrewCrimeResponseScript
+bool Function AmIAngry()
+	bool returnVal = SQ_Companions.GetAngerLevel(self).GetValue() >= SQ_Companions.COM_AngerLevel_2_Angry.GetValue()
+
+	Trace(self, "AmIAngry() returnVal: " + returnVal)
+
+	return returnVal
+endFunction
+
+Function ProcessCombatantsForCrimeFactionAnger(bool TestMyCombatTargets = false) Private
+	Trace(self, "ProcessCombatantsForCrimeFactionAnger() TestMyCombatTargets: " + TestMyCombatTargets)
+
+
+	;are you already angry? if so, ignore (yes, this means if you only have a little time left being angry player could be a jerk and you'll come out of anger sooner than you should, but it speeds this script up and is kind of an edge case)
+	if AmIAngry()
+		trace(self, "ProcessCombatantsForCrimeFactionAnger() AmIAngry == true, BAILING")
+		RETURN
+	endif
+
+
+	faction myCrimeFaction = GetCrimeFaction()
+	trace(self, "ProcessCombatantsForCrimeFactionAnger() myCrimeFaction:" + myCrimeFaction)
+	
+	Actor ActorWhoseCombatantTargetsToTest = Game.GetPlayer()
+	if TestMyCombatTargets
+		ActorWhoseCombatantTargetsToTest = self
+	endif
+
+	trace(self, "ProcessCombatantsForCrimeFactionAnger() ActorWhoseCombatantTargetsToTest: " + ActorWhoseCombatantTargetsToTest)
+
+	Actor[] combatants = ActorWhoseCombatantTargetsToTest.GetAllCombatTargets()
+
+	trace(self, "ProcessCombatantsForCrimeFactionAnger() combatants:" + combatants)
+
+	int i = 0
+	int max = combatants.length
+	while (i < max)
+		ProcessCrimeFactionAnger(combatants[i], myCrimeFaction, SkipLockedInCompanionCheck = true)
+
+		i += 1
+	endwhile
+
+	if TestMyCombatTargets == false && myCrimeFaction.IsPlayerEnemy() == false
+		;done testing player's combatants, if I'm not already upset personally, test my combatants in case the player somehow dropped out of combat before me
+		ProcessCombatantsForCrimeFactionAnger(TestMyCombatTargets = true)
+	endif
+
 EndFunction
 
-Function ProcessCombatantsForCrimeFactionAnger(Bool TestMyCombatTargets)
-  If Self.AmIAngry()
-    Return 
-  EndIf
-  Faction myCrimeFaction = Self.GetCrimeFaction()
-  Actor ActorWhoseCombatantTargetsToTest = Game.GetPlayer()
-  If TestMyCombatTargets
-    ActorWhoseCombatantTargetsToTest = Self as Actor
-  EndIf
-  Actor[] combatants = ActorWhoseCombatantTargetsToTest.GetAllCombatTargets()
-  Int I = 0
-  Int max = combatants.Length
-  While I < max
-    Self.ProcessCrimeFactionAnger(combatants[I], myCrimeFaction, True)
-    I += 1
-  EndWhile
-  If TestMyCombatTargets == False && myCrimeFaction.IsPlayerEnemy() == False
-    Self.ProcessCombatantsForCrimeFactionAnger(True)
-  EndIf
+Function ProcessCrimeFactionAnger(Actor ActorToTest, Faction myCrimeFaction, bool SkipLockedInCompanionCheck = false) Private
+	trace(self, "ProcessCrimeFactionAnger() ActorToTest:" + ActorToTest + ", SkipLockedInCompanionCheck: " + SkipLockedInCompanionCheck)
+
+	;check to see if the combatant's crime faction is an enemy of the player
+	faction actorToTestCrimeFaction = ActorToTest.GetCrimeFaction()
+
+	trace(self, "ProcessCrimeFactionAnger() actorToTestCrimeFaction:" + actorToTestCrimeFaction)
+
+	if actorToTestCrimeFaction && actorToTestCrimeFaction.IsPlayerEnemy()
+		trace(self, "ProcessCrimeFactionAnger() actorToTestCrimeFaction.IsPlayerEnemy() and not in IgnoreSharedCrimeForAnyoneInTheseFactions")
+
+		;check to see if the crime faction is in my shared crime faction list and the actor isn't in the ignore array
+		if myCrimeFaction.IsFactionInCrimeGroup(actorToTestCrimeFaction) && CommonArrayFunctions.CheckActorAgainstFactionArray(ActorToTest, IgnoreSharedCrimeForAnyoneInTheseFactions) == false
+			
+			trace(self, "ProcessCrimeFactionAnger() currentCrimeFaction is in my Crime Faction's shared crime group.")
+
+			;i consider this civilian combat and I don't like it:
+			CivilianCombat(ActorToTest)
+
+			RETURN
+		endif
+
+	endif 
 EndFunction
 
-Function ProcessCrimeFactionAnger(Actor ActorToTest, Faction myCrimeFaction, Bool SkipLockedInCompanionCheck)
-  Faction actorToTestCrimeFaction = ActorToTest.GetCrimeFaction()
-  If actorToTestCrimeFaction as Bool && actorToTestCrimeFaction.IsPlayerEnemy()
-    If myCrimeFaction.IsFactionInCrimeGroup(actorToTestCrimeFaction) && commonarrayfunctions.CheckActorAgainstFactionArray(ActorToTest, IgnoreSharedCrimeForAnyoneInTheseFactions, False) == False
-      Self.CivilianCombat(ActorToTest)
-      Return 
-    EndIf
-  EndIf
-EndFunction
 
-Event Actor.OnCombatStateChanged(Actor akSender, ObjectReference akTarget, Int aeCombatState)
-  If Self.AmIHere() == False
-    Return 
-  EndIf
-  If aeCombatState > 0
-    Self.ProcessCombatantsForCrimeFactionAnger(False)
-  EndIf
+Event Actor.OnCombatStateChanged(Actor akSender, ObjectReference akTarget, int aeCombatState)
+	if AmIHere() == false
+		return
+	endif
+	
+	trace(self, "Player OnCombatStateChanged() akTarget:" + akTarget + ", aeCombatState:" + aeCombatState)
+
+    if aeCombatState > 0
+		ProcessCombatantsForCrimeFactionAnger()
+    endif
 EndEvent
 
-Event Actor.OnPlayerAssaultActor(Actor akSender, ObjectReference akVictim, Location akLocation, Bool aeCrime)
-  If Self.AmIHere() == False
-    Return 
-  EndIf
-  Actor victimActor = akVictim as Actor
-  If Self.IsValidCrimeVictim(victimActor)
-    Self.CivilianCombat(victimActor)
-  EndIf
+Event Actor.OnPlayerAssaultActor(Actor akSender, ObjectReference akVictim, Location akLocation, bool aeCrime)
+	if AmIHere() == false
+		return
+	endif
+	
+	Trace(self, "OnPlayerAssaultActor() akSender: " + akSender + ", akVictim: " + akVictim + ", aeCrime: " + aeCrime)
+	Actor victimActor = akVictim as Actor
+	if IsValidCrimeVictim(victimActor) ;NOTE: we don't care if anyone reported the crime (gained bounty) since this event is for an unprovoked attack which is immoral regardless of crime status
+		CivilianCombat(victimActor)
+	endif
 EndEvent
 
-Event Actor.OnPlayerMurderActor(Actor akSender, ObjectReference akVictim, Location akLocation, Bool aeCrime)
-  If Self.AmIHere() == False
-    Return 
-  EndIf
-  Actor victimActor = akVictim as Actor
-  If Self.IsValidCrimeVictim(victimActor)
-    Self.CivilianKilled(victimActor)
-  EndIf
+Event Actor.OnPlayerMurderActor(Actor akSender, ObjectReference akVictim, Location akLocation, bool aeCrime)
+	if AmIHere() == false
+		return
+	endif
+	
+	Trace(self, "OnPlayerMurderActor() akSender: " + akSender + ", akVictim: " + akVictim + ", aeCrime: " + aeCrime)
+	Actor victimActor = akVictim as Actor
+	if IsValidCrimeVictim(victimActor) ;NOTE: we don't care if anyone reported the crime (gained bounty) since this event is for an unprovoked attack which is immoral regardless of crime status
+		CivilianKilled(victimActor)
+	endif
 EndEvent
 
-Bool Function IsValidCrimeVictim(Actor ActorToCheck)
-  Bool returnVal = False
-  If ActorToCheck as Bool && Self.AmIHere()
-    Faction myCrimeFaction = Self.GetCrimeFaction()
-    Faction ActorToCheckCrimeFaction = ActorToCheck.GetCrimeFaction()
-    Bool isInSharedCrimeFaction = myCrimeFaction.IsFactionInCrimeGroup(ActorToCheckCrimeFaction)
-    If isInSharedCrimeFaction
-      Bool isActorValidCrimeVictim = ActorToCheck.HasKeyword(COM_NotCivilian) == False && commonarrayfunctions.CheckActorAgainstFactionArray(ActorToCheck, IgnoreSharedCrimeForAnyoneInTheseFactions, False) == False
-      If isActorValidCrimeVictim
-        returnVal = True
-      EndIf
-    EndIf
-  EndIf
-  Return returnVal
+bool Function IsValidCrimeVictim(Actor ActorToCheck)
+	Trace(self, "IsValidCrimeVictim() ActorToCheck: " + ActorToCheck)
+	
+	bool returnVal = false
+
+	if ActorToCheck && AmIHere()
+		faction myCrimeFaction = GetCrimeFaction()
+		faction ActorToCheckCrimeFaction = ActorToCheck.GetCrimeFaction()
+		bool isInSharedCrimeFaction = myCrimeFaction.IsFactionInCrimeGroup(ActorToCheckCrimeFaction)
+		Trace(self, "IsValidCrimeVictim() ActorToCheck: " + ActorToCheck + ", isInSharedCrimeFaction: " + isInSharedCrimeFaction)
+
+		if isInSharedCrimeFaction
+			bool isActorValidCrimeVictim = ActorToCheck.HasKeyword(COM_NotCivilian) == false && CommonArrayFunctions.CheckActorAgainstFactionArray(ActorToCheck, IgnoreSharedCrimeForAnyoneInTheseFactions) == false
+
+			Trace(self, "IsValidCrimeVictim() ActorToCheck: " + ActorToCheck + ", isActorValidCrimeVictim: " + isActorValidCrimeVictim)
+
+			if isActorValidCrimeVictim
+				;passed all the tests
+				returnVal = true
+
+			endif
+		endif
+	endif
+
+	Trace(self, "IsValidCrimeVictim() returnVal: " + returnVal)
+	return returnVal
 EndFunction
 
-Function CivilianCombat(Actor CivilianActor)
-  Self.Pacify()
-  AffinityEventOnCombat.Send(CivilianActor as ObjectReference)
-  Self.AutoDismiss()
+Function CivilianCombat(Actor CivilianActor) Private
+	Trace(self, "CivilianCombat() Actor CivilianActor: " + CivilianActor)
+	Pacify()
+	AffinityEventOnCombat.Send(CivilianActor) ;this will make companions angry
+	AutoDismiss()
 EndFunction
 
-Function CivilianKilled(Actor CivilianActor)
-  Self.Pacify()
-  AffinityEventOnKill.Send(CivilianActor as ObjectReference)
-  Self.ProcessCrimeFactionAnger(CivilianActor, Self.GetCrimeFaction(), False)
+Function CivilianKilled(Actor CivilianActor) Protected
+	Trace(self, "CivilianKilled() Actor CivilianActor: " + CivilianActor)
+	Pacify()
+	AffinityEventOnKill.Send(CivilianActor)
+	;AutoDismiss caused by Anger state triggered by CompanionAffinityScript.AngerEvents including the event in AffinityEventOnKill
+	ProcessCrimeFactionAnger(CivilianActor, GetCrimeFaction())
 EndFunction
 
-Function AutoDismiss()
-  If SQ_Companions.IsCompanionLockedIn((Self as Actor) as companionactorscript)
-    
-  ElseIf SQ_Companions.IsRoleActive(Self as Actor)
-    SQ_Companions.SetRoleInactive(Self as Actor, True, False, True)
-  EndIf
+Function AutoDismiss() Protected
+	Trace(self, "AutoDimiss()")
+	if SQ_Companions.IsCompanionLockedIn((self as actor) as CompanionActorScript)
+		Trace(self, "AutoDismiss() companion is currently Locked In, cannot auto dismiss.")
+	elseif SQ_Companions.IsRoleActive(self)
+		SQ_Companions.SetRoleInactive(self) ;combat is also stopped here
+	endif
 EndFunction
 
-Bool Function TestForLockedInCompanion()
-  Bool returnVal = False
-  companionactorscript companion = (Self as Actor) as companionactorscript
-  returnVal = companion as Bool && SQ_Companions.IsCompanionLockedIn(companion)
-  Return returnVal
+bool Function TestForLockedInCompanion() Protected
+	bool returnVal
+	
+	CompanionActorScript companion = (self as actor) as CompanionActorScript ;reminder there is a child extending script for Elite Crew so we need to make sure we are a companion here
+	returnVal = companion && SQ_Companions.IsCompanionLockedIn(companion)
+	Trace(self, "TestForLockedInCompanion() returnVal: " + returnVal) 
+	
+	RETURN returnVal
+EndFunction				
+
+
+Function Pacify() Protected
+	;note sure if this is needed or not:
+	StopCombat()
+	StopCombatAlarm()
+
+	;REMINDER: there is a always flee combat override package on current follower conditioned on if they are angry or not.
 EndFunction
 
-Function Pacify()
-  Self.StopCombat()
-  Self.StopCombatAlarm()
+
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "Companions",  string SubLogName = "CompanionCrimeResponseScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
+
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "Companions",  string SubLogName = "CompanionCrimeResponseScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
-
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
-EndFunction

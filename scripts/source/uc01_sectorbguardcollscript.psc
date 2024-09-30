@@ -1,1 +1,1 @@
-ScriptName UC01_SectorBGuardCollScript Extends RefCollectionAlias
+Scriptname UC01_SectorBGuardCollScript extends RefCollectionAlias

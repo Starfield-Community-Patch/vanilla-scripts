@@ -1,19 +1,17 @@
-ScriptName RI02_PlayerAliasScript Extends ReferenceAlias
+Scriptname RI02_PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Location Property CityNeonTradeTowerAstralLoungeLocation Auto Const mandatory
-GlobalVariable Property RI02_AstralLoungeBodyCount Auto Const mandatory
-Int Property iStartTrackingStage Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Location Property CityNeonTradeTowerAstralLoungeLocation Auto Const Mandatory
+GlobalVariable Property RI02_AstralLoungeBodyCount Auto Const Mandatory
+Int Property iStartTrackingStage Auto Const Mandatory
 
 Event OnKill(ObjectReference akVictim)
-  Quest MyQuest = Self.GetOwningQuest()
-  If MyQuest.GetStageDone(iStartTrackingStage)
-    If akVictim.GetCurrentLocation() == CityNeonTradeTowerAstralLoungeLocation
-      RI02_AstralLoungeBodyCount.SetValue(RI02_AstralLoungeBodyCount.GetValue() + 1.0)
+
+    Quest MyQuest = GetOwningQuest()
+
+    If MyQuest.GetStageDone(iStartTrackingStage)
+        If akVictim.GetCurrentLocation() == CityNeonTradeTowerAstralLoungeLocation
+            RI02_AstralLoungeBodyCount.SetValue(RI02_AstralLoungeBodyCount.GetValue() + 1)
+        EndIf
     EndIf
-  EndIf
+
 EndEvent

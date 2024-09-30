@@ -1,28 +1,25 @@
-ScriptName TestPlaceAtMeOnLoad Extends ObjectReference
-{ using for testing }
+Scriptname TestPlaceAtMeOnLoad extends ObjectReference
+{using for testing}
 
-;-- Variables ---------------------------------------
-Bool created = False
+Form property CreatedForm auto const mandatory
 
-;-- Properties --------------------------------------
-Form Property CreatedForm Auto Const mandatory
-Keyword Property LinkKeyword Auto Const
-Float Property CreateTimer = 5.0 Auto Const
+Keyword property LinkKeyword auto Const
+
+float property CreateTimer = 5.0 auto Const
 { how long to wait before creating }
-
-;-- Functions ---------------------------------------
+bool created = false
 
 Event OnLoad()
-  If created == False
-    created = True
-    Self.StartTimer(CreateTimer, 0)
-  EndIf
+    if created == false
+        created = true
+        StartTimer(CreateTimer)
+    endif 
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  ObjectReference newRef = Self.PlaceAtMe(CreatedForm, 1, False, False, True, None, None, True)
-  ObjectReference linkedRef = Self.GetLinkedRef(LinkKeyword)
-  If linkedRef
-    newRef.SetLinkedRef(linkedRef, LinkKeyword, True)
-  EndIf
+Event OnTimer(int aiTimerID)
+    ObjectReference newRef = PlaceAtMe(CreatedForm)
+    ObjectReference linkedRef = GetLinkedRef(LinkKeyword)
+    if linkedRef
+        newRef.SetLinkedRef(linkedRef, LinkKeyword)
+    endif
 EndEvent

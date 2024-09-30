@@ -1,8 +1,15 @@
-ScriptName Fragments:Scenes:SF_MQ302_Battle_02_Courtyard_00124A19 Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_MQ302_Battle_02_Courtyard_00124A19 Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  lc165questscript kmyQuest = Self.GetOwningQuest() as lc165questscript
-  kmyQuest.PerformCourtyardScriptedMassReanimate()
+;BEGIN AUTOCAST TYPE LC165QuestScript
+LC165QuestScript kmyQuest = GetOwningQuest() as LC165QuestScript
+;END AUTOCAST
+;BEGIN CODE
+kMyQuest.PerformCourtyardScriptedMassReanimate()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

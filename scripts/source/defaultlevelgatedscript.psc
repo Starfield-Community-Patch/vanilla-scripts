@@ -1,61 +1,78 @@
-ScriptName DefaultLevelGatedScript Extends ObjectReference
+Scriptname DefaultLevelGatedScript extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Mandatory_Properties
-  GlobalVariable Property LevelGatedSentryGlobal Auto Const mandatory
-  Race Property SentryBotRace Auto Const mandatory
-  GlobalVariable Property LevelGatedDeathclawGlobal Auto Const mandatory
-  Race Property DeathclawRace Auto Const mandatory
-  GlobalVariable Property LevelGatedBehemothGlobal Auto Const mandatory
-  Race Property SupermutantBehemothRace Auto Const mandatory
-  GlobalVariable Property LevelGatedMirelurkQueenGlobal Auto Const mandatory
-  Race Property MirelurkQueenRace Auto Const mandatory
-  GlobalVariable Property LevelGatedGenericGlobal Auto Const mandatory
+	GlobalVariable Property LevelGatedSentryGlobal Auto Const Mandatory
+	Race Property SentryBotRace Auto Const Mandatory
+
+	GlobalVariable Property LevelGatedDeathclawGlobal Auto Const Mandatory
+	Race Property DeathclawRace Auto Const Mandatory
+
+	GlobalVariable Property LevelGatedBehemothGlobal Auto Const Mandatory
+	Race Property SupermutantBehemothRace Auto Const Mandatory
+
+	GlobalVariable Property LevelGatedMirelurkQueenGlobal Auto Const Mandatory
+	Race Property MirelurkQueenRace Auto Const Mandatory
+
+	GlobalVariable Property LevelGatedGenericGlobal Auto Const Mandatory
 EndGroup
 
 Group Optional_Properties
-  Int Property LevelGateOverride = -1 Auto Const
-  { If set then everything else is ignored, and if the player's level is equal to
-	or greater than this Override Onload() this refrence will enable. }
+	Int Property LevelGateOverride = -1 Auto Const
+	{If set then everything else is ignored, and if the player's level is equal to
+	or greater than this Override Onload() this refrence will enable.}
 EndGroup
 
+auto STATE WaitingForGate
+	Event OnLoad()
 
-;-- State -------------------------------------------
-State Done
-EndState
+		if LevelGateOverride == -1
+			Actor selfActor = (self as ObjectReference) as Actor
 
-;-- State -------------------------------------------
-Auto State WaitingForGate
+			if selfActor
+				debug.Trace(self + "OnLoad()| I am an ACTOR!")
+				if selfActor.GetRace() == SentryBotRace && Game.GetPlayer().GetLevel() >= LevelGatedSentryGlobal.GetValue()
+					debug.Trace(self + "OnLoad()| I am a Sentry!")
+					GoToState("Done")
+					self.Enable()
+				elseif selfActor.GetRace() == DeathclawRace && Game.GetPlayer().GetLevel() >= LevelGatedDeathclawGlobal.GetValue()
+					debug.Trace(self + "OnLoad()| I am a Deathclaw!")
+					GoToState("Done")
+					self.Enable()
+				elseif selfActor.GetRace() == SupermutantBehemothRace && Game.GetPlayer().GetLevel() >= LevelGatedBehemothGlobal.GetValue()
+					debug.Trace(self + "OnLoad()| I am a Behemoth!")
+					GoToState("Done")
+					self.Enable()
+				elseif selfActor.GetRace() == MirelurkQueenRace && Game.GetPlayer().GetLevel() >= LevelGatedMirelurkQueenGlobal.GetValue()
+					debug.Trace(self + "OnLoad()| I am a Mirelurk Queen!")
+					GoToState("Done")
+					self.Enable()
+				elseif selfActor.GetRace() != SentryBotRace && selfActor.GetRace() != DeathclawRace && selfActor.GetRace() != SupermutantBehemothRace && selfActor.GetRace() != MirelurkQueenRace && Game.GetPlayer().GetLevel() >= LevelGatedGenericGlobal.GetValue()
+					debug.Trace(self + "OnLoad()| I am a Different Actor!")
+					GoToState("Done")
+					self.Enable()
+				endif
+			else
+				debug.Trace(self + "OnLoad()| I am NOT an actor")
+				if Game.GetPlayer().GetLevel() >= LevelGatedGenericGlobal.GetValue()
+					debug.Trace(self + "OnLoad()| I am a generic reference!")
+					GoToState("Done")
+					self.Enable()
+				endif
+			endif
+		else
+			debug.Trace(self + "OnLoad()| We've got an Override!")
+			if Game.GetPlayer().GetLevel() >= LevelGateOverride
+				debug.Trace(self + "OnLoad()| Override reached, enable me!")
+				GoToState("Done")
+				self.Enable()
+			endif
+		endif
 
-  Event OnLoad()
-    If LevelGateOverride == -1
-      Actor selfActor = (Self as ObjectReference) as Actor
-      If selfActor
-        If selfActor.GetRace() == SentryBotRace && (Game.GetPlayer().GetLevel() as Float >= LevelGatedSentryGlobal.GetValue())
-          Self.GoToState("Done")
-          Self.Enable(False)
-        ElseIf selfActor.GetRace() == DeathclawRace && (Game.GetPlayer().GetLevel() as Float >= LevelGatedDeathclawGlobal.GetValue())
-          Self.GoToState("Done")
-          Self.Enable(False)
-        ElseIf selfActor.GetRace() == SupermutantBehemothRace && (Game.GetPlayer().GetLevel() as Float >= LevelGatedBehemothGlobal.GetValue())
-          Self.GoToState("Done")
-          Self.Enable(False)
-        ElseIf selfActor.GetRace() == MirelurkQueenRace && (Game.GetPlayer().GetLevel() as Float >= LevelGatedMirelurkQueenGlobal.GetValue())
-          Self.GoToState("Done")
-          Self.Enable(False)
-        ElseIf selfActor.GetRace() != SentryBotRace && selfActor.GetRace() != DeathclawRace && selfActor.GetRace() != SupermutantBehemothRace && selfActor.GetRace() != MirelurkQueenRace && (Game.GetPlayer().GetLevel() as Float >= LevelGatedGenericGlobal.GetValue())
-          Self.GoToState("Done")
-          Self.Enable(False)
-        EndIf
-      ElseIf Game.GetPlayer().GetLevel() as Float >= LevelGatedGenericGlobal.GetValue()
-        Self.GoToState("Done")
-        Self.Enable(False)
-      EndIf
-    ElseIf Game.GetPlayer().GetLevel() >= LevelGateOverride
-      Self.GoToState("Done")
-      Self.Enable(False)
-    EndIf
-  EndEvent
-EndState
+
+	EndEvent
+EndSTATE
+
+
+STATE Done
+	;DONE!
+EndSTATE

@@ -1,38 +1,34 @@
-ScriptName DefaultCounterIncrementOnActivate Extends ObjectReference default
-{ Once this is activated (by the PLAYER) it increments the counter on it's LinkedRef's DefaultCounter script. }
+ScriptName DefaultCounterIncrementOnActivate extends ObjectReference Default
+{Once this is activated (by the PLAYER) it increments the counter on it's LinkedRef's DefaultCounter script.}
 
-;-- Variables ---------------------------------------
-Bool decrementNext = False
-
-;-- Properties --------------------------------------
 Group Optional_Properties
-  Keyword Property LinkedRefKeyword Auto Const
-  { The keyword of the LinkedRef to the Counter. Defaults to the unnamed linkedref. }
-  Bool Property ShouldToggle Auto Const
-  { Optional; defaults to False. Should every other action decrement the counter instead of incrementing it? }
+	Keyword property LinkedRefKeyword Auto Const
+	{The keyword of the LinkedRef to the Counter. Defaults to the unnamed linkedref.}
+
+	bool property ShouldToggle Auto Const
+	{Optional; defaults to False. Should every other action decrement the counter instead of incrementing it?}
 EndGroup
 
+bool decrementNext = False
 
-;-- State -------------------------------------------
-State DoneWaiting
-EndState
+Auto STATE WaitForActivate
+	Event OnActivate(ObjectReference akActionRef)
+		if akActionRef == Game.GetPlayer()
+			if (!ShouldToggle)
+				GoToState("DoneWaiting")
+			endif
+			if (ShouldToggle && decrementNext)
+				(Self.GetLinkedRef(LinkedRefKeyword) As defaultCounter).Decrement()
+			else
+				(Self.GetLinkedRef(LinkedRefKeyword) As defaultCounter).Increment()
+			endif
+			if (ShouldToggle)
+				decrementNext = !decrementNext
+			endif
+		endif
+	EndEvent
+EndSTATE
 
-;-- State -------------------------------------------
-Auto State WaitForActivate
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      If !ShouldToggle
-        Self.GoToState("DoneWaiting")
-      EndIf
-      If ShouldToggle && decrementNext
-        (Self.GetLinkedRef(LinkedRefKeyword) as defaultcounter).Decrement()
-      Else
-        (Self.GetLinkedRef(LinkedRefKeyword) as defaultcounter).Increment()
-      EndIf
-      If ShouldToggle
-        decrementNext = !decrementNext
-      EndIf
-    EndIf
-  EndEvent
-EndState
+STATE DoneWaiting
+	; Do Nothing
+EndSTATE

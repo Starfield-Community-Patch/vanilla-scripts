@@ -1,10 +1,10 @@
-ScriptName TestNPCCombatSpawn Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname TestNPCCombatSpawn extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference SpawnControllerFromLink = Self.GetLinkedRef(None)
-  If SpawnControllerFromLink
-    (SpawnControllerFromLink as testnpcarenascript).SpawnTeams(Self as ObjectReference)
-  EndIf
+	ObjectReference SpawnControllerFromLink = self.GetLinkedRef()
+	;utility.wait(3)
+		if(SpawnControllerFromLink)
+			(SpawnControllerFromLink as TestNPCArenaScript).SpawnTeams(self)
+		endif
+	
 EndEvent

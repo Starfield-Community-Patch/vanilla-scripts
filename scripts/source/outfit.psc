@@ -1,1 +1,1 @@
-ScriptName Outfit Extends Form Native hidden
+Scriptname Outfit extends Form Native Hidden

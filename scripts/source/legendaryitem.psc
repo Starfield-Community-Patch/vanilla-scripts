@@ -1,1 +1,1 @@
-ScriptName LegendaryItem Extends Form Native hidden
+Scriptname LegendaryItem extends Form native hidden

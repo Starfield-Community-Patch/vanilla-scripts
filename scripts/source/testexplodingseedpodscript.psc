@@ -1,55 +1,64 @@
-ScriptName TestExplodingSeedPodScript Extends ObjectReference Const
+Scriptname TestExplodingSeedPodScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
+;Related Assets
+Explosion Property Test_Fire_Sm_CannisterExplosion Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Explosion Property Test_Fire_Sm_CannisterExplosion Auto Const mandatory
-ActorValue Property Test_PiercingHealth Auto Const mandatory
-ActorValue Property Test_FireHealth Auto Const mandatory
-ActorValue Property Test_CryoHealth Auto Const mandatory
-ObjectReference Property GasCloud Auto Const mandatory
-Float Property DamageThreshold = 99.0 Auto Const
-Float Property CryoDamageThreshold = 70.0 Auto Const
+;AV Health Values to Track
+ActorValue Property Test_PiercingHealth Mandatory Const Auto
+ActorValue Property Test_FireHealth Mandatory Const Auto
+ActorValue Property Test_CryoHealth Mandatory Const Auto
 
-;-- Functions ---------------------------------------
+ObjectReference Property GasCloud Mandatory Const Auto
+
+;Tweakable Data
+float Property DamageThreshold = 99.0 Const Auto
+float Property CryoDamageThreshold = 70.0 Const Auto
 
 Event OnLoad()
-  ObjectReference tank = Self.GetLinkedRef(None)
-  Self.RegisterForActorValueLessThanEvent(tank, Test_PiercingHealth, DamageThreshold)
-  Self.RegisterForActorValueLessThanEvent(tank, Test_FireHealth, DamageThreshold)
-  Self.RegisterForActorValueLessThanEvent(tank, Test_CryoHealth, CryoDamageThreshold)
+    ObjectReference tank = GetLinkedRef()
+    ; Register for different damage types that the tank responds to at the start. (Add other damage types soon)
+    ;All the health AVs have to be on the tank itself, because of the Secondary Damage List.
+    RegisterForActorValueLessThanEvent(tank, Test_PiercingHealth, DamageThreshold)
+    RegisterForActorValueLessThanEvent(tank, Test_FireHealth, DamageThreshold)
+    RegisterForActorValueLessThanEvent(tank, Test_CryoHealth, CryoDamageThreshold)
 EndEvent
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  If akActorValue == Test_CryoHealth
-    If Self.GetLinkedRef(None).GetValue(Test_CryoHealth) <= CryoDamageThreshold
-      Self.Freeze()
+;This catches all the various damage types and their thresholds.
+
+    if(akActorValue == Test_CryoHealth)
+        if(GetLinkedRef().GetValue(Test_CryoHealth) <= CryoDamageThreshold)
+            Freeze()
+        EndIf
     EndIf
-  EndIf
-  If akActorValue == Test_PiercingHealth
-    If Self.GetLinkedRef(None).GetValue(Test_PiercingHealth) <= DamageThreshold
-      Self.Explode()
+    if(akActorValue == Test_PiercingHealth)
+        if(GetLinkedRef().GetValue(Test_PiercingHealth) <= DamageThreshold)
+            Explode()
+        EndIf
     EndIf
-  EndIf
-  If akActorValue == Test_FireHealth
-    If Self.GetLinkedRef(None).GetValue(Test_FireHealth) <= DamageThreshold
-      Self.Explode()
+    if(akActorValue == Test_FireHealth)
+        if((GetLinkedRef().GetValue(Test_FireHealth) <= DamageThreshold))
+            Explode()
+        EndIf
     EndIf
-  EndIf
 EndEvent
 
+
 Function Explode()
-  Self.GetLinkedRef(None).PlaceAtMe(Test_Fire_Sm_CannisterExplosion as Form, 1, False, False, True, None, None, True)
-  Self.GetLinkedRef(None).Disable(False)
-  GasCloud.Enable(False)
-  Utility.Wait(10.0)
-  GasCloud.Disable(False)
+    ;Make an Explosion
+    GetLinkedRef().PlaceAtMe(Test_Fire_Sm_CannisterExplosion)
+    GetLinkedRef().Disable()
+    GasCloud.Enable()
+    Utility.Wait(10)
+    GasCloud.Disable()
 EndFunction
 
 Function Freeze()
-  ObjectReference tank = Self.GetLinkedRef(None)
-  Self.GetLinkedRef(None).SetValue(Test_PiercingHealth, 150.0)
-  Self.GetLinkedRef(None).SetValue(Test_FireHealth, 150.0)
-  Self.RegisterForActorValueLessThanEvent(tank, Test_PiercingHealth, DamageThreshold)
-  Self.RegisterForActorValueLessThanEvent(tank, Test_FireHealth, DamageThreshold)
+    ObjectReference tank = GetLinkedRef()
+    ;Set piercing and fire health to 150 due to tank being frozen.
+    GetLinkedRef().SetValue(Test_PiercingHealth, 150)
+    GetLinkedRef().SetValue(Test_FireHealth, 150)
+    ;Re-register for AV less than event.
+    RegisterForActorValueLessThanEvent(tank, Test_PiercingHealth, DamageThreshold)
+    RegisterForActorValueLessThanEvent(tank, Test_FireHealth, DamageThreshold)
 EndFunction

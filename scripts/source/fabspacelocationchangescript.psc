@@ -1,19 +1,16 @@
-ScriptName FABSpaceLocationChangeScript Extends ReferenceAlias
+Scriptname FABSpaceLocationChangeScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Location Property LocationToCheck Auto Const mandatory
+Location Property LocationToCheck Auto Const Mandatory
 Int Property StageToSet Auto Const
 Int Property ConditionalStage Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  Quest MyQuest = Self.GetOwningQuest()
-  If MyQuest.GetStageDone(ConditionalStage)
-    If akNewLoc == LocationToCheck
-      MyQuest.SetStage(StageToSet)
-    EndIf
-  EndIf
+    ; Check if the player's ship has reached the right location
+    Quest MyQuest = GetOwningQuest()
+
+    if ( MyQuest.GetStageDone(ConditionalStage) )       ; Has the player completed the required stage
+        if ( akNewLoc == LocationToCheck )              ; Is the player in the right location?
+            MyQuest.SetStage(StageToSet)                ; If so, set the proper stage
+        endif
+    endif
 EndEvent

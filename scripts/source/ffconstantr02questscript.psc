@@ -1,89 +1,97 @@
-ScriptName FFConstantR02QuestScript Extends Quest
+Scriptname FFConstantR02QuestScript extends Quest
 
-;-- Structs -----------------------------------------
+LocationAlias Property FamilyLoc Mandatory Const Auto
+Message[] Property FNameList Auto Const Mandatory
+Message[] Property MNameList Auto Const Mandatory
+ReferenceAlias Property Family Auto Const Mandatory
+ReferenceAlias Property Slate Mandatory Const Auto
+Book Property FFConstantR02_Slate Mandatory Const Auto
+Int Property StartStage = 100 Const Auto
+
 Struct CrimeFactionDatum
-  Keyword SettlementCrimeFactionKeyword
-  { The Crime Faction keyword used in the location where the family member can be found }
-  Faction CrimeFaction
-  { The corresponding Crime Faction for that Location }
+    Keyword SettlementCrimeFactionKeyword
+    {The Crime Faction keyword used in the location where the family member can be found}
+    
+    Faction CrimeFaction
+    {The corresponding Crime Faction for that Location}
 EndStruct
 
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LocationAlias Property FamilyLoc Auto Const mandatory
-Message[] Property FNameList Auto Const mandatory
-Message[] Property MNameList Auto Const mandatory
-ReferenceAlias Property Family Auto Const mandatory
-ReferenceAlias Property Slate Auto Const mandatory
-Book Property FFConstantR02_Slate Auto Const mandatory
-Int Property StartStage = 100 Auto Const
-ffconstantr02questscript:crimefactiondatum[] Property CrimeFactionData Auto Const
+CrimeFactionDatum[] property CrimeFactionData auto Const
 { Array of data for setting up crime factions for the family member }
 
-;-- Functions ---------------------------------------
 
+
+;Finds which crime faction is associated with the location where the family member is, and assigns the local crime faction to them so they react appropriately to crime.
 Function SetCrimeFaction()
-  Location myFamilyLocation = FamilyLoc.GetLocation()
-  Actor myFamily = Family.GetActorRef()
-  Int I = 0
-  Int iCount = CrimeFactionData.Length
-  While I < iCount
-    If myFamilyLocation.HasKeyword(CrimeFactionData[I].SettlementCrimeFactionKeyword)
-      myFamily.SetCrimeFaction(CrimeFactionData[I].CrimeFaction)
-      I = iCount
-    EndIf
-    I += 1
-  EndWhile
+    Location myFamilyLocation = FamilyLoc.GetLocation()
+    Actor myFamily = Family.GetActorRef()
+
+    Int i = 0
+    Int iCount = CrimeFactionData.Length
+    While i < iCount
+        If myFamilyLocation.HasKeyword(CrimeFactionData[i].SettlementCrimeFactionKeyword)
+            myFamily.SetCrimeFaction(CrimeFactionData[i].CrimeFaction)
+            ;Stop checking once we find the right one
+            i = iCount
+        EndIf
+        i += 1
+    EndWhile
 EndFunction
 
+
+
+;Gets the gender of the Relative and Assigns a name from a list
 Function SetRelativeName()
-  ActorBase myActorBase = Family.GetActorRef().GetLeveledActorBase()
-  Int iSex = myActorBase.GetSex()
-  If iSex == 0
-    Self.SetMName()
-  ElseIf iSex == 1
-    Self.SetFName()
-  Else
-    Int iRandomSex = Utility.RandomInt(0, 1)
-    If iRandomSex == 0
-      Self.SetMName()
-    ElseIf iRandomSex == 1
-      Self.SetFName()
+    ActorBase myActorBase = Family.GetActorRef().GetLeveledActorBase()
+    Int iSex = myActorBase.GetSex()
+    If iSex == 0
+        SetMName()
+    ElseIf iSex == 1
+        SetFName()
+    Else
+        ;If the NPC is Non-binary, select a random name from either list
+        Int iRandomSex = Utility.RandomInt(0,1)
+        If iRandomSex == 0
+            SetMName()
+        ElseIf iRandomSex == 1
+            SetFName()
+        EndIf
     EndIf
-  EndIf
-  Self.SetCrimeFaction()
+    SetCrimeFaction()
 EndFunction
 
-Function SetMName()
-  ObjectReference myRelative = Family.GetRef()
-  Message myName = None
-  Int iRandom = Utility.RandomInt(0, MNameList.Length - 1)
-  myName = MNameList[iRandom]
-  myRelative.SetOverrideName(myName)
-  Self.CreateSlate(myName)
+;Set a name from the "Masculine" name list
+Function SetMName() 
+    ObjectReference myRelative = Family.GetRef()
+    Message myName
+    Int iRandom = Utility.RandomInt(0, MNameList.Length - 1)
+    myName = MNameList[iRandom]
+    myRelative.SetOverrideName(myName)
+    CreateSlate(myName)
 EndFunction
 
+;Set a name from the "Feminine" name list
 Function SetFName()
-  ObjectReference myRelative = Family.GetRef()
-  Message myName = None
-  Int iRandom = Utility.RandomInt(0, FNameList.Length - 1)
-  myName = FNameList[iRandom]
-  myRelative.SetOverrideName(myName)
-  Self.CreateSlate(myName)
+    ObjectReference myRelative = Family.GetRef()
+    Message myName
+    Int iRandom = Utility.RandomInt(0, FNameList.Length - 1)
+    myName = FNameList[iRandom]
+    myRelative.SetOverrideName(myName)
+    CreateSlate(myName)
 EndFunction
+
 
 Function CreateSlate(Message amName)
-  Game.GetPlayer().AddAliasedItem(FFConstantR02_Slate as Form, Slate as Alias, 1, False)
-  Slate.GetRef().AddTextReplacementData("myName", amName as Form)
-  Self.SetStage(StartStage)
+    Game.GetPlayer().AddAliasedItem(FFConstantR02_Slate, Slate, 1, False)
+    (Slate.GetRef()).AddTextReplacementData("myName", amName)
+    SetStage(StartStage)
 EndFunction
 
 Function DebugObjective()
-  Self.SetObjectiveDisplayed(StartStage, True, True)
+    SetObjectiveDisplayed(StartStage, true, true)
 EndFunction
 
+
 Event OnQuestInit()
-  Self.SetRelativeName()
+    SetRelativeName()    
 EndEvent

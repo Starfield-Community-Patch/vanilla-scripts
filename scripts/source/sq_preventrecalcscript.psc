@@ -1,29 +1,29 @@
-ScriptName SQ_PreventRecalcScript Extends Quest
+Scriptname SQ_PreventRecalcScript extends Quest
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Refs Auto Const mandatory
-{ autofill }
-
-;-- Functions ---------------------------------------
+RefCollectionAlias Property Refs Mandatory Const Auto
+{autofill}
 
 Function AddRef(ObjectReference RefToAdd)
-  If Self.IsRunning() == False
-    Self.Start()
-  EndIf
-  Refs.AddRef(RefToAdd)
+    if IsRunning() == false
+        Trace(self, "AddRef(), quest not running. Calling Start()")
+        Start()
+    endif
+
+    Trace(self, "AddRef() RefToAdd: " + RefToAdd)
+    Refs.AddRef(RefToAdd)
 EndFunction
 
 Function RemoveRef(ObjectReference RefToRemove)
-  Refs.RemoveRef(RefToRemove)
-EndFunction
+    Refs.RemoveRef(RefToRemove)
+endFunction
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "SQ_PreventRecalc",  string SubLogName = "SQ_PreventRecalcScript", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction
 
-; Fixup hacks for debug-only function: warning
-Bool Function warning(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return false
+bool Function Warning(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 2, string MainLogName = "SQ_PreventRecalc",  string SubLogName = "SQ_PreventRecalcScript", bool bShowNormalTrace = false, bool bShowWarning = true, bool bPrefixTraceWithLogNames = true) BetaOnly
+    return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
 EndFunction

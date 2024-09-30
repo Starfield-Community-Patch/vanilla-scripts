@@ -1,84 +1,104 @@
-ScriptName OutpostHarvesterFloraScript Extends OutpostEventHandlerParent
+Scriptname OutpostHarvesterFloraScript extends OutpostEventHandlerParent
 { manages creating the appropriate flora for a flora harvester }
 
-;-- Structs -----------------------------------------
-Struct ResourceGlobalData
-  ActorValue resourceAV
-  GlobalVariable resourceGlobal
-EndStruct
+struct ResourceGlobalData
+    ; used for matching a global variable with a resource AV
+    ActorValue resourceAV
+    GlobalVariable resourceGlobal
+endStruct
 
+group Required_Properties
+    ActorValue property OrganicResourceAV auto hidden
+    { set by menu from build menu event }
 
-;-- Variables ---------------------------------------
+    Keyword property OutpostLinkFloraPlanter auto mandatory
+    { used to get planters to spawn flora }
+endGroup
 
-;-- Properties --------------------------------------
-Group Required_Properties
-  ActorValue Property OrganicResourceAV Auto hidden
-  { set by menu from build menu event }
-  Keyword Property OutpostLinkFloraPlanter Auto mandatory
-  { used to get planters to spawn flora }
-EndGroup
+group Optional_Properties
+    ResourceGlobalData[] property ResourceGlobals auto const
+    { OPTIONAL - array of global variables to update when the builder is set to build the matching resource AV}
 
-Group Optional_Properties
-  outpostharvesterflorascript:resourceglobaldata[] Property ResourceGlobals Auto Const
-  { OPTIONAL - array of global variables to update when the builder is set to build the matching resource AV }
-  Float Property ResourceGlobalValueToSet = 25.0 Auto Const
-  { value to set resourceGlobal to }
-EndGroup
+    float property ResourceGlobalValueToSet = 25.0 auto const
+    { value to set resourceGlobal to }
+endGroup
 
-outpostharvesterfloraplanterscript[] Property myPlanters Auto hidden
+OutpostHarvesterFloraPlanterScript[] property myPlanters auto hidden ; objects to place flora in
 
-;-- Functions ---------------------------------------
-
-Function HandleOnWorkshopObjectPlaced(ObjectReference akReference)
-  ; Empty function
-EndFunction
+CustomEvent CreateFloraEvent
 
 Event OnInit()
-  myPlanters = Self.GetRefsLinkedToMe(OutpostLinkFloraPlanter, None) as outpostharvesterfloraplanterscript[]
-  Int I = 0
-  While I < myPlanters.Length
-    myPlanters[I].RegisterForCreateFloraEvent(Self)
-    I += 1
-  EndWhile
-  Self.UpdateResource()
+    debug.trace(self + " OnInit")
+    ; how many nodes available?
+    myPlanters = GetRefsLinkedToMe(OutpostLinkFloraPlanter) as OutpostHarvesterFloraPlanterScript[]
+    debug.trace(self + " myPlanters=" + myPlanters)
+    ; register planters for create flora event
+    int i = 0
+    while i < myPlanters.Length
+        myPlanters[i].RegisterForCreateFloraEvent(self)
+        i += 1
+    EndWhile
+
+    UpdateResource()
 EndEvent
 
+; player has selected a new resource to build
 Event OnBuilderMenuSelect(ActorValue akActorValue)
-  OrganicResourceAV = akActorValue
-  Self.UpdateResource()
-  If ResourceGlobals.Length > 0
-    Int resourceGlobalIndex = ResourceGlobals.findstruct("resourceAV", OrganicResourceAV, 0)
-    If resourceGlobalIndex > -1
-      GlobalVariable globalToSet = ResourceGlobals[resourceGlobalIndex].resourceGlobal
-      If globalToSet as Bool && globalToSet.GetValue() != ResourceGlobalValueToSet
-        globalToSet.SetValue(ResourceGlobalValueToSet)
-      EndIf
-    EndIf
-  EndIf
-EndEvent
+    debug.trace(self + " OnBuilderMenuSelect " + akActorValue)
+    OrganicResourceAV = akActorValue
+    UpdateResource()
 
+    ; increment global if in the resource globals list
+    if ResourceGlobals.Length > 0
+        int resourceGlobalIndex = ResourceGlobals.FindStruct("resourceAV", OrganicResourceAV)
+        if resourceGlobalIndex > -1
+            ; found - update global
+            GlobalVariable globalToSet = ResourceGlobals[resourceGlobalIndex].resourceGlobal
+            if globalToSet &&  globalToSet.GetValue() != ResourceGlobalValueToSet
+                globalToSet.SetValue(ResourceGlobalValueToSet)
+            endif
+        endif
+    endif
+endEvent
+
+; override parent function
+Function HandleOnWorkshopObjectPlaced(ObjectReference akReference)
+    debug.trace(self + " OnWorkshopObjectPlaced")
+EndFunction
+
+; override parent function
 Function HandleOnWorkshopObjectRemoved(ObjectReference akReference)
-  Self.ClearCreatedFlora()
+    debug.trace(self + " OnWorkshopObjectRemoved")
+    ClearCreatedFlora()
 EndFunction
 
-Function UpdateResource()
-  Self.CreateFlora()
-EndFunction
 
-Function CreateFlora()
-  If OrganicResourceAV
-    ObjectReference workshopRef = Self.GetWorkshop()
-    Flora floraToCreate = Self.GetFloraForResource(OrganicResourceAV)
-    If floraToCreate
-      Var[] kargs = new Var[1]
-      kargs[0] = floraToCreate as Var
-      Self.SendCustomEvent("outpostharvesterflorascript_CreateFloraEvent", kargs)
-    EndIf
-  EndIf
-EndFunction
+function UpdateResource()
+    debug.trace(self + "UpdateResource")
+    CreateFlora()
+endFunction
 
-Function ClearCreatedFlora()
-  Var[] kargs = new Var[1]
-  kargs[0] = None
-  Self.SendCustomEvent("outpostharvesterflorascript_CreateFloraEvent", kargs)
-EndFunction
+function CreateFlora()
+    debug.trace(self + " CreateFlora")
+    if OrganicResourceAV
+        ObjectReference workshopRef = GetWorkshop()
+        Flora floraToCreate = GetFloraForResource(OrganicResourceAV)
+        debug.trace(self + " creating new flora refs from " + floraToCreate)
+        if floraToCreate
+            Var[] kargs = new Var[1]
+            kargs[0] = floraToCreate
+            SendCustomEvent("CreateFloraEvent", kargs)
+        Else
+            debug.trace(self + " WARNING: unable to create flora from resourceAV " + OrganicResourceAV)
+        endif
+    Else
+        debug.trace(self + " not creating flora - resourceAV not set")
+    endif
+endFunction
+
+function ClearCreatedFlora()
+    ; send CreateFloraEvent with no flora to clear flora from planters
+    Var[] kargs = new Var[1]
+    kargs[0] = NONE
+    SendCustomEvent("CreateFloraEvent", kargs)
+endFunction

@@ -1,25 +1,18 @@
-ScriptName MQ401JPlantScript Extends ReferenceAlias
+Scriptname MQ401JPlantScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Message Property MQ401JPlantActivatePrompt Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Message Property MQ401JPlantActivatePrompt Auto Const mandatory
-
-;-- State -------------------------------------------
-State HasbeenTriggered
-
-  Event OnLoad()
-    ; Empty function
-  EndEvent
+Auto State WaitingForPlayer
+    Event OnLoad()
+        GotoState("HasbeenTriggered")
+        ObjectReference MyRef = Self.GetRef()
+        MyRef.SetActivateTextOverride(MQ401JPlantActivatePrompt)
+        MyRef.BlockActivation()
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State WaitingForPlayer
-
-  Event OnLoad()
-    Self.GotoState("HasbeenTriggered")
-    ObjectReference MyRef = Self.GetRef()
-    MyRef.SetActivateTextOverride(MQ401JPlantActivatePrompt)
-    MyRef.BlockActivation(True, False)
-  EndEvent
+State HasBeenTriggered
+    Event OnLoad()
+        ;do nothing
+    EndEvent
 EndState

@@ -1,44 +1,40 @@
-ScriptName StarbornTempleDoorBarsScript Extends ObjectReference
-{ Script for the Starborn Temple Door Bars. }
+Scriptname StarbornTempleDoorBarsScript extends ObjectReference
+{Script for the Starborn Temple Door Bars.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Group BaseProperties collapsedonref
-  Float Property AnimateDistanceOpen = 6.0 Auto Const
-  Float Property AnimateDistanceClose = 10.0 Auto Const
-  String Property OpenAnimation = "Play01" Auto Const
-  String Property CloseAnimation = "Play02" Auto Const
+Group BaseProperties CollapsedOnRef
+	float property AnimateDistanceOpen = 6.0 Auto Const
+	float property AnimateDistanceClose = 10.0 Auto Const
+	String property OpenAnimation = "Play01" Auto Const
+	String property CloseAnimation = "Play02" Auto Const
 EndGroup
 
-Group RefProperties collapsedonbase
-  Bool Property ShouldRegisterForOpenEvent = True Auto
+Group RefProperties CollapsedOnBase
+	bool property ShouldRegisterForOpenEvent = True Auto ;NOT Const
 EndGroup
 
-
-;-- Functions ---------------------------------------
 
 Event OnLoad()
-  If ShouldRegisterForOpenEvent
-    Self.RegisterForDistanceLessThanEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, AnimateDistanceOpen, 0)
-  EndIf
+	if (ShouldRegisterForOpenEvent)
+		RegisterForDistanceLessThanEvent(Self, Game.GetPlayer(), AnimateDistanceOpen)
+	EndIf
 EndEvent
 
-Function SetShouldRegisterForOpenEvent(Bool shouldRegister)
-  ShouldRegisterForOpenEvent = shouldRegister
-  If shouldRegister
-    Self.RegisterForDistanceLessThanEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, AnimateDistanceOpen, 0)
-  Else
-    Self.UnregisterForDistanceEvents(Self as ScriptObject, Game.GetPlayer() as ScriptObject, -1)
-  EndIf
+Function SetShouldRegisterForOpenEvent(bool shouldRegister)
+	ShouldRegisterForOpenEvent = shouldRegister
+	if (shouldRegister)
+		RegisterForDistanceLessThanEvent(Self, Game.GetPlayer(), AnimateDistanceOpen)
+	Else
+		UnregisterForDistanceEvents(Self, Game.GetPlayer())
+	EndIf
 EndFunction
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Self.PlayAnimationAndWait(OpenAnimation, "Done")
-  Self.RegisterForDistanceGreaterThanEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, AnimateDistanceClose, 0)
+
+Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+	PlayAnimationAndWait(OpenAnimation, "Done")
+   	RegisterForDistanceGreaterThanEvent(Self, Game.GetPlayer(), AnimateDistanceClose)
 EndEvent
 
-Event OnDistanceGreaterThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Self.PlayAnimationAndWait(CloseAnimation, "Done")
-  Self.RegisterForDistanceLessThanEvent(Self as ScriptObject, Game.GetPlayer() as ScriptObject, AnimateDistanceOpen, 0)
+Event OnDistanceGreaterThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+	PlayAnimationAndWait(CloseAnimation, "Done")
+   	RegisterForDistanceLessThanEvent(Self, Game.GetPlayer(), AnimateDistanceOpen)
 EndEvent

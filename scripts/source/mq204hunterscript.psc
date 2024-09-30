@@ -1,37 +1,37 @@
-ScriptName MQ204HunterScript Extends ReferenceAlias
+Scriptname MQ204HunterScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ActorValue Property Health Auto Const mandatory
-Int Property HunterDamagedStage = 700 Auto Const
-Explosion Property LC165_ScriptedTeleportSourceExplosion Auto Const
-EffectShader Property Starborn_DeathShader Auto Const
-ObjectReference Property MQHoldingCellCenterMarker Auto Const
-
-;-- Functions ---------------------------------------
+ActorValue Property Health Mandatory Const Auto
+Int Property HunterDamagedStage=700 Const Auto
+Explosion Property LC165_ScriptedTeleportSourceExplosion Const Auto
+EffectShader Property Starborn_DeathShader Const Auto
+ObjectReference Property MQHoldingCellCenterMarker Const Auto
 
 Event OnAliasInit()
-  Actor HunterREF = Self.GetActorRef()
-  Float iHalfHealth = HunterREF.GetValue(Health) / 2.0
-  Self.RegisterForActorValueLessThanEvent(Self.GetActorRef() as ObjectReference, Health, iHalfHealth)
+    ;we want to know if the Hunter is ever at half health
+    Actor HunterREF = Self.GetActorRef()
+    Float iHalfHealth = HunterREF.GetValue(Health) / 2
+    RegisterForActorValueLessThanEvent(Self.GetActorRef(), Health, iHalfHealth)
 EndEvent
 
 Event OnActorValueLessThan(ObjectReference akObjRef, ActorValue akActorValue)
-  Actor HunterREF = Self.GetActorRef()
-  HunterREF.SetUnconscious(True)
-  HunterREF.BlockActivation(True, True)
-  HunterREF.StopCombat()
-  HunterREF.PlaceAtMe(LC165_ScriptedTeleportSourceExplosion as Form, 1, False, False, True, None, None, True)
-  Starborn_DeathShader.Play(HunterREF as ObjectReference, -1.0)
-  Utility.Wait(3.0)
-  HunterREF.Disable(False)
-  HunterREF.Moveto(MQHoldingCellCenterMarker, 0.0, 0.0, 0.0, True, False)
-  HunterREF.ResetHealthAndLimbs()
-  Float iHalfHealth = HunterREF.GetValue(Health) / 2.0
-  Self.RegisterForActorValueLessThanEvent(Self.GetActorRef() as ObjectReference, Health, iHalfHealth)
-  HunterREF.SetUnconscious(False)
-  HunterREF.BlockActivation(False, False)
-  HunterREF.Enable(False)
-  Self.GetOwningQuest().SetStage(HunterDamagedStage)
+
+    Actor HunterREF = Self.GetActorRef()
+    HunterREF.SetUnconscious()
+    HunterREF.BlockActivation(True, True)
+    HunterREF.StopCombat()
+    HunterREF.PlaceAtMe(LC165_ScriptedTeleportSourceExplosion)
+    Starborn_DeathShader.Play(HunterREF)
+
+    ;move back to the holding cell
+    Utility.Wait(3.0)
+    HunterREF.Disable()
+    HunterREF.Moveto(MQHoldingCellCenterMarker)
+    HunterREF.ResetHealthAndLimbs()
+    Float iHalfHealth = HunterREF.GetValue(Health) / 2
+    RegisterForActorValueLessThanEvent(Self.GetActorRef(), Health, iHalfHealth)
+    HunterREF.SetUnconscious(False)
+    HunterREF.BlockActivation(False, False)
+    HunterREF.Enable()
+
+    GetOwningQuest().SetStage(HunterDamagedStage)
 EndEvent

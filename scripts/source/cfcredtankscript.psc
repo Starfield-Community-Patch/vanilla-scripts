@@ -1,91 +1,92 @@
-ScriptName CFCredTankScript Extends ObjectReference
-{ Activator script for CF_CredTanks. }
+Scriptname CFCredTankScript extends ObjectReference
+{Activator script for CF_CredTanks.}
 
-;-- Variables ---------------------------------------
-Float CONST_AnimVariableSpeedMax = 10.0 Const
-String CONST_AnimVariable_Position = "Position" Const
-String CONST_AnimVariable_Speed = "Speed" Const
-String CONST_Animation_Insert = "Play01" Const
-String CONST_Animation_Remove = "Play02" Const
-Float CONST_CredTankProximityMaxRange = 20.0 Const
-Float CONST_CredTankProximityMinRange = 8.0 Const
-Float CONST_UpdateTimerDelay = 0.25 Const
-
-;-- Guards ------------------------------------------
-;*** WARNING: Guard declaration syntax is EXPERIMENTAL, subject to change
-Guard UpdateCredTankGuard
-
-;-- Properties --------------------------------------
 Group Optional_SetStageProperties
-  Quest Property QuestToSetStageOn Auto Const
-  { OPTIONAL. Quest to set a stage on when the CredTank is opened. }
-  Int Property StageToSet = -1 Auto Const
-  { OPTIONAL. Stage to set. }
-  Int Property PrereqStage = -1 Auto Const
-  { OPTIONAL. If set, StageToSet will only be set if this stage has been set. }
-  Int Property TurnOffStage = -1 Auto Const
-  { OPTIONAL. If set, StageToSet will not be set if the quest is at this stage or higher. }
-  Int Property TurnOffStageDone = -1 Auto Const
-  { OPTIONAL. If set, StageToSet will not be set if this specific stage has been set. }
+	Quest property QuestToSetStageOn Auto Const
+	{OPTIONAL. Quest to set a stage on when the CredTank is opened.}
+
+	int property StageToSet = -1 Auto Const
+	{OPTIONAL. Stage to set.}
+
+	int property PrereqStage = -1 Auto Const
+	{OPTIONAL. If set, StageToSet will only be set if this stage has been set.}
+
+	int property TurnOffStage = -1 Auto Const
+	{OPTIONAL. If set, StageToSet will not be set if the quest is at this stage or higher.}
+
+	int property TurnOffStageDone = -1 Auto Const
+	{OPTIONAL. If set, StageToSet will not be set if this specific stage has been set.}
 EndGroup
 
 Group AutofillProperties
-  Key Property CF_GalbankTransferModule Auto Const mandatory
-  LeveledItem Property LL_CFCredtankCredits Auto Const mandatory
+	Key property CF_GalbankTransferModule Auto Const Mandatory
+	LeveledItem property LL_CFCredtankCredits Auto Const Mandatory
 EndGroup
 
+;Local Consts
+String CONST_Animation_Insert = "Play01" Const
+String CONST_Animation_Remove = "Play02" Const
+String CONST_AnimVariable_Position = "Position" Const
+String CONST_AnimVariable_Speed = "Speed" Const
 
-;-- Functions ---------------------------------------
+float CONST_UpdateTimerDelay = 0.25 Const
+float CONST_AnimVariableSpeedMax = 10.0 Const
+float CONST_CredTankProximityMaxRange = 20.0 Const
+float CONST_CredTankProximityMinRange = 8.0 Const
 
-Function ResetCredTank()
-  Self.GoToState("Waiting")
-  Self.OnCellLoad()
-EndFunction
+;Guards
+Guard UpdateCredTankGuard ProtectsFunctionLogic
 
-;-- State -------------------------------------------
+
+Auto State Waiting
+	Event OnCellLoad()
+		if (Game.GetPlayer().GetItemCount(CF_GalbankTransferModule) > 0)
+			RegisterForDistanceLessThanEvent(Game.GetPlayer(), Self, CONST_CredTankProximityMaxRange)
+			BlockActivation(False, False)
+		Else
+			BlockActivation(True, True)
+		EndIf
+	EndEvent
+
+	Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+		StartTimer(0)
+	EndEvent
+
+	Event OnTimer(int timerID)
+		float newPosition = 1 - Math.Min(Math.Max(Math.Max(Game.GetPlayer().GetDistance(Self) - CONST_CredTankProximityMinRange, 0) / (CONST_CredTankProximityMaxRange - CONST_CredTankProximityMinRange), 0), 1)
+		;Debug.Trace(Self + " position=" + newPosition)
+		SetAnimationVariableFloat("Position", newPosition)
+		if (newPosition > 0)
+			StartTimer(CONST_UpdateTimerDelay)
+		Else
+			RegisterForDistanceLessThanEvent(Game.GetPlayer(), Self, CONST_CredTankProximityMaxRange)
+		EndIf
+	EndEvent
+
+	Event OnActivate(ObjectReference akActivator)
+		GoToState("Done")
+		SetAnimationVariableFloat(CONST_AnimVariable_Position, 1)
+		PlayAnimationAndWait(CONST_Animation_Insert, "Done")
+		Utility.Wait(2)
+		Game.GetPlayer().AddItem(LL_CFCredtankCredits)
+		if ((QuestToSetStageOn != None) && (StageToSet >= 0))
+			if (((PrereqStage < 0) || (QuestToSetStageOn.GetStageDone(PrereqStage))) && \
+				((TurnOffStage < 0) || (QuestToSetStageOn.GetStage() < TurnOffStage)) && \
+				((TurnOffStageDone < 0) || (!QuestToSetStageOn.GetStageDone(TurnOffStageDone))))
+				QuestToSetStageOn.SetStage(StageToSet)
+			EndIf
+		EndIf
+		PlayAnimation(CONST_Animation_Remove)
+		SetAnimationVariableFloat(CONST_AnimVariable_Speed, CONST_AnimVariableSpeedMax)
+		SetAnimationVariableFloat(CONST_AnimVariable_Position, 0)
+		BlockActivation(True, True)
+	EndEvent
+EndState
+
 State Done
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnActivate(ObjectReference akActivator)
-    Self.GoToState("Done")
-    Self.SetAnimationVariableFloat(CONST_AnimVariable_Position, 1.0)
-    Self.PlayAnimationAndWait(CONST_Animation_Insert, "Done")
-    Utility.Wait(2.0)
-    Game.GetPlayer().AddItem(LL_CFCredtankCredits as Form, 1, False)
-    If QuestToSetStageOn != None && StageToSet >= 0
-      If (PrereqStage < 0 || QuestToSetStageOn.GetStageDone(PrereqStage)) && (TurnOffStage < 0 || QuestToSetStageOn.GetStage() < TurnOffStage) && (TurnOffStageDone < 0 || !QuestToSetStageOn.GetStageDone(TurnOffStageDone))
-        QuestToSetStageOn.SetStage(StageToSet)
-      EndIf
-    EndIf
-    Self.PlayAnimation(CONST_Animation_Remove)
-    Self.SetAnimationVariableFloat(CONST_AnimVariable_Speed, CONST_AnimVariableSpeedMax)
-    Self.SetAnimationVariableFloat(CONST_AnimVariable_Position, 0.0)
-    Self.BlockActivation(True, True)
-  EndEvent
-
-  Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-    Self.StartTimer(0.0, 0)
-  EndEvent
-
-  Event OnTimer(Int timerID)
-    Float newPosition = 1.0 - Math.Min(Math.Max(Math.Max(Game.GetPlayer().GetDistance(Self as ObjectReference) - CONST_CredTankProximityMinRange, 0.0) / (CONST_CredTankProximityMaxRange - CONST_CredTankProximityMinRange), 0.0), 1.0)
-    Self.SetAnimationVariableFloat("Position", newPosition)
-    If newPosition > 0.0
-      Self.StartTimer(CONST_UpdateTimerDelay, 0)
-    Else
-      Self.RegisterForDistanceLessThanEvent(Game.GetPlayer() as ScriptObject, Self as ScriptObject, CONST_CredTankProximityMaxRange, 0)
-    EndIf
-  EndEvent
-
-  Event OnCellLoad()
-    If Game.GetPlayer().GetItemCount(CF_GalbankTransferModule as Form) > 0
-      Self.RegisterForDistanceLessThanEvent(Game.GetPlayer() as ScriptObject, Self as ScriptObject, CONST_CredTankProximityMaxRange, 0)
-      Self.BlockActivation(False, False)
-    Else
-      Self.BlockActivation(True, True)
-    EndIf
-  EndEvent
-EndState
+Function ResetCredTank()
+	GoToState("Waiting")
+	OnCellLoad()
+EndFunction

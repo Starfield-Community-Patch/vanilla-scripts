@@ -1,65 +1,59 @@
-ScriptName DefaultAliasDisableHavokOnLoad Extends ReferenceAlias default
-{ Disable havok on a ref OnLoad(), then optionally enable havok OnHit(), OnActivate(), or OnGrab() }
-
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
+scriptName DefaultAliasDisableHavokOnLoad extends ReferenceAlias Default
+{Disable havok on a ref OnLoad(), then optionally enable havok OnHit(), OnActivate(), or OnGrab()}
 Group Optional_Properties
-  Bool Property HavokOnHit Auto Const
-  { Start Havok Sim when hit? DEFAULT: FALSE }
-  Bool Property HavokOnActivate Auto Const
-  { Start Havok Sim when activated? DEFAULT: FALSE }
-  Bool Property HavokOnZKey Auto Const
-  { Start Havok Sim when grabbed by player? DEFAULT: FALSE }
-  Keyword Property LinkHavokPartner Auto Const
-  { Link with this keyword and that ref will also sim with myself }
+	bool property HavokOnHit Auto Const
+	{Start Havok Sim when hit? DEFAULT: FALSE}
+	bool property HavokOnActivate Auto Const
+	{Start Havok Sim when activated? DEFAULT: FALSE}
+	bool property HavokOnZKey Auto Const
+	{Start Havok Sim when grabbed by player? DEFAULT: FALSE}
+	keyword property LinkHavokPartner Auto Const
+	{Link with this keyword and that ref will also sim with myself}
 EndGroup
 
-Bool Property BeenSimmed Auto hidden
-{ Prevent an object that has been havok'd in-game from going static }
+bool property BeenSimmed auto hidden
+{Prevent an object that has been havok'd in-game from going static}
 
-;-- Functions ---------------------------------------
-
-Event onLoad()
-  ObjectReference ref = Self.GetReference()
-  If BeenSimmed == False && ref.Is3DLoaded()
-    ref.SetMotionType(ref.Motion_Keyframed, True)
-    Self.RegisterForHitEvent(Self as ScriptObject, None, None, None, -1, -1, -1, -1, True)
-  EndIf
-EndEvent
+EVENT onLoad()
+	ObjectReference ref = Self.GetReference()
+	if (BeenSimmed == FALSE && ref.Is3DLoaded())
+		ref.SetMotionType(ref.Motion_Keyframed, TRUE)
+		RegisterForHitEvent(self) ; listen for a single hit event, any source
+	endif
+endEVENT
 
 Event onUnload()
-  Self.UnregisterForAllHitEvents(None)
-EndEvent
+	UnregisterForAllHitEvents()
+endEvent
 
-Event onActivate(ObjectReference triggerRef)
-  If HavokOnActivate == True && BeenSimmed == False
-    Self.ReleaseToHavok()
-  EndIf
-EndEvent
+EVENT onActivate(ObjectReference triggerRef)
+	if HavokonActivate == TRUE && BeenSimmed == FALSE
+		ReleaseToHavok()
+	endif
+endEVENT
 
-Event onHit(ObjectReference akTarget, ObjectReference var1, Form var2, Projectile var3, Bool var4, Bool var5, Bool var6, Bool var7, String asMaterialName)
-  If HavokOnHit == True && BeenSimmed == False
-    Self.ReleaseToHavok()
-  EndIf
-EndEvent
+EVENT onHit(ObjectReference akTarget, ObjectReference var1, Form var2, Projectile var3, bool var4, bool var5, bool var6, bool var7, string asMaterialName)
+	if HavokOnHit == TRUE && BeenSimmed == FALSE 
+		ReleaseToHavok()
+	endif
+endEVENT
 
-Event onGrab()
-  If HavokOnZKey == True && BeenSimmed == False
-    Self.ReleaseToHavok()
-  EndIf
-EndEvent
+EVENT onGrab()
+	if HavokOnZkey == TRUE && BeenSimmed == FALSE
+		ReleaseToHavok()
+	endif
+endEVENT
 
-Function ReleaseToHavok()
-  BeenSimmed = True
-  ObjectReference ref = Self.GetReference()
-  ObjectReference myLink = ref.getLinkedRef(LinkHavokPartner)
-  If myLink != None
-    defaultdisablehavokonload linkScript = myLink as defaultdisablehavokonload
-    If linkScript as Bool && linkScript.BeenSimmed == False
-      linkScript.ReleaseToHavok()
-    EndIf
-  EndIf
-  ref.SetMotionType(ref.Motion_Dynamic, True)
-  ref.ApplyHavokImpulse(0.0, 0.0, 1.0, 5.0)
-EndFunction
+FUNCTION ReleaseToHavok()
+		BeenSimmed = TRUE
+		ObjectReference ref = Self.GetReference()
+		objectReference myLink = ref.getLinkedRef(LinkHavokPartner)
+		if myLink != NONE
+			defaultDisableHavokOnLoad linkScript = myLink as defaultDisableHavokOnLoad
+			if (linkScript)  && (linkScript.BeenSimmed == FALSE)
+				linkScript.ReleaseToHavok()
+			endif
+		endif
+		ref.setMotionType(ref.Motion_Dynamic, TRUE)
+		ref.ApplyHavokImpulse(0, 0, 1, 5)
+endFUNCTION

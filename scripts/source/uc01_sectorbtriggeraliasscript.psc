@@ -1,1 +1,1 @@
-ScriptName UC01_SectorBTriggerAliasScript Extends ReferenceAlias
+Scriptname UC01_SectorBTriggerAliasScript extends ReferenceAlias

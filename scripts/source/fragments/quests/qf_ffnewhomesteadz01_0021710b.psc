@@ -1,133 +1,228 @@
-ScriptName Fragments:Quests:QF_FFNewHomesteadZ01_0021710B Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FFNewHomesteadZ01_0021710B Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property Credits Auto Const mandatory
-GlobalVariable Property FFNewHomesteadZ01_TourTip Auto Const mandatory
-Quest Property FFNewHomesteadZ01Misc Auto Const mandatory
-ReferenceAlias Property Alias_Bill Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour01 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour02 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour03 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour04 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour05 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour06 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour07 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour08 Auto Const mandatory
-Scene Property FFNewHomesteadZ01_Bill_Tour09 Auto Const mandatory
-ActorValue Property FFNewHomesteadZ01_Foreknowledge_AV Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  FFNewHomesteadZ01Misc.SetStage(1000)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+FFNewHomesteadZ01Misc.SetStage(1000)
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0110_Item_00
 Function Fragment_Stage_0110_Item_00()
-  Alias_Bill.GetActorRef().EvaluatePackage(False)
+;BEGIN CODE
+Alias_Bill.GetActorRef().EvaluatePackage()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(150, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(150)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Self.SetObjectiveCompleted(150, True)
-  Self.SetObjectiveDisplayed(200, True, False)
-  FFNewHomesteadZ01_Bill_Tour02.Start()
+;BEGIN CODE
+SetObjectiveCompleted(150)
+SetObjectiveDisplayed(200)
+FFNewHomesteadZ01_Bill_Tour02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0250_Item_00
 Function Fragment_Stage_0250_Item_00()
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(250, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(250)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Self.SetObjectiveCompleted(250, True)
-  Self.SetObjectiveDisplayed(300, True, False)
-  FFNewHomesteadZ01_Bill_Tour03.Start()
+;BEGIN CODE
+SetObjectiveCompleted(250)
+SetObjectiveDisplayed(300)
+FFNewHomesteadZ01_Bill_Tour03.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0350_Item_00
 Function Fragment_Stage_0350_Item_00()
-  Self.SetObjectiveCompleted(300, True)
-  Self.SetObjectiveDisplayed(350, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(300)
+SetObjectiveDisplayed(350)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Self.SetObjectiveCompleted(350, True)
-  Self.SetObjectiveDisplayed(400, True, False)
-  FFNewHomesteadZ01_Bill_Tour04.Start()
+;BEGIN CODE
+SetObjectiveCompleted(350)
+SetObjectiveDisplayed(400)
+FFNewHomesteadZ01_Bill_Tour04.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0450_Item_00
 Function Fragment_Stage_0450_Item_00()
-  Self.SetObjectiveCompleted(400, True)
-  Self.SetObjectiveDisplayed(450, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(400)
+SetObjectiveDisplayed(450)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetObjectiveCompleted(450, True)
-  Self.SetObjectiveDisplayed(500, True, False)
-  FFNewHomesteadZ01_Bill_Tour05.Start()
+;BEGIN CODE
+SetObjectiveCompleted(450)
+SetObjectiveDisplayed(500)
+FFNewHomesteadZ01_Bill_Tour05.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0550_Item_00
 Function Fragment_Stage_0550_Item_00()
-  Self.SetObjectiveCompleted(500, True)
-  Self.SetObjectiveDisplayed(550, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(500)
+SetObjectiveDisplayed(550)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0600_Item_00
 Function Fragment_Stage_0600_Item_00()
-  Self.SetObjectiveCompleted(550, True)
-  Self.SetObjectiveDisplayed(600, True, False)
-  FFNewHomesteadZ01_Bill_Tour06.Start()
+;BEGIN CODE
+SetObjectiveCompleted(550)
+SetObjectiveDisplayed(600)
+FFNewHomesteadZ01_Bill_Tour06.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0650_Item_00
 Function Fragment_Stage_0650_Item_00()
-  Self.SetObjectiveCompleted(600, True)
-  Self.SetObjectiveDisplayed(650, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(600)
+SetObjectiveDisplayed(650)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0700_Item_00
 Function Fragment_Stage_0700_Item_00()
-  Self.SetObjectiveCompleted(650, True)
-  Self.SetObjectiveDisplayed(700, True, False)
-  FFNewHomesteadZ01_Bill_Tour07.Start()
+;BEGIN CODE
+SetObjectiveCompleted(650)
+SetObjectiveDisplayed(700)
+FFNewHomesteadZ01_Bill_Tour07.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0750_Item_00
 Function Fragment_Stage_0750_Item_00()
-  Self.SetObjectiveCompleted(700, True)
-  Self.SetObjectiveDisplayed(750, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(700)
+SetObjectiveDisplayed(750)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  Self.SetObjectiveCompleted(750, True)
-  Self.SetObjectiveDisplayed(800, True, False)
-  FFNewHomesteadZ01_Bill_Tour08.Start()
+;BEGIN CODE
+SetObjectiveCompleted(750)
+SetObjectiveDisplayed(800)
+FFNewHomesteadZ01_Bill_Tour08.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0850_Item_00
 Function Fragment_Stage_0850_Item_00()
-  Self.SetObjectiveCompleted(800, True)
-  Self.SetObjectiveDisplayed(850, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(800)
+SetObjectiveDisplayed(850)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
 Function Fragment_Stage_0900_Item_00()
-  Self.SetObjectiveCompleted(850, True)
-  Self.SetObjectiveDisplayed(900, True, False)
-  FFNewHomesteadZ01_Bill_Tour09.Start()
+;BEGIN CODE
+SetObjectiveCompleted(850)
+SetObjectiveDisplayed(900)
+FFNewHomesteadZ01_Bill_Tour09.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0950_Item_00
 Function Fragment_Stage_0950_Item_00()
-  Self.SetObjectiveCompleted(900, True)
-  Self.SetObjectiveDisplayed(950, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(900)
+SetObjectiveDisplayed(950)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0999_Item_00
 Function Fragment_Stage_0999_Item_00()
-  Game.GetPlayer().RemoveItem(Credits as Form, FFNewHomesteadZ01_TourTip.GetValue() as Int, False, None)
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Credits, FFNewHomesteadZ01_TourTip.GetValue() as Int)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_1000_Item_00
 Function Fragment_Stage_1000_Item_00()
-  Game.GetPlayer().SetValue(FFNewHomesteadZ01_Foreknowledge_AV, 1.0)
-  Self.CompleteAllObjectives()
-  Self.Stop()
+;BEGIN CODE
+Game.GetPlayer().SetValue(FFNewHomesteadZ01_Foreknowledge_AV, 1)
+CompleteAllObjectives()
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property Credits Auto Const Mandatory
+
+GlobalVariable Property FFNewHomesteadZ01_TourTip Auto Const Mandatory
+
+Quest Property FFNewHomesteadZ01Misc Auto Const Mandatory
+
+ReferenceAlias Property Alias_Bill Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour01 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour02 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour03 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour04 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour05 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour06 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour07 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour08 Auto Const Mandatory
+
+Scene Property FFNewHomesteadZ01_Bill_Tour09 Auto Const Mandatory
+
+ActorValue Property FFNewHomesteadZ01_Foreknowledge_AV Auto Const Mandatory

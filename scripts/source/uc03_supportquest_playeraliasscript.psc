@@ -1,19 +1,16 @@
-ScriptName UC03_SupportQuest_PlayerAliasScript Extends ReferenceAlias
+Scriptname UC03_SupportQuest_PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+int Property StageToSet = 200 Const Auto
+{Stage to set once the player has visited another location}
 
-;-- Properties --------------------------------------
-Int Property StageToSet = 200 Auto Const
-{ Stage to set once the player has visited another location }
-Location Property LC028RedDevilMinesLocation Auto Const mandatory
-{ Location obejct for the Deep Mines }
-GlobalVariable Property UC03_PlayerKilledSpacerBoss Auto Const mandatory
-{ Global used to track if the player has killed the spacer boss here }
+Location Property LC028RedDevilMinesLocation Mandatory Const Auto
+{Location obejct for the Deep Mines}
 
-;-- Functions ---------------------------------------
+GlobalVariable Property UC03_PlayerKilledSpacerBoss Mandatory Const Auto
+{Global used to track if the player has killed the spacer boss here}
 
 Event OnLocationChange(Location akOldLoc, Location akNewLoc)
-  If !Self.GetOwningQuest().GetStageDone(StageToSet) && UC03_PlayerKilledSpacerBoss.GetValue() >= 1.0 && akNewLoc != LC028RedDevilMinesLocation
-    Self.GetOwningQuest().SetStage(StageToSet)
-  EndIf
+    if !GetOwningQuest().GetStageDone(StageToSet) && UC03_PlayerKilledSpacerBoss.GetValue() >= 1 && akNewLoc != LC028RedDevilMinesLocation
+        GetOwningQuest().SetStage(StageToSet)
+    endif
 EndEvent

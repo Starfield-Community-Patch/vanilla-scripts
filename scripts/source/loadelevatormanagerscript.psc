@@ -1,167 +1,241 @@
-ScriptName LoadElevatorManagerScript Extends ObjectReference conditional
+Scriptname LoadElevatorManagerScript extends ObjectReference conditional
+; The LoadElevatorManagerScript script manages travel between the floors of an elevator system. 
+; Every load elevator setup includes a single LoadElevator_ManagerMarker reference, with an instance of this script.
+;
+; LoadElevatorManagerScript is responsible for:
+;   1. Assisting LoadElevatorFloorScripts during their initialization (for example, supplying the correct Message names for elevator buttons).
+;   2. Handling floor travel requests (when the player attempts to travel between floors).
+;   3. Controlling elevator "operationality" (whether or not elevator doors opens, and if travel between floors is possible).
 
-;-- Variables ---------------------------------------
+group MessageCustomization CollapsedOnRef
+{Change these properties to affect Message Boxes seen by the player}
+    Message property ChooseFloorMessage auto const mandatory
+    {The text displayed on elevator buttons, when more than two floors are present}
 
-;-- Properties --------------------------------------
-Group MessageCustomization collapsedonref
-{ Change these properties to affect Message Boxes seen by the player }
-  Message Property ChooseFloorMessage Auto Const mandatory
-  { The text displayed on elevator buttons, when more than two floors are present }
-  Message Property InaccessibleFloorMessage Auto Const mandatory
-  { The text displayed when a player attempts to travel to an inaccessible floor }
-  Message Property LockedFloorMessage Auto Const mandatory
-  { The text displayed when a player selects a locked floor }
-  Message Property NotOperatingMessage Auto Const mandatory
-  { The text displayed when the elevator is "off", and the Player tried to request travel to another floor }
-EndGroup
+    Message property InaccessibleFloorMessage auto const mandatory
+    {The text displayed when a player attempts to travel to an inaccessible floor}
 
-Group TwoFloorElevator
-{ Only set these properties if your elevator has exactly two floors. }
-  Message Property FirstFloorName Auto
-  Message Property SecondFloorName Auto
-EndGroup
+    Message property LockedFloorMessage auto const mandatory
+    {The text displayed when a player selects a locked floor}
 
-Group ThreeOrMoreFloorElevator
-{ Only set these properties if your elevator has three or more floors. }
-  Message Property FloorNames Auto
-EndGroup
+    Message property NotOperatingMessage auto const mandatory
+    {The text displayed when the elevator is "off", and the Player tried to request travel to another floor}
+endGroup
 
-Group OperationCustomization
-  Bool Property IsOperational = True Auto conditional
-  { Non-operational elevators won't accept travel requests, and their doors won't open based on Actor proximity. }
-EndGroup
+group TwoFloorElevator
+{Only set these properties if your elevator has exactly two floors.}
+    Message property FirstFloorName auto
+    Message property SecondFloorName auto
+endGroup
 
-Group AutofillProperties collapsedonref
-  wwiseevent Property QST_MQ207C_Elevator_Activate_Fail_WEF Auto Const mandatory
-  wwiseevent Property OBJ_Elevator_Generic_02_Depart_WEF Auto Const mandatory
-EndGroup
+group ThreeOrMoreFloorElevator
+{Only set these properties if your elevator has three or more floors.}
+    Message property FloorNames auto
+endGroup
 
+group OperationCustomization
+    bool property IsOperational = true auto conditional
+    {Non-operational elevators won't accept travel requests, and their doors won't open based on Actor proximity.}
+endGroup
 
-;-- Functions ---------------------------------------
+group AutofillProperties CollapsedOnRef
+    WWiseEvent property QST_MQ207C_Elevator_Activate_Fail_WEF auto const mandatory
+    WWiseEvent property OBJ_Elevator_Generic_02_Depart_WEF auto const mandatory
+endGroup
 
-Function SetFirstFloorName(Message newFloorName)
-  FirstFloorName = newFloorName
-  loadelevatorfloorscript[] loadElevatorFloors = Self.GetLoadElevatorFloors()
-  If loadElevatorFloors.Length != 2
-    Return 
-  EndIf
-  loadElevatorFloors[1].SetElevatorButtonName(newFloorName)
-EndFunction
+function SetFirstFloorName(Message newFloorName)
+    FirstFloorName = newFloorName
 
-Function SetSecondFloorName(Message newFloorName)
-  SecondFloorName = newFloorName
-  loadelevatorfloorscript[] loadElevatorFloors = Self.GetLoadElevatorFloors()
-  If loadElevatorFloors.Length != 2
-    Return 
-  EndIf
-  loadElevatorFloors[0].SetElevatorButtonName(newFloorName)
-EndFunction
+    LoadElevatorFloorScript[] loadElevatorFloors = GetLoadElevatorFloors()
 
-Function SetFloorNames(Message newFloorNames)
-  FloorNames = newFloorNames
-EndFunction
+    if(loadElevatorFloors.Length != 2)
+        DefaultScriptFunctions.Trace(self, "Assigning First Floor Name on an elevator which does not have 2 floors.", true, "LoadElevators")
+        return
+    endIf
 
-Message Function GetButtonMessageForFloor(Int floorIndex)
-  loadelevatorfloorscript[] loadElevatorFloors = Self.GetLoadElevatorFloors()
-  If loadElevatorFloors.Length > 2
-    If ChooseFloorMessage == None
-      
-    EndIf
-    Return ChooseFloorMessage
-  ElseIf floorIndex == 0
-    If SecondFloorName == None
-      
-    EndIf
-    Return SecondFloorName
-  ElseIf floorIndex == 1
-    If FirstFloorName == None
-      
-    EndIf
-    Return FirstFloorName
-  EndIf
-EndFunction
+    loadElevatorFloors[1].SetElevatorButtonName(newFloorName)
+endfunction
 
-Function RequestFloorTravel(Int currentFloor, ObjectReference requester)
-  Int requestedFloor = 0
-  loadelevatorfloorscript[] loadElevatorFloors = Self.GetLoadElevatorFloors()
-  ObjectReference[] reversemanagerDoors = new ObjectReference[loadElevatorFloors.Length]
-  Int I = 0
-  While I < reversemanagerDoors.Length
-    loadelevatorfloorscript loadElevator = loadElevatorFloors[I]
-    reversemanagerDoors[loadElevatorFloors.Length - I - 1] = loadElevator.GetManagerDoor()
-    I += 1
-  EndWhile
-  If loadElevatorFloors.Length > 2
-    If FloorNames == None
-      Return 
-    EndIf
-    FloorNames.AttachLoadDoors(reversemanagerDoors)
-  EndIf
-  If loadElevatorFloors.Length > 2
-    If FloorNames == None
-      Return 
-    EndIf
-    Int floorChoice = FloorNames.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    If floorChoice == -1 || floorChoice > loadElevatorFloors.Length - 1
-      Return 
-    EndIf
-    requestedFloor = loadElevatorFloors.Length - 1 - floorChoice
-  ElseIf currentFloor == 0
-    requestedFloor = 1
-  ElseIf currentFloor == 1
-    requestedFloor = 0
-  EndIf
-  Self.TravelToFloor(currentFloor, requestedFloor, loadElevatorFloors, requester, False)
-EndFunction
+function SetSecondFloorName(Message newFloorName)
+    SecondFloorName = newFloorName
 
-Function TravelToRandomFloor(ObjectReference requester)
-  loadelevatorfloorscript[] loadElevatorFloors = Self.GetLoadElevatorFloors()
-  Int randomFloorIndex = Utility.RandomInt(0, loadElevatorFloors.Length - 1)
-  Self.TravelToFloor(-1, randomFloorIndex, loadElevatorFloors, requester, True)
-EndFunction
+    LoadElevatorFloorScript[] loadElevatorFloors = GetLoadElevatorFloors()
 
-Function TravelToFloor(Int currentFloor, Int requestedFloor, loadelevatorfloorscript[] loadElevatorFloors, ObjectReference requester, Bool ignoreFloorRestrictions)
-  loadelevatorfloorscript loadElevatorFloor = loadElevatorFloors[requestedFloor]
-  If requestedFloor == currentFloor
-    loadElevatorFloor.PlayArrivalSound(False)
-    Return 
-  EndIf
-  If !loadElevatorFloor.IsAccessible()
-    QST_MQ207C_Elevator_Activate_Fail_WEF.Play(requester, None, None)
-    InaccessibleFloorMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    Return 
-  EndIf
-  ObjectReference managerDoor = loadElevatorFloor.GetManagerDoor()
-  If managerDoor != None
-    Key requiredKey = managerDoor.GetKey()
-    If ignoreFloorRestrictions == False && requiredKey != None && requester.GetItemCount(requiredKey as Form) == 0
-      LockedFloorMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-      Return 
-    EndIf
-    If OBJ_Elevator_Generic_02_Depart_WEF != None
-      OBJ_Elevator_Generic_02_Depart_WEF.Play(requester, None, None)
-    EndIf
-    managerDoor.Activate(requester, False)
-  EndIf
-EndFunction
+    if(loadElevatorFloors.Length != 2)
+        DefaultScriptFunctions.Trace(self, "Assigning First Floor Name on an elevator which does not have 2 floors.", true, "LoadElevators")
+        return
+    endIf
 
-Function SetElevatorOperational(Bool operational)
-  IsOperational = operational
-  loadelevatorfloorscript[] loadElevatorFloors = Self.GetLoadElevatorFloors()
-  Int I = 0
-  While I < loadElevatorFloors.Length
-    loadelevatorfloorscript floorScript = loadElevatorFloors[I]
-    If operational != floorScript.IsFloorOperational()
-      floorScript.SetElevatorFloorOperational(operational)
-    EndIf
-    I += 1
-  EndWhile
-EndFunction
+    loadElevatorFloors[0].SetElevatorButtonName(newFloorName)
+endfunction
 
-Bool Function GetElevatorOperational()
-  Return IsOperational
-EndFunction
+function SetFloorNames(Message newFloorNames)
+    FloorNames = newFloorNames
+endfunction
 
-loadelevatorfloorscript[] Function GetLoadElevatorFloors()
-  Return Self.GetLinkedRefChain(None, 100) as loadelevatorfloorscript[]
-EndFunction
+; Returns the appropriate Message form, to override the name of an individual elevator button.
+; For elevators with 2 floors, we return the name of the opposite floor. for elevators with >2 floors, we return a "Choose Floor" Message.
+Message function GetButtonMessageForFloor(int floorIndex)
+    LoadElevatorFloorScript[] loadElevatorFloors = GetLoadElevatorFloors()
+
+    if(loadElevatorFloors.Length > 2)
+        if(ChooseFloorMessage == None)
+            DefaultScriptFunctions.Trace(self, "ChooseFloorMessage not found.", true, "LoadElevators")
+        endIf
+
+        return ChooseFloorMessage
+    elseif(floorIndex == 0)
+        if(SecondFloorName == None)
+            DefaultScriptFunctions.Trace(self, "SecondFloorName not found.", true, "LoadElevators")
+        endIf
+
+        return SecondFloorName
+    elseif(floorIndex == 1)
+        if(FirstFloorName == None)
+            DefaultScriptFunctions.Trace(self, "FirstFloorName not found.", true, "LoadElevators")
+        endIf
+
+        return FirstFloorName
+    endIf
+endFunction
+
+; Called externally, to request that the Player be teleported to the elevator car on a specific floor.
+function RequestFloorTravel(int currentFloor, ObjectReference requester)
+    int requestedFloor
+
+    LoadElevatorFloorScript[] loadElevatorFloors = GetLoadElevatorFloors()
+
+    ; temporary array of invisible elevator doors, which we'll use to populate the FloorNames Message form. This is used by the UI, to hide inaccessible floors from the list, and to decorate restricted floors with a "(Restricted)" suffix.
+    ; doors will be added here in reverse order. This is intentional: elevator floor names are also listed in reverse ofder, as Menu Items in Message forms. This is so that they will display properly in Message Boxes.
+    ObjectReference[] reversemanagerDoors = new ObjectReference[loadElevatorFloors.Length]
+
+    int i = 0
+    while(i < reversemanagerDoors.Length)
+        LoadElevatorFloorScript loadElevator = loadElevatorFloors[i] as LoadElevatorFloorScript
+
+        reversemanagerDoors[loadElevatorFloors.Length - i - 1] = loadElevator.GetManagerDoor()
+
+        i = i + 1
+    endWhile
+
+    if(loadElevatorFloors.Length > 2)
+        if(FloorNames == None)
+            DefaultScriptFunctions.Trace(self, "FloorNames Message not found.", true, "LoadElevators")
+            return
+        endIf
+
+        FloorNames.AttachLoadDoors(reversemanagerDoors)
+    endIf
+
+    ; If this elevator has more than two floors, we show the player a message box and ask them to choose a target floor:
+    if(loadElevatorFloors.Length > 2)
+        if(FloorNames == None)
+            DefaultScriptFunctions.Trace(self, "FloorNames not found.", true, "LoadElevators")
+            return
+        endIf
+
+        int floorChoice = FloorNames.Show()
+
+        ; Here we check to see if the user has backed out of the "Choose Floor" Message Box. This will return either -1, or a number larger than the length of the floor choice array.
+        if(floorChoice == -1 || floorChoice > loadElevatorFloors.Length - 1)
+            return
+        endIf
+
+        ; At this point, we assume that the player has intentionally chosen a floor they'd like to travel to.
+        ; We need to reverse the index returned by this Message Box. This is because the floor names are listed in reverse order in the 'FloorNames' Message form.
+        ; Here's an example list of floor names, as they might appear in a 'FloorNames' Message form:
+        ;
+        ; [0] - "Third Floor"
+        ; [1] - "Second Floor"
+        ; [2] - "First Floor"
+        ;
+        ; Notice that the first floor's name has the highest index (2). This is done so that the floor names are displayed properly in the Message Box UI, without needing special UI support.
+        ; But - this means that we must reverse the index returned by that message box, before using it:
+        requestedFloor = loadElevatorFloors.Length - 1 - floorChoice
+    
+    ; If the player has just two floors, then we can assume they are trying to travel to the floor they are not currently on:
+    elseif(currentFloor == 0)
+        requestedFloor = 1
+    elseif(currentFloor == 1)
+        requestedFloor = 0
+    endIf
+
+    TravelToFloor(currentFloor, requestedFloor, loadElevatorFloors, requester)
+endfunction
+
+function TravelToRandomFloor(ObjectReference requester)
+    LoadElevatorFloorScript[] loadElevatorFloors = GetLoadElevatorFloors()
+
+    int randomFloorIndex = Utility.RandomInt(0, loadElevatorFloors.Length - 1)
+
+    TravelToFloor(-1, randomFloorIndex, loadElevatorFloors, requester, true)
+endFunction
+
+function TravelToFloor(int currentFloor, int requestedFloor, LoadElevatorFloorScript[] loadElevatorFloors, ObjectReference requester, bool ignoreFloorRestrictions = false)
+    LoadElevatorFloorScript loadElevatorFloor = loadElevatorFloors[requestedFloor]
+
+    ; If the player chooses their current floor from the 'Choose Floor' list, we just play the 'arrival' chime sound.
+    if(requestedFloor == currentFloor)
+        loadElevatorFloor.PlayArrivalSound(false)
+        return
+    endIf
+
+    ; If the chosen floor is inaccessible, we cancel the travel request, and display a "inaccessible floor" message.
+    if(!loadElevatorFloor.IsAccessible())
+        QST_MQ207C_Elevator_Activate_Fail_WEF.Play(requester)
+        InaccessibleFloorMessage.Show()
+        return
+    endIf
+
+    ; Each elevator car has an invisible door inside. When a player needs to travel to a different floor, we find and activate the correct door.
+	ObjectReference managerDoor = loadElevatorFloor.GetManagerDoor()
+
+	if(managerDoor != None)
+        ; Travel to a specific floor can be "restricted", by giving its floor a required key (the actual lock value of the door is ignored, since the key is required each time).
+        ; Here, we check to see if the lobby door has a required key. If the player doesn't have it, we cancel the travel request and display a "restricted floor" message.
+        Key requiredKey = managerDoor.GetKey()
+
+        if(ignoreFloorRestrictions == false && requiredKey != NONE && requester.GetItemCount(requiredKey) == 0)
+            LockedFloorMessage.Show()
+            return
+        endIf
+
+        ; if execution has reached this point, either the floor didn't require a key, or the player had it. We now send the player to the requested floor:
+        if(OBJ_Elevator_Generic_02_Depart_WEF != None)
+            OBJ_Elevator_Generic_02_Depart_WEF.Play(requester)
+        else
+            DefaultScriptFunctions.Trace(self, "OBJ_Elevator_Generic_02_Depart_WEF not found.", true, "LoadElevators")
+        endIf
+
+		managerDoor.Activate(requester)
+    else
+        DefaultScriptFunctions.Trace(self, "Manager door not found.", true, "LoadElevators")
+	endIf
+endFunction
+
+; Lets you control whether or not the elevator will accept travel requests. 
+; When IsOperational == false, walking in front of an elevator's doors will not open them. Activation of elevator buttons is also blocked, and NPCS will not attempt to use the elavtor.
+function SetElevatorOperational(bool operational)
+    IsOperational = operational
+
+    LoadElevatorFloorScript[] loadElevatorFloors = GetLoadElevatorFloors()
+
+    int i = 0
+    while(i < loadElevatorFloors.Length)
+        LoadElevatorFloorScript floorScript = loadElevatorFloors[i]
+
+        if(operational != floorScript.IsFloorOperational())
+            floorScript.SetElevatorFloorOperational(operational)
+        endIf
+
+        i += 1
+    endWhile
+endFunction
+
+bool function GetElevatorOperational()
+    return IsOperational
+endfunction
+
+LoadElevatorFloorScript[] function GetLoadElevatorFloors()
+    return GetLinkedRefChain() as LoadElevatorFloorScript[]
+endfunction

@@ -1,13 +1,9 @@
-ScriptName MS06ResetActorsScript Extends ObjectReference Const
+Scriptname MS06ResetActorsScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueECSConstant Auto Const
-
-;-- Functions ---------------------------------------
+Quest property DialogueECSConstant auto const
 
 Event OnReset()
-  dialogueecsconstantquestscript questScript = DialogueECSConstant as dialogueecsconstantquestscript
-  questScript.GenericNPCs.ResetAll()
+    DialogueECSConstantQuestScript questScript = DialogueECSConstant as DialogueECSConstantQuestScript
+
+    questScript.GenericNPCs.ResetAll()
 EndEvent

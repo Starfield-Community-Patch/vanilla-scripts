@@ -1,59 +1,59 @@
-ScriptName DefaultPlaySoundAndImodOnEffectStart Extends ActiveMagicEffect default
+Scriptname DefaultPlaySoundAndImodOnEffectStart extends ActiveMagicEffect default
 { For playing an imagespace, a sound, or both when Potions are used, typically when these should be played only once the Data Menu is closed. }
 
-;-- Variables ---------------------------------------
-Bool bDonePlayingEffects = False
-Int soundInstance = -1
-Int waitForMenuTimer = 1 Const
-Float waitForMenuTimerDuration = 0.01 Const
-
-;-- Properties --------------------------------------
 Group OptionalProperties
-  wwiseevent Property SoundEvent Auto Const
-  { Optional: The Sound Event to play. }
-  ImageSpaceModifier Property theImod Auto Const
-  { Optional: The Imagespace Modifier to play. }
-  Bool Property StartWhenGameIsRunning = True Auto Const
-  { Optional: If true, VFX/SFX won't start playing until game is not paused (e.g. if effect starts from using a potion from inventory) }
-EndGroup
+    WwiseEvent Property SoundEvent Const Auto
+    { Optional: The Sound Event to play. }
 
+    ImageSpaceModifier Property theImod Const Auto
+    { Optional: The Imagespace Modifier to play. }
 
-;-- Functions ---------------------------------------
+    bool Property StartWhenGameIsRunning = true auto const
+    { Optional: If true, VFX/SFX won't start playing until game is not paused (e.g. if effect starts from using a potion from inventory) }
+endGroup
 
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.PlayEffects(True)
+int soundInstance = -1
+int waitForMenuTimer = 1 const
+float waitForMenuTimerDuration = 0.01 const
+bool bDonePlayingEffects = false
+
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	PlayEffects()
 EndEvent
 
-Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  Self.PlayEffects(False)
+Event OnEffectFinish(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+   	PlayEffects(false)
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  If aiTimerID == waitForMenuTimer && soundInstance < 0 && !bDonePlayingEffects
-    Self.PlayEffects(True)
-  EndIf
+Event OnTimer(int aiTimerID)
+    if aiTimerID == waitForMenuTimer && soundInstance < 0 && !bDonePlayingEffects
+        PlayEffects()
+    endif
 EndEvent
 
-Function PlayEffects(Bool startPlaying)
-  If startPlaying
-    If StartWhenGameIsRunning == False || Utility.IsGameMenuPaused() == False
-      If SoundEvent
-        soundInstance = SoundEvent.Play(Self.GetTargetActor() as ObjectReference, None, None)
-      EndIf
-      If theImod
-        theImod.Apply(1.0)
-      EndIf
+function PlayEffects(bool startPlaying = true)
+    debug.trace(self + " PlayEffects startPlaying=" + startPlaying)
+    if startPlaying
+        if StartWhenGameIsRunning == false || Utility.IsGameMenuPaused() == false
+            debug.trace(self + " playing sound " + SoundEvent + " and/or imagespace modifier " + theImod)
+            if SoundEvent
+                soundInstance = SoundEvent.Play(GetTargetActor())
+            endif
+            if theImod
+                theImod.Apply()
+            endif
+        Else
+            StartTimer(waitForMenuTimerDuration, waitForMenuTimer)
+            debug.trace(self + " game is paused - wait for it to be unpaused")
+        endif
     Else
-      Self.StartTimer(waitForMenuTimerDuration, waitForMenuTimer)
-    EndIf
-  Else
-    If soundInstance > -1
-      wwiseevent.StopInstance(soundInstance)
-      soundInstance = -1
-    EndIf
-    If theImod
-      theImod.Remove()
-    EndIf
-    bDonePlayingEffects = True
-  EndIf
+        if soundInstance > -1
+            WWiseEvent.StopInstance(soundInstance)
+            soundInstance = -1
+        endif
+        if theImod
+            theImod.Remove()
+        endif
+        bDonePlayingEffects = true ; in case effect expires while game is paused
+    endif
 EndFunction

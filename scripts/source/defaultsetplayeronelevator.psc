@@ -1,28 +1,37 @@
-ScriptName DefaultSetPlayerOnElevator Extends ObjectReference Const hidden
+Scriptname DefaultSetPlayerOnElevator extends ObjectReference Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 GlobalVariable Property IsPlayerInElevator Auto Const
 
-;-- Functions ---------------------------------------
-
 Event OnTriggerEnter(ObjectReference akActionRef)
-  IsPlayerInElevator.SetValue(1.0)
+		; Set the player as being IN the elevator, and evp all current followers.
+		
+
+  Debug.Trace(self + " OnTriggerEnter()")
+  IsPlayerInElevator.SetValue(1)
+
   Actor[] PlayerFollowers = Game.GetPlayerFollowers()
-  Int CurrentFollowerIndex = 0
-  While CurrentFollowerIndex < PlayerFollowers.Length
-    PlayerFollowers[CurrentFollowerIndex].EvaluatePackage(False)
+  int CurrentFollowerIndex = 0
+  while (CurrentFollowerIndex < PlayerFollowers.Length)
+    PlayerFollowers[CurrentFollowerIndex].EvaluatePackage()
+    Debug.Trace(self + "OnTriggerEnter()| " + CurrentFollowerIndex + ": " + PlayerFollowers[CurrentFollowerIndex] + " follow player CLOSELY.")
     CurrentFollowerIndex += 1
-  EndWhile
-EndEvent
+  endWhile
+
+  EndEvent
+
+
 
 Event OnTriggerLeave(ObjectReference akActionRef)
-  IsPlayerInElevator.SetValue(0.0)
+    ; Set the player as being OUT of the elevator, and evp all current followers.
+  Debug.Trace(self + " OnTriggerLeave()")
+  IsPlayerInElevator.SetValue(0)
+
   Actor[] PlayerFollowers = Game.GetPlayerFollowers()
-  Int CurrentFollowerIndex = 0
-  While CurrentFollowerIndex < PlayerFollowers.Length
-    PlayerFollowers[CurrentFollowerIndex].EvaluatePackage(False)
+  int CurrentFollowerIndex = 0
+  while (CurrentFollowerIndex < PlayerFollowers.Length)
+    PlayerFollowers[CurrentFollowerIndex].EvaluatePackage()
+    Debug.Trace(self + " OnTriggerLeave()| " + CurrentFollowerIndex + ": " + PlayerFollowers[CurrentFollowerIndex] + " follow player NORMALLY")
     CurrentFollowerIndex += 1
-  EndWhile
+  endWhile
+
 EndEvent

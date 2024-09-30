@@ -1,12 +1,14 @@
-ScriptName Fragments:Packages:PF_City_CY_StartUp01_ErickTo_000B214C Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_City_CY_StartUp01_ErickTo_000B214C Extends Package Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property DialogueCydonia Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(Actor akActor)
-  DialogueCydonia.SetStage(1550)
+;BEGIN CODE
+DialogueCydonia.SetStage(1550)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property DialogueCydonia Auto Const Mandatory

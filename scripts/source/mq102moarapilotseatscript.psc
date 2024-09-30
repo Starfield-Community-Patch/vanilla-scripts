@@ -1,7 +1,5 @@
-ScriptName MQ102MoaraPilotSeatScript Extends ReferenceAlias
-
-;-- Functions ---------------------------------------
+Scriptname MQ102MoaraPilotSeatScript extends ReferenceAlias
 
 Event OnLoad()
-  Self.GetRef().BlockActivation(True, True)
+    Self.GetRef().BlockActivation(True, True)
 EndEvent

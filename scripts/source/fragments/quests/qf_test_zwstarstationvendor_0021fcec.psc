@@ -1,6 +1,6 @@
-ScriptName Fragments:Quests:QF_Test_ZWStarstationVendor_0021FCEC Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_Test_ZWStarstationVendor_0021FCEC Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-Scene Property PSE_ZW01_FreestarHail Auto Const mandatory
+Scene Property PSE_ZW01_FreestarHail Auto Const Mandatory

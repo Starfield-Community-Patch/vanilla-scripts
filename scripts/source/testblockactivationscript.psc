@@ -1,11 +1,9 @@
-ScriptName TestBlockActivationScript Extends Actor Const
-
-;-- Functions ---------------------------------------
+Scriptname TestBlockActivationScript extends Actor Const
 
 Event OnActivate(ObjectReference akActionRef)
-  ; Empty function
+	Debug.Trace(self + "HAS BEEN ACTIVATED.")
 EndEvent
 
 Event OnLoad()
-  Self.BlockActivation(True, False)
+	Self.BlockActivation()
 EndEvent

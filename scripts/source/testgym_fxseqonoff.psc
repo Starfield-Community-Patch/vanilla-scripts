@@ -1,20 +1,27 @@
-ScriptName TestGym_FXSeqOnOff Extends ObjectReference
+Scriptname TestGym_FXSeqOnOff extends ObjectReference
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 String Property SeqName = "TestSmoothLoop01" Auto
-Bool Property OnOff = False Auto
+
+Bool Property OnOff = false Auto
+
 ObjectReference Property TargetArt Auto
 
-;-- Functions ---------------------------------------
-
 Event OnActivate(ObjectReference akActionRef)
-  If OnOff == True
-    OnOff = False
-    TargetArt.StopSequence(SeqName)
-  ElseIf OnOff == False
-    OnOff = True
-    TargetArt.StartSequence(SeqName, True, 1.0)
-  EndIf
+if OnOff == true 
+	OnOff = false
+ 	 Debug.Trace("Turning off smooth loop ")
+	; stop seq
+	TargetArt.StopSequence(SeqName)
+
+elseif OnOff == false 
+	OnOff = true
+ 	 Debug.Trace("Turning on smooth loop ")
+	; play seq
+	TargetArt.StartSequence(SeqName, true)
+
+endif
+
 EndEvent
+
+
+

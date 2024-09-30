@@ -1,32 +1,46 @@
-ScriptName Fragments:Quests:QF_CFKey_00297E3A Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_CFKey_00297E3A Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property Alias_CF02SecurityDoors Auto Const mandatory
-ActorValue Property Health Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Function Fragment_Stage_0010_Item_00()
-  ; Empty function
-EndFunction
-
+;BEGIN FRAGMENT Fragment_Stage_0005_Item_00
 Function Fragment_Stage_0005_Item_00()
-  Int I = 0
-  Int count = Alias_CF02SecurityDoors.GetCount()
-  While I < count
-    Alias_CF02SecurityDoors.GetAt(I).SetOpen(False)
-    I += 1
-  EndWhile
+;BEGIN CODE
+;Close the CF02 Security Doors.
+int i = 0
+int count = Alias_CF02SecurityDoors.GetCount()
+While (i < count)
+     Alias_CF02SecurityDoors.GetAt(i).SetOpen(False)
+     i = i + 1
+EndWhile
+;END CODE
 EndFunction
+;END FRAGMENT
 
-Function Fragment_Stage_0200_Item_00()
-  Int I = 0
-  Int count = Alias_CF02SecurityDoors.GetCount()
-  While I < count
-    Alias_CF02SecurityDoors.GetAt(I).SetOpen(True)
-    I += 1
-  EndWhile
-  Self.Stop()
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
+Function Fragment_Stage_0010_Item_00()
+;BEGIN CODE
+;Set by: Startup
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
+Function Fragment_Stage_0200_Item_00()
+;BEGIN CODE
+;Open the CF02 Security Doors.
+int i = 0
+int count = Alias_CF02SecurityDoors.GetCount()
+While (i < count)
+     Alias_CF02SecurityDoors.GetAt(i).SetOpen(True)
+     i = i + 1
+EndWhile
+
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+RefCollectionAlias Property Alias_CF02SecurityDoors Auto Const Mandatory
+
+ActorValue Property Health Auto Const Mandatory

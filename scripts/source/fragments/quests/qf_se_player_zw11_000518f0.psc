@@ -1,20 +1,26 @@
-ScriptName Fragments:Quests:QF_SE_Player_ZW11_000518F0 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_SE_Player_ZW11_000518F0 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property PSE_Global_Player_ZW12_RevengeEncounters Auto Const mandatory
-RefCollectionAlias Property Alias_AttackersRC Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0010_Item_00
 Function Fragment_Stage_0010_Item_00()
-  PSE_Global_Player_ZW12_RevengeEncounters.Mod(1.0)
-  Utility.wait(7.0)
-  Int I = 0
-  While I < Alias_AttackersRC.GetCount()
-    (Alias_AttackersRC.GetAt(I) as spaceshipreference).EnableWithGravJumpNoWait()
-    Utility.wait(Utility.randomfloat(0.200000003, 3.900000095))
-    I += 1
-  EndWhile
+;BEGIN CODE
+PSE_Global_Player_ZW12_RevengeEncounters.Mod(1)
+
+utility.wait(7)
+
+int i = 0
+
+while (i < Alias_AttackersRC.GetCount())
+    (Alias_AttackersRC.GetAt(i) as SpaceshipReference).EnableWithGravJumpNoWait()
+    utility.wait(utility.randomfloat(0.2,3.9))
+    i = i+1
+endwhile
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property PSE_Global_Player_ZW12_RevengeEncounters Auto Const Mandatory
+
+RefCollectionAlias Property Alias_AttackersRC Auto Const Mandatory

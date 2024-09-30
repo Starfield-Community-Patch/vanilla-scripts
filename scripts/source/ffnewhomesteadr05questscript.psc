@@ -1,13 +1,10 @@
-ScriptName FFNewHomesteadR05QuestScript Extends Quest
+Scriptname FFNewHomesteadR05QuestScript extends Quest
 
-;-- Variables ---------------------------------------
+Float Property CooldownTimerDays = 3.0 Const Auto
+GlobalVariable Property FFNewHomesteadR05_CooldownTime Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Float Property CooldownTimerDays = 3.0 Auto Const
-GlobalVariable Property FFNewHomesteadR05_CooldownTime Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;Sets the cooldown time for this quest to the current game time, plus a number of days. 
+;This will be checked via condition on the NPC's dialogue so they won't offer the quest until the GameDaysPassed Global exceeds this Global value.
 Function SetCooldown()
-  FFNewHomesteadR05_CooldownTime.SetValue(Utility.GetCurrentGameTime() + CooldownTimerDays)
+    FFNewHomesteadR05_CooldownTime.SetValue(Utility.GetCurrentGameTime() + CooldownTimerDays)
 EndFunction

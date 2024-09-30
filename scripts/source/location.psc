@@ -1,99 +1,140 @@
-ScriptName Location Extends Form Native hidden
+Scriptname Location extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Adds the specified keyword to the location
+Function AddKeyword(Keyword akKeyword) native
 
-Function AddKeyword(Keyword akKeyword) Native
+; Links the given location to this one under the given keyword
+Function AddLinkedLocation(Location akLoc, Keyword akKeyword) native
 
-Function AddLinkedLocation(Location akLoc, Keyword akKeyword) Native
+; Get the count of all instantiated Actors (across all process levels) who belong to this location.  
+; Can optionally specify a keyword for a linkedref that they must have (apRequiredLinkedRefKeyword), and/or a linkedref keyword they must NOT have (apExcludeLinkedRefKeyword).
+; (Presence or absence of the keywordless linkedref cannot be checked.)
+; (NOTE: if you're also necessarily going to call GetActors, just do that and check its size, instead of calling this.)
+int Function CountActors( Keyword apRequiredLinkedRefKeyword = None, Keyword apExcludeLinkedRefKeyword = None ) native
 
-Int Function CountActors(Keyword apRequiredLinkedRefKeyword, Keyword apExcludeLinkedRefKeyword) Native
+; Disables player space travel to all locations except the specified location. Can call on multiple locations.
+bool Function DisableSpaceTravelToAllExcept(Quest akQuest, bool abAddLocation = true) native
 
-Bool Function DisableSpaceTravelToAllExcept(Quest akQuest, Bool abAddLocation) Native
+; Enables player space travel to the specified location.
+bool Function EnableSpaceTravel(Quest akQuest, bool abEnable = true) native
 
-Bool Function EnableSpaceTravel(Quest akQuest, Bool abEnable) Native
+; Get an array of all instantiated Actors (across all process levels) who belong to this location.  
+; Can optionally specify a keyword for a linkedref that they must have (apRequiredLinkedRefKeyword), and/or a linkedref keyword they must NOT have (apExcludeLinkedRefKeyword).
+; (Presence or absence of the keywordless linkedref cannot be checked.)
+Actor[] Function GetActors( Keyword apRequiredLinkedRefKeyword = None, Keyword apExcludeLinkedRefKeyword = None ) native
 
-Actor[] Function GetActors(Keyword apRequiredLinkedRefKeyword, Keyword apExcludeLinkedRefKeyword) Native
+; Returns an array of all locations linked to this one under the given keyword
+Location[] Function GetAllLinkedLocations(Keyword akKeyword) native
 
-Location[] Function GetAllLinkedLocations(Keyword akKeyword) Native
+; Returns this location's planet
+Planet Function GetCurrentPlanet() native
 
-planet Function GetCurrentPlanet() Native
+; Returns the float value attached to the specified keyword attached to this location
+float Function GetKeywordData(Keyword akKeyword) native
 
-Float Function GetKeywordData(Keyword akKeyword) Native
+; Gets this location's minimum level
+int Function GetMinLevel() native
 
-Int Function GetMaxLevel() Native
+; Gets this location's maximum level
+int Function GetMaxLevel() native
 
-Int Function GetMinLevel() Native
+; Gets this location's parent locations
+; Can optionally specify a keyword that the parent location must have
+Location[] Function GetParentLocations(Keyword apKeyword = None) native
 
-Location[] Function GetParentLocations(Keyword apKeyword) Native
+; Returns the number of alive references matching the specified reference type
+int Function GetRefTypeAliveCount(LocationRefType akRefType) native
 
-Int Function GetRefTypeAliveCount(LocationRefType akRefType) Native
+; Returns the number of dead references matching the specified reference type
+int Function GetRefTypeDeadCount(LocationRefType akRefType) native
 
-Int Function GetRefTypeDeadCount(LocationRefType akRefType) Native
+; Gets an actor value on location
+float Function GetValue(ActorValue akActorValue) native
 
-Float Function GetValue(ActorValue akActorValue) Native
+; Returns if these two locations have a common parent - filtered with the keyword, if provided
+bool Function HasCommonParent(Location akOther, Keyword akFilter = None) native
 
-Bool Function HasCommonParent(Location akOther, Keyword akFilter) Native
+; Returns if this location has ever been explored
+bool Function HasEverBeenExplored() native
 
-Bool Function HasEverBeenExplored() Native
+; Returns if this location has the specified reference type
+bool Function HasRefType(LocationRefType akRefType) native
 
-Bool Function HasRefType(LocationRefType akRefType) Native
+; Returns whether this location is flagged as "explored" or not
+bool Function IsExplored() native
 
-Bool Function IsChild(Location akOther) Native
+; Returns whether the other location is a child of this one
+bool Function IsChild(Location akOther) native
 
-Bool Function IsExplored() Native
+; Is this location linked to the given one under the given keyword?
+bool Function IsLinkedLocation(Location akLocation, Keyword akKeyword) native
 
-Bool Function IsLinkedLocation(Location akLocation, Keyword akKeyword) Native
+; Is this location loaded in game?
+bool Function IsLoaded() native
 
-Bool Function IsLoaded() Native
+bool Function IsSameLocation(Location akOtherLocation, Keyword akKeyword = None)
+{Returns true if the calling location is the same as the supplied location - if an optional keyword is supplied, it also returns true if the locations share a parent with that keyword, or if either location is a child of the other and the other has that keyword.}
+;jduvall 
+	bool bmatching = self == akOtherLocation
+	if !bmatching && akKeyword
+		bmatching = HasCommonParent(akOtherLocation, akKeyword)
+		
+		if !bmatching && akOtherLocation.HasKeyword(akKeyword)
+			bmatching = akOtherLocation.IsChild(self) 
+		elseif !bmatching && self.HasKeyword(akKeyword)
+			bmatching = self.IsChild(akOtherLocation) 
+		endif
+		
+	endif
+  return bmatching
+endFunction
 
+; adds afData to the current keyword value (threadsafe)
+Function ModifyKeywordData(Keyword akKeyword, float afData)
+	float currentValue = GetKeywordData(akKeyword)
+	SetKeywordData(akKeyword, currentValue + afData)
+endFunction
+
+; Removed the specified keyword from the location
+Function RemoveKeyword(Keyword akKeyword) native
+
+; Removes any link between this location and the given one under the given keyword
+Function RemoveLinkedLocation(Location akLoc, Keyword akKeyword) native
+
+; Forces reset on all encounter zones and interior cells which use this location
+Function Reset() native
+
+; Sets the specified keyword's data on the location
+Function SetKeywordData(Keyword akKeyword, float afData) native
+
+; Sets this location as explored or not
+Function SetExplored(bool abExplored = true) native
+
+;Set the given faction as the faction owner for this location
+Function SetFactionOwner(Faction akFaction) native
+
+; Sets this encounter zone's minimum level
+Function SetMinLevel( int aiMinLevel ) native
+
+; Sets this encounter zone's maximum level
+Function SetMaxLevel( int aiMaxLevel ) native
+
+; Forces the value of the never reset flag on this location
+Function SetNeverResets(bool abFlag = true) native
+
+; Sets an actor value on location
+Function SetValue(ActorValue akActorValue, float afValue) native
+
+Function ModValue(ActorValue akActorValue, float afAmount)
+	float currentValue = GetValue(akActorValue)
+	SetValue(akActorValue, currentValue + afAmount)
+endFunction
+
+
+; Event sent to location when its explored
 Event OnLocationExplored()
-  ; Empty function
 EndEvent
 
+; Event sent when a location is loaded
 Event OnLocationLoaded()
-  ; Empty function
 EndEvent
-
-Function RemoveKeyword(Keyword akKeyword) Native
-
-Function RemoveLinkedLocation(Location akLoc, Keyword akKeyword) Native
-
-Function Reset() Native
-
-Function SetExplored(Bool abExplored) Native
-
-Function SetFactionOwner(Faction akFaction) Native
-
-Function SetKeywordData(Keyword akKeyword, Float afData) Native
-
-Function SetMaxLevel(Int aiMaxLevel) Native
-
-Function SetMinLevel(Int aiMinLevel) Native
-
-Function SetNeverResets(Bool abFlag) Native
-
-Function SetValue(ActorValue akActorValue, Float afValue) Native
-
-Bool Function IsSameLocation(Location akOtherLocation, Keyword akKeyword)
-{ Returns true if the calling location is the same as the supplied location - if an optional keyword is supplied, it also returns true if the locations share a parent with that keyword, or if either location is a child of the other and the other has that keyword. }
-  Bool bmatching = Self == akOtherLocation
-  If !bmatching && akKeyword as Bool
-    bmatching = Self.HasCommonParent(akOtherLocation, akKeyword)
-    If !bmatching && akOtherLocation.HasKeyword(akKeyword)
-      bmatching = akOtherLocation.IsChild(Self)
-    ElseIf !bmatching && Self.HasKeyword(akKeyword)
-      bmatching = Self.IsChild(akOtherLocation)
-    EndIf
-  EndIf
-  Return bmatching
-EndFunction
-
-Function ModifyKeywordData(Keyword akKeyword, Float afData)
-  Float currentValue = Self.GetKeywordData(akKeyword)
-  Self.SetKeywordData(akKeyword, currentValue + afData)
-EndFunction
-
-Function ModValue(ActorValue akActorValue, Float afAmount)
-  Float currentValue = Self.GetValue(akActorValue)
-  Self.SetValue(akActorValue, currentValue + afAmount)
-EndFunction

@@ -1,15 +1,11 @@
-ScriptName UC01_TopicInfoDisplayCompleteScript Extends TopicInfo
+Scriptname UC01_TopicInfoDisplayCompleteScript extends TopicInfo
 
-;-- Variables ---------------------------------------
+Quest Property UC01 Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Quest Property UC01 Auto Const mandatory
-Int Property PrereqStage = 200 Auto Const
+int Property PrereqStage = 200 Auto Const
 
-;-- Functions ---------------------------------------
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If UC01.IsRunning() && UC01.GetStageDone(PrereqStage)
-    (UC01 as uc01questscript).DisplaySceneComplete(akSpeakerRef)
-  EndIf
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    if UC01.IsRunning() && UC01.GetStageDone(PrereqStage)
+        (UC01 as UC01QuestScript).DisplaySceneComplete(akSpeakerRef)
+    endif
 EndEvent

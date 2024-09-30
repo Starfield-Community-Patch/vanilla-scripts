@@ -1,8 +1,6 @@
-ScriptName DefaultClearInventoryOnUnload Extends ObjectReference Const default
+Scriptname DefaultClearInventoryOnUnload extends ObjectReference Const Default
 { Removes all items from this reference's inventory when unloaded. }
 
-;-- Functions ---------------------------------------
-
 Event OnUnload()
-  Self.RemoveAllItems(None, False, False)
-EndEvent
+    RemoveAllItems()
+endEvent

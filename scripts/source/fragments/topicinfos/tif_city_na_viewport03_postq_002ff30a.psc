@@ -1,13 +1,15 @@
-ScriptName Fragments:TopicInfos:TIF_City_NA_Viewport03_PostQ_002FF30A Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_City_NA_Viewport03_PostQ_002FF30A Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-LeveledItem Property LL_Credits_Medium Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  Game.GetPlayer().Additem(LL_Credits_Medium as Form, 1, False)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+Game.GetPlayer().Additem(LL_Credits_Medium, 1)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+LeveledItem Property LL_Credits_Medium Auto Const Mandatory

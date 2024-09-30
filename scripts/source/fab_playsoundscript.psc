@@ -1,21 +1,16 @@
-ScriptName FAB_PlaySoundScript Extends TopicInfo Const
+Scriptname FAB_PlaySoundScript extends TopicInfo Const
 
-;-- Variables ---------------------------------------
+WwiseEvent Property SoundToPlay Auto Const
+Bool Property bPlayOnEnd = TRUE Auto Const
 
-;-- Properties --------------------------------------
-wwiseevent Property SoundToPlay Auto Const
-Bool Property bPlayOnEnd = True Auto Const
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+ 	if bPlayOnEnd == FALSE
+ 		SoundToPlay.Play(Game.GetPlayer())
+  	endif
+endEvent
 
-;-- Functions ---------------------------------------
-
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If bPlayOnEnd == False
-    SoundToPlay.Play(Game.GetPlayer() as ObjectReference, None, None)
-  EndIf
-EndEvent
-
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If bPlayOnEnd == True
-    SoundToPlay.Play(Game.GetPlayer() as ObjectReference, None, None)
-  EndIf
-EndEvent
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+ 	if bPlayOnEnd == TRUE
+ 		SoundToPlay.Play(Game.GetPlayer())
+  	endif
+endEvent

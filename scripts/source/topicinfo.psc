@@ -1,15 +1,15 @@
-ScriptName TopicInfo Extends Form Native hidden
+Scriptname TopicInfo extends Form Native Hidden
 
-;-- Functions ---------------------------------------
+; Returns the quest that owns this topic info
+Quest Function GetOwningQuest() native
 
-Quest Function GetOwningQuest() Native
+; Returns if the topic info has been said to the player
+bool  Function HasBeenSaid() native
 
-Bool Function HasBeenSaid() Native
-
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  ; Empty function
+; Event called when this topic info begins (in parallel with the fragment)
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
 EndEvent
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  ; Empty function
+; Event called when this topic info ends (in parallel with the fragment)
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
 EndEvent

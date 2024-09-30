@@ -1,10 +1,9 @@
-ScriptName DR030_ElevatorDoorScript Extends ObjectReference Const
-
-;-- Functions ---------------------------------------
+Scriptname DR030_ElevatorDoorScript extends ObjectReference Const
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference moveToMarker = Self.GetLinkedRef(None)
-  If moveToMarker != None
-    akActionRef.moveto(moveToMarker, 0.0, 0.0, 0.0, True, False)
-  EndIf
+	ObjectReference moveToMarker = GetLinkedRef()
+
+    if(moveToMarker != None)
+        akActionRef.moveto(moveToMarker)
+    endIf
 EndEvent

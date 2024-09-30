@@ -1,37 +1,35 @@
-ScriptName VascoShutDownZeroGScript Extends Actor Const
+Scriptname VascoShutDownZeroGScript extends Actor Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Autofill
-  ActorValue Property VascoShutDownZeroG Auto Const mandatory
-  Perk Property VascoShutDownZeroGPlayerPerk Auto Const mandatory
-  Message Property VascoShutDownZeroGActivateMessage Auto Const mandatory
-  Scene Property CREW_EliteCrew_Vasco_ShutdownZeroG Auto Const mandatory
+    ActorValue Property VascoShutDownZeroG Mandatory Const Auto
+
+    Perk Property VascoShutDownZeroGPlayerPerk Mandatory Const Auto
+
+    Message Property VascoShutDownZeroGActivateMessage Mandatory Const Auto
+
+    Scene Property CREW_EliteCrew_Vasco_ShutdownZeroG Mandatory Const Auto
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
 Function ShutDown()
-  Self.SetUnconscious(True)
-  CREW_EliteCrew_Vasco_ShutdownZeroG.Start()
-  Self.setvalue(VascoShutDownZeroG, 1.0)
-  Game.GetPlayer().AddPerk(VascoShutDownZeroGPlayerPerk, False)
+    SetUnconscious()
+    CREW_EliteCrew_Vasco_ShutdownZeroG.Start()
+    setvalue(VascoShutDownZeroG, 1)
+    Game.GetPlayer().AddPerk(VascoShutDownZeroGPlayerPerk)
 EndFunction
 
 Function StartUp()
-  Self.SetUnconscious(False)
-  Self.setvalue(VascoShutDownZeroG, 0.0)
-  Game.GetPlayer().RemovePerk(VascoShutDownZeroGPlayerPerk)
+    SetUnconscious(false)
+    setvalue(VascoShutDownZeroG, 0)
+    Game.GetPlayer().RemovePerk(VascoShutDownZeroGPlayerPerk)
 EndFunction
 
 Function ActivatedDuringShutDown()
-  VascoShutDownZeroGActivateMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    VascoShutDownZeroGActivateMessage.Show()
 EndFunction
 
 Event OnActivate(ObjectReference akActionRef)
-  If Self.GetValue(VascoShutDownZeroG) == 1.0
-    Self.ActivatedDuringShutDown()
-  EndIf
+    if GetValue(VascoShutDownZeroG) == 1
+        ActivatedDuringShutDown()
+    endif
 EndEvent

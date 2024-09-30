@@ -1,54 +1,60 @@
-ScriptName TestElectricityArcScript Extends ObjectReference
+Scriptname TestElectricityArcScript extends ObjectReference
+;Script that handles electricity arcing between two points
 
-;-- Variables ---------------------------------------
+bool Property bPowered = true Auto
 
-;-- Properties --------------------------------------
-Bool Property bPowered = True Auto
-Spell Property ElectricitySpell Auto Const mandatory
-Keyword Property LinkCustom01 Auto Const mandatory
-Keyword Property LinkCustom02 Auto Const mandatory
-Bool Property bRandomTarget = False Auto
-{ Set to true if you want this to arc to the player randomly if they're nearby }
+Spell Property ElectricitySpell Mandatory Const Auto
+Keyword Property LinkCustom01 Mandatory Const Auto
+Keyword Property LinkCustom02 Mandatory Const Auto
 
-;-- Functions ---------------------------------------
+bool Property bRandomTarget = false Auto
+{Set to true if you want this to arc to the player randomly if they're nearby}
 
 Event OnLoad()
-  If bPowered && bRandomTarget
-    Self.ElectrifyRandomTarget()
-  ElseIf bPowered
-    Self.ElectrifyTarget()
-  EndIf
+;Shock the player every now and then or just shock the target x marker
+
+    If (bPowered && bRandomTarget)
+        ElectrifyRandomTarget()
+    ElseIf (bPowered)
+        ElectrifyTarget()
+    EndIf
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If bPowered
-    bPowered = False
-  ElseIf bPowered == False && bRandomTarget
-    bPowered = True
-    Self.ElectrifyRandomTarget()
-  ElseIf bPowered == False
-    Self.ElectrifyTarget()
-  EndIf
+;If system is powered, shut it down. If system is unpowered, turn it on.
+
+    If (bPowered)
+        bPowered = false
+    ElseIf (bPowered == false && bRandomTarget)
+        bPowered = true
+        ElectrifyRandomTarget()
+    ElseIf (bPowered == false)
+        ElectrifyTarget()
+    EndIf
 EndEvent
 
 Function ElectrifyTarget()
-  While bPowered
-    Float fRandom = Utility.RandomFloat(0.200000003, 3.0)
-    ElectricitySpell.Cast(Self.GetLinkedRef(LinkCustom01), Self.GetLinkedRef(LinkCustom02))
-    Utility.Wait(fRandom)
-  EndWhile
+;Cast electricity arc spell on target xmarker every so often.
+
+    while (bPowered)
+        float fRandom = Utility.RandomFloat(0.2, 3.0)
+        ElectricitySpell.Cast(GetLinkedRef(LinkCustom01), GetLinkedRef(LinkCustom02))
+        Utility.Wait(fRandom)
+    Endwhile
 EndFunction
 
 Function ElectrifyRandomTarget()
-  While bPowered
-    Int iRandom = Utility.RandomInt(1, 100)
-    Float fRandom = Utility.RandomFloat(0.200000003, 3.0)
-    Float fDistance = Game.GetPlayer().GetDistance(Self.GetLinkedRef(LinkCustom01))
-    If iRandom <= 50 && fDistance < 12.0
-      ElectricitySpell.Cast(Self.GetLinkedRef(LinkCustom01), Game.GetPlayer() as ObjectReference)
-    Else
-      ElectricitySpell.Cast(Self.GetLinkedRef(LinkCustom01), Self.GetLinkedRef(LinkCustom02))
-    EndIf
-    Utility.Wait(fRandom)
-  EndWhile
+;Cast electricity arc spell on target x marker every so often, and hit the player every now and then too.
+
+    while (bPowered)
+        int iRandom = Utility.RandomInt(1, 100)
+        float fRandom = Utility.RandomFloat(0.2, 3.0)
+        float fDistance = game.GetPlayer().GetDistance(GetLinkedRef(LinkCustom01))
+        If (iRandom <= 50 && fDistance < 12)
+            ElectricitySpell.Cast(GetLinkedRef(LinkCustom01), game.GetPlayer())
+        Else
+            ElectricitySpell.Cast(GetLinkedRef(LinkCustom01), GetLinkedRef(LinkCustom02))
+        EndIf
+            Utility.Wait(fRandom)
+    Endwhile
 EndFunction

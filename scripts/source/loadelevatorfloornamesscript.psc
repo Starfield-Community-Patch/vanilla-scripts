@@ -1,30 +1,24 @@
-ScriptName LoadElevatorFloorNamesScript Extends ObjectReference
+Scriptname LoadElevatorFloorNamesScript extends ObjectReference
 
-;-- Variables ---------------------------------------
+group TwoFloorElevator
+    {Only set these properties if your elevator has exactly two floors.}
+    Message property Floor0Name auto Const
+    Message property Floor1Name auto Const
+endGroup
 
-;-- Properties --------------------------------------
-Group TwoFloorElevator
-{ Only set these properties if your elevator has exactly two floors. }
-  Message Property Floor0Name Auto Const
-  Message Property Floor1Name Auto Const
-EndGroup
+group ThreeOrMoreFloorElevator
+    {Only set these properties if your elevator has three or more floors.}
+    Message property FloorNameList auto Const
+endGroup
 
-Group ThreeOrMoreFloorElevator
-{ Only set these properties if your elevator has three or more floors. }
-  Message Property FloorNameList Auto Const
-EndGroup
+Message function GetFloor0Name()
+    return Floor0Name
+endFunction
 
+Message function GetFloor1Name()
+    return Floor1Name
+endFunction
 
-;-- Functions ---------------------------------------
-
-Message Function GetFloor0Name()
-  Return Floor0Name
-EndFunction
-
-Message Function GetFloor1Name()
-  Return Floor1Name
-EndFunction
-
-Message Function GetFloorNameList()
-  Return FloorNameList
-EndFunction
+Message function GetFloorNameList()
+    return FloorNameList
+endFunction

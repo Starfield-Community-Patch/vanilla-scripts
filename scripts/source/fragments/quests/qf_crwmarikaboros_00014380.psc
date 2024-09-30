@@ -1,20 +1,29 @@
-ScriptName Fragments:Quests:QF_CRWMarikaBoros_00014380 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_CRWMarikaBoros_00014380 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-MiscObject Property Credits Auto Const mandatory
-GlobalVariable Property CRWMarikaHire Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0150_Item_00
 Function Fragment_Stage_0150_Item_00()
-  CRWMarikaHire.SetValue(CRWMarikaHire.GetValue() - 100.0)
-  Self.UpdateCurrentInstanceGlobal(CRWMarikaHire)
+;BEGIN CODE
+CRWMarikaHire.SetValue(CRWMarikaHire.GetValue() - 100)
+UpdateCurrentInstanceGlobal(CRWMarikaHire)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  Quest __temp = Self as Quest
-  crwcrewscript kmyQuest = __temp as crwcrewscript
-  kmyQuest.HireCrew(CRWMarikaHire.GetValue())
+;BEGIN AUTOCAST TYPE CRWCrewScript
+Quest __temp = self as Quest
+CRWCrewScript kmyQuest = __temp as CRWCrewScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.HireCrew(CRWMarikaHire.GetValue())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+MiscObject Property Credits Auto Const Mandatory
+
+GlobalVariable Property CRWMarikaHire Auto Const Mandatory

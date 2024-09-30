@@ -1,20 +1,15 @@
-ScriptName POIBB001WeatherScript Extends ObjectReference Const
+Scriptname POIBB001WeatherScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Weather Property wStorm Auto Const mandatory
-ObjectReference Property DustMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
+Weather Property wStorm Mandatory Const Auto
+ObjectReference Property DustMarker Mandatory Const Auto
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  Self.Disable(False)
-  wStorm.SetActive(True, False)
-  Utility.Wait(40.0)
-  DustMarker.Enable(False)
+    self.Disable()
+    wStorm.SetActive(true)
+    Utility.Wait(40)
+    DustMarker.Enable()
 EndEvent
 
 Event OnUnload()
-  Weather.ReleaseOverride()
+    Weather.ReleaseOverride()
 EndEvent

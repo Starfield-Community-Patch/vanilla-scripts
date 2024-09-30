@@ -1,13 +1,8 @@
-ScriptName DefaultAliasAddToRefCollectionOnLoad Extends ReferenceAlias
-{ When this Ref loads, add it to the specified Ref Collection }
+Scriptname DefaultAliasAddToRefCollectionOnLoad extends ReferenceAlias
+{When this Ref loads, add it to the specified Ref Collection}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-RefCollectionAlias Property RefCollectionToFill Auto Const mandatory
-
-;-- Functions ---------------------------------------
+RefCollectionAlias Property RefCollectionToFill Auto Const Mandatory
 
 Event OnLoad()
-  RefCollectionToFill.AddRef(Self.GetRef())
+    RefCollectionToFill.AddRef(Self.GetRef())
 EndEvent

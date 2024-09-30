@@ -1,57 +1,67 @@
-ScriptName DefaultAliasOnShipRefueled Extends DefaultAliasParent default
-{ Sets stage when THIS Alias refuels.
+Scriptname DefaultAliasOnShipRefueled extends DefaultAliasParent Default
+{Sets stage when THIS Alias refuels.
 <QuestToSetOrCheck> is THIS Alias's GetOwningQuest()
-<LocationToCheck> is the current location of THIS Alias's reference. }
+<LocationToCheck> is the current location of THIS Alias's reference.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
+;**************************************************************************************************************
+;*************************	   <BEGIN> LocationToCheck Properties	  *************************
+;**************************************************************************************************************
 Group LocationToCheck_Optional_Properties
-  Location[] Property LocationsToCheckAgainst Auto Const
-  { <LocationToCheck> must be one of these references }
-  LocationAlias[] Property LocationAliasesToCheckAgainst Auto Const
-  { <LocationToCheck> must be in one of these location aliases }
-  Bool Property LocationMatchIfChild = False Auto Const
-  { (Default: false) If true, <LocationToCheck> may be a child of locations in LocationsToCheck or LocationAliasesToCheck }
+	Location[] property LocationsToCheckAgainst Auto Const
+	{<LocationToCheck> must be one of these references}
+
+	LocationAlias[] property LocationAliasesToCheckAgainst Auto Const
+	{<LocationToCheck> must be in one of these location aliases}
+
+	bool property LocationMatchIfChild = false Auto Const
+	{(Default: false) If true, <LocationToCheck> may be a child of locations in LocationsToCheck or LocationAliasesToCheck}
 EndGroup
+
+;OVERRIDEN PARENT FUNCTONS
+;These function should usually return the value of the child script's property of the same name.
+;(We do this because different children will want different default values for that property and so need to define the property on themselves, but we want all the functions to live on the inital ancestor parent script.)
+Location[]  Function GetLocationsToCheckAgainst()
+	return LocationsToCheckAgainst
+EndFunction
+LocationAlias[]  Function GetLocationAliasesToCheckAgainst()
+	return LocationAliasesToCheckAgainst
+EndFunction
+bool Function GetLocationMatchIfChild()
+	return LocationMatchIfChild
+EndFunction
+;**************************************************************************************************************
+;*************************	  	<END> LocationToCheck Properties		  *************************
+;**************************************************************************************************************
+
 
 Group Script_Specific_Properties
-  ActorValue Property SpaceshipGravJumpFuel Auto Const mandatory
-  { The actor value which holds current/max fuel value for ships }
-  Bool Property RequireFullyRefueled = False Auto Const
-  { If true (default), stage will be set when fueling is complete, only if completely refueled; if false, stage will be set when fueling completes, regardless of much fuel was added. }
+	ActorValue Property SpaceshipGravJumpFuel auto const mandatory
+    {The actor value which holds current/max fuel value for ships }
+
+	Bool Property RequireFullyRefueled = FALSE Auto Const
+	{If true (default), stage will be set when fueling is complete, only if completely refueled; if false, stage will be set when fueling completes, regardless of much fuel was added.}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
-Location[] Function GetLocationsToCheckAgainst()
-  Return LocationsToCheckAgainst
-EndFunction
-
-LocationAlias[] Function GetLocationAliasesToCheckAgainst()
-  Return LocationAliasesToCheckAgainst
-EndFunction
-
-Bool Function GetLocationMatchIfChild()
-  Return LocationMatchIfChild
-EndFunction
-
-Event OnShipRefueled(Int aFuelAdded)
-  If aFuelAdded > 0
-    If RequireFullyRefueled == False
-      Self.RefuelSuccessful()
-    Else
-      ObjectReference shipRef = Self.GetRef()
-      Float currentFuel = shipRef.GetValue(SpaceshipGravJumpFuel)
-      If currentFuel >= shipRef.GetBaseValue(SpaceshipGravJumpFuel)
-        Self.RefuelSuccessful()
-      EndIf
-    EndIf
-  EndIf
+Event OnShipRefueled(int aFuelAdded)
+	DefaultScriptFunctions.Trace(self, "OnShipRefueled() aFuelAdded=" + aFuelAdded, ShowTraces)
+	if aFuelAdded > 0
+        if RequireFullyRefueled == false
+		    RefuelSuccessful()
+        Else
+            ; is ship fully refueled?
+            ObjectReference shipRef = GetRef()
+            float currentFuel = shipRef.GetValue(SpaceshipGravJumpFuel)
+            if currentFuel >= shipRef.GetBaseValue(SpaceshipGravJumpFuel)
+                RefuelSuccessful()
+            endif
+        endif
+	endif
 EndEvent
 
 Function RefuelSuccessful()
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, Self.TryToGetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "RefuelSuccessful()", ShowTraces)
+
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = TryToGetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "RefuelSuccessful() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)		
 EndFunction

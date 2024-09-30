@@ -1,14 +1,12 @@
-ScriptName RECleanupEventTrigger Extends ObjectReference
-{ used for testing - simply sends cleanup event }
+Scriptname RECleanupEventTrigger extends ObjectReference
+{used for testing - simply sends cleanup event}
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
-reparentscript Property REParent Auto
-{ BASEOBJECT property - REParent quest, used to send cleanup custom event }
-
-;-- Functions ---------------------------------------
+REParentScript Property REParent Auto
+{BASEOBJECT property - REParent quest, used to send cleanup custom event }
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  REParent.SendCleanupEvent()
+	debug.trace(self + "OnTriggerEnter")
+	; send cleanup event
+	REParent.SendCleanupEvent()
 EndEvent

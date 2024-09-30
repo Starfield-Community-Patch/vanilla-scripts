@@ -1,21 +1,20 @@
-ScriptName COM_Barrett_EpilogueTimerScript Extends Quest
-{ A timer that counts down days after an event and sets a stage }
+Scriptname COM_Barrett_EpilogueTimerScript extends Quest
 
-;-- Variables ---------------------------------------
+{A timer that counts down days after an event and sets a stage}
 
-;-- Properties --------------------------------------
-Int Property StageToSet Auto Const mandatory
-Int Property idNumber Auto Const mandatory
-Int Property cooldownHours Auto Const mandatory
+Int Property StageToSet Auto Const Mandatory
 
-;-- Functions ---------------------------------------
+Int Property idNumber Auto Const Mandatory
+
+Int Property cooldownHours Auto Const Mandatory
 
 Function StartCooldownTimer()
-  Self.StartTimerGameTime(cooldownHours as Float, idNumber)
+    StartTimerGameTime(cooldownHours, idNumber)
 EndFunction
 
-Event OnTimerGameTime(Int aiTimerID)
-  If aiTimerID == idNumber
-    Self.SetStage(StageToSet)
-  EndIf
+Event OnTimerGameTime(int aiTimerID)
+    If aiTimerID == idNumber
+        SetStage(StageToSet)
+    EndIf
 EndEvent
+

@@ -1,12 +1,7 @@
-ScriptName MQTutorialPlayerResearchScript Extends ReferenceAlias
+Scriptname MQTutorialPlayerResearchScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Int Property StageToSet=100 Const Auto
 
-;-- Properties --------------------------------------
-Int Property StageToSet = 100 Auto Const
-
-;-- Functions ---------------------------------------
-
-Event OnPlayerCompleteResearch(ObjectReference akBench, Location akLocation, researchproject akCompletedProject)
-  Self.GetOwningQuest().SetStage(StageToSet)
-EndEvent
+Event OnPlayerCompleteResearch(ObjectReference akBench, Location akLocation, ResearchProject akCompletedProject)
+    GetOwningQuest().SetStage(StageToSet)
+endEvent

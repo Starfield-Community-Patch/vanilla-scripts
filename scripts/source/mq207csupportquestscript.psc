@@ -1,27 +1,24 @@
-ScriptName MQ207CSupportQuestScript Extends Quest
-{ Quest script for MQ207C_Support, the quest that manages the pre- and post-quest dialogue for MQ207C. }
+Scriptname MQ207CSupportQuestScript extends Quest
+{Quest script for MQ207C_Support, the quest that manages the pre- and post-quest dialogue for MQ207C.}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group AutofillProperties
-  ReferenceAlias Property Alias_NishinaExt_I_ExteriorDoor Auto Const mandatory
-  Scene Property MQ207C_110_EntranceIntercom Auto Const mandatory
+	ReferenceAlias property Alias_NishinaExt_I_ExteriorDoor Auto Const Mandatory
+	Scene property MQ207C_110_EntranceIntercom Auto Const Mandatory
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
 Event OnQuestInit()
-  Self.RegisterForRemoteEvent(Alias_NishinaExt_I_ExteriorDoor as ScriptObject, "OnActivate")
+	RegisterForRemoteEvent(Alias_NishinaExt_I_ExteriorDoor, "OnActivate")
 EndEvent
 
+;The exterior door is initially locked; the player has to speak to Ethan over the intercom to get him to unlock it.
+;As a convenience, if the player activates the locked door, forward the activation event to the intercom to start the dialogue.
 Event ReferenceAlias.OnActivate(ReferenceAlias source, ObjectReference akActivator)
-  If source == Alias_NishinaExt_I_ExteriorDoor && (akActivator == Game.GetPlayer() as ObjectReference)
-    MQ207C_110_EntranceIntercom.Start()
-  EndIf
+	if ((source == Alias_NishinaExt_I_ExteriorDoor) && (akActivator == Game.GetPlayer()))
+		MQ207C_110_EntranceIntercom.Start()
+	EndIf
 EndEvent
 
 Function UnregisterForExteriorDoorEvents()
-  Self.UnregisterForRemoteEvent(Alias_NishinaExt_I_ExteriorDoor as ScriptObject, "OnActivate")
+	UnregisterForRemoteEvent(Alias_NishinaExt_I_ExteriorDoor, "OnActivate")
 EndFunction

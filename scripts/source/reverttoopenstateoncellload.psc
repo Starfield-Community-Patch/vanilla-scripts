@@ -1,35 +1,35 @@
-ScriptName RevertToOpenStateOnCellLoad Extends ObjectReference
+Scriptname RevertToOpenStateOnCellLoad extends ObjectReference
 
-;-- Variables ---------------------------------------
-Float timeOfLastOpenStateChange = -1.0
+bool property ShouldBeOpenOnCellLoad auto Const
+GlobalVariable property DefaultDaysBeforeDoorsReset auto const
 
-;-- Properties --------------------------------------
-Bool Property ShouldBeOpenOnCellLoad Auto Const
-GlobalVariable Property DefaultDaysBeforeDoorsReset Auto Const
-
-;-- Functions ---------------------------------------
+float timeOfLastOpenStateChange = -1.0
 
 Event OnCellLoad()
-  If Utility.GetCurrentGameTime() - timeOfLastOpenStateChange >= DefaultDaysBeforeDoorsReset.GetValue()
-    Int currentOpenState = Self.GetOpenState()
-    If ShouldBeOpenOnCellLoad
-      If currentOpenState != 1 || currentOpenState != 2
-        Self.SetOpen(True)
-      EndIf
-    ElseIf currentOpenState != 3 && currentOpenState != 4
-      Self.SetOpen(False)
-    EndIf
-  EndIf
+    ;; check that enough time has passed since the last time this door's open state was changed
+    if(Utility.GetCurrentGameTime() - timeOfLastOpenStateChange >= DefaultDaysBeforeDoorsReset.GetValue())
+        int currentOpenState = GetOpenState()
+
+        if(ShouldBeOpenOnCellLoad)
+            if(currentOpenState != 1 || currentOpenState != 2)
+                SetOpen(true)
+            endIf
+        else
+            if(currentOpenState != 3 && currentOpenState != 4)
+                SetOpen(false)
+            endIf
+        endIf
+    endIf
 EndEvent
 
 Event OnOpen(ObjectReference akActionRef)
-  Self.SetTimeofLastOpenStateChange()
+    SetTimeofLastOpenStateChange()
 EndEvent
 
 Event OnClose(ObjectReference akActionRef)
-  Self.SetTimeofLastOpenStateChange()
+    SetTimeofLastOpenStateChange()
 EndEvent
 
-Function SetTimeofLastOpenStateChange()
-  timeOfLastOpenStateChange = Utility.GetCurrentGameTime()
-EndFunction
+function SetTimeofLastOpenStateChange()
+    timeOfLastOpenStateChange = Utility.GetCurrentGameTime()
+endFunction

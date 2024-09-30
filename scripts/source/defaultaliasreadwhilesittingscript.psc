@@ -1,22 +1,21 @@
-ScriptName DefaultAliasReadWhileSittingScript Extends ReferenceAlias Const default
-{ script to get an NPC to read in a chair }
+Scriptname DefaultAliasReadWhileSittingScript extends ReferenceAlias Const Default
+{script to get an NPC to read in a chair}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Package[] Property ReadingPackages Auto Const
-{ list of packages where you want the NPC reading while sitting }
-Idle Property IdleBookReadStart Auto Const
+{ list of packages where you want the NPC reading while sitting}
 
-;-- Functions ---------------------------------------
+Idle Property IdleBookReadStart const auto
 
 Event OnSit(ObjectReference akFurniture)
-  Actor theActor = Self.GetActorRef()
-  If theActor
-    Package currentPackage = Self.GetActorRef().GetCurrentPackage()
-    Int packageIndex = ReadingPackages.find(currentPackage, 0)
-    If packageIndex > -1
-      theActor.PlayIdle(IdleBookReadStart)
-    EndIf
-  EndIf
+	debug.trace(self + " OnSit " + akFurniture)
+	Actor theActor = GetActorRef()
+	if theActor
+	    Package currentPackage = GetActorRef().GetCurrentPackage()
+	    int packageIndex = ReadingPackages.Find(currentPackage)
+	    if packageIndex > -1
+	    	debug.trace(self + " found valid package, start reading")
+	    	; valid package, so make me read
+	    	theActor.PlayIdle(IdleBookReadStart)
+	    endif
+	endif
 EndEvent

@@ -1,19 +1,16 @@
-ScriptName FFCydoniaZ07PlayerScript Extends ReferenceAlias
+Scriptname FFCydoniaZ07PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
 
-;-- Properties --------------------------------------
-MiscObject Property FFCydoniaZ07_HeartOfMarsTitanium Auto Const mandatory
-ReferenceAlias Property HeartOfMarsInv Auto Const mandatory
+MiscObject Property FFCydoniaZ07_HeartOfMarsTitanium Mandatory Const Auto
+ReferenceAlias Property HeartOfMarsInv Mandatory Const Auto
 
-;-- Functions ---------------------------------------
-
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If akBaseItem == FFCydoniaZ07_HeartOfMarsTitanium as Form
-    HeartOfMarsInv.ForceRefTo(akItemReference)
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    If akBaseItem == FFCydoniaZ07_HeartOfMarsTitanium
+        HeartOfMarsInv.ForceRefTo(akItemReference)
+    EndIf
 EndEvent
 
+
 Event OnAliasInit()
-  Self.AddInventoryEventFilter(FFCydoniaZ07_HeartOfMarsTitanium as Form)
+    AddInventoryEventFilter(FFCydoniaZ07_HeartOfMarsTitanium)
 EndEvent

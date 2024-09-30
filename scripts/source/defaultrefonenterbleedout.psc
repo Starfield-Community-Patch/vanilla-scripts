@@ -1,9 +1,11 @@
-ScriptName DefaultRefOnEnterBleedout Extends DefaultActorParent default
-{ Sets stage when THIS actor enters bleedout. }
+Scriptname DefaultRefOnEnterBleedout extends DefaultActorParent Default
+{Sets stage when THIS actor enters bleedout.}
 
-;-- Functions ---------------------------------------
 
 Event OnEnterBleedout()
-  defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(Game.GetPlayer() as ObjectReference, Self.GetCurrentLocation(), None)
-  Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
+	DefaultScriptFunctions.Trace(self, "OnEnterBleedout()", ShowTraces)
+
+	DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = Game.GetPlayer(), LocationToCheck = GetCurrentLocation())
+	DefaultScriptFunctions.Trace(self, "OnEnterBleedout() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+	CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)		
 EndEvent

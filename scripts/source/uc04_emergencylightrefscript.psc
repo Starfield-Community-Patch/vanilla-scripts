@@ -1,15 +1,10 @@
-ScriptName UC04_EmergencyLightRefScript Extends ObjectReference Const
+Scriptname UC04_EmergencyLightRefScript extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property UC04_AttackActive Auto Const mandatory
-{ Global used to manage the attack state }
-
-;-- Functions ---------------------------------------
+GlobalVariable Property UC04_AttackActive Mandatory Const Auto
+{Global used to manage the attack state}
 
 Event OnLoad()
-  If UC04_AttackActive.GetValue() < 1.0
-    Self.PlayAnimation("TurnOffFull")
-  EndIf
+    if UC04_AttackActive.GetValue() < 1
+        PlayAnimation("TurnOffFull")
+    endif
 EndEvent

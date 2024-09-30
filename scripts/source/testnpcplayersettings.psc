@@ -1,26 +1,24 @@
-ScriptName TestNPCPlayerSettings Extends ObjectReference Const
+Scriptname TestNPCPlayerSettings extends ObjectReference Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Bool Property PlayerIsEnemy = False Auto Const
-{ True = NPCs will be Hostile to Player }
-Bool Property isToggle = False Auto Const
-{ True = Each activation will toggle NPC relation to player }
-
-;-- Functions ---------------------------------------
+bool Property PlayerIsEnemy = false auto const
+{True = NPCs will be Hostile to Player}
+bool Property isToggle = false auto const
+{True = Each activation will toggle NPC relation to player}
 
 Event OnLoad()
-  ; Empty function
+	;ObjectReference SpawnControllerFromLink = self.GetLinkedRef()
+	;if(SpawnControllerFromLink)
+	;	(SpawnControllerFromLink as TestNPCArenaScript).VersusPlayer = PlayerIsEnemy
+	;endif
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference SpawnControllerFromLink = Self.GetLinkedRef(None)
-  Bool treatPlayerAsEnemy = PlayerIsEnemy
-  If SpawnControllerFromLink
-    If isToggle
-      treatPlayerAsEnemy = !(SpawnControllerFromLink as testnpcarenascript).VersusPlayer
-    EndIf
-    (SpawnControllerFromLink as testnpcarenascript).VersusPlayer = treatPlayerAsEnemy
-  EndIf
+    ObjectReference SpawnControllerFromLink = self.GetLinkedRef()
+	bool treatPlayerAsEnemy = PlayerIsEnemy
+	if(SpawnControllerFromLink)
+		if(isToggle)
+			treatPlayerAsEnemy = !((SpawnControllerFromLink as TestNPCArenaScript).VersusPlayer)
+		endif
+        (SpawnControllerFromLink as TestNPCArenaScript).VersusPlayer = treatPlayerAsEnemy
+    endif
 EndEvent

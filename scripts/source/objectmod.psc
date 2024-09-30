@@ -1,1 +1,1 @@
-ScriptName ObjectMod Extends Form Native hidden
+Scriptname ObjectMod extends Form Native Hidden

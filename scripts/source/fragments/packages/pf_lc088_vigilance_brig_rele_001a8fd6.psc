@@ -1,6 +1,6 @@
-ScriptName Fragments:Packages:PF_LC088_Vigilance_Brig_Rele_001A8FD6 Extends Package Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Packages:PF_LC088_Vigilance_Brig_Rele_001A8FD6 Extends Package Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-lc088_vigilancequestscript Property LC088_Vigilance Auto Const mandatory
+LC088_VigilanceQuestScript Property LC088_Vigilance Auto Const Mandatory

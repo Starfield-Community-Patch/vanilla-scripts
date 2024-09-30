@@ -1,36 +1,39 @@
-ScriptName RL039_DoorBarricade Extends ObjectReference Const
-{ When this locked door barricade is unlocked it is disabled, plays a sound, and unlocks and makes usable a linked door. }
+Scriptname RL039_DoorBarricade extends ObjectReference Const
+{When this locked door barricade is unlocked it is disabled, plays a sound, and unlocks and makes usable a linked door.}
 
-;-- Variables ---------------------------------------
+Keyword Property LinkToBarricadedDoor Mandatory Const Auto
+Message Property DoorActivationOverrideName Mandatory Const Auto
+Message Property DoorActivationInfoMessage Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Keyword Property LinkToBarricadedDoor Auto Const mandatory
-Message Property DoorActivationOverrideName Auto Const mandatory
-Message Property DoorActivationInfoMessage Auto Const mandatory
-Int Property LockLevel = 254 Auto Const
-
-;-- Functions ---------------------------------------
+int Property LockLevel = 254 Const Auto
 
 Event OnCellLoad()
-  ObjectReference linkedDoor = Self.GetLinkedRef(LinkToBarricadedDoor)
-  If linkedDoor
-    linkedDoor.SetLockLevel(LockLevel)
-    linkedDoor.Lock(True, False, True)
-    linkedDoor.SetActivateTextOverride(DoorActivationOverrideName)
-    Self.RegisterForRemoteEvent(linkedDoor as ScriptObject, "OnActivate")
-  EndIf
+    ObjectReference linkedDoor = GetLinkedRef(LinkToBarricadedDoor)
+
+    if(linkedDoor)
+        linkedDoor.SetLockLevel(LockLevel)
+        linkedDoor.Lock()
+        linkedDoor.SetActivateTextOverride(DoorActivationOverrideName)
+        
+        RegisterForRemoteEvent(linkedDoor, "OnActivate")
+    EndIf
 EndEvent
 
-Event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
-  DoorActivationInfoMessage.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+event ObjectReference.OnActivate(ObjectReference akSender, ObjectReference akActionRef)
+    DoorActivationInfoMessage.Show()
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  ObjectReference linkedDoor = Self.GetLinkedRef(LinkToBarricadedDoor)
-  If linkedDoor
-    linkedDoor.Lock(False, False, True)
-    linkedDoor.SetActivateTextOverride(None)
-    Self.UnregisterForRemoteEvent(linkedDoor as ScriptObject, "OnActivate")
-  EndIf
-  Self.DisableNoWait(False)
+    ;Play sound
+    ObjectReference linkedDoor = GetLinkedRef(LinkToBarricadedDoor)
+
+    if(linkedDoor)
+        linkedDoor.Lock(false)
+        linkedDoor.SetActivateTextOverride(None)
+
+        UnregisterForRemoteEvent(linkedDoor, "OnActivate")
+    EndIf
+
+    ;Disable this object
+    self.DisableNoWait()
 EndEvent

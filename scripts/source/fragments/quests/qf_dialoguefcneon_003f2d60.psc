@@ -1,6 +1,6 @@
-ScriptName Fragments:Quests:QF_DialogueFCNeon_003F2D60 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_DialogueFCNeon_003F2D60 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-;-- Properties --------------------------------------
-Quest Property RAD03 Auto Const mandatory
+Quest Property RAD03 Auto Const Mandatory

@@ -1,99 +1,149 @@
-ScriptName InputEnableLayer Extends ScriptObject Native hidden
-{ This is a single layer of input enable/disable. The end result of all layers in the game
-determine the actual state of the player's controls. }
+Scriptname InputEnableLayer extends ScriptObject Native Hidden
+{This is a single layer of input enable/disable. The end result of all layers in the game
+determine the actual state of the player's controls.}
 
-;-- Functions ---------------------------------------
+; Creates a new input enable layer and returns it. These are limited, so make sure
+; to dispose of it when you're done (by setting variables to None)
+InputEnableLayer Function Create() Native Global
 
-InputEnableLayer Function Create() Global Native
-
+; Force-deletes this input layer. Any variable pointing at this layer will become invalid
+; and it should also clear any disables this layer had (unless code, for some reason, is
+; keeping it alive).
 Function Delete() Native
 
-Function DisablePlayerControls(Bool abMovement, Bool abFighting, Bool abCamSwitch, Bool abLooking, Bool abSneaking, Bool abMenu, Bool abActivate, Bool abJournalTabs, Bool abVATS, Bool abFavorites, Bool abRunning) Native
+; Disables the user's controls
+Function DisablePlayerControls(bool abMovement = true, bool abFighting = true, bool abCamSwitch = false, bool abLooking = false, \
+	bool abSneaking = false, bool abMenu = true, bool abActivate = true, bool abJournalTabs = false, bool abVATS = true, bool abFavorites = true, bool abRunning = false) Native
 
-Function EnableActivate(Bool abEnable) Native
+; Enables/disables the player's ability to activate objects
+Function EnableActivate(bool abEnable = true) Native
 
-Function EnableCamSwitch(Bool abEnable) Native
+; Enables/disables the player's VATS
+Function EnableVATS(bool abEnable = true) Native
 
-Function EnableFarTravel(Bool abEnable) Native
+; Enables/disables the player's ability to switch the camera between 1st and 3rd person
+Function EnableCamSwitch(bool abEnable = true) Native
 
-Function EnableFastTravel(Bool abEnable) Native
+; Enables/disables the player's ability to far travel in a spaceship
+Function EnableFarTravel(bool abEnable = true) Native
 
-Function EnableFavorites(Bool abEnable) Native
+; Enables/disables the player's ability to fast travel
+Function EnableFastTravel(bool abEnable = true) Native
 
-Function EnableFighting(Bool abEnable) Native
+; Enables/disables the player's ability to open the Favorites menu
+Function EnableFavorites(bool abEnable = true) Native
 
-Function EnableGravJump(Bool abEnable) Native
+; Enables/disables the player's ability to grav jump in a spaceship
+Function EnableGravJump(bool abEnable = true) Native
 
-Function EnableHandscanner(Bool abEnable) Native
+; Enables/disables the player's ability to take off in a spaceship
+Function EnableTakeoff(bool abEnable = true) Native
 
-Function EnableInventoryMenuAccess(Bool aEnable) Native
+; Enables/disables the player's ability to fight
+Function EnableFighting(bool abEnable = true) Native
 
-Function EnableJournal(Bool abEnable) Native
+; Enables/disables the player's ability to use the journal menu
+Function EnableJournal(bool abEnable = true) Native
 
-Function EnableJumping(Bool abEnable) Native
+; Enables/disables the player's ability to jump (Note: Movement disable/enable also touches this)
+Function EnableJumping(bool abEnable = true) Native
 
-Function EnableLocationDiscovery(Bool abEnable) Native
+; Enables/disables the player's ability to discover new locations
+Function EnableLocationDiscovery(bool abEnable = true) Native
 
-Function EnableLooking(Bool abEnable) Native
+; Enables/disables the player's ability to look around
+Function EnableLooking(bool abEnable = true) Native
 
-Function EnableMenu(Bool abEnable) Native
+; Enables/disables the player's ability to use the main menu
+Function EnableMenu(bool abEnable = true) Native
 
-Function EnableMovement(Bool abEnable) Native
+; Enables/disables the player's ability to move
+Function EnableMovement(bool abEnable = true) Native
 
-Function EnablePlayerControls(Bool abMovement, Bool abFighting, Bool abCamSwitch, Bool abLooking, Bool abSneaking, Bool abMenu, Bool abActivate, Bool abJournalTabs, Bool abVATS, Bool abFavorites, Bool abRunning) Native
+; Enables/disables the player's ability to run
+Function EnableRunning(bool abEnable = true) Native
+  
+; Enables/disables the player's ability to sprint
+Function EnableSprinting(bool abEnable = true) Native
 
-Function EnableRunning(Bool abEnable) Native
+; Enables/disables the player's ability to z-key
+Function EnableZKey(bool abEnable = true) Native
 
-Function EnableSneaking(Bool abEnable) Native
+; Enables/disables the player's ability to use the handscanner
+Function EnableHandscanner(bool abEnable = true) Native
 
-Function EnableSprinting(Bool abEnable) Native
+; Enables the user's controls
+Function EnablePlayerControls(bool abMovement = true, bool abFighting = true, bool abCamSwitch = true, bool abLooking = true, \
+  bool abSneaking = true, bool abMenu = true, bool abActivate = true, bool abJournalTabs = true, bool abVATS = true, bool abFavorites = true, bool abRunning = true) Native
 
-Function EnableTakeoff(Bool abEnable) Native
+; Enable/Disable access to the inventory menu from the data menu
+Function EnableInventoryMenuAccess(bool aEnable = true) Native
 
-Function EnableVATS(Bool abEnable) Native
+; Enables/disables the player's ability to sneak
+Function EnableSneaking(bool abEnable = true) Native
 
-Function EnableZKey(Bool abEnable) Native
+; Returns whether activation is enabled on this layer
+bool Function IsActivateEnabled() Native
 
-Bool Function IsActivateEnabled() Native
+; Returns whether VATS is enabled on this layer
+bool Function IsVATSEnabled() Native
 
-Bool Function IsCamSwitchEnabled() Native
+; Returns whether camera switch is enabled on this layer
+bool Function IsCamSwitchEnabled() Native
 
-Bool Function IsFarTravelEnabled() Native
+; Returns whether far travel is enabled on this layer
+bool Function IsFarTravelEnabled() Native
 
-Bool Function IsFastTravelEnabled() Native
+; Returns whether fast travel is enabled on this layer
+bool Function IsFastTravelEnabled() Native
 
-Bool Function IsFavoritesEnabled() Native
+; Returns whether the Favorites menu is enabled on this layer
+bool Function IsFavoritesEnabled() Native
 
-Bool Function IsFightingEnabled() Native
+; Returns whether grav jump is enabled on this layer
+bool Function IsGravJumpEnabled() Native
 
-Bool Function IsGravJumpEnabled() Native
+; Returns whether ship takeoff is enabled on this layer
+bool Function IsTakeoffEnabled() Native
 
-Bool Function IsHandscannerEnabled() Native
+; Returns whether fighting is enabled on this layer
+bool Function IsFightingEnabled() Native
 
-Bool Function IsInventoryMenuAccessEnabled() Native
+; Returns whether the journal menu is enabled on this layer
+bool Function IsJournalEnabled() Native
 
-Bool Function IsJournalEnabled() Native
+; Returns whether jumping is enabled on this layer (Note: Movement also controls this)
+bool Function IsJumpingEnabled() Native
 
-Bool Function IsJumpingEnabled() Native
+; Returns whether location discovery is enabled on this layer
+bool Function IsLocationDiscoveryEnabled() native
 
-Bool Function IsLocationDiscoveryEnabled() Native
+; Returns whether looking is enabled on this layer
+bool Function IsLookingEnabled() Native
 
-Bool Function IsLookingEnabled() Native
+; Returns whether the menu is enabled on this layer
+bool Function IsMenuEnabled() Native
 
-Bool Function IsMenuEnabled() Native
+; Returns whether movement is enabled on this layer
+bool Function IsMovementEnabled() Native
 
-Bool Function IsMovementEnabled() Native
+; Returns whether running is enabled on this layer
+bool Function IsRunningEnabled() Native
 
-Bool Function IsRunningEnabled() Native
+; Returns whether sprinting is enabled on this layer
+bool Function IsSprintingEnabled() Native
 
-Bool Function IsSneakingEnabled() Native
+; Returns whether z-key is enabled on this layer
+bool Function IsZKeyEnabled() Native
 
-Bool Function IsSprintingEnabled() Native
+; Returns whether the handscanner is enabled on this layer
+bool Function IsHandscannerEnabled() Native
 
-Bool Function IsTakeoffEnabled() Native
+; Returns whether sneaking is enabled on this layer
+bool Function IsSneakingEnabled() Native
 
-Bool Function IsVATSEnabled() Native
+; Returns whether access to the inventory menu is enabled on this layer
+bool Function IsInventoryMenuAccessEnabled() Native
 
-Bool Function IsZKeyEnabled() Native
-
+; Re-enables all controls currently disabled on this layer
 Function Reset() Native

@@ -1,5 +1,4 @@
-ScriptName Resource Extends Form Native hidden
+Scriptname Resource extends Form Native Hidden
 
-;-- Functions ---------------------------------------
-
-Form Function GetCreatedObject() Native
+; Returns the Created Object of the ResourceItem (Constructible) of this Resource
+Form Function GetCreatedObject() native

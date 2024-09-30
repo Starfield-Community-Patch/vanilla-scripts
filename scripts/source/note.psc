@@ -1,1 +1,1 @@
-ScriptName Note Extends Form Native hidden
+Scriptname Note Extends Form Native Hidden

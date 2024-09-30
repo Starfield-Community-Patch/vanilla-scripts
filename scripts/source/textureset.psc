@@ -1,1 +1,1 @@
-ScriptName TextureSet Extends Form Native hidden
+Scriptname TextureSet extends Form Hidden Native

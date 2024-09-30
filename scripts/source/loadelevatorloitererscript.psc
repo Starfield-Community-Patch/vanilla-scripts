@@ -1,53 +1,53 @@
-ScriptName LoadElevatorLoitererScript Extends ObjectReference
+Scriptname LoadElevatorLoitererScript extends ObjectReference
 
-;-- Structs -----------------------------------------
+GlobalVariable property LoadElevatorLoiteringLimitSeconds auto const
+
+ActorEntryData[] actorsInManagerRoom
+
 Struct ActorEntryData
-  Actor actorRef
-  Float entryTime
+    Actor actorRef
+    float entryTime
 EndStruct
 
-
-;-- Variables ---------------------------------------
-loadelevatorloitererscript:actorentrydata[] actorsInManagerRoom
-
-;-- Properties --------------------------------------
-GlobalVariable Property LoadElevatorLoiteringLimitSeconds Auto Const
-
-;-- Functions ---------------------------------------
-
 Event OnLoad()
-  actorsInManagerRoom = new loadelevatorloitererscript:actorentrydata[0]
+    actorsInManagerRoom = new ActorEntryData[0]
 EndEvent
 
 Event OnTriggerEnter(ObjectReference akActionRef)
-  If akActionRef is Actor
-    loadelevatorloitererscript:actorentrydata data = new loadelevatorloitererscript:actorentrydata
-    data.actorRef = akActionRef as Actor
-    data.entryTime = Utility.GetCurrentRealTime()
-    actorsInManagerRoom.add(data, 1)
-    Self.StartTimer(LoadElevatorLoiteringLimitSeconds.value, 0)
-  EndIf
+    if(akActionRef is Actor)
+        ActorEntryData data = new ActorEntryData
+        data.actorRef = akActionRef as Actor
+        data.entryTime = Utility.GetCurrentRealTime()
+
+        actorsInManagerRoom.Add(data)
+
+        StartTimer(LoadElevatorLoiteringLimitSeconds.Value)
+    endIf
 EndEvent
 
-Event OnTimer(Int aiTimerID)
-  ObjectReference loadEelevatorManagerRef = Self.GetLinkedRef(None)
-  If loadEelevatorManagerRef != None && loadEelevatorManagerRef is loadelevatormanagerscript
-    loadelevatormanagerscript loadElevatorManager = loadEelevatorManagerRef as loadelevatormanagerscript
-    Float currentTime = Utility.GetCurrentRealTime()
-    Int I = actorsInManagerRoom.Length - 1
-    While I >= 0
-      loadelevatorloitererscript:actorentrydata data = actorsInManagerRoom[I]
-      Bool inTrigger = Self.IsInTrigger(data.actorRef as ObjectReference)
-      Float durationInTrigger = currentTime - data.entryTime
-      If inTrigger
-        If durationInTrigger >= LoadElevatorLoiteringLimitSeconds.value
-          loadElevatorManager.TravelToRandomFloor(data.actorRef as ObjectReference)
-          actorsInManagerRoom.remove(I, 1)
-        EndIf
-      Else
-        actorsInManagerRoom.remove(I, 1)
-      EndIf
-      I = -1
-    EndWhile
-  EndIf
+Event OnTimer(int aiTimerID)
+    ObjectReference loadEelevatorManagerRef = GetLinkedRef()
+    if(loadEelevatorManagerRef != NONE && loadEelevatorManagerRef is LoadElevatorManagerScript)
+        LoadElevatorManagerScript loadElevatorManager = loadEelevatorManagerRef as LoadElevatorManagerScript
+        float currentTime = Utility.GetCurrentRealTime()
+
+        int i = actorsInManagerRoom.length - 1
+        while(i >= 0)
+            ActorEntryData data = actorsInManagerRoom[i]
+
+            bool inTrigger = self.IsInTrigger(data.actorRef)
+            float durationInTrigger = currentTime - data.entryTime
+
+            if(inTrigger)
+                if(durationInTrigger >= LoadElevatorLoiteringLimitSeconds.value)
+                    loadElevatorManager.TravelToRandomFloor(data.actorRef)
+                    actorsInManagerRoom.Remove(i)
+                endIf
+            else
+                actorsInManagerRoom.Remove(i)
+            endIf
+
+            i =- 1
+        endWhile
+    endIf
 EndEvent

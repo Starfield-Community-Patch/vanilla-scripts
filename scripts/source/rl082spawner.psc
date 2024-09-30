@@ -1,43 +1,45 @@
-ScriptName RL082Spawner Extends TerminalMenu
-{ Spawns shoots clutter and loot out of conveyor opening in Zero G }
+Scriptname RL082Spawner extends TerminalMenu
+{Spawns shoots clutter and loot out of conveyor opening in Zero G}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ObjectReference Property PackageSpawnMarker Auto
-movablestatic[] Property packageArray Auto Const
+ObjectReference Property PackageSpawnMarker Auto 
+MovableStatic[] Property packageArray Auto Const
 GlobalVariable Property RL082StorageTerminal Auto
 LeveledItem[] Property LootItems Auto Const
-Int Property menuItemID_01 = 1 Auto Const
 
-;-- Functions ---------------------------------------
+;enums
+int property menuItemID_01 = 1 auto const
 
-Event OnTerminalMenuItemRun(Int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
-  Self.HandleMenuItem(auiMenuItemID)
+
+Event OnTerminalMenuItemRun(int auiMenuItemID, TerminalMenu akTerminalBase, ObjectReference akTerminalRef)
+        HandleMenuItem(auiMenuItemID)
 EndEvent
 
-Function HandleMenuItem(Int auiMenuItemID)
-  If auiMenuItemID == menuItemID_01
-    RL082StorageTerminal.SetValue(1.0)
-    Self.StartTimer(0.100000001, 0)
-  EndIf
+function HandleMenuItem(int auiMenuItemID)
+    if auiMenuItemID == menuItemID_01
+        RL082StorageTerminal.SetValue(1)
+        StartTimer(0.1)
+    endif
 EndFunction
 
-Event OnTimer(Int aiTimerID)
-  Int I = 0
-  While I < packageArray.Length
-    Utility.wait(Utility.RandomFloat(0.100000001, 0.150000006))
-    ObjectReference newPackage = PackageSpawnMarker.PlaceAtMe(packageArray[I] as Form, 1, False, False, True, None, None, True)
-    newPackage.SetAngle(Utility.RandomFloat(0.0, 180.0), Utility.RandomFloat(0.0, 180.0), Utility.RandomFloat(0.0, 180.0))
-    newPackage.ApplyHavokImpulse(-1.0, 0.0, 0.0, Utility.RandomFloat(15.0, 17.0))
-    I += 1
-  EndWhile
-  I = 0
-  While I < LootItems.Length
-    Utility.wait(Utility.RandomFloat(0.100000001, 0.150000006))
-    ObjectReference newLoot = PackageSpawnMarker.PlaceAtMe(LootItems[I] as Form, 1, False, False, True, None, None, True)
-    newLoot.SetAngle(Utility.RandomFloat(0.0, 180.0), Utility.RandomFloat(0.0, 180.0), Utility.RandomFloat(0.0, 180.0))
-    newLoot.ApplyHavokImpulse(-1.0, 0.0, 0.0, Utility.RandomFloat(5.0, 7.0))
-    I += 1
-  EndWhile
+Event OnTimer(int aiTimerID)
+        ;Spawn and aplly havok to random clutter from the array assigned in properties
+        int i = 0
+        while (i < packageArray.Length)
+            utility.wait(Utility.RandomFloat(0.1, 0.15))
+            ObjectReference newPackage = PackageSpawnMarker.PlaceAtMe(packageArray[i])
+            newPackage.SetAngle(Utility.RandomFloat(0, 180), Utility.RandomFloat(0, 180), Utility.RandomFloat(0, 180))
+            newPackage.ApplyHavokImpulse(-1.0, 0.0, 0.0, Utility.RandomFloat(15.0, 17.0))
+            i += 1
+        endwhile
+
+        ;Spawn and aplly havok to loot from the array assigned in properties
+        i = 0
+        while (i < LootItems.Length)
+            utility.wait(Utility.RandomFloat(0.1, 0.15))
+            ObjectReference newLoot = PackageSpawnMarker.PlaceAtMe(LootItems[i])
+            newLoot.SetAngle(Utility.RandomFloat(0, 180), Utility.RandomFloat(0, 180), Utility.RandomFloat(0, 180))
+            newLoot.ApplyHavokImpulse(-1.0, 0.0, 0.0, Utility.RandomFloat(5.0, 7.0))
+            i += 1
+        endwhile
 EndEvent
+

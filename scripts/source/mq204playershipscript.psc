@@ -1,1 +1,1 @@
-ScriptName MQ204PlayerShipScript Extends ReferenceAlias
+Scriptname MQ204PlayerShipScript extends ReferenceAlias

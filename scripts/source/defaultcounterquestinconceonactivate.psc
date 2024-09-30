@@ -1,23 +1,19 @@
-ScriptName DefaultCounterQuestIncOnceOnActivate Extends ReferenceAlias default hidden
-{ Once this ALIAS is activated (by the PLAYER) it increments the counter on its Quest's DefaultCounterQuest script }
+ScriptName DefaultCounterQuestIncOnceOnActivate extends ReferenceAlias Default hidden
+{Once this ALIAS is activated (by the PLAYER) it increments the counter on its Quest's DefaultCounterQuest script}
 
-;-- Functions ---------------------------------------
+Auto STATE WaitForActivate
+	Event OnActivate(ObjectReference akActionRef)
+		if akActionRef == Game.GetPlayer()
+			GoToState("DoneWaiting")
+			Increment()
+		endif
+	EndEvent
+EndSTATE
 
 Function Increment()
-  (Self.GetOwningQuest() as defaultcounterquest).Increment()
+	(GetOwningQuest() as DefaultCounterQuest).Increment()
 EndFunction
 
-;-- State -------------------------------------------
-State DoneWaiting
-EndState
-
-;-- State -------------------------------------------
-Auto State WaitForActivate
-
-  Event OnActivate(ObjectReference akActionRef)
-    If akActionRef == Game.GetPlayer() as ObjectReference
-      Self.GoToState("DoneWaiting")
-      Self.Increment()
-    EndIf
-  EndEvent
-EndState
+STATE DoneWaiting
+	; Do Nothing
+EndSTATE

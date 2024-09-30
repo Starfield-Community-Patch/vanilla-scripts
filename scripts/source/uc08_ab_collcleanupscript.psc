@@ -1,15 +1,10 @@
-ScriptName UC08_AB_CollCleanUpScript Extends RefCollectionAlias
+Scriptname UC08_AB_CollCleanUpScript extends RefCollectionAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Int Property CleanUpStage = 900 Auto Const
-{ Once this stage is set, start cleaning up the NPCs }
-
-;-- Functions ---------------------------------------
+int Property CleanUpStage = 900 Auto Const
+{Once this stage is set, start cleaning up the NPCs}
 
 Event OnUnload(ObjectReference akSenderRef)
-  If Self.GetOwningQuest().GetStageDone(CleanUpStage)
-    akSenderRef.Disable(False)
-  EndIf
+    if GetOwningQuest().GetStageDone(CleanUpStage)
+        akSenderRef.Disable()
+    endif
 EndEvent

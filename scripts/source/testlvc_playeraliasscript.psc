@@ -1,30 +1,40 @@
-ScriptName TestLVC_PlayerAliasScript Extends ReferenceAlias
+Scriptname TestLVC_PlayerAliasScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Message Property TESTLVC_ScanPercentTestMessage Mandatory Const Auto
+{Message used to display scan percentage}
 
-;-- Properties --------------------------------------
-Message Property TESTLVC_ScanPercentTestMessage Auto Const mandatory
-{ Message used to display scan percentage }
-GlobalVariable Property TestLVC_EnableScanningPercentDisplay Auto Const mandatory
-{ Global used to manage the display of the scanned percentage of the current actor on screen }
-
-;-- Functions ---------------------------------------
+GlobalVariable Property TestLVC_EnableScanningPercentDisplay Mandatory Const Auto
+{Global used to manage the display of the scanned percentage of the current actor on screen}
 
 Event OnPlayerScannedObject(ObjectReference akScannedRef)
-  If TestLVC_EnableScanningPercentDisplay.GetValue() >= 1.0
-    Float fPercentScanned = 0.0
-    TESTLVC_ScanPercentTestMessage.Show(fPercentScanned, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-    ActorBase[] currBiomeActors = None
-    ActorBase[] currBiomeFlora = None
-    Int I = 0
-    Int iLength = currBiomeActors.Length
-    While I < iLength
-      ActorBase currBase = currBiomeActors[I]
-      I += 1
-    EndWhile
-  EndIf
+    if TestLVC_EnableScanningPercentDisplay.GetValue() >= 1.0
+        float fPercentScanned
+        ;fPercentScanned akScannedRef.GetPercentageKnown()
+        TESTLVC_ScanPercentTestMessage.Show(fPercentScanned)
+
+        ActorBase[] currBiomeActors
+        ActorBase[] currBiomeFlora
+        ;/     
+        currBiomeActors = Game.GetPlayer().GetBiomeActors()
+        currBiomeFlora = Game.GetPlayer().GetFloraActors()
+        /;
+        int i = 0
+        int iLength = currBiomeActors.Length
+
+        while i < iLength
+            ActorBase currBase = currBiomeActors[i]
+
+            i += 1
+            trace(self, "This biome contains actor: " + currBase + " (" + i + "/" + currBiomeActors.Length + ")")
+        endwhile
+
+    endif
 EndEvent
 
-Bool Function Trace(ScriptObject CallingObject, String asTextToPrint, Int aiSeverity, String MainLogName, String SubLogName, Bool bShowNormalTrace, Bool bShowWarning, Bool bPrefixTraceWithLogNames)
-  Return Debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName, aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames, True)
-EndFunction
+
+;************************************************************************************
+;****************************	   CUSTOM TRACE LOG	    *****************************
+;************************************************************************************
+bool Function Trace(ScriptObject CallingObject, string asTextToPrint, int aiSeverity = 0, string MainLogName = "TESTLVC",  string SubLogName = "ScanPercentages", bool bShowNormalTrace = false, bool bShowWarning = false, bool bPrefixTraceWithLogNames = true) DebugOnly
+	return debug.TraceLog(CallingObject, asTextToPrint, MainLogName, SubLogName,  aiSeverity, bShowNormalTrace, bShowWarning, bPrefixTraceWithLogNames)
+endFunction

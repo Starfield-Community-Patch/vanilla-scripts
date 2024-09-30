@@ -1,15 +1,11 @@
-ScriptName SE_DB_04_Script Extends Quest
+Scriptname SE_DB_04_Script extends Quest
 
-;-- Variables ---------------------------------------
+ReferenceAlias Property HailingShip Mandatory Const Auto
 
-;-- Properties --------------------------------------
-ReferenceAlias Property HailingShip Auto Const mandatory
-Form Property LootItem Auto Const mandatory
-{ The specific loot item type that will be placed. }
-
-;-- Functions ---------------------------------------
+form Property LootItem Auto Const Mandatory
+{The specific loot item type that will be placed.}
 
 Function DropLoot()
-  ObjectReference Spawnpoint = HailingShip.GetShipReference() as ObjectReference
-  Spawnpoint.PlaceAtMe(LootItem, 1, False, False, True, None, None, True)
+    ObjectReference Spawnpoint = HailingShip.GetShipReference()
+    Spawnpoint.PlaceAtMe(LootItem)
 EndFunction

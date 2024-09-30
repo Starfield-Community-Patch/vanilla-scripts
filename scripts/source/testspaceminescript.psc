@@ -1,17 +1,14 @@
-ScriptName TestSpaceMineScript Extends SpaceshipReference Const
+Scriptname TestSpaceMineScript extends SpaceshipReference Const
 
-;-- Variables ---------------------------------------
+Explosion Property SpaceMineExplosion01 auto const mandatory
 
-;-- Properties --------------------------------------
-Explosion Property SpaceMineExplosion01 Auto Const mandatory
-ReferenceAlias Property PlayerShip Auto Const mandatory
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property PlayerShip auto const mandatory
 
 Event OnLoad()
-  Self.RegisterForDistanceLessThanEvent(PlayerShip as ScriptObject, Self as ScriptObject, 75.0, 0)
+    RegisterForDistanceLessThanEvent(PlayerShip, self, 75.0)
 EndEvent
 
-Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, Float afDistance, Int aiEventID)
-  Self.Kill(None)
-EndEvent
+Event OnDistanceLessThan(ObjectReference akObj1, ObjectReference akObj2, float afDistance, int aiEventID)
+    debug.trace(self + " OnDistanceLessThan")
+    Kill()
+endEvent

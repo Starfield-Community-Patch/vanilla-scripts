@@ -1,19 +1,36 @@
-ScriptName Fragments:Scenes:SF_UC02_700b_TerrormorphKill_0026FFAD Extends Scene Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Scenes:SF_UC02_700b_TerrormorphKill_0026FFAD Extends Scene Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin()
-  ; Empty function
+;BEGIN CODE
+debug.trace("UC02: Terrormorph dead scene starting.")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End()
-  ; Empty function
+;BEGIN CODE
+debug.trace("UC02: Terrormorph dead scene ending.")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_01_Begin
 Function Fragment_Phase_01_Begin()
-  ; Empty function
+;BEGIN CODE
+debug.trace("UC02: Terrormorph dead phase one starting.")
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Phase_01_End
 Function Fragment_Phase_01_End()
-  ; Empty function
+;BEGIN CODE
+debug.trace("UC02: Terrormorph dead phase one finishing.")
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

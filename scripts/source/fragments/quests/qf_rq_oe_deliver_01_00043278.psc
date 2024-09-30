@@ -1,50 +1,83 @@
-ScriptName Fragments:Quests:QF_RQ_OE_Deliver_01_00043278 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_RQ_OE_Deliver_01_00043278 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_Item Auto Const mandatory
-ReferenceAlias Property Alias_Recipient Auto Const mandatory
-Keyword Property AnimArchetypeDepressed Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0050_Item_00
 Function Fragment_Stage_0050_Item_00()
-  Self.Stop()
+;BEGIN CODE
+Stop()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Quest __temp = Self as Quest
-  rq_deliverscript kmyQuest = __temp as rq_deliverscript
-  Self.SetObjectiveDisplayed(400, True, False)
-  Alias_Recipient.TryToEnable()
+;BEGIN AUTOCAST TYPE RQ_DeliverScript
+Quest __temp = self as Quest
+RQ_DeliverScript kmyQuest = __temp as RQ_DeliverScript
+;END AUTOCAST
+;BEGIN CODE
+SetObjectiveDisplayed(400)
+Alias_Recipient.TryToEnable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0485_Item_00
 Function Fragment_Stage_0485_Item_00()
-  Quest __temp = Self as Quest
-  rq_deliverscript kmyQuest = __temp as rq_deliverscript
-  Self.FailAllObjectives()
-  kmyQuest.SetDialogueAV_PrimaryObjectiveFail()
-  Self.SetStage(990)
+;BEGIN AUTOCAST TYPE RQ_DeliverScript
+Quest __temp = self as Quest
+RQ_DeliverScript kmyQuest = __temp as RQ_DeliverScript
+;END AUTOCAST
+;BEGIN CODE
+FailAllObjectives()
+kmyquest.SetDialogueAV_PrimaryObjectiveFail()
+SetStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetObjectiveCompleted(400, True)
-  Self.SetObjectiveDisplayed(500, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(400)
+SetObjectiveDisplayed(500)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  Game.GetPlayer().RemoveItem(Alias_Item.GetReference() as Form, 1, False, None)
-  Actor recipient = Alias_Recipient.GetActorRef()
-  recipient.ChangeAnimArchetype(AnimArchetypeDepressed)
-  Self.SetStage(900)
-EndFunction
+;BEGIN CODE
+Game.GetPlayer().RemoveItem(Alias_Item.GetReference())
+Actor recipient = Alias_Recipient.GetActorRef()
+recipient.ChangeAnimArchetype(AnimArchetypeDepressed)
 
+SetStage(900)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0850_Item_00
 Function Fragment_Stage_0850_Item_00()
-  Alias_Recipient.TryToDisable()
+;BEGIN CODE
+Alias_Recipient.TryToDisable()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
 Function Fragment_Stage_0900_Item_00()
-  Self.CompleteAllObjectives()
-  Self.SetStage(990)
+;BEGIN CODE
+CompleteAllObjectives()
+setStage(990)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_Item Auto Const Mandatory
+
+ReferenceAlias Property Alias_Recipient Auto Const Mandatory
+
+Keyword Property AnimArchetypeDepressed Auto Const Mandatory

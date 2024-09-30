@@ -1,32 +1,27 @@
-ScriptName FFCydoniaR02PlayerScript Extends ReferenceAlias
+Scriptname FFCydoniaR02PlayerScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property FFCydoniaR02_EquipmentNeededCount Auto Const mandatory
-Int Property TurnInStage = 300 Auto Const
-Weapon Property Eon Auto Const mandatory
-
-;-- Functions ---------------------------------------
+GlobalVariable Property FFCydoniaR02_EquipmentNeededCount Mandatory Const Auto
+Int Property TurnInStage = 300 Const Auto
+Weapon Property Eon Mandatory Const Auto
 
 Function RegisterPlayerForItemTracking()
-  Self.AddInventoryEventFilter(Eon as Form)
-  Self.ItemCheck()
+    AddInventoryEventFilter(Eon)
+    ItemCheck()
 EndFunction
 
 Function ItemCheck()
-  If Self.GetRef().GetItemCount(Eon as Form) as Float >= FFCydoniaR02_EquipmentNeededCount.GetValue()
-    Self.GetowningQuest().SetStage(TurnInStage)
-    Self.RemoveInventoryEventFilter(Eon as Form)
-  EndIf
+    If GetRef().GetItemCount(Eon) >= FFCydoniaR02_EquipmentNeededCount.GetValue()
+        GetowningQuest().SetStage(TurnInStage)
+        RemoveInventoryEventFilter(Eon)
+    EndIf
 EndFunction
 
-Event OnItemAdded(Form akBaseItem, Int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, Int aiTransferReason)
-  If (akBaseItem == Eon as Form) && !Self.GetowningQuest().GetStageDone(TurnInStage)
-    Self.ItemCheck()
-  EndIf
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer, int aiTransferReason)
+    If akBaseItem == Eon && !GetOwningQuest().GetStageDone(TurnInStage)
+        ItemCheck()
+    EndIf
 EndEvent
 
 Event OnAliasInit()
-  Self.RegisterPlayerForItemTracking()
+    RegisterPlayerForItemTracking()
 EndEvent

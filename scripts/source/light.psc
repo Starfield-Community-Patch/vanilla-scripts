@@ -1,1 +1,1 @@
-ScriptName Light Extends Form Native hidden
+Scriptname Light extends Form Native Hidden

@@ -1,1 +1,1 @@
-ScriptName LocationRefType Extends Keyword Native hidden
+Scriptname LocationRefType extends Keyword Native Hidden

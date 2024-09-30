@@ -1,9 +1,16 @@
-ScriptName Fragments:TopicInfos:TIF_DialogueFCNeon_00267686 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_DialogueFCNeon_00267686 Extends TopicInfo Hidden Const
 
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Begin
 Function Fragment_Begin(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  fcneon_kosmosorgresourcesscript kmyQuest = Self.GetOwningQuest() as fcneon_kosmosorgresourcesscript
-  kmyQuest.SellResource(kmyQuest.RESOURCETYPE_SOLVENT)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN AUTOCAST TYPE FCNeon_KosmosOrgResourcesScript
+FCNeon_KosmosOrgResourcesScript kmyQuest = GetOwningQuest() as FCNeon_KosmosOrgResourcesScript
+;END AUTOCAST
+;BEGIN CODE
+kmyQuest.SellResource(kmyQuest.RESOURCETYPE_SOLVENT)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment

@@ -1,12 +1,8 @@
-ScriptName TestAddToInventoryOnDestroy Extends ObjectReference
+Scriptname TestAddToInventoryOnDestroy extends ObjectReference
 
-;-- Variables ---------------------------------------
+LeveledItem Property LL_Loot_IcyAsteroid Mandatory Const Auto
 
-;-- Properties --------------------------------------
-LeveledItem Property LL_Loot_IcyAsteroid Auto Const mandatory
-
-;-- Functions ---------------------------------------
 
 Event OnDestroyed(ObjectReference akDestroyer)
-  Game.GetPlayer().AddItem(LL_Loot_IcyAsteroid as Form, 1, False)
+    Game.GetPlayer().AddItem(LL_Loot_IcyAsteroid)
 EndEvent

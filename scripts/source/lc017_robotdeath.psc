@@ -1,23 +1,19 @@
-ScriptName LC017_RobotDeath Extends Actor Const
-{ Set Linked References to Unconcious On Death }
+Scriptname LC017_RobotDeath extends Actor Const
+{Set Linked References to Unconcious On Death}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Keyword Property LinkRobotToTurret Auto Const
-
-;-- Functions ---------------------------------------
+Keyword Property LinkRobotToTurret Const Auto
 
 Event OnDeath(ObjectReference akKiller)
-  ObjectReference[] LinkedRefs = None
-  If LinkRobotToTurret
-    LinkedRefs = Self.GetLinkedRefChain(LinkRobotToTurret, 100)
-  Else
-    LinkedRefs = Self.GetLinkedRefChain(None, 100)
-  EndIf
-  Int I = 0
-  While I < LinkedRefs.Length
-    (LinkedRefs[I] as Actor).SetUnconscious(True)
-    I += 1
-  EndWhile
+    ObjectReference[] LinkedRefs
+    if(LinkRobotToTurret)
+        LinkedRefs = GetLinkedRefChain(LinkRobotToTurret)
+    Else
+        LinkedRefs = GetLinkedRefChain()
+    endif
+
+    int i = 0
+    while (i < LinkedRefs.length)
+        (LinkedRefs[i] as Actor).SetUnconscious()
+        i += 1
+    endwhile
 EndEvent

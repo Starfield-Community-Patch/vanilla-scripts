@@ -1,10 +1,8 @@
-ScriptName LC107HullBreachVFXScript Extends ObjectReference
-{ Script for the Hull Breach VFX in LC107. }
-
-;-- Functions ---------------------------------------
+Scriptname LC107HullBreachVFXScript extends ObjectReference
+{Script for the Hull Breach VFX in LC107.}
 
 Event OnLoad()
-  If Self.Is3DLoaded()
-    Self.PlayAnimation("Reset")
-  EndIf
+	if (Is3DLoaded())
+		PlayAnimation("Reset")
+	EndIf
 EndEvent

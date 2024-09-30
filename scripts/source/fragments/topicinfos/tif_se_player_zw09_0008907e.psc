@@ -1,16 +1,19 @@
-ScriptName Fragments:TopicInfos:TIF_SE_Player_ZW09_0008907E Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_SE_Player_ZW09_0008907E Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Book Property Pse_zw09_Diamond_Warranty Auto Const mandatory
-Quest Property PSE_Player_ZW09 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  Game.getplayer().RemoveItem(Game.GetCredits() as Form, 100000, False, None)
-  Game.getplayer().AddItem(Pse_zw09_Diamond_Warranty as Form, 1, False)
-  PSE_Player_ZW09.setstage(300)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+Game.getplayer().RemoveItem(Game.GetCredits(), 100000)
+Game.getplayer().AddItem(Pse_zw09_Diamond_Warranty)
+PSE_Player_ZW09.setstage(300)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Book Property Pse_zw09_Diamond_Warranty Auto Const Mandatory
+
+Quest Property PSE_Player_ZW09 Auto Const Mandatory

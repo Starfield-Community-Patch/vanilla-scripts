@@ -1,27 +1,21 @@
-ScriptName LC119PuzzleButtonScript Extends ObjectReference
-{ Turret puzzle button script for LC119. }
+Scriptname LC119PuzzleButtonScript extends ObjectReference
+{Turret puzzle button script for LC119.}
 
-;-- Variables ---------------------------------------
+Keyword property LC119TurretKeyword Auto Const Mandatory
+Keyword property LC119PuzzleDoorLink Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Keyword Property LC119TurretKeyword Auto Const mandatory
-Keyword Property LC119PuzzleDoorLink Auto Const mandatory
-
-;-- State -------------------------------------------
-State Done
+Auto State Waiting
+    Event OnActivate(ObjectReference akActionRef)
+        GotoState("Done")
+        GetLinkedRef(LC119PuzzleDoorLink).SetOpen()
+        ObjectReference[] turretLinks = GetLinkedRefChain(LC119TurretKeyword)
+        int i = 0
+        While (i < turretLinks.Length)
+            (turretLinks[i] as Actor).SetUnconscious(True)
+            i += 1
+        EndWhile
+    EndEvent
 EndState
 
-;-- State -------------------------------------------
-Auto State Waiting
-
-  Event OnActivate(ObjectReference akActionRef)
-    Self.GotoState("Done")
-    Self.GetLinkedRef(LC119PuzzleDoorLink).SetOpen(True)
-    ObjectReference[] turretLinks = Self.GetLinkedRefChain(LC119TurretKeyword, 100)
-    Int I = 0
-    While I < turretLinks.Length
-      (turretLinks[I] as Actor).SetUnconscious(True)
-      I += 1
-    EndWhile
-  EndEvent
+State Done
 EndState

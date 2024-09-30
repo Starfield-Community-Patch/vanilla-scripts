@@ -1,12 +1,14 @@
-ScriptName Fragments:Quests:QF_TestExclusiveKeywordReque_0003B801 Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_TestExclusiveKeywordReque_0003B801 Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-ReferenceAlias Property Alias_dungeonMapMarker Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  Game.GetPlayer().Moveto(Alias_dungeonMapMarker.GetReference(), 0.0, 0.0, 0.0, True, False)
+;BEGIN CODE
+(Game.GetPlayer()).Moveto(Alias_dungeonMapMarker.GetReference())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+ReferenceAlias Property Alias_dungeonMapMarker Auto Const Mandatory

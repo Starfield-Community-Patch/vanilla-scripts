@@ -1,15 +1,18 @@
-ScriptName Fragments:TopicInfos:TIF_City_NA_Botany02_00099EE2 Extends TopicInfo Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:TopicInfos:TIF_City_NA_Botany02_00099EE2 Extends TopicInfo Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-GlobalVariable Property SlateVariable Auto Const
-ReferenceAlias Property Alias_DataSlate Auto Const
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_End
 Function Fragment_End(ObjectReference akSpeakerRef)
-  Actor akSpeaker = akSpeakerRef as Actor
-  SlateVariable.Mod(1.0)
-  Game.GetPlayer().AddItem(Alias_DataSlate.GetRef() as Form, 1, False)
+Actor akSpeaker = akSpeakerRef as Actor
+;BEGIN CODE
+SlateVariable.Mod(1)
+Game.GetPlayer().AddItem(Alias_DataSlate.GetRef())
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+GlobalVariable Property SlateVariable Auto Const
+
+ReferenceAlias Property Alias_DataSlate Auto Const

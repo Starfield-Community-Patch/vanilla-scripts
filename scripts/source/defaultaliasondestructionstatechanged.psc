@@ -1,21 +1,21 @@
-ScriptName DefaultAliasOnDestructionStateChanged Extends DefaultAliasParent default
-{ Set stage when THIS Alias's destruction stage changes.
-<QuestToSetOrCheck> is THIS Alias's GetOwningQuest() }
+Scriptname DefaultAliasOnDestructionStateChanged extends DefaultAliasParent Default
+{Set stage when THIS Alias's destruction stage changes.
+<QuestToSetOrCheck> is THIS Alias's GetOwningQuest()}
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Script_Specific_Properties
-  Int Property DestructionStateToCheckFor = 1 Auto Const
-  { Set the stage when this destruction state is reached. }
+	Int Property DestructionStateToCheckFor = 1 Auto Const
+	{Set the stage when this destruction state is reached.}
 EndGroup
 
 
-;-- Functions ---------------------------------------
-
-Event OnDestructionStageChanged(Int aiOldStage, Int aiCurrentStage)
-  If aiCurrentStage <= DestructionStateToCheckFor
-    defaultscriptfunctions:parentscriptfunctionparams ParentScriptFunctionParams = defaultscriptfunctions.BuildParentScriptFunctionParams(None, None, None)
-    Self.CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)
-  EndIf
+Event OnDestructionStageChanged(int aiOldStage, int aiCurrentStage)
+	
+	DefaultScriptFunctions.Trace(self, "OnDestructionStageChanged() aiOldStage: " + aiOldStage + ", aiCurrentStage: " + aiCurrentStage, ShowTraces)
+	if aiCurrentStage <= DestructionStateToCheckFor
+		DefaultScriptFunctions.Trace(self, "OnDestructionStageChanged() aiCurrentStage <= DestructionStateToCheckFor", ShowTraces)
+	
+		DefaultScriptFunctions:ParentScriptFunctionParams ParentScriptFunctionParams = DefaultScriptFunctions.BuildParentScriptFunctionParams(RefToCheck = None, LocationToCheck = None)
+		DefaultScriptFunctions.Trace(self, "OnDestructionStageChanged() calling CheckAndSetStageAndCallDoSpecificThing() ParentScriptFunctionParams: " + ParentScriptFunctionParams, ShowTraces)
+		CheckAndSetStageAndCallDoSpecificThing(ParentScriptFunctionParams)	
+	endif
 EndEvent

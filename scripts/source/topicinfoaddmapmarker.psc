@@ -1,31 +1,26 @@
-ScriptName TopicInfoAddMapMarker Extends TopicInfo
+Scriptname TopicInfoAddMapMarker extends TopicInfo
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
 Group Required_Properties
-  ObjectReference Property MapMarkerToAdd Auto Const mandatory
-  { The map marker we want to add to the player's map }
+    ObjectReference Property MapMarkerToAdd Mandatory Const Auto
+    {The map marker we want to add to the player's map}
 EndGroup
 
 Group Optional_Properties
-  Bool Property AddOnEnd = True Auto Const
-  { If true, add the map marker to the player's map once the line completes (OnEnd). If FALSE, add the marker OnBegin }
-  Bool Property AllowFastTravel = False Auto Const
-  { If true, the player can immediately fast travel to this map marker }
+    bool Property AddOnEnd = true Const Auto
+    {If true, add the map marker to the player's map once the line completes (OnEnd). If FALSE, add the marker OnBegin}
+
+    bool Property AllowFastTravel = false Const Auto
+    {If true, the player can immediately fast travel to this map marker}
 EndGroup
 
-
-;-- Functions ---------------------------------------
-
-Event OnBegin(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If !AddOnEnd
-    MapMarkerToAdd.AddToMapScanned(AllowFastTravel)
-  EndIf
+Event OnBegin(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    if !AddOnEnd
+        MapMarkerToAdd.AddToMapScanned(AllowFastTravel)
+    endif
 EndEvent
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If AddOnEnd
-    MapMarkerToAdd.AddToMapScanned(AllowFastTravel)
-  EndIf
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+    if AddOnEnd
+        MapMarkerToAdd.AddToMapScanned(AllowFastTravel)
+    endif
 EndEvent

@@ -1,29 +1,26 @@
-ScriptName UC01_OrientationDisplayScript Extends ReferenceAlias
+Scriptname UC01_OrientationDisplayScript extends ReferenceAlias
 
-;-- Variables ---------------------------------------
+Scene Property SceneToPlay Mandatory Const Auto
 
-;-- Properties --------------------------------------
-Scene Property SceneToPlay Auto Const mandatory
-ReferenceAlias Property StarterLight Auto Const mandatory
-{ Alias for the light paired to this display. Used to turn off all the lights if the player stops the sequence }
-
-;-- Functions ---------------------------------------
+ReferenceAlias Property StarterLight Mandatory Const Auto
+{Alias for the light paired to this display. Used to turn off all the lights if the player stops the sequence}
 
 Event OnAliasInit()
-  Self.RegisterForCustomEvent((Self.GetOwningQuest() as uc01_orientationdisplayquestscript) as ScriptObject, "uc01_orientationdisplayquestscript_HaltOrientationScenes")
+    RegisterForCustomEvent(GetOwningQuest() as UC01_OrientationDisplayQuestScript, "HaltOrientationScenes")
 EndEvent
 
 Event OnActivate(ObjectReference akActionRef)
-  If !SceneToPlay.IsPlaying()
-    (Self.GetOwningQuest() as uc01_orientationdisplayquestscript).SendHaltScenes(Self.GetRef())
-    SceneToPlay.Start()
-  EndIf
+    if !SceneToPlay.IsPlaying()
+        (GetOwningQuest() as UC01_OrientationDisplayQuestScript).SendHaltScenes(GetRef())
+        SceneToPlay.Start()
+    EndIf
 EndEvent
 
-Event UC01_OrientationDisplayQuestScript.HaltOrientationScenes(uc01_orientationdisplayquestscript akSenderRef, Var[] akargs)
-  ObjectReference TriggeringDisplay = akargs[0] as ObjectReference
-  If TriggeringDisplay != Self.GetRef() && SceneToPlay.IsPlaying()
-    SceneToPlay.Stop()
-    (StarterLight.GetRef() as uc01_lighttimingrefscript).TriggerLightUpdate(True)
-  EndIf
+Event UC01_OrientationDisplayQuestScript.HaltOrientationScenes(UC01_OrientationDisplayQuestScript akSenderRef, Var[] akargs)
+    ObjectReference TriggeringDisplay = akargs[0] as ObjectReference
+
+    if TriggeringDisplay != GetRef() && SceneToPlay.IsPlaying()
+        SceneToPlay.Stop()
+        (StarterLight.GetRef() as UC01_LightTimingRefScript).TriggerLightUpdate(true)
+    endif
 EndEvent

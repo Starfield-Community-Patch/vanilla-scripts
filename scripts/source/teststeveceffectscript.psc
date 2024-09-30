@@ -1,12 +1,7 @@
-ScriptName TestSteveCEffectScript Extends ActiveMagicEffect
+Scriptname TestSteveCEffectScript extends ActiveMagicEffect
 
-;-- Variables ---------------------------------------
+Message property TestSteveCEffectMessageBox Auto Const Mandatory
 
-;-- Properties --------------------------------------
-Message Property TestSteveCEffectMessageBox Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
-Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, Float afMagnitude, Float afDuration)
-  TestSteveCEffectMessageBox.Show(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+Event OnEffectStart(ObjectReference akTarget, Actor akCaster, MagicEffect akBaseEffect, float afMagnitude, float afDuration)
+	TestSteveCEffectMessageBox.Show()
 EndEvent

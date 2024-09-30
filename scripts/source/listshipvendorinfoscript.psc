@@ -1,23 +1,23 @@
-ScriptName LISTShipVendorInfoScript Extends TopicInfo Const
+Scriptname LISTShipVendorInfoScript extends TopicInfo Const
 
-;-- Variables ---------------------------------------
+SQ_PlayerShipScript Property playerShipScript Mandatory Const Auto
 
-;-- Properties --------------------------------------
-sq_playershipscript Property playerShipScript Auto Const mandatory
+Event OnEnd(ObjectReference akSpeakerRef, bool abHasBeenSaid)
+	debug.trace(self + "try to show hangar menu for speaker " + akSpeakerRef)
+	;if we're calling this on the player, grab whoever the player is talking to and show menu, otherwise just show menu
+	if utility.IsGameMenuPaused() == false
+        Actor theVendor
+        ObjectReference landingMarker = playerShipScript.PlayerShipLandingMarker.GetRef()
 
-;-- Functions ---------------------------------------
+		if (akSpeakerRef == Game.GetPlayer())
+            theVendor = (akSpeakerRef as Actor).GetDialogueTarget()
+		else
+            theVendor = akSpeakerRef as Actor
+		endIf
 
-Event OnEnd(ObjectReference akSpeakerRef, Bool abHasBeenSaid)
-  If Utility.IsGameMenuPaused() == False
-    Actor theVendor = None
-    ObjectReference landingMarker = playerShipScript.PlayerShipLandingMarker.GetRef()
-    If akSpeakerRef == Game.GetPlayer() as ObjectReference
-      theVendor = (akSpeakerRef as Actor).GetDialogueTarget()
-    Else
-      theVendor = akSpeakerRef as Actor
-    EndIf
-    If theVendor as Bool && landingMarker as Bool
-      landingMarker.ShowHangarMenu(0, theVendor, None, False)
-    EndIf
-  EndIf
-EndEvent
+        if (theVendor && landingMarker)
+
+           	landingMarker.ShowHangarMenu(0, theVendor)
+        endif
+	endif
+endEvent

@@ -1,196 +1,372 @@
-ScriptName Fragments:Quests:QF_FC08_0025613B Extends Quest Const hidden
+;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
+Scriptname Fragments:Quests:QF_FC08_0025613B Extends Quest Hidden Const
 
-;-- Variables ---------------------------------------
-
-;-- Properties --------------------------------------
-Quest Property FC08_SpaceEnc01 Auto Const mandatory
-Scene Property FC08_DebriefIntroScene Auto Const mandatory
-Scene Property FC08_DebriefScene01 Auto Const mandatory
-Scene Property FC08_DebriefScene02 Auto Const mandatory
-ReferenceAlias Property Alias_Daniel Auto Const mandatory
-ObjectReference Property FC03_DebriefScene_CarsonMarker Auto Const mandatory
-ObjectReference Property FC03_DebriefScene_BlakeMarker Auto Const mandatory
-ReferenceAlias Property Alias_EmmaWilcox Auto Const mandatory
-ReferenceAlias Property Alias_Player Auto Const mandatory
-ObjectReference Property FC02_EmmaHannahSceneMarker Auto Const mandatory
-Scene Property FC08_TauntScene01 Auto Const mandatory
-Scene Property FC08_TauntScene02 Auto Const mandatory
-Scene Property FC08_TauntScene03 Auto Const mandatory
-Scene Property FC08_TauntScene04 Auto Const mandatory
-ReferenceAlias Property Alias_MechFactoryMapMarker Auto Const mandatory
-ReferenceAlias Property Alias_PaxtonHull Auto Const mandatory
-ReferenceAlias Property Alias_EvidenceSlate Auto Const mandatory
-Faction Property TheFirstFaction Auto Const mandatory
-Scene Property FC08_DebriefScene03 Auto Const mandatory
-Scene Property FC08_DebriefInterruptScene Auto Const mandatory
-ObjectReference Property FC03_Stage600_EmmaMarker Auto Const mandatory
-ReferenceAlias Property Alias_Alex Auto Const mandatory
-ReferenceAlias Property Alias_MechFactoryExteriorMainDoor Auto Const mandatory
-Quest Property AutumnEliteCrewQuest Auto Const
-Quest Property FC09 Auto Const mandatory
-Quest Property FC_EvidenceSlateHolderQuest Auto Const mandatory
-ActorValue Property FC08_Completed Auto Const mandatory
-GlobalVariable Property FCQuests_MeetingRoomPackages Auto Const mandatory
-ReferenceAlias Property Alias_HideoutEnableMarker Auto Const mandatory
-GlobalVariable Property FC08_DebriefSceneHellosBlocked Auto Const mandatory
-Location Property SArcturus_PArcturusII_Surface Auto Const mandatory
-Quest Property FC08 Auto Const mandatory
-
-;-- Functions ---------------------------------------
-
+;BEGIN FRAGMENT Fragment_Stage_0000_Item_00
 Function Fragment_Stage_0000_Item_00()
-  FCQuests_MeetingRoomPackages.SetValue(1.0)
-  Alias_Daniel.GetRef().MoveTo(FC03_DebriefScene_CarsonMarker, 0.0, 0.0, 0.0, True, False)
-  Alias_EmmaWilcox.GetRef().MoveTo(FC03_DebriefScene_BlakeMarker, 0.0, 0.0, 0.0, True, False)
-  Alias_Player.GetRef().MoveTo(FC02_EmmaHannahSceneMarker, 0.0, 0.0, 0.0, True, False)
-EndFunction
+;BEGIN CODE
+; Update the global variable to control Blake and Emma's packaging
+FCQuests_MeetingRoomPackages.SetValue(1)
 
+; Move Blake into position
+Alias_Daniel.GetRef().MoveTo(FC03_DebriefScene_CarsonMarker)
+
+; Move Emma into position
+Alias_EmmaWilcox.GetRef().MoveTo(FC03_DebriefScene_BlakeMarker)
+
+; Move the player into position
+Alias_Player.GetRef().MoveTo(FC02_EmmaHannahSceneMarker)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0100_Item_00
 Function Fragment_Stage_0100_Item_00()
-  Self.SetActive(True)
-  Self.SetObjectiveDisplayed(100, True, False)
+;BEGIN CODE
+SetActive()
+SetObjectiveDisplayed(100)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0120_Item_00
 Function Fragment_Stage_0120_Item_00()
-  FC08_DebriefIntroScene.Start()
-  Self.SetObjectiveCompleted(100, True)
-  Self.SetObjectiveDisplayed(120, True, False)
-EndFunction
+;BEGIN CODE
+; Start debrief scene
+FC08_DebriefIntroScene.Start()
 
+SetObjectiveCompleted(100)
+SetObjectiveDisplayed(120)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0125_Item_00
 Function Fragment_Stage_0125_Item_00()
-  FC08_DebriefScene01.Start()
-  Self.SetObjectiveCompleted(120, True)
-  Self.SetObjectiveDisplayed(140, True, False)
-  FC08_DebriefSceneHellosBlocked.SetValue(1.0)
-EndFunction
+;BEGIN CODE
+FC08_DebriefScene01.Start()
 
+SetObjectiveCompleted(120)
+SetObjectiveDisplayed(140)
+
+FC08_DebriefSceneHellosBlocked.SetValue(1)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0130_Item_00
 Function Fragment_Stage_0130_Item_00()
-  FC08_DebriefScene02.Start()
+;BEGIN CODE
+FC08_DebriefScene02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0135_Item_00
 Function Fragment_Stage_0135_Item_00()
-  FC08_DebriefScene03.Start()
+;BEGIN CODE
+FC08_DebriefScene03.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0138_Item_00
 Function Fragment_Stage_0138_Item_00()
-  Alias_Alex.GetActorRef().MoveTo(FC03_Stage600_EmmaMarker, 0.0, 0.0, 0.0, True, False)
-  Self.SetStage(140)
-EndFunction
+;BEGIN CODE
+; Move Alex
+Alias_Alex.GetActorRef().MoveTo(FC03_Stage600_EmmaMarker)
 
+SetStage(140)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0140_Item_00
 Function Fragment_Stage_0140_Item_00()
-  FC08_DebriefInterruptScene.Start()
+;BEGIN CODE
+FC08_DebriefInterruptScene.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0180_Item_00
 Function Fragment_Stage_0180_Item_00()
-  Alias_PaxtonHull.GetRef().Enable(False)
-  Self.SetObjectiveCompleted(140, True)
-  Self.SetObjectiveDisplayed(180, True, False)
-  FC08_DebriefSceneHellosBlocked.SetValue(0.0)
-  SArcturus_PArcturusII_Surface.EnableSpaceTravel(FC08, False)
-EndFunction
+;BEGIN CODE
+Alias_PaxtonHull.GetRef().Enable()
 
+SetObjectiveCompleted(140)
+SetObjectiveDisplayed(180)
+
+FC08_DebriefSceneHellosBlocked.SetValue(0)
+
+SArcturus_PArcturusII_Surface.EnableSpaceTravel(FC08, False)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0200_Item_00
 Function Fragment_Stage_0200_Item_00()
-  FCQuests_MeetingRoomPackages.SetValue(0.0)
-  FC08_SpaceEnc01.Start()
-  Self.SetObjectiveCompleted(180, True)
-  Self.SetObjectiveDisplayed(200, True, False)
-EndFunction
+;BEGIN CODE
+; Update the global variable to control Blake and Emma's packaging
+FCQuests_MeetingRoomPackages.SetValue(0)
 
+; Start the space encounter quest
+FC08_SpaceEnc01.Start()
+
+SetObjectiveCompleted(180)
+SetObjectiveDisplayed(200)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0300_Item_00
 Function Fragment_Stage_0300_Item_00()
-  Alias_MechFactoryMapMarker.GetRef().Enable(False)
-  Alias_MechFactoryMapMarker.GetRef().AddToMapScanned(True)
-  Self.SetObjectiveCompleted(200, True)
-  Self.SetObjectiveDisplayed(300, True, False)
-  SArcturus_PArcturusII_Surface.EnableSpaceTravel(FC08, True)
-EndFunction
+;BEGIN CODE
+; Set in script on FirstShips ref collection alias
 
+;Enable mech factory map marker and add it to the map
+Alias_MechFactoryMapMarker.GetRef().Enable()
+Alias_MechFactoryMapMarker.GetRef().AddToMapScanned(True)
+
+SetObjectiveCompleted(200)
+SetObjectiveDisplayed(300)
+
+SArcturus_PArcturusII_Surface.EnableSpaceTravel(FC08, True)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0400_Item_00
 Function Fragment_Stage_0400_Item_00()
-  Self.SetObjectiveCompleted(300, True)
-  Self.SetObjectiveDisplayed(400, True, False)
-  Alias_HideoutEnableMarker.GetRef().Enable(False)
-  Utility.Wait(5.0)
-  Self.SetObjectiveDisplayed(200, False, False)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(300)
+SetObjectiveDisplayed(400)
 
+;Enable marker for the First in the exterior is enabled
+Alias_HideoutEnableMarker.GetRef().Enable()
+
+Utility.Wait(5)
+SetObjectiveDisplayed(200, 0)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0500_Item_00
 Function Fragment_Stage_0500_Item_00()
-  Self.SetObjectiveCompleted(400, True)
-  Self.SetObjectiveDisplayed(500, True, False)
-  Self.SetStage(610)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(400)
+SetObjectiveDisplayed(500)
 
+SetStage(610)
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0600_Item_00
 Function Fragment_Stage_0600_Item_00()
-  FC08_TauntScene01.Start()
+;BEGIN CODE
+FC08_TauntScene01.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0610_Item_00
 Function Fragment_Stage_0610_Item_00()
-  Alias_MechFactoryExteriorMainDoor.GetRef().SetOpen(True)
+;BEGIN CODE
+Alias_MechFactoryExteriorMainDoor.GetRef().SetOpen()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0620_Item_00
 Function Fragment_Stage_0620_Item_00()
-  FC08_TauntScene02.Start()
+;BEGIN CODE
+FC08_TauntScene02.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0640_Item_00
 Function Fragment_Stage_0640_Item_00()
-  FC08_TauntScene03.Start()
+;BEGIN CODE
+FC08_TauntScene03.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0660_Item_00
 Function Fragment_Stage_0660_Item_00()
-  FC08_TauntScene04.Start()
+;BEGIN CODE
+FC08_TauntScene04.Start()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0700_Item_00
 Function Fragment_Stage_0700_Item_00()
-  Self.SetObjectiveCompleted(500, True)
-  Self.SetObjectiveDisplayed(600, True, False)
-  Self.SetObjectiveDisplayed(650, True, False)
+;BEGIN CODE
+SetObjectiveCompleted(500)
+SetObjectiveDisplayed(600)
+SetObjectiveDisplayed(650)
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0740_Item_00
 Function Fragment_Stage_0740_Item_00()
-  Self.SetObjectiveCompleted(600, True)
-  If Self.GetStageDone(750)
-    Self.SetStage(800)
-  EndIf
-  Actor PaxtonHull = Alias_PaxtonHull.GetActorRef()
-  PaxtonHull.SetNoBleedoutRecovery(True)
-  PaxtonHull.RemoveFromFaction(TheFirstFaction)
-  PaxtonHull.StopCombat()
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(600)
 
+if GetStageDone(750)
+  SetStage(800)
+endif
+
+Actor PaxtonHull = Alias_PaxtonHull.GetActorRef()
+
+PaxtonHull.SetNoBleedoutRecovery(true)
+PaxtonHull.RemoveFromFaction(TheFirstFaction)
+PaxtonHull.StopCombat()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0750_Item_00
 Function Fragment_Stage_0750_Item_00()
-  Self.SetObjectiveCompleted(650, True)
-  If Self.GetStageDone(740)
-    Self.SetStage(800)
-  EndIf
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(650)
 
+if GetStageDone(740)
+  SetStage(800)
+endif
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0800_Item_00
 Function Fragment_Stage_0800_Item_00()
-  Self.SetObjectiveDisplayed(700, True, False)
-  Actor PaxtonHull = Alias_PaxtonHull.GetActorRef()
-  PaxtonHull.AllowBleedoutDialogue(True)
-  PaxtonHull.StopCombat()
-  PaxtonHull.EvaluatePackage(False)
-EndFunction
+;BEGIN CODE
+SetObjectiveDisplayed(700)
 
+Actor PaxtonHull = Alias_PaxtonHull.GetActorRef()
+
+PaxtonHull.AllowBleedoutDialogue(true)
+PaxtonHull.StopCombat()
+;PaxtonHull.SheatheWeapon()
+PaxtonHull.EvaluatePackage()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0825_Item_00
 Function Fragment_Stage_0825_Item_00()
-  Alias_PaxtonHull.GetActorRef().SetNoBleedoutRecovery(False)
-  Alias_PaxtonHull.GetActorRef().ResetHealthAndLimbs()
+;BEGIN CODE
+Alias_PaxtonHull.GetActorRef().SetNoBleedoutRecovery(false)
+Alias_PaxtonHull.GetActorRef().ResetHealthAndLimbs()
+;END CODE
 EndFunction
+;END FRAGMENT
 
+;BEGIN FRAGMENT Fragment_Stage_0850_Item_00
 Function Fragment_Stage_0850_Item_00()
-  Alias_Player.GetActorRef().AddItem(Alias_EvidenceSlate.GetRef() as Form, 1, False)
-EndFunction
+;BEGIN CODE
+;Add the proof slate to the player's inventory
 
+Alias_Player.GetActorRef().AddItem(Alias_EvidenceSlate.GetRef())
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_0900_Item_00
 Function Fragment_Stage_0900_Item_00()
-  Self.SetObjectiveCompleted(700, True)
-  Self.SetObjectiveDisplayed(800, True, False)
-  Actor PaxtonHull = Alias_PaxtonHull.GetActorRef()
-  PaxtonHull.SetNoBleedoutRecovery(False)
-  PaxtonHull.AllowBleedoutDialogue(False)
-  PaxtonHull.SetEssential(False)
-  PaxtonHull.AddToFaction(TheFirstFaction)
-EndFunction
+;BEGIN CODE
+SetObjectiveCompleted(700)
+SetObjectiveDisplayed(800)
 
-Function Fragment_Stage_2000_Item_00()
-  Alias_Player.GetActorRef().SetValue(FC08_Completed, 1.0)
-  Self.CompleteAllObjectives()
-  FC09.Start()
-  Self.Stop()
+Actor PaxtonHull = Alias_PaxtonHull.GetActorRef()
+
+PaxtonHull.SetNoBleedoutRecovery(false)
+PaxtonHull.AllowBleedoutDialogue(false)
+PaxtonHull.SetEssential(false)
+PaxtonHull.AddToFaction(TheFirstFaction)
+;END CODE
 EndFunction
+;END FRAGMENT
+
+;BEGIN FRAGMENT Fragment_Stage_2000_Item_00
+Function Fragment_Stage_2000_Item_00()
+;BEGIN CODE
+; set the quest completion actor value
+Alias_Player.GetActorRef().SetValue(FC08_Completed, 1)
+
+CompleteAllObjectives()
+FC09.Start()
+
+Stop()
+;END CODE
+EndFunction
+;END FRAGMENT
+
+;END FRAGMENT CODE - Do not edit anything between this and the begin comment
+
+Quest Property FC08_SpaceEnc01 Auto Const Mandatory
+
+Scene Property FC08_DebriefIntroScene Auto Const Mandatory
+
+Scene Property FC08_DebriefScene01 Auto Const Mandatory
+
+Scene Property FC08_DebriefScene02 Auto Const Mandatory
+
+ReferenceAlias Property Alias_Daniel Auto Const Mandatory
+
+ObjectReference Property FC03_DebriefScene_CarsonMarker Auto Const Mandatory
+
+ObjectReference Property FC03_DebriefScene_BlakeMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_EmmaWilcox Auto Const Mandatory
+
+ReferenceAlias Property Alias_Player Auto Const Mandatory
+
+ObjectReference Property FC02_EmmaHannahSceneMarker Auto Const Mandatory
+
+Scene Property FC08_TauntScene01 Auto Const Mandatory
+
+Scene Property FC08_TauntScene02 Auto Const Mandatory
+
+Scene Property FC08_TauntScene03 Auto Const Mandatory
+
+Scene Property FC08_TauntScene04 Auto Const Mandatory
+
+ReferenceAlias Property Alias_MechFactoryMapMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_PaxtonHull Auto Const Mandatory
+
+ReferenceAlias Property Alias_EvidenceSlate Auto Const Mandatory
+
+Faction Property TheFirstFaction Auto Const Mandatory
+
+Scene Property FC08_DebriefScene03 Auto Const Mandatory
+
+Scene Property FC08_DebriefInterruptScene Auto Const Mandatory
+
+ObjectReference Property FC03_Stage600_EmmaMarker Auto Const Mandatory
+
+ReferenceAlias Property Alias_Alex Auto Const Mandatory
+
+ReferenceAlias Property Alias_MechFactoryExteriorMainDoor Auto Const Mandatory
+
+Quest Property AutumnEliteCrewQuest Auto Const
+
+Quest Property FC09 Auto Const Mandatory
+
+Quest Property FC_EvidenceSlateHolderQuest Auto Const Mandatory
+
+ActorValue Property FC08_Completed Auto Const Mandatory
+
+GlobalVariable Property FCQuests_MeetingRoomPackages Auto Const Mandatory
+
+ReferenceAlias Property Alias_HideoutEnableMarker Auto Const Mandatory
+
+GlobalVariable Property FC08_DebriefSceneHellosBlocked Auto Const Mandatory
+
+Location Property SArcturus_PArcturusII_Surface Auto Const Mandatory
+
+Quest Property FC08 Auto Const Mandatory
